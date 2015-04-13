@@ -1,0 +1,25 @@
+<script type="text/javascript" src="javascripts/monitor.js"></script>
+<table id="monitor-datagrid" class="easyui-datagrid" height="100%" data-options="view:bufferview,url:'api/monitor?total=1000',toolbar:'#toolbar',pageSize:100,singleSelect:true">
+    <thead>
+        <tr>
+            <th data-options="field:'id',width:60">ID</th>
+            <th data-options="field:'student',width:150">Студент</th>
+            <th data-options="field:'exam',width:200">Экзамен</th>
+            <th data-options="field:'date',formatter:formatDate,width:150">Дата</th>
+            <th data-options="field:'duration',formatter:formatDuration,width:100">Длительность</th>
+            <th data-options="field:'inspector',width:150">Инспектор</th>
+            <th data-options="field:'status',formatter:formatStatus,width:100">Статус</th>
+            <th data-options="field:'action',align:'center',formatter:formatAction">Действие</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<div id="toolbar">
+    <a id="monitor-status-1" href="#" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
+    <a id="monitor-status-2" href="#" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
+    <a id="monitor-status-3" href="#" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>
+    <input id="monitor-date" class="easyui-datebox" style="width:110px;" data-options="prompt:'Показать на...'">
+    <input id="monitor-search" class="easyui-searchbox" style="width:300px;" data-options="prompt:'Введите текст...'">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'pagination-load',plain:true" onclick="reloadBtn();"></a>
+</div>
