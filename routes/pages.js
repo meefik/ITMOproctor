@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-router.get('/main', function(req, res) {
-    res.render('main');
+router.get('/workspace', function(req, res) {
+    res.render('workspace');
 });
 router.get('/monitor', function(req, res) {
     res.render('monitor');

@@ -18,12 +18,12 @@ passport.use(new LocalStrategy(function(username, password, done) {
       return done(null, user);
     });
     */
-    if(username !== "admin") {
+    if(username !== "demo") {
         return done(null, false, {
             message: 'Incorrect username.'
         });
     }
-    if(password !== "admin") {
+    if(password !== "demo") {
         return done(null, false, {
             message: 'Incorrect password.'
         });

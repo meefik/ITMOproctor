@@ -3,7 +3,7 @@
 
 // Run button configuration
   "commands": {
-        "production": "NODE_ENV=development./bin/www",
+        "production": "NODE_ENV=production ./bin/www",
         "development": "DEBUG=proctor NODE_ENV=development ./bin/www"
   },
 
