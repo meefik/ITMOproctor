@@ -20,11 +20,15 @@ function Login() {
             // Put the results in a div
             posting.done(function(data) {
                 profile.user = data;
-                showContent('#content','/pages/monitor');
+                loadContent('#content', '/pages/monitor');
             });
             posting.fail(function() {
-                showContent('#content','/login');
+                loadContent('#content', '/login');
             });
         });
+    }
+    this.destroy = function() {
+        delete window.login;
+        delete window.Login;
     }
 }

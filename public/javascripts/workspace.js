@@ -1,6 +1,23 @@
 var workspace = new Workspace();
 
 function Workspace() {
+    this.init = function() {
+        var timer = 0;
+        setInterval(function() {
+            timer++;
+            var d = new Date(timer * 1000);
+            $('#timer-widget').text(timeFormat(d, true));
+        }, 1000);
+        setInterval(function() {
+            var d = new Date();
+            $('#time-widget').text(timeFormat(d));
+        }, 1000);
+        loadContent('#window-chat', '/pages/chat');
+    }
+    this.destroy = function() {
+        delete window.workspace;
+        delete window.Workspace;
+    }
     this.openVideoWindow = function() {
         $('#window-video').window('open');
     }
@@ -35,19 +52,6 @@ function Workspace() {
                 console.log('exam apply');
             }
         });
-    }
-    this.init = function() {
-        var timer = 0;
-        setInterval(function() {
-            timer++;
-            var d = new Date(timer * 1000);
-            $('#timer-widget').text(timeFormat(d, true));
-        }, 1000);
-        setInterval(function() {
-            var d = new Date();
-            $('#time-widget').text(timeFormat(d));
-        }, 1000);
-        showContent('#window-chat', '/pages/chat');
     }
 
     function timeFormat(d, utc) {

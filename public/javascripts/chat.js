@@ -1,19 +1,6 @@
 var chat = new Chat();
 
 function Chat() {
-    this.doAttach = function() {
-        document.getElementById('chat-attach').click();
-    }
-    this.doSend = function() {
-        var str = $('#chat-input').text();
-        if(str.length == 0) return;
-        var text = '<div><span style="color:red">[' + timeFormat(new Date()) + '] Я:</span> ' + str + '</div>';
-        $('#chat-output').append(text);
-        $('#chat-input').html('');
-        var wtf = $('#chat-output');
-        var height = wtf[0].scrollHeight;
-        wtf.scrollTop(height);
-    }
     this.init = function() {
         var self = this;
         $('#chat-input').bind("enterKey", function(e) {
@@ -30,6 +17,23 @@ function Chat() {
             var str = ' <a href="#">' + filename + '</a> ';
             $('#chat-input').append(str);
         });
+    }
+    this.destroy = function() {
+        delete window.chat;
+        delete window.Chat;
+    }
+    this.doAttach = function() {
+        document.getElementById('chat-attach').click();
+    }
+    this.doSend = function() {
+        var str = $('#chat-input').text();
+        if(str.length == 0) return;
+        var text = '<div><span style="color:red">[' + timeFormat(new Date()) + '] Я:</span> ' + str + '</div>';
+        $('#chat-output').append(text);
+        $('#chat-input').html('');
+        var wtf = $('#chat-output');
+        var height = wtf[0].scrollHeight;
+        wtf.scrollTop(height);
     }
 
     function timeFormat(d, utc) {

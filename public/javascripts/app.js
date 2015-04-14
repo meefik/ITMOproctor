@@ -40,28 +40,30 @@ $.fn.datebox.defaults.formatter = function(d) {
     var d = ("00" + d.getDate()).slice(-2);
     return d + '.' + m + '.' + y;
 }
+$.extend($.fn.panel.defaults, {
+    loadingMessage: "Загрузка..."
+});
 // 
 // Global functions
 // 
 
-function showContent(selector, url) {
+function loadContent(selector, url) {
     //$('#content').panel('open').panel('refresh', url);
     var obj = $(selector);
-    var id = obj.attr('data-content');
-    var script = '/javascripts/' + id + '.js';
-    if(typeof id !== 'undefined') {
+    var page = obj.attr('data-page');
+    var script = '/javascripts/' + page + '.js';
+    if(typeof page !== 'undefined') {
         $('head script[src="' + script + '"]').remove();
-        eval('id = null');
-        eval('delete '+id);
+        eval(page + '.destroy()');
     }
-    id = url.replace(/^.*[\\\/]/, '');
-    script = '/javascripts/' + id + '.js';
+    page = url.replace(/^.*[\\\/]/, '');
+    script = '/javascripts/' + page + '.js';
     $('head').append('<script type="text/javascript" src="' + script + '"></script>');
-    obj.attr('data-content', id);
+    obj.attr('data-page', page);
     obj.panel({
         href: url,
         onLoad: function() {
-            eval(id + '.init()');
+            eval(page + '.init()');
         }
     });
 }
@@ -76,9 +78,9 @@ function Profile(data) {
         $.getJSON("/profile", function(data) {
             self.user = data;
         }).done(function() {
-            showContent('#content', '/pages/monitor');
+            loadContent('#content', '/pages/monitor');
         }).fail(function() {
-            showContent('#content', '/login');
+            loadContent('#content', '/login');
         });
     }
     this.logout = function() {

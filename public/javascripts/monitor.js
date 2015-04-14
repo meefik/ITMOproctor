@@ -1,6 +1,32 @@
 var monitor = new Monitor();
 
 function Monitor() {
+    this.init = function() {
+        var self = this;
+        $('#monitor-date').datebox({
+            onSelect: function(date) {
+                self.doSearch();
+            }
+        });
+        $('#monitor-search').searchbox({
+            searcher: function(value, name) {
+                self.doSearch();
+            }
+        });
+        $('#monitor-date').datebox('options').keyHandler.query = function(q) {
+            if(q === '') {
+                self.doSearch();
+            }
+        }
+        setInterval(function() {
+            var d = new Date();
+            $('#time-widget').text(timeToString(d));
+        }, 1000);
+    }
+    this.destroy = function() {
+        delete window.monitor;
+        delete window.Monitor;
+    }
     this.formatStatus = function(val, row) {
         switch(val) {
             case 1:
@@ -54,30 +80,7 @@ function Monitor() {
         console.log("info " + rowid);
     }
     this.doPlay = function(rowid) {
-        showContent('#content', '/pages/workspace');
-    }
-
-    this.init = function() {
-        var self = this;
-        $('#monitor-date').datebox({
-            onSelect: function(date) {
-                self.doSearch();
-            }
-        });
-        $('#monitor-search').searchbox({
-            searcher: function(value, name) {
-                self.doSearch();
-            }
-        });
-        $('#monitor-date').datebox('options').keyHandler.query = function(q) {
-            if(q === '') {
-                self.doSearch();
-            }
-        }
-        setInterval(function() {
-            var d = new Date();
-            $('#time-widget').text(timeToString(d));
-        }, 1000);
+        loadContent('#content', '/pages/workspace');
     }
 
     function dateToString(d) {
