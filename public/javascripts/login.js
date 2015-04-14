@@ -26,6 +26,7 @@ function Login() {
                 loadContent('#content', '/login');
             });
         });
+        $('#username').next().find('input').focus();
     }
     this.destroy = function() {
         delete window.login;
