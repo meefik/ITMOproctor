@@ -8,7 +8,8 @@ var session = require('express-session');
 var passport = require('passport');
 var routes = require('./routes');
 var api = require('./routes/api');
-var auth = require('./routes/auth');
+var profile = require('./routes/profile');
+var pages = require('./routes/pages');
 var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,9 +33,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/auth', auth);
-app.use('/api', auth.checkAuth, api);
-app.use('/', auth.checkAuth, routes);
+app.use('/profile', profile);
+app.use('/api', profile.isAuth, api);
+app.use('/pages', profile.isAuth, pages);
+app.use('/', routes);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

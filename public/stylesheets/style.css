@@ -5,6 +5,8 @@ body {
     font-family:verdana,helvetica,arial,sans-serif;
     padding:0;
     margin:0;
+    height:100%;
+    width:100%;
 }
 .fa {
     padding-top: 0.25em;

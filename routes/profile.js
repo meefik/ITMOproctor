@@ -36,18 +36,24 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-router.post('/login', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/auth'
-}));
+router.get('/', function(req, res) {
+    req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
+});
+router.post('/login', function(req, res, next) {
+    passport.authenticate('local', function(err, user, info) {
+        if(err) return next(err);
+        if(!user) return res.status(401).end();
+        req.logIn(user, function(err) {
+            if(err) return next(err);
+            return res.json(user);
+        });
+    })(req, res, next);
+});
 router.get('/logout', function(req, res) {
     req.logout();
-    res.redirect('/auth');
+    res.status(200).end();
 });
-router.get('/', function(req, res) {
-    req.isAuthenticated() ? res.redirect('/') : res.render('login');
-});
-router.checkAuth = function(req, res, next) {
-    req.isAuthenticated() ? next() : res.redirect('/auth');
+router.isAuth = function(req, res, next) {
+    req.isAuthenticated() ? next() : res.status(401).end();
 };
 module.exports = router;
