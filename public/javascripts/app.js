@@ -88,20 +88,26 @@ function loadContent(selector, params) {
     var str = obj.attr('data-params')
     if(typeof str !== 'undefined') {
         var data = JSON.parse(unescape(str));
-        $('head script[src="' + data.script + '"]').remove();
-        eval(data.id + '.destroy()');
+        if(data.script) {
+            $('head script[src="' + data.script + '"]').remove();
+            if(data.id) eval(data.id + '.destroy()');
+        }
     }
     // inject script
-    $('head').append('<script type="text/javascript" src="' + params.script + '"></script>');
+    if(params.script) {
+        $('head').append('<script type="text/javascript" src="' + params.script + '"></script>');
+    }
     // store params
     obj.attr('data-params', escape(JSON.stringify(params)));
     // load view
-    obj.panel({
-        href: params.view,
-        onLoad: function() {
-            eval(params.id + '.init()');
-        }
-    });
+    if(params.view) {
+        obj.panel({
+            href: params.view,
+            onLoad: function() {
+                if(params.id) eval(params.id + '.init()');
+            }
+        });
+    }
 }
 // 
 // Global classes

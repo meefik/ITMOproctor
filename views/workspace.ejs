@@ -28,7 +28,7 @@
     <div data-options="region:'center',border:false" style="position:relative;overflow:hidden;">
         <div id="window-video" class="easyui-window" style="width:320px;height:240px" data-options="title:'Видеокамера',inline:true,minimizable:false,iconCls:'fa fa-video-camera',closed:true,href:'/pages/video'"></div>
         <div id="window-desktop" class="easyui-window" style="width:640px;height:480px" data-options="title:'Рабочий стол',inline:true,minimizable:false,iconCls:'fa fa-desktop',closed:true,href:'/pages/desktop'"></div>
-        <div id="window-chat" class="easyui-window" style="width:500px;height:300px" data-options="title:'Сообщения',inline:true,minimizable:false,iconCls:'fa fa-comments-o',closed:true"></div>
+        <div id="window-chat" class="easyui-window" style="width:500px;height:300px" data-options="title:'Сообщения',inline:true,minimizable:false,iconCls:'fa fa-comments-o',closed:true,href:'/pages/chat',onLoad:function(){chat.init();}"></div>
         <div id="window-protocol" class="easyui-window" style="width:400px;height:200px" data-options="title:'Протокол',inline:true,minimizable:false,iconCls:'fa fa-file-text-o',closed:true,href:'/pages/potocol'"></div>
         <div id="window-notes" class="easyui-window" style="width:320px;height:240px" data-options="title:'Заметки',inline:true,minimizable:false,iconCls:'fa fa-check-square-o',closed:true,href:'/pages/notes'"></div>
         <div id="user-profile" class="easyui-window" style="width:400px;height:600px" data-options="title:'Профиль студента',inline:true,minimizable:false,closed:true,href:'/pages/student'"></div>
