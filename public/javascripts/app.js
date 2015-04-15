@@ -1,8 +1,4 @@
 // 
-// Global variables
-// 
-var profile = new Profile();
-// 
 // Global initialize
 // 
 $(document).ready(function() {
@@ -55,46 +51,62 @@ function doNavigate(hash) {
     switch(hash) {
         case '#login':
             console.log('#login');
-            location.hash = '#login';
-            loadContent('#content', '/login');
+            location.hash = hash;
+            loadContent('#content', {
+                id: 'login',
+                view: '/login',
+                script: '/javascripts/login.js'
+            });
             break;
         case '#monitor':
             console.log('#monitor');
-            location.hash = '#monitor';
-            loadContent('#content', '/pages/monitor');
+            location.hash = hash;
+            loadContent('#content', {
+                id: 'monitor',
+                view: '/pages/monitor',
+                script: '/javascripts/monitor.js'
+            });
             break;
         case '#workspace':
             console.log('#workspace');
-            location.hash = '#workspace';
-            loadContent('#content', '/pages/workspace');
+            location.hash = hash;
+            loadContent('#content', {
+                id: 'workspace',
+                view: '/pages/workspace',
+                script: '/javascripts/workspace.js'
+            });
             break;
         default:
             if(profile.isAuth) doNavigate('#monitor');
             else doNavigate('#login');
     }
 }
-function loadContent(selector, url) {
+
+function loadContent(selector, params) {
     var obj = $(selector);
-    var page = obj.attr('data-page');
-    var script = '/javascripts/' + page + '.js';
-    if(typeof page !== 'undefined') {
-        $('head script[src="' + script + '"]').remove();
-        eval(page + '.destroy()');
+    // unload previous data
+    var str = obj.attr('data-params')
+    if(typeof str !== 'undefined') {
+        var data = JSON.parse(unescape(str));
+        $('head script[src="' + data.script + '"]').remove();
+        eval(data.id + '.destroy()');
     }
-    page = url.replace(/^.*[\\\/]/, '');
-    script = '/javascripts/' + page + '.js';
-    $('head').append('<script type="text/javascript" src="' + script + '"></script>');
-    obj.attr('data-page', page);
+    // inject script
+    $('head').append('<script type="text/javascript" src="' + params.script + '"></script>');
+    // store params
+    obj.attr('data-params', escape(JSON.stringify(params)));
+    // load view
     obj.panel({
-        href: url,
+        href: params.view,
         onLoad: function() {
-            eval(page + '.init()');
+            eval(params.id + '.init()');
         }
     });
 }
 // 
 // Global classes
 // 
+var profile = new Profile();
 
 function Profile(data) {
     this.user = data;
