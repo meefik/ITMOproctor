@@ -1,20 +1,25 @@
 var workspace = new Workspace();
 
 function Workspace() {
+    var timers = [];
     this.init = function() {
         var timer = 0;
-        setInterval(function() {
+        var t1 = setInterval(function() {
             timer++;
             var d = new Date(timer * 1000);
             $('#timer-widget').text(timeFormat(d, true));
         }, 1000);
-        setInterval(function() {
+        var t2 = setInterval(function() {
             var d = new Date();
             $('#time-widget').text(timeFormat(d));
         }, 1000);
+        timers = [t1,t2];
         loadContent('#window-chat', '/pages/chat');
     }
     this.destroy = function() {
+        timers.forEach(function(element, index, array){
+            clearInterval(element);
+        });
         delete window.workspace;
         delete window.Workspace;
     }

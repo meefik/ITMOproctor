@@ -7,6 +7,9 @@ var profile = new Profile();
 // 
 $(document).ready(function() {
     profile.login();
+    //$(window).on('hashchange', function() {
+    //    doNavigate();
+    //});
 });
 $.extend($.fn.window.defaults, {
     onMove: function(left, top) {
@@ -47,8 +50,30 @@ $.extend($.fn.panel.defaults, {
 // Global functions
 // 
 
+function doNavigate(hash) {
+    if(!hash) hash = location.hash;
+    switch(hash) {
+        case '#login':
+            console.log('#login');
+            location.hash = '#login';
+            loadContent('#content', '/login');
+            break;
+        case '#monitor':
+            console.log('#monitor');
+            location.hash = '#monitor';
+            loadContent('#content', '/pages/monitor');
+            break;
+        case '#workspace':
+            console.log('#workspace');
+            location.hash = '#workspace';
+            loadContent('#content', '/pages/workspace');
+            break;
+        default:
+            if(profile.isAuth) doNavigate('#monitor');
+            else doNavigate('#login');
+    }
+}
 function loadContent(selector, url) {
-    //$('#content').panel('open').panel('refresh', url);
     var obj = $(selector);
     var page = obj.attr('data-page');
     var script = '/javascripts/' + page + '.js';
@@ -78,9 +103,9 @@ function Profile(data) {
         $.getJSON("/profile", function(data) {
             self.user = data;
         }).done(function() {
-            loadContent('#content', '/pages/monitor');
+            doNavigate();
         }).fail(function() {
-            loadContent('#content', '/login');
+            doNavigate('#login');
         });
     }
     this.logout = function() {

@@ -1,6 +1,7 @@
 var monitor = new Monitor();
 
 function Monitor() {
+    var timers = [];
     this.init = function() {
         var self = this;
         $('#monitor-date').datebox({
@@ -18,12 +19,16 @@ function Monitor() {
                 self.doSearch();
             }
         }
-        setInterval(function() {
+        var t1 = setInterval(function() {
             var d = new Date();
             $('#time-widget').text(timeToString(d));
         }, 1000);
+        timers = [t1];
     }
     this.destroy = function() {
+        timers.forEach(function(element, index, array){
+            clearInterval(element);
+        });
         delete window.monitor;
         delete window.Monitor;
     }
@@ -42,8 +47,8 @@ function Monitor() {
         }
     }
     this.formatAction = function(val, row) {
-        var out = '<a href="#" style="padding:0 8px 0 8px;" onclick="monitor.doInfo(\'' + row.id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
-        out += '<a href="#" style="padding:0 8px 0 8px;" onclick="monitor.doPlay(\'' + row.id + '\');" title="Воспроизвести"><i class="fa fa-play-circle fa-lg"></i></a>';
+        var out = '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="monitor.doInfo(\'' + row.id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
+        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="monitor.doPlay(\'' + row.id + '\');" title="Воспроизвести"><i class="fa fa-play-circle fa-lg"></i></a>';
         return out;
     }
     this.formatDuration = function(val, row) {
@@ -80,7 +85,7 @@ function Monitor() {
         console.log("info " + rowid);
     }
     this.doPlay = function(rowid) {
-        loadContent('#content', '/pages/workspace');
+        doNavigate('#workspace');
     }
 
     function dateToString(d) {

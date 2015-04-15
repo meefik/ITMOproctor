@@ -20,10 +20,10 @@ function Login() {
             // Put the results in a div
             posting.done(function(data) {
                 profile.user = data;
-                loadContent('#content', '/pages/monitor');
+                doNavigate('#');
             });
             posting.fail(function() {
-                loadContent('#content', '/login');
+                doNavigate('#login');
             });
         });
         $('#username').next().find('input').focus();

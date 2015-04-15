@@ -1,11 +1,11 @@
 <div class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="#" class="easyui-menubutton" data-options="menu:'#menu-windows',iconCls:'fa fa-th-large'">Вид</a>
-            <a href="#" class="easyui-menubutton" data-options="menu:'#menu-settings',iconCls:'fa fa-cogs'">Настройки</a>
-            <a href="#" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
-            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="workspace.openUserProfileWindow();">Иванов Иван Иванович</a>
-            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="workspace.openExamProfileWindow();">Вступительный экзамен (05.13.06)</a>
+            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-windows',iconCls:'fa fa-th-large'">Вид</a>
+            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-settings',iconCls:'fa fa-cogs'">Настройки</a>
+            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="workspace.openUserProfileWindow();">Иванов Иван Иванович</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="workspace.openExamProfileWindow();">Вступительный экзамен (05.13.06)</a>
         </div>
         <div id="menu-windows">
             <div data-options="iconCls:'fa fa-video-camera'" onclick="workspace.openVideoWindow();">Видеокамера</div>
@@ -36,11 +36,11 @@
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span></strong></a>
-            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></a>
-            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span></strong></a>
-            <a href="#" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="workspace.confirmExamStop();">Прервать</a>
-            <a href="#" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="workspace.confirmExamApply();">Подписать</a>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span></strong></span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span></strong></span>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="workspace.confirmExamStop();">Прервать</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="workspace.confirmExamApply();">Подписать</a>
         </div>
     </div>
 </div>
