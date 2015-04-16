@@ -4,15 +4,15 @@
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-windows',iconCls:'fa fa-th-large'">Вид</a>
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-settings',iconCls:'fa fa-cogs'">Настройки</a>
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="workspace.openUserProfileWindow();">Иванов Иван Иванович</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="workspace.openExamProfileWindow();">Вступительный экзамен (05.13.06)</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="app.workspace.openUserProfileWindow();">Иванов Иван Иванович</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="app.workspace.openExamProfileWindow();">Вступительный экзамен (05.13.06)</a>
         </div>
         <div id="menu-windows">
-            <div data-options="iconCls:'fa fa-video-camera'" onclick="workspace.openVideoWindow();">Видеокамера</div>
-            <div data-options="iconCls:'fa fa-desktop'" onclick="workspace.openDesktopWindow();">Рабочий стол</div>
-            <div data-options="iconCls:'fa fa-comments-o'" onclick="workspace.openChatWindow();">Сообщения</div>
-            <div data-options="iconCls:'fa fa-file-text-o'" onclick="workspace.openProtocolWindow();">Протокол</div>
-            <div data-options="iconCls:'fa fa-check-square-o'" onclick="workspace.openNotesWindow();">Заметки</div>
+            <div data-options="iconCls:'fa fa-video-camera'" onclick="app.workspace.openVideoWindow();">Видеокамера</div>
+            <div data-options="iconCls:'fa fa-desktop'" onclick="app.workspace.openDesktopWindow();">Рабочий стол</div>
+            <div data-options="iconCls:'fa fa-comments-o'" onclick="app.workspace.openChatWindow();">Сообщения</div>
+            <div data-options="iconCls:'fa fa-file-text-o'" onclick="app.workspace.openProtocolWindow();">Протокол</div>
+            <div data-options="iconCls:'fa fa-check-square-o'" onclick="app.workspace.openNotesWindow();">Заметки</div>
         </div>
         <div id="menu-settings">
             <div>Соединение</div>
@@ -28,7 +28,7 @@
     <div data-options="region:'center',border:false" style="position:relative;overflow:hidden;">
         <div id="window-video" class="easyui-window" style="width:320px;height:240px" data-options="title:'Видеокамера',inline:true,minimizable:false,iconCls:'fa fa-video-camera',closed:true,href:'/pages/video'"></div>
         <div id="window-desktop" class="easyui-window" style="width:640px;height:480px" data-options="title:'Рабочий стол',inline:true,minimizable:false,iconCls:'fa fa-desktop',closed:true,href:'/pages/desktop'"></div>
-        <div id="window-chat" class="easyui-window" style="width:500px;height:300px" data-options="title:'Сообщения',inline:true,minimizable:false,iconCls:'fa fa-comments-o',closed:true,href:'/pages/chat',onLoad:function(){chat.init();}"></div>
+        <div id="window-chat" class="easyui-window" style="width:500px;height:300px" data-options="title:'Сообщения',inline:true,minimizable:false,iconCls:'fa fa-comments-o',closed:true,href:'/pages/chat',onLoad:app.chat.init"></div>
         <div id="window-protocol" class="easyui-window" style="width:400px;height:200px" data-options="title:'Протокол',inline:true,minimizable:false,iconCls:'fa fa-file-text-o',closed:true,href:'/pages/potocol'"></div>
         <div id="window-notes" class="easyui-window" style="width:320px;height:240px" data-options="title:'Заметки',inline:true,minimizable:false,iconCls:'fa fa-check-square-o',closed:true,href:'/pages/notes'"></div>
         <div id="user-profile" class="easyui-window" style="width:400px;height:600px" data-options="title:'Профиль студента',inline:true,minimizable:false,closed:true,href:'/pages/student'"></div>
@@ -39,8 +39,8 @@
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span></strong></span>
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></span>
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span></strong></span>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="workspace.confirmExamStop();">Прервать</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="workspace.confirmExamApply();">Подписать</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="app.workspace.confirmExamStop();">Прервать</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="app.workspace.confirmExamApply();">Подписать</a>
         </div>
     </div>
 </div>

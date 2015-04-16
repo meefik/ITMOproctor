@@ -11,10 +11,8 @@ var api = require('./routes/api');
 var profile = require('./routes/profile');
 var pages = require('./routes/pages');
 var app = express();
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-// uncomment after placing your favicon in /public
 app.use(favicon(__dirname + '/public/images/favicon.png'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -24,7 +22,7 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(session({
     secret: 'cookie_secret',
-    name: 'sid',
+    name: 'proctor',
     //store: sessionStore,
     proxy: true,
     resave: true,

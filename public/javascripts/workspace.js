@@ -1,9 +1,9 @@
-var workspace = new Workspace();
-var chat = new Chat();
-
-function Workspace() {
-    var timers = [];
-    this.init = function() {
+app.workspace = {
+    init: function() {
+        var timeFormat = function(d, utc) {
+            if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
+            else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
+        }
         var timer = 0;
         var t1 = setInterval(function() {
             timer++;
@@ -14,71 +14,55 @@ function Workspace() {
             var d = new Date();
             $('#time-widget').text(timeFormat(d));
         }, 1000);
-        timers = [t1, t2];
-    }
-    this.destroy = function() {
-        timers.forEach(function(element, index, array) {
+        this.timers = [t1, t2];
+    },
+    destroy: function() {
+        this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        delete window.workspace;
-        delete window.Workspace;
-    }
-    this.openVideoWindow = function() {
+        delete app.workspace;
+    },
+    openVideoWindow: function() {
         $('#window-video').window('open');
-    }
-    this.openDesktopWindow = function() {
+    },
+    openDesktopWindow: function() {
         $('#window-desktop').window('open');
-    }
-    this.openChatWindow = function() {
+    },
+    openChatWindow: function() {
         $('#window-chat').window('open');
-    }
-    this.openProtocolWindow = function() {
+    },
+    openProtocolWindow: function() {
         $('#window-protocol').window('open');
-    }
-    this.openNotesWindow = function() {
+    },
+    openNotesWindow: function() {
         $('#window-notes').window('open');
-    }
-    this.openUserProfileWindow = function() {
+    },
+    openUserProfileWindow: function() {
         $('#user-profile').window('open');
-    }
-    this.openExamProfileWindow = function() {
+    },
+    openExamProfileWindow: function() {
         $('#exam-profile').window('open');
-    }
-    this.confirmExamStop = function() {
+    },
+    confirmExamStop: function() {
         $.messager.confirm('Прервать', 'Прервать текущий экзамен?', function(r) {
             if(r) {
                 console.log('exam stop');
             }
         });
-    }
-    this.confirmExamApply = function() {
+    },
+    confirmExamApply: function() {
         $.messager.confirm('Подписать', 'Подписать текущий экзамен?', function(r) {
             if(r) {
                 console.log('exam apply');
             }
         });
     }
-
-    function timeFormat(d, utc) {
-        if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
-        else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
-    }
-
-    function dateFormat(d, utc) {
-        if(utc) return(d.getUTCDay() + "." + d.getUTCMonth() + "." + d.getYear());
-        else return(d.getDay() + "." + d.getMonth() + "." + d.getYear());
-    }
 }
-
-function Chat() {
-    this.init = function() {
-        var self = this;
-        $('#chat-input').bind("enterKey", function(e) {
-            self.doSend();
-        });
+app.chat = {
+    init: function() {
         $('#chat-input').keyup(function(e) {
             if(e.keyCode == 13) {
-                $(this).trigger("enterKey");
+                app.chat.doSend();
             }
         });
         $('#chat-attach').change(function() {
@@ -87,15 +71,18 @@ function Chat() {
             var str = ' <a href="#">' + filename + '</a> ';
             $('#chat-input').append(str);
         });
-    }
-    this.destroy = function() {
-        delete window.chat;
-        delete window.Chat;
-    }
-    this.doAttach = function() {
+    },
+    destroy: function() {
+        delete app.chat;
+    },
+    doAttach: function() {
         document.getElementById('chat-attach').click();
-    }
-    this.doSend = function() {
+    },
+    doSend: function() {
+        var timeFormat = function(d, utc) {
+            if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
+            else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
+        }
         var str = $('#chat-input').text();
         if(str.length == 0) return;
         var text = '<div><span style="color:red">[' + timeFormat(new Date()) + '] Я:</span> ' + str + '</div>';
@@ -104,10 +91,5 @@ function Chat() {
         var wtf = $('#chat-output');
         var height = wtf[0].scrollHeight;
         wtf.scrollTop(height);
-    }
-
-    function timeFormat(d, utc) {
-        if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
-        else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
     }
 }

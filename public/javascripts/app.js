@@ -2,10 +2,7 @@
 // Global initialize
 // 
 $(document).ready(function() {
-    profile.login();
-    //$(window).on('hashchange', function() {
-    //    doNavigate();
-    //});
+    app.profile();
 });
 $.extend($.fn.window.defaults, {
     onMove: function(left, top) {
@@ -43,90 +40,21 @@ $.extend($.fn.panel.defaults, {
     loadingMessage: "Загрузка..."
 });
 // 
-// Global functions
+// Application object
 // 
-
-function doNavigate(hash) {
-    if(!hash) hash = location.hash;
-    switch(hash) {
-        case '#login':
-            console.log('#login');
-            location.hash = hash;
-            loadContent('#content', {
-                id: 'login',
-                view: '/login',
-                script: '/javascripts/login.js'
-            });
-            break;
-        case '#monitor':
-            console.log('#monitor');
-            location.hash = hash;
-            loadContent('#content', {
-                id: 'monitor',
-                view: '/pages/monitor',
-                script: '/javascripts/monitor.js'
-            });
-            break;
-        case '#workspace':
-            console.log('#workspace');
-            location.hash = hash;
-            loadContent('#content', {
-                id: 'workspace',
-                view: '/pages/workspace',
-                script: '/javascripts/workspace.js'
-            });
-            break;
-        default:
-            if(profile.isAuth) doNavigate('#monitor');
-            else doNavigate('#login');
-    }
-}
-
-function loadContent(selector, params) {
-    var obj = $(selector);
-    // unload previous data
-    var str = obj.attr('data-params')
-    if(typeof str !== 'undefined') {
-        var data = JSON.parse(unescape(str));
-        if(data.script) {
-            $('head script[src="' + data.script + '"]').remove();
-            if(data.id) eval(data.id + '.destroy()');
-        }
-    }
-    // inject script
-    if(params.script) {
-        $('head').append('<script type="text/javascript" src="' + params.script + '"></script>');
-    }
-    // store params
-    obj.attr('data-params', escape(JSON.stringify(params)));
-    // load view
-    if(params.view) {
-        obj.panel({
-            href: params.view,
-            onLoad: function() {
-                if(params.id) eval(params.id + '.init()');
-            }
-        });
-    }
-}
-// 
-// Global classes
-// 
-var profile = new Profile();
-
-function Profile(data) {
-    this.user = data;
-    this.login = function() {
+var app = {
+    user: null,
+    profile: function() {
         var self = this;
         $.getJSON("/profile", function(data) {
             self.user = data;
         }).done(function() {
-            doNavigate();
+            self.doNavigate();
         }).fail(function() {
-            doNavigate('#login');
+            self.doNavigate('#login');
         });
-    }
-    this.logout = function() {
+    },
+    logout: function() {
         var self = this;
         $.ajax("/profile/logout").done(function() {
             self.user = null;
@@ -134,8 +62,70 @@ function Profile(data) {
         }).fail(function() {
             console.log("logout fail");
         });
-    }
-    this.isAuth = function() {
+    },
+    isAuth: function() {
         return this.user ? true : false;
+    },
+    doNavigate: function(hash) {
+        if(!hash) hash = location.hash;
+        switch(hash) {
+            case '#login':
+                console.log('#login');
+                location.hash = hash;
+                this.loadContent('#content', {
+                    id: 'app.login',
+                    view: '/login',
+                    script: '/javascripts/login.js'
+                });
+                break;
+            case '#monitor':
+                console.log('#monitor');
+                location.hash = hash;
+                this.loadContent('#content', {
+                    id: 'app.monitor',
+                    view: '/pages/monitor',
+                    script: '/javascripts/monitor.js'
+                });
+                break;
+            case '#workspace':
+                console.log('#workspace');
+                location.hash = hash;
+                this.loadContent('#content', {
+                    id: 'app.workspace',
+                    view: '/pages/workspace',
+                    script: '/javascripts/workspace.js'
+                });
+                break;
+            default:
+                if(this.isAuth) this.doNavigate('#monitor');
+                else this.doNavigate('#login');
+        }
+    },
+    loadContent: function(selector, params) {
+        var obj = $(selector);
+        // unload previous data
+        var str = obj.attr('data-params')
+        if(typeof str !== 'undefined') {
+            var data = JSON.parse(unescape(str));
+            if(data.script) {
+                $('head script[src="' + data.script + '"]').remove();
+                if(data.id) eval(data.id + '.destroy()');
+            }
+        }
+        // inject script
+        if(params.script) {
+            $('head').append('<script type="text/javascript" src="' + params.script + '"></script>');
+        }
+        // store params
+        obj.attr('data-params', escape(JSON.stringify(params)));
+        // load view
+        if(params.view) {
+            obj.panel({
+                href: params.view,
+                onLoad: function() {
+                    if(params.id) eval(params.id + '.init()');
+                }
+            });
+        }
     }
 }

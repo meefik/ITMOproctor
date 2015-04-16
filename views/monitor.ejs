@@ -6,29 +6,29 @@
                     <th data-options="field:'id',width:60">ID</th>
                     <th data-options="field:'student',width:150">Студент</th>
                     <th data-options="field:'exam',width:200">Экзамен</th>
-                    <th data-options="field:'date',formatter:monitor.formatDate,width:150">Дата</th>
-                    <th data-options="field:'duration',formatter:monitor.formatDuration,width:100">Длительность</th>
+                    <th data-options="field:'date',formatter:app.monitor.formatDate,width:150">Дата</th>
+                    <th data-options="field:'duration',formatter:app.monitor.formatDuration,width:100">Длительность</th>
                     <th data-options="field:'inspector',width:150">Инспектор</th>
-                    <th data-options="field:'status',formatter:monitor.formatStatus,width:100">Статус</th>
-                    <th data-options="field:'action',align:'center',formatter:monitor.formatAction">Действие</th>
+                    <th data-options="field:'status',formatter:app.monitor.formatStatus,width:100">Статус</th>
+                    <th data-options="field:'action',align:'center',formatter:app.monitor.formatAction">Действие</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
         <div id="toolbar">
-            <a href="javascript:void(0);" id="monitor-status-1" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1',selected:true" onclick="monitor.doSearch();">Все</a> |
-            <a href="javascript:void(0);" id="monitor-status-2" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="monitor.doSearch();">Идет экзамен</a> |
-            <a href="javascript:void(0);" id="monitor-status-3" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="monitor.doSearch();">Ожидают</a>
+            <a href="javascript:void(0);" id="monitor-status-1" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1',selected:true" onclick="app.monitor.doSearch();">Все</a> |
+            <a href="javascript:void(0);" id="monitor-status-2" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="app.monitor.doSearch();">Идет экзамен</a> |
+            <a href="javascript:void(0);" id="monitor-status-3" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="app.monitor.doSearch();">Ожидают</a>
             <input id="monitor-date" class="easyui-datebox" style="width:110px;" data-options="prompt:'Показать на...'">
             <input id="monitor-search" class="easyui-searchbox" style="width:300px;" data-options="prompt:'Введите текст...'">
-            <button class="easyui-linkbutton" data-options="iconCls:'pagination-load',plain:true" onclick="monitor.doReload();"></button>
+            <button class="easyui-linkbutton" data-options="iconCls:'pagination-load',plain:true" onclick="app.monitor.doReload();"></button>
         </div>
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></span>
-            <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-sign-out'" style="float:right;" onclick="profile.logout();">Выход</button>
+            <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-sign-out'" style="float:right;" onclick="app.logout();">Выход</button>
         </div>
     </div>
 </div>

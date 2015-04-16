@@ -1,7 +1,5 @@
-var login = new Login();
-
-function Login() {
-    this.init = function() {
+app.login = {
+    init: function() {
         // Attach a submit handler to the form
         $('#login-form').submit(function(event) {
             // Stop form from submitting normally
@@ -19,17 +17,16 @@ function Login() {
             //$('#login-form').trigger('reset');
             // Put the results in a div
             posting.done(function(data) {
-                profile.user = data;
-                doNavigate('#');
+                app.user = data;
+                app.doNavigate('#');
             });
             posting.fail(function() {
-                doNavigate('#login');
+                app.doNavigate('#login');
             });
         });
         $('#username').next().find('input').focus();
-    }
-    this.destroy = function() {
-        delete window.login;
-        delete window.Login;
+    },
+    destroy: function() {
+        delete app.login;
     }
 }
