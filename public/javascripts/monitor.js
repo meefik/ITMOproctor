@@ -48,7 +48,7 @@ app.monitor = {
     },
     formatAction: function(val, row) {
         var out = '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.monitor.doInfo(\'' + row.id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
-        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.monitor.doPlay(\'' + row.id + '\');" title="Воспроизвести"><i class="fa fa-play-circle fa-lg"></i></a>';
+        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.monitor.doPlay(\'' + row.id + '\');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>';
         return out;
     },
     formatDuration: function(val, row) {

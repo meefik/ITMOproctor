@@ -20,6 +20,7 @@ app.workspace = {
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
+        app.chat.destroy();
         delete app.workspace;
     },
     openVideoWindow: function() {
@@ -37,23 +38,25 @@ app.workspace = {
     openNotesWindow: function() {
         $('#window-notes').window('open');
     },
-    openUserProfileWindow: function() {
-        $('#user-profile').window('open');
+    showStudentInfo: function() {
+        $('#student-info').dialog('open');
     },
-    openExamProfileWindow: function() {
-        $('#exam-profile').window('open');
+    showExamInfo: function() {
+        $('#exam-info').dialog('open');
     },
-    confirmExamStop: function() {
+    stopExam: function() {
         $.messager.confirm('Прервать', 'Прервать текущий экзамен?', function(r) {
             if(r) {
                 console.log('exam stop');
+                app.doNavigate('#monitor');
             }
         });
     },
-    confirmExamApply: function() {
+    applyExam: function() {
         $.messager.confirm('Подписать', 'Подписать текущий экзамен?', function(r) {
             if(r) {
                 console.log('exam apply');
+                app.doNavigate('#monitor');
             }
         });
     }
