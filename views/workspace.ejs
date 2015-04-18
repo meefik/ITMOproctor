@@ -1,18 +1,10 @@
 <div class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-windows',iconCls:'fa fa-th-large'">Вид</a>
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-settings',iconCls:'fa fa-cogs'">Настройки</a>
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
             <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="app.workspace.showStudentInfo();">Иванов Иван Иванович</a>
             <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="app.workspace.showExamInfo();">Вступительный экзамен (05.13.06)</a>
-        </div>
-        <div id="menu-windows">
-            <div data-options="iconCls:'fa fa-video-camera'" onclick="app.workspace.openVideoWindow();">Видеокамера</div>
-            <div data-options="iconCls:'fa fa-desktop'" onclick="app.workspace.openDesktopWindow();">Рабочий стол</div>
-            <div data-options="iconCls:'fa fa-comments-o'" onclick="app.workspace.openChatWindow();">Сообщения</div>
-            <div data-options="iconCls:'fa fa-file-text-o'" onclick="app.workspace.openProtocolWindow();">Протокол</div>
-            <div data-options="iconCls:'fa fa-check-square-o'" onclick="app.workspace.openNotesWindow();">Заметки</div>
         </div>
         <div id="menu-settings">
             <div>Соединение</div>
@@ -25,12 +17,36 @@
             <div>О программе</div>
         </div>
     </div>
-    <div data-options="region:'center',border:false" style="position:relative;overflow:hidden;">
-        <div id="window-video" class="easyui-window" style="width:320px;height:240px" data-options="title:'Видеокамера',inline:true,minimizable:false,iconCls:'fa fa-video-camera',closed:true,href:'/pages/video'"></div>
-        <div id="window-desktop" class="easyui-window" style="width:640px;height:480px" data-options="title:'Рабочий стол',inline:true,minimizable:false,iconCls:'fa fa-desktop',closed:true,href:'/pages/desktop'"></div>
-        <div id="window-chat" class="easyui-window" style="width:500px;height:300px" data-options="title:'Сообщения',inline:true,minimizable:false,iconCls:'fa fa-comments-o',closed:true,href:'/pages/chat',onLoad:app.chat.init"></div>
-        <div id="window-protocol" class="easyui-window" style="width:400px;height:200px" data-options="title:'Протокол',inline:true,minimizable:false,iconCls:'fa fa-file-text-o',closed:true,href:'/pages/potocol'"></div>
-        <div id="window-notes" class="easyui-window" style="width:320px;height:240px" data-options="title:'Заметки',inline:true,minimizable:false,iconCls:'fa fa-check-square-o',closed:true,href:'/pages/notes'"></div>
+    <div id="ws-content" data-options="region:'center',border:false">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'west',border:false" style="width:30%">
+                <div class="easyui-layout" data-options="fit:true">
+                    <div data-options="region:'north',border:false" class="ws-widget" style="height:40%">
+                        <div id="panel-video" class="easyui-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">&nbsp;</div>
+                    </div>
+                    <div data-options="region:'center',border:false" class="ws-widget">
+                        <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true,href:'/pages/chat',onLoad:app.chat.init">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+            <div data-options="region:'center',border:false" style="width:70%">
+                <div class="easyui-layout" data-options="fit:true">
+                    <div data-options="region:'north',border:false" class="ws-widget" style="height:60%">
+                        <div id="panel-desktop" class="easyui-panel" title="Рабочий стол" data-options="fit:true,iconCls:'fa fa-desktop',maximizable:true">&nbsp;</div>
+                    </div>
+                    <div data-options="region:'center',border:false">
+                        <div class="easyui-layout" data-options="fit:true">
+                            <div data-options="region:'center',border:false" class="ws-widget">
+                                <div id="panel-protocol" class="easyui-panel" title="Протокол" data-options="fit:true,iconCls:'fa fa-file-text-o',maximizable:true">&nbsp;</div>
+                            </div>
+                            <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
+                                <div id="panel-notes" class="easyui-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="student-info" class="easyui-dialog" title="Карточка студента" style="width:600px;height:390px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/student'"></div>
         <div id="exam-info" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/exam'"></div>
     </div>

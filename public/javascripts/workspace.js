@@ -4,6 +4,24 @@ app.workspace = {
             if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
             else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
         }
+        var maximizeWidget = function(container, pobj) {
+            var p = pobj.panel('panel');
+            p.appendTo(container).css({
+                position: 'absolute',
+                width: container.width(),
+                height: container.height()
+            });
+            pobj.panel('resize');
+        }
+        var restoreWidget = function(container, pobj) {
+            var p = pobj.panel('panel');
+            p.appendTo(container).css({
+                position: '',
+                width: container.width(),
+                height: container.height()
+            });
+            pobj.panel('resize');
+        }
         var timer = 0;
         var t1 = setInterval(function() {
             timer++;
@@ -14,6 +32,19 @@ app.workspace = {
             var d = new Date();
             $('#time-widget').text(timeFormat(d));
         }, 1000);
+        $(".ws-widget").each(function(index) {
+            var ws = $('#ws-content');
+            var container = $(this);
+            var widget = container.find('.easyui-panel');
+            widget.panel({
+                onMaximize: function() {
+                    maximizeWidget(ws, widget);
+                },
+                onRestore: function() {
+                    restoreWidget(container, widget);
+                }
+            });
+        });
         this.timers = [t1, t2];
     },
     destroy: function() {
@@ -22,21 +53,6 @@ app.workspace = {
         });
         app.chat.destroy();
         delete app.workspace;
-    },
-    openVideoWindow: function() {
-        $('#window-video').window('open');
-    },
-    openDesktopWindow: function() {
-        $('#window-desktop').window('open');
-    },
-    openChatWindow: function() {
-        $('#window-chat').window('open');
-    },
-    openProtocolWindow: function() {
-        $('#window-protocol').window('open');
-    },
-    openNotesWindow: function() {
-        $('#window-notes').window('open');
     },
     showStudentInfo: function() {
         $('#student-info').dialog('open');
