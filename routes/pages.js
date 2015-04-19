@@ -6,9 +6,6 @@ router.get('/workspace', function(req, res) {
 router.get('/monitor', function(req, res) {
     res.render('monitor');
 });
-router.get('/chat', function(req, res) {
-    res.render('chat');
-});
 router.get('/student', function(req, res) {
     res.render('student', {
         photo: '/data/id/photo.png',

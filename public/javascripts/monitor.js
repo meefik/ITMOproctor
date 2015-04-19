@@ -1,10 +1,6 @@
 app.monitor = {
     init: function() {
         var self = this;
-        var timeToString = function(d, utc) {
-            if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
-            else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
-        };
         $('#monitor-date').datebox({
             onSelect: function(date) {
                 self.doSearch();
@@ -21,13 +17,12 @@ app.monitor = {
             }
         }
         var t1 = setInterval(function() {
-            var d = new Date();
-            $('#time-widget').text(timeToString(d));
+            $('#time-widget').text(moment().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1];
     },
     destroy: function() {
-        this.timers.forEach(function(element, index, array){
+        this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
         delete app.monitor;
@@ -52,56 +47,17 @@ app.monitor = {
         return out;
     },
     formatDuration: function(val, row) {
-        var durationToString = function(d) {
-            hour = "" + d.getUTCHours();
-            if(hour.length == 1) {
-                hour = "0" + hour;
-            }
-            minute = "" + d.getUTCMinutes();
-            if(minute.length == 1) {
-                minute = "0" + minute;
-            }
-            second = "" + d.getUTCSeconds();
-            if(second.length == 1) {
-                second = "0" + second;
-            }
-            return hour + ":" + minute + ":" + second;
-        }
         if(val == null) return null;
         else {
             var d = new Date(val);
-            return durationToString(d);
+            return moment(d).utc().format('HH:mm:ss');
         }
     },
     formatDate: function(val, row) {
-        var dateToString = function(d) {
-            year = "" + d.getFullYear();
-            month = "" + (d.getMonth() + 1);
-            if(month.length == 1) {
-                month = "0" + month;
-            }
-            day = "" + d.getDate();
-            if(day.length == 1) {
-                day = "0" + day;
-            }
-            hour = "" + d.getHours();
-            if(hour.length == 1) {
-                hour = "0" + hour;
-            }
-            minute = "" + d.getMinutes();
-            if(minute.length == 1) {
-                minute = "0" + minute;
-            }
-            second = "" + d.getSeconds();
-            if(second.length == 1) {
-                second = "0" + second;
-            }
-            return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
-        }
         if(val == null) return null;
         else {
             var d = new Date(val);
-            return dateToString(d);
+            return moment(d).format('DD.MM.YYYY HH:mm:ss');
         }
     },
     doSearch: function() {
@@ -111,14 +67,14 @@ app.monitor = {
         if($('#monitor-status-3').linkbutton('options').selected) status = 3;
         var date = $('#monitor-date').datebox('getValue');
         var text = $('#monitor-search').textbox('getValue');
-        $('#monitor-datagrid').datagrid('load', {
+        $('#monitor-grid').datagrid('load', {
             status: status,
             date: date,
             text: text
         });
     },
     doReload: function() {
-        $('#monitor-datagrid').datagrid('reload');
+        $('#monitor-grid').datagrid('reload');
     },
     doInfo: function(rowid) {
         console.log("info " + rowid);

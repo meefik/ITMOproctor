@@ -1,9 +1,5 @@
 app.workspace = {
     init: function() {
-        var timeFormat = function(d, utc) {
-            if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
-            else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
-        }
         var maximizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
             p.appendTo(container).css({
@@ -26,11 +22,10 @@ app.workspace = {
         var t1 = setInterval(function() {
             timer++;
             var d = new Date(timer * 1000);
-            $('#timer-widget').text(timeFormat(d, true));
+            $('#timer-widget').text(moment(d).utc().format('HH:mm:ss'));
         }, 1000);
         var t2 = setInterval(function() {
-            var d = new Date();
-            $('#time-widget').text(timeFormat(d));
+            $('#time-widget').text(moment().format('HH:mm:ss'));
         }, 1000);
         $(".ws-widget").each(function(index) {
             var ws = $('#ws-content');
@@ -46,6 +41,7 @@ app.workspace = {
             });
         });
         this.timers = [t1, t2];
+        app.chat.init();
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -98,17 +94,117 @@ app.chat = {
         document.getElementById('chat-attach').click();
     },
     doSend: function() {
-        var timeFormat = function(d, utc) {
-            if(utc) return("00" + d.getUTCHours()).slice(-2) + ":" + ("00" + d.getUTCMinutes()).slice(-2) + ":" + ("00" + d.getUTCSeconds()).slice(-2);
-            else return("00" + d.getHours()).slice(-2) + ":" + ("00" + d.getMinutes()).slice(-2) + ":" + ("00" + d.getSeconds()).slice(-2);
-        }
         var str = $('#chat-input').text();
         if(str.length == 0) return;
-        var text = '<div><span style="color:red">[' + timeFormat(new Date()) + '] Я:</span> ' + str + '</div>';
+        var text = '<div><span style="color:red">[' + moment().format('HH:mm:ss') + '] Я:</span> ' + str + '</div>';
         $('#chat-output').append(text);
         $('#chat-input').html('');
         var wtf = $('#chat-output');
         var height = wtf[0].scrollHeight;
         wtf.scrollTop(height);
+    }
+}
+app.notes = {
+    init: function() {
+        //$("#notes-grid").datagrid({url:'/api/notes',method:'get'});
+    },
+    add: function() {
+        var addNote = function() {
+            var noteText = $("#note-form input[name='noteText']").val();
+            $.ajax({
+                method: "POST",
+                url: "/api/notes",
+                data: {
+                    noteText: noteText
+                }
+            }).done(function(data) {
+                var noteTime = moment(data.noteTime).format('DD.MM.YYYY HH:mm:ss');
+                $("#notes-grid").datagrid('appendRow', {
+                    noteId: data.noteId,
+                    noteTime: noteTime,
+                    noteText: noteText
+                });
+                app.notes.close();
+                var rows = $("#notes-grid").datagrid('getRows').length;
+                $("#notes-grid").datagrid('scrollTo', rows - 1);
+            });
+        }
+        $("#note-dialog").dialog({
+            title: 'Добавление заметки',
+            buttons: [{
+                text: 'Сохранить',
+                iconCls: 'fa fa-check',
+                handler: addNote
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: app.notes.close
+            }],
+            onOpen: function() {
+                moment.locale('ru');
+                var timeStr = moment().format('LLL');
+                $('#note-date').text(timeStr);
+            }
+        });
+        $("#note-dialog").dialog('open');
+    },
+    edit: function() {
+        var row = $("#notes-grid").datagrid('getSelected');
+        var idx = $("#notes-grid").datagrid('getRowIndex', row);
+        if(idx > -1) {
+            var updateNote = function() {
+                //var noteTime = $("#note-form input[name='noteTime']").val();
+                var noteText = $("#note-form input[name='noteText']").val();
+                $.ajax({
+                    method: "PUT",
+                    url: "/api/notes/" + row.noteId,
+                    data: {
+                        noteText: noteText
+                    }
+                }).done(function(data) {
+                    $("#notes-grid").datagrid('updateRow', {
+                        index: idx,
+                        row: {
+                            noteText: noteText
+                        }
+                    });
+                    app.notes.close();
+                });
+            }
+            $("#note-dialog").dialog({
+                title: 'Редактирование заметки',
+                buttons: [{
+                    text: 'Сохранить',
+                    iconCls: 'fa fa-check',
+                    handler: updateNote
+                }, {
+                    text: 'Отменить',
+                    iconCls: 'fa fa-times',
+                    handler: app.notes.close
+                }],
+                onOpen: function() {
+                    moment.locale('ru');
+                    var timeStr = moment(row.noteTime, 'DD.MM.YYYY HH:mm:ss').format('LLL');
+                    $('#note-date').text(timeStr);
+                }
+            });
+            $("#note-form").form('load', row);
+            $("#note-dialog").dialog('open');
+        }
+    },
+    delete: function() {
+        var row = $("#notes-grid").datagrid('getSelected');
+        var idx = $("#notes-grid").datagrid('getRowIndex', row);
+        if(idx > -1) {
+            $.messager.confirm('Подтверждение', 'Вы действительно хотите удалить выбранную заметку?', function(r) {
+                if(r) {
+                    $("#notes-grid").datagrid('deleteRow', idx);
+                }
+            });
+        }
+    },
+    close: function() {
+        $("#note-form").form('reset');
+        $('#note-dialog').dialog('close');
     }
 }

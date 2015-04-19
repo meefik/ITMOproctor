@@ -28,3 +28,6 @@ node_modules
 
 # Data files
 public/data
+
+# Bower
+bower_components

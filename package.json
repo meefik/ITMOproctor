@@ -17,7 +17,7 @@
     "express-session": "~1.11.1",
     "passport": "~0.2.1",
     "passport-local": "~1.0.0",
-    "sqlite3": "~3.0.5",
-    "sequelize": "~2.0.5"
+    "bower": "~1.4.1",
+    "moment": "~2.10.2"
   }
 }

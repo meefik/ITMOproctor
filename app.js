@@ -10,6 +10,7 @@ var routes = require('./routes');
 var api = require('./routes/api');
 var profile = require('./routes/profile');
 var pages = require('./routes/pages');
+var db = require('./db');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -31,6 +32,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(function(req, res, next) {
+    req.db = db;
+    next();
+});
 app.use('/profile', profile);
 app.use('/api', profile.isAuth, api);
 app.use('/pages', profile.isAuth, pages);

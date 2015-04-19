@@ -25,7 +25,25 @@
                         <div id="panel-video" class="easyui-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">&nbsp;</div>
                     </div>
                     <div data-options="region:'center',border:false" class="ws-widget">
-                        <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true,href:'/pages/chat',onLoad:app.chat.init">&nbsp;</div>
+                        <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
+                            <!-- Begin: Chat -->
+                            <div class="easyui-layout" data-options="fit:true">
+                                <div id="chat-output" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;"></div>
+                                <div data-options="region:'south',split:true,border:false">
+                                    <div class="easyui-layout" data-options="fit:true">
+                                        <div data-options="region:'north',border:false">
+                                            <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
+                                                <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right" onclick="app.chat.doSend();">Отправить</a>
+                                                <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right" onclick="app.chat.doAttach();">Прикрепить</a>
+                                                <input type="file" id="chat-attach" style="display:none">
+                                            </div>
+                                        </div>
+                                        <div id="chat-input" data-options="region:'center',border:false" contenteditable="true" style="height:100px;overflow-x:hidden;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End: Chat -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -40,7 +58,30 @@
                                 <div id="panel-protocol" class="easyui-panel" title="Протокол" data-options="fit:true,iconCls:'fa fa-file-text-o',maximizable:true">&nbsp;</div>
                             </div>
                             <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
-                                <div id="panel-notes" class="easyui-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">&nbsp;</div>
+                                <div id="panel-notes" class="easyui-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">
+                                    <!-- Begin: Notes -->
+                                    <table id="notes-grid" class="easyui-datagrid" data-options="toolbar:'#notes-toolbar',singleSelect:true,border:false,fitColumns:true,nowrap:false,fit:true,url:'/api/notes',method:'get'">
+                                        <thead>
+                                            <tr>
+                                                <th data-options="field:'noteTime',width:100">Время</th>
+                                                <th data-options="field:'noteText',width:150">Текст заметки</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    <div id="notes-toolbar">
+                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-plus'" onclick="app.notes.add();">Добавить</button>
+                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-pencil'" onclick="app.notes.edit();">Редактировать</button>
+                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-trash-o'" onclick="app.notes.delete();">Удалить</button>
+                                    </div>
+                                    <div id="note-dialog" class="easyui-dialog" style="padding:0 5px 5px 5px" data-options="closed:true,modal:true">
+                                        <form id="note-form">
+                                            <p>Заметка на <strong id="note-date"></strong>
+                                            </p>
+                                            <input type="text" name="noteText" class="easyui-textbox" data-options="width:'100%',height:150,multiline:true,prompt:'Введите текст заметки...'">
+                                        </form>
+                                    </div>
+                                    <!-- End: Notes -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -52,9 +93,15 @@
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span></strong></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span></strong></span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span>
+            </strong>
+            </span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span>
+            </strong>
+            </span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span>
+            </strong>
+            </span>
             <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="app.workspace.stopExam();">Прервать</a>
             <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="app.workspace.applyExam();">Подписать</a>
         </div>

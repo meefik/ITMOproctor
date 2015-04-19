@@ -1,0 +1,16 @@
+{
+  "name": "proctor",
+  "version": "0.0.1",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "moment": "~2.10.2",
+    "font-awesome": "~4.3.0",
+    "jeasyui": "~1.4.2"
+  }
+}

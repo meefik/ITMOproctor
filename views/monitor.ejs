@@ -1,6 +1,6 @@
 <div class="easyui-layout" data-options="fit:true">
-    <div data-options="region:'center',border:false" style="position:relative;overflow:hidden;">
-        <table id="monitor-datagrid" class="easyui-datagrid" height="100%" data-options="view:bufferview,url:'/api/monitor?total=1000',toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
+    <div data-options="region:'center',border:false">
+        <table id="monitor-grid" class="easyui-datagrid" height="100%" data-options="view:bufferview,url:'/api/monitor?total=1000',method:'get',toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
             <thead>
                 <tr>
                     <th data-options="field:'id',width:60">ID</th>
@@ -25,10 +25,10 @@
             <button class="easyui-linkbutton" data-options="iconCls:'pagination-load',plain:true" onclick="app.monitor.doReload();"></button>
         </div>
     </div>
-    <div data-options="region:'south',border:false" style="margin-top:1px;">
+    <div data-options="region:'south',border:false">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span></strong></span>
-            <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-sign-out'" style="float:right;" onclick="app.logout();">Выход</button>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong id="time-widget">00:00:00</strong></span>
+            <button class="easyui-linkbutton" data-options="iconCls:'fa fa-sign-out'" style="float:right;" onclick="app.logout();">Выход</button>
         </div>
     </div>
 </div>
