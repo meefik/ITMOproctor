@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-
 router.get('/monitor', function(req, res) {
     var r = req.query.rows;
     if(isNaN(r)) r = 100;
@@ -13,7 +12,7 @@ router.get('/monitor', function(req, res) {
     var date = req.query.date;
     var text = req.query.text;
     // get data
-    var rows = req.db.monitor.get(0,p*r);
+    var rows = req.db.monitor.get(0, p * r);
     // filter
     var filtered = [];
     rows.forEach(function(entry) {
@@ -66,6 +65,10 @@ router.put('/notes/:noteId', function(req, res) {
 });
 router.delete('/notes/:noteId', function(req, res) {
     var noteId = req.params.noteId;
+    res.end();
+});
+router.post('/upload', function(req, res) {
+    console.log(req);
     res.end();
 });
 module.exports = router;

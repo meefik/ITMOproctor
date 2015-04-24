@@ -1,6 +1,11 @@
 var express = require('express');
 var router = express.Router();
 router.get('/workspace', function(req, res) {
+    //var examid = req.query.examid;
+    //if(examid) req.session.examid = examid;
+    //else examid = req.session.examid;
+    //if(examid) res.render('workspace');
+    //else res.status(404);
     res.render('workspace');
 });
 router.get('/monitor', function(req, res) {
@@ -17,7 +22,7 @@ router.get('/student', function(req, res) {
 });
 router.get('/exam', function(req, res) {
     res.render('exam', {
-        subject: 'Иностранный язык',
+        subject: 'Иностранный язык' + req.exam,
         speciality: 'Автоматизация и управление технологическими процессами и производствами',
         code: '05.13.06'
     });

@@ -11,6 +11,8 @@
   "dependencies": {
     "moment": "~2.10.2",
     "font-awesome": "~4.3.0",
-    "jeasyui": "~1.4.2"
+    "jeasyui": "~1.4.2",
+    "backbone": "master",
+    "requirejs": "~2.1.17"
   }
 }

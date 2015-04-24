@@ -75,16 +75,50 @@ app.workspace = {
 }
 app.chat = {
     init: function() {
+        var self = this;
         $('#chat-input').keyup(function(e) {
             if(e.keyCode == 13) {
                 app.chat.doSend();
             }
         });
         $('#chat-attach').change(function() {
-            var val = $(this).val();
-            var filename = val.split(/(\\|\/)/g).pop();
-            var str = ' <a href="#">' + filename + '</a> ';
-            $('#chat-input').append(str);
+            var data = new FormData();
+            var files = $(this)[0].files;
+            if(files.length == 0) {
+                app.chat.doReset();
+                return;
+            }
+            $.each(files, function(key, value) {
+                data.append(key, value);
+            });
+            self.filename = files['0'].name;
+            $("#chat-file").fadeIn();
+            var trancateFile = function(filename, length) {
+                var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
+                if(filename.length > length) {
+                    filename = filename.substring(0, length) + '...' + extension;
+                }
+                return filename;
+            }
+            $("#chat-file-progress").progressbar({
+                value: 0,
+                text: trancateFile(self.filename, 15)
+            });
+            $.ajax({
+                type: 'post',
+                url: '/api/upload',
+                data: data,
+                xhrFields: {
+                    onprogress: function(progress) {
+                        var percentage = Math.floor((progress.loaded / progress.total) * 100);
+                        $('#chat-file-progress').progressbar('setValue', percentage);
+                    }
+                },
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                console.log(data["error"]);
+            });
         });
     },
     destroy: function() {
@@ -93,11 +127,22 @@ app.chat = {
     doAttach: function() {
         document.getElementById('chat-attach').click();
     },
+    doReset: function() {
+        this.filename = null;
+        $("#chat-file").fadeOut();
+        $("#chat-form").trigger('reset');
+    },
     doSend: function() {
         var str = $('#chat-input').text();
-        if(str.length == 0) return;
-        var text = '<div><span style="color:red">[' + moment().format('HH:mm:ss') + '] Я:</span> ' + str + '</div>';
+        if(str.length > 0) {
+            var text = '<div><span style="color:red">[' + moment().format('HH:mm:ss') + '] Я:</span> ' + str + '</div>';
+        }
+        if (this.filename) {
+            var link = '<div><span style="color:blue">Файл:</span> <a href="#">' + this.filename + '</a></div>';
+            this.doReset();
+        }
         $('#chat-output').append(text);
+        $('#chat-output').append(link);
         $('#chat-input').html('');
         var wtf = $('#chat-output');
         var height = wtf[0].scrollHeight;
@@ -118,10 +163,9 @@ app.notes = {
                     noteText: noteText
                 }
             }).done(function(data) {
-                var noteTime = moment(data.noteTime).format('DD.MM.YYYY HH:mm:ss');
                 $("#notes-grid").datagrid('appendRow', {
                     noteId: data.noteId,
-                    noteTime: noteTime,
+                    noteTime: data.noteTime,
                     noteText: noteText
                 });
                 app.notes.close();
@@ -184,7 +228,7 @@ app.notes = {
                 }],
                 onOpen: function() {
                     moment.locale('ru');
-                    var timeStr = moment(row.noteTime, 'DD.MM.YYYY HH:mm:ss').format('LLL');
+                    var timeStr = moment(row.noteTime).format('LLL');
                     $('#note-date').text(timeStr);
                 }
             });
@@ -206,5 +250,9 @@ app.notes = {
     close: function() {
         $("#note-form").form('reset');
         $('#note-dialog').dialog('close');
+    },
+    formatTime: function(val, row) {
+        var noteTime = moment(val).format('HH:mm:ss');
+        return noteTime;
     }
 }

@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
+var multer = require('multer');
 var routes = require('./routes');
 var api = require('./routes/api');
 var profile = require('./routes/profile');
@@ -19,6 +20,13 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
+}));
+app.use(multer({
+    dest: './uploads/',
+    rename: function(fieldname, filename) {
+        console.log(fieldname+"____"+filename);
+        return filename;
+    }
 }));
 app.use(cookieParser());
 app.use(session({

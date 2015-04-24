@@ -3,19 +3,19 @@ var notes = {
     init: function() {
         this.rows = [{
             noteId: 1,
-            noteTime: moment((new Date()).getTime() - 3 * 60000).format('DD.MM.YYYY HH:mm:ss'),
+            noteTime: new Date((new Date()).getTime() - 3 * 60000),
             noteText: 'Комментарий 1'
         }, {
             noteId: 2,
-            noteTime: moment((new Date()).getTime() - 2 * 60000).format('DD.MM.YYYY HH:mm:ss'),
+            noteTime: new Date((new Date()).getTime() - 2 * 60000),
             noteText: 'Комментарий 2'
         }, {
             noteId: 3,
-            noteTime: moment((new Date()).getTime() - 60000).format('DD.MM.YYYY HH:mm:ss'),
+            noteTime: new Date((new Date()).getTime() - 60000),
             noteText: 'Комментарий 3'
         }, {
             noteId: 4,
-            noteTime: moment().format('DD.MM.YYYY HH:mm:ss'),
+            noteTime: new Date(),
             noteText: 'Комментарий 4'
         }];
     },
