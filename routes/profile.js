@@ -4,7 +4,12 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(function(username, password, done) {
     var user = {
-        "username": "admin"
+        "id": 1,
+        "user": "demo",
+        "email": "demo@example.com",
+        "firstname": "Иванов",
+        "lastname": "Иван",
+        "middlename": "Иванович"
     };
     /*
     User.findOne({ username: username }, function (err, user) {
@@ -51,7 +56,7 @@ router.post('/login', function(req, res, next) {
 });
 router.get('/logout', function(req, res) {
     req.logout();
-    res.status(200).end();
+    res.end();
 });
 router.isAuth = function(req, res, next) {
     req.isAuthenticated() ? next() : res.status(401).end();

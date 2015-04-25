@@ -8,8 +8,10 @@ var session = require('express-session');
 var passport = require('passport');
 var multer = require('multer');
 var routes = require('./routes');
-var api = require('./routes/api');
 var profile = require('./routes/profile');
+var monitor = require('./routes/api/monitor');
+var vision = require('./routes/api/vision');
+var notes = require('./routes/api/notes');
 var pages = require('./routes/pages');
 var db = require('./db');
 var app = express();
@@ -45,7 +47,9 @@ app.use(function(req, res, next) {
     next();
 });
 app.use('/profile', profile);
-app.use('/api', profile.isAuth, api);
+app.use('/api/monitor', profile.isAuth, monitor);
+app.use('/api/vision', profile.isAuth, vision);
+app.use('/api/notes', profile.isAuth, notes);
 app.use('/pages', profile.isAuth, pages);
 app.use('/', routes);
 // catch 404 and forward to error handler

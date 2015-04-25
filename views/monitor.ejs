@@ -1,34 +1,20 @@
-<div class="easyui-layout" data-options="fit:true">
+<div id="monitor" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'center',border:false">
-        <table id="monitor-grid" class="easyui-datagrid" height="100%" data-options="view:bufferview,url:'/api/monitor?total=1000',method:'get',toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
-            <thead>
-                <tr>
-                    <th data-options="field:'id',width:60">ID</th>
-                    <th data-options="field:'student',width:150">Студент</th>
-                    <th data-options="field:'exam',width:200">Экзамен</th>
-                    <th data-options="field:'date',formatter:app.monitor.formatDate,width:150">Дата</th>
-                    <th data-options="field:'duration',formatter:app.monitor.formatDuration,width:100">Длительность</th>
-                    <th data-options="field:'inspector',width:150">Инспектор</th>
-                    <th data-options="field:'status',formatter:app.monitor.formatStatus,width:100">Статус</th>
-                    <th data-options="field:'action',align:'center',formatter:app.monitor.formatAction">Действие</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
+        <table class="easyui-datagrid" height="100%" data-options="view:bufferview,url:'/api/monitor?total=1000',method:'get',toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
         </table>
         <div id="toolbar">
-            <a href="javascript:void(0);" id="monitor-status-1" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1',selected:true" onclick="app.monitor.doSearch();">Все</a> |
-            <a href="javascript:void(0);" id="monitor-status-2" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="app.monitor.doSearch();">Идет экзамен</a> |
-            <a href="javascript:void(0);" id="monitor-status-3" class="easyui-linkbutton" data-options="plain:true,toggle:true,group:'g1'" onclick="app.monitor.doSearch();">Ожидают</a>
-            <input id="monitor-date" class="easyui-datebox" style="width:110px;" data-options="prompt:'Показать на...'">
-            <input id="monitor-search" class="easyui-searchbox" style="width:300px;" data-options="prompt:'Введите текст...'">
-            <button class="easyui-linkbutton" data-options="iconCls:'pagination-load',plain:true" onclick="app.monitor.doReload();"></button>
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn3" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>
+            <input name="date-search" class="easyui-datebox date-search" style="width:110px;" data-options="prompt:'Показать на...'">
+            <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt:'Введите текст...'">
+            <button class="easyui-linkbutton grid-reload" data-options="iconCls:'pagination-load',plain:true"></button>
         </div>
     </div>
     <div data-options="region:'south',border:false">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong id="time-widget">00:00:00</strong></span>
-            <button class="easyui-linkbutton" data-options="iconCls:'fa fa-sign-out'" style="float:right;" onclick="app.logout();">Выход</button>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong class="time-widget">00:00:00</strong></span>
+            <button class="easyui-linkbutton app-logout" data-options="iconCls:'fa fa-sign-out'" style="float:right;">Выход</button>
         </div>
     </div>
 </div>

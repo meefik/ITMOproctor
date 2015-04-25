@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-router.get('/monitor', function(req, res) {
+router.get('/', function(req, res) {
     var r = req.query.rows;
     if(isNaN(r)) r = 100;
     var p = req.query.page;
@@ -38,37 +38,5 @@ router.get('/monitor', function(req, res) {
         "rows": rows
     }
     res.json(data);
-});
-router.get('/notes', function(req, res) {
-    var rows = req.db.notes.get();
-    var data = {
-        "total": rows.length,
-        "rows": rows
-    }
-    res.json(data);
-});
-router.post('/notes', function(req, res) {
-    var randomInt = function(low, high) {
-        return Math.floor(Math.random() * (high - low) + low);
-    }
-    var noteId = randomInt(1, 1000);
-    var noteTime = new Date();
-    res.json({
-        noteId: noteId,
-        noteTime: noteTime
-    });
-});
-router.put('/notes/:noteId', function(req, res) {
-    var noteId = req.params.noteId;
-    var noteText = req.body.noteText;
-    res.end();
-});
-router.delete('/notes/:noteId', function(req, res) {
-    var noteId = req.params.noteId;
-    res.end();
-});
-router.post('/upload', function(req, res) {
-    console.log(req);
-    res.end();
 });
 module.exports = router;

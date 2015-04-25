@@ -1,23 +1,16 @@
-<div class="easyui-layout" data-options="fit:true">
+<div id="vision" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-settings',iconCls:'fa fa-cogs'">Настройки</a>
             <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'" style="float:right" onclick="app.workspace.showStudentInfo();">Иванов Иван Иванович</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right" onclick="app.workspace.showExamInfo();">Вступительный экзамен (05.13.06)</a>
-        </div>
-        <div id="menu-settings">
-            <div>Соединение</div>
-            <div>Профиль</div>
-            <div>Архив записей</div>
-            <div>Список звонков</div>
+            <a href="javascript:void(0);" class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right">Иванов Иван Иванович</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right">Вступительный экзамен (05.13.06)</a>
         </div>
         <div id="menu-help">
             <div>Помощь</div>
             <div>О программе</div>
         </div>
     </div>
-    <div id="ws-content" data-options="region:'center',border:false">
+    <div class="ws-content" data-options="region:'center',border:false">
         <div class="easyui-layout" data-options="fit:true">
             <div data-options="region:'west',border:false" style="width:30%">
                 <div class="easyui-layout" data-options="fit:true">
@@ -28,22 +21,22 @@
                         <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
                             <!-- Begin: Chat -->
                             <div class="easyui-layout" data-options="fit:true">
-                                <div id="chat-output" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;"></div>
+                                <div class="chat-output" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;"></div>
                                 <div data-options="region:'south',split:true,border:false">
                                     <div class="easyui-layout" data-options="fit:true">
                                         <div data-options="region:'north',border:false">
                                             <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
-                                                <button id="chat-file" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-file-o'" onclick="app.chat.doReset();" style="float:left;display:none;">
-                                                    <div id="chat-file-progress" class="easyui-progressbar" data-options="width:150,height:18" style="margin:3px 0 3px 0"></div>
+                                                <button class="easyui-linkbutton chat-file" data-options="plain:true,iconCls:'fa fa-file-o'" style="float:left;display:none;">
+                                                    <div class="easyui-progressbar chat-progress" data-options="width:150,height:18" style="margin:3px 0 3px 0"></div>
                                                 </button>
-                                                <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right" onclick="app.chat.doSend();">Отправить</button>
-                                                <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right" onclick="app.chat.doAttach();">Прикрепить</button>
-                                                <form id="chat-form" method="post" enctype="multipart/form-data" style="display:none;">
-                                                    <input type="file" name="chatFile" id="chat-attach" />
+                                                <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right">Отправить</button>
+                                                <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right">Прикрепить</button>
+                                                <form method="post" enctype="multipart/form-data" style="display:none;">
+                                                    <input type="file" name="chatFile" class="chat-attach" />
                                                 </form>
                                             </div>
                                         </div>
-                                        <div id="chat-input" data-options="region:'center',border:false" contenteditable="true" style="height:100px;overflow-x:hidden;"></div>
+                                        <div class="chat-input" data-options="region:'center',border:false" contenteditable="true" style="height:100px;overflow-x:hidden;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -65,24 +58,18 @@
                             <div data-options="region:'east',border:false,minWidth:300" class="ws-widget" style="width:30%">
                                 <div id="panel-notes" class="easyui-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">
                                     <!-- Begin: Notes -->
-                                    <table id="notes-grid" class="easyui-datagrid" data-options="toolbar:'#notes-toolbar',singleSelect:true,border:false,fitColumns:true,nowrap:false,fit:true,url:'/api/notes',method:'get'">
-                                        <thead>
-                                            <tr>
-                                                <th data-options="field:'noteTime',width:'30%',formatter:app.notes.formatTime">Время</th>
-                                                <th data-options="field:'noteText',width:'70%'">Текст заметки</th>
-                                            </tr>
-                                        </thead>
+                                    <table class="easyui-datagrid" data-options="toolbar:'#notes-toolbar',singleSelect:true,border:false,fitColumns:true,nowrap:false,fit:true">
                                     </table>
                                     <div id="notes-toolbar">
-                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-plus'" onclick="app.notes.add();">Добавить</button>
-                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-pencil'" onclick="app.notes.edit();">Редактировать</button>
-                                        <button class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-trash-o'" onclick="app.notes.delete();">Удалить</button>
+                                        <button class="easyui-linkbutton note-add-btn" data-options="plain:true,iconCls:'fa fa-plus'">Добавить</button>
+                                        <button class="easyui-linkbutton note-edit-btn" data-options="plain:true,iconCls:'fa fa-pencil'">Редактировать</button>
+                                        <button class="easyui-linkbutton note-delete-btn" data-options="plain:true,iconCls:'fa fa-trash-o'">Удалить</button>
                                     </div>
-                                    <div id="note-dialog" class="easyui-dialog" style="padding:0 5px 5px 5px" data-options="closed:true,modal:true">
-                                        <form id="note-form">
-                                            <p>Заметка на <strong id="note-date"></strong>
+                                    <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px" data-options="closed:true,modal:true">
+                                        <form>
+                                            <p>Заметка на <strong class="note-time"></strong>
                                             </p>
-                                            <input type="text" name="noteText" class="easyui-textbox" data-options="width:'100%',height:150,multiline:true,prompt:'Введите текст заметки...'">
+                                            <input type="text" name="noteText" class="easyui-textbox note-text" data-options="width:'100%',height:150,multiline:true,prompt:'Введите текст заметки...'">
                                         </form>
                                     </div>
                                     <!-- End: Notes -->
@@ -93,22 +80,22 @@
                 </div>
             </div>
         </div>
-        <div id="student-info" class="easyui-dialog" title="Карточка студента" style="width:600px;height:390px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/student'"></div>
-        <div id="exam-info" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/exam'"></div>
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span id="network-widget">85%</span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span class="network-widget">85%</span>
             </strong>
             </span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span id="time-widget">00:00:00</span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span class="time-widget">00:00:00</span>
             </strong>
             </span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span id="timer-widget">00:00:00</span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Секундомер: <strong><span class="duration-widget">00:00:00</span>
             </strong>
             </span>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;" onclick="app.workspace.stopExam();">Прервать</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'fa fa-check'" style="float:right;color:green;" onclick="app.workspace.applyExam();">Подписать</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</a>
         </div>
     </div>
 </div>
+<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:600px;height:390px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/student'"></div>
+<div id="exam-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true,href:'/pages/exam'"></div>
