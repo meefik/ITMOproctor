@@ -5,8 +5,10 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var multer = require('multer');
+var config = require('nconf').file('./config.json');
 var routes = require('./routes');
 var profile = require('./routes/profile');
 var monitor = require('./routes/api/monitor');
@@ -26,7 +28,7 @@ app.use(bodyParser.urlencoded({
 app.use(multer({
     dest: './uploads/',
     rename: function(fieldname, filename) {
-        console.log(fieldname+"____"+filename);
+        console.log(fieldname + "____" + filename);
         return filename;
     }
 }));
@@ -34,7 +36,10 @@ app.use(cookieParser());
 app.use(session({
     secret: 'cookie_secret',
     name: 'proctor',
-    //store: sessionStore,
+    store: new MongoStore({
+        mongooseConnection: db.connection,
+        ttl: 14 * 24 * 60 * 60 // = 14 days. Default 
+    }),
     proxy: true,
     resave: true,
     saveUninitialized: true
@@ -42,10 +47,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
     req.db = db;
     next();
-});
+});*/
 app.use('/profile', profile);
 app.use('/api/monitor', profile.isAuth, monitor);
 app.use('/api/vision', profile.isAuth, vision);

@@ -2,38 +2,26 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var User = require('../models/user');
 passport.use(new LocalStrategy(function(username, password, done) {
-    var user = {
-        "id": 1,
-        "user": "demo",
-        "email": "demo@example.com",
-        "firstname": "Иванов",
-        "lastname": "Иван",
-        "middlename": "Иванович"
-    };
-    /*
-    User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
+    User.findOne({
+        username: username
+    }, function(err, user) {
+        if(err) {
+            return done(err);
+        }
+        if(!user) {
+            return done(null, false, {
+                message: 'Incorrect username.'
+            });
+        }
+        if(!user.validPassword(password)) {
+            return done(null, false, {
+                message: 'Incorrect password.'
+            });
+        }
+        return done(null, user);
     });
-    */
-    if(username !== "demo") {
-        return done(null, false, {
-            message: 'Incorrect username.'
-        });
-    }
-    if(password !== "demo") {
-        return done(null, false, {
-            message: 'Incorrect password.'
-        });
-    }
-    return done(null, user);
 }));
 passport.serializeUser(function(user, done) {
     done(null, user);

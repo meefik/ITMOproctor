@@ -15,7 +15,7 @@ var Profile = Backbone.Model.extend({
             async: false
         }).done(function(user) {
             console.log('profile.update: success');
-            self.set(user);
+            self.clear().set(user);
             app.profile = self;
             result = true;
         }).fail(function() {
@@ -33,7 +33,7 @@ var Profile = Backbone.Model.extend({
             async: false
         }).done(function(user) {
             console.log('profile.login: success');
-            self.set(user);
+            self.clear().set(user);
             app.profile = self;
             result = true;
         }).fail(function() {
@@ -60,7 +60,7 @@ var Profile = Backbone.Model.extend({
         return result;
     },
     isAuth: function() {
-        return this.has("user");
+        return this.has("username");
     }
 });
 //
