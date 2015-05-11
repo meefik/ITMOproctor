@@ -9,17 +9,21 @@ var MongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var multer = require('multer');
 var config = require('nconf').file('./config.json');
-var routes = require('./routes');
 var profile = require('./routes/profile');
-var monitor = require('./routes/api/monitor');
-var vision = require('./routes/api/vision');
-var notes = require('./routes/api/notes');
-var pages = require('./routes/pages');
+var upload = require('./routes/upload');
+var monitor = require('./routes/monitor');
+var vision = require('./routes/vision');
+var notes = require('./routes/notes');
+var chat = require('./routes/chat');
+var protocol = require('./routes/protocol');
 var db = require('./db');
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+app.set('io', io.of('/notify'));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(favicon(__dirname + '/public/images/favicon.png'));
+app.use(favicon(path.join(__dirname, 'public/images/favicon.png')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -27,9 +31,20 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(multer({
     dest: './uploads/',
+    /*
     rename: function(fieldname, filename) {
         console.log(fieldname + "____" + filename);
         return filename;
+    }
+    */
+    limits: {
+        fileSize: 10 * 1024 * 1024, // at most 10MB
+    },
+    // setting attributes of `file` is useful for passing info to the
+    // next middleware
+    onFileSizeLimit: function(file) {
+        fs.unlink('./' + file.path); // delete the partially written file
+        file.failed = true;
     }
 }));
 app.use(cookieParser());
@@ -51,12 +66,27 @@ app.use(express.static(path.join(__dirname, 'public')));
     req.db = db;
     next();
 });*/
+// Notifications
+app.use(function(req, res, next) {
+    req.notify = function(target) {
+        var examId = req.user.examId;
+        var userId = req.user._id;
+        var out = {
+            examId: examId,
+            userId: userId
+        };
+        var io = req.app.get('io');
+        io.emit(target + '-' + examId, out);
+    }
+    next();
+});
 app.use('/profile', profile);
-app.use('/api/monitor', profile.isAuth, monitor);
-app.use('/api/vision', profile.isAuth, vision);
-app.use('/api/notes', profile.isAuth, notes);
-app.use('/pages', profile.isAuth, pages);
-app.use('/', routes);
+app.use('/upload', profile.isAuth, upload);
+app.use('/monitor', profile.isAuth, monitor);
+app.use('/vision', profile.isAuth, vision);
+app.use('/notes', profile.isAuth, notes);
+app.use('/chat', profile.isAuth, chat);
+app.use('/protocol', profile.isAuth, protocol);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
@@ -67,6 +97,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if(app.get('env') === 'development') {
+    db.set('debug', true);
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
@@ -84,4 +115,4 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-module.exports = app;
+module.exports = server;

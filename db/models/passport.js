@@ -4,6 +4,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Passport = new Schema({
+    // Идентификатор пользователя (связь 1:1)
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        unique: true,
+        required: true
+    },
     // Серия
     series: {
         type: Number,
@@ -56,9 +63,10 @@ var Passport = new Schema({
     },
     // Дата выдачи
     issuedate: {
-        type: String,
+        type: Date,
         required: true
     },
+    // Код подразделения
     departmentcode: {
         type: String,
         required: true
@@ -73,8 +81,8 @@ var Passport = new Schema({
         type: String
     },
     // Копии страниц паспорта
-    scan: {
+    scan: [{
         type: Schema.Types.ObjectId
-    }
+    }]
 });
 module.exports = mongoose.model('Passport', Passport);

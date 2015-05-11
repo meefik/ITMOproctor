@@ -61,13 +61,10 @@ var Profile = Backbone.Model.extend({
     },
     isAuth: function() {
         return this.has("username");
+    },
+    isMe: function(id){
+        return this.get('_id') === id;
     }
-});
-//
-// Note model
-//
-var Note = Backbone.Model.extend({
-    rootUrl: '/api/notes'
 });
 //
 // Application routing
@@ -94,7 +91,7 @@ var Workspace = Backbone.Router.extend({
     login: function() {
         console.log("route: #login");
         this.destroy();
-        app.render("/login", function() {
+        app.render("/templates/login.tpl", function() {
             var view = new LoginView({
                 el: $("#login")
             });
@@ -105,7 +102,7 @@ var Workspace = Backbone.Router.extend({
         console.log("route: #monitor");
         if(this.redirect()) return;
         this.destroy();
-        app.render("/pages/monitor", function() {
+        app.render("/templates/monitor.tpl", function() {
             var view = new MonitorView({
                 el: $("#monitor")
             });
@@ -116,9 +113,10 @@ var Workspace = Backbone.Router.extend({
         console.log("route: #vision");
         if(this.redirect()) return;
         this.destroy();
-        app.render("/pages/workspace", function() {
+        app.render("/templates/vision.tpl", function() {
             var view = new VisionView({
-                el: $("#vision")
+                el: $("#vision"),
+                id: examid
             });
             app.content = view;
         });
@@ -201,13 +199,20 @@ var MonitorView = Backbone.View.extend({
         "click .app-logout": "doLogout"
     },
     initialize: function() {
+        // Monitor model
+        this.Monitor = Backbone.Model.extend({
+            urlRoot: '/monitor'
+        });
         this._Grid = this.$(".easyui-datagrid");
         this._DateSearch = this.$(".date-search");
         this._TextSearch = this.$(".text-search");
         this._StatusBtn1 = this.$(".status-btn1");
         this._StatusBtn2 = this.$(".status-btn2");
-        this._StatusBtn3 = this.$(".status-btn2");
+        this._StatusBtn3 = this.$(".status-btn3");
         this._TimeWidget = this.$(".time-widget");
+        this._LoguserWidget = this.$(".loguser-widget");
+        this._DialogInfo = $("#exam-info-dlg");
+        this._ExamInfoTpl = $("#exam-info-tpl");
         this.render();
     },
     destroy: function() {
@@ -220,31 +225,34 @@ var MonitorView = Backbone.View.extend({
         this._Grid.datagrid({
             columns: [
                 [{
-                    field: 'id',
+                    field: 'examId',
                     title: 'ID',
                     width: 60
                 }, {
                     field: 'student',
                     title: 'Студент',
-                    width: 150
+                    width: 150,
+                    formatter: self.formatStudent
                 }, {
-                    field: 'exam',
+                    field: 'subject',
                     title: 'Экзамен',
-                    width: 200
+                    width: 200,
+                    formatter: self.formatSubject
                 }, {
-                    field: 'date',
+                    field: 'beginDate',
                     title: 'Дата',
                     width: 150,
                     formatter: self.formatDate
                 }, {
                     field: 'duration',
-                    title: 'Длительность',
+                    title: 'Продолжительность',
                     width: 100,
                     formatter: self.formatDuration
                 }, {
-                    field: 'inspector',
+                    field: 'curator',
                     title: 'Инспектор',
-                    width: 150
+                    width: 150,
+                    formatter: self.formatCurator
                 }, {
                     field: 'status',
                     title: 'Статус',
@@ -256,7 +264,9 @@ var MonitorView = Backbone.View.extend({
                     align: 'center',
                     formatter: self.formatAction
                 }]
-            ]
+            ],
+            url: '/monitor',
+            method: 'get'
         });
         this._DateSearch.datebox({
             onSelect: function(date) {
@@ -273,36 +283,49 @@ var MonitorView = Backbone.View.extend({
                 self.doSearch();
             }
         });
+        this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("role") + ")");
         var t1 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1];
     },
     formatStatus: function(val, row) {
-        switch(val) {
+        var status = 0;
+        var d = new Date();
+        var beginDate = new Date(row.beginDate);
+        var endDate = new Date(row.endDate);
+        if(beginDate > d) status = 1;
+        if(beginDate <= d && endDate >= d) status = 2;
+        if(row.resolution === true) status = 3;
+        if(row.resolution === false) status = 4;
+        if(row.resolution == null && endDate < d) status = 5;
+        switch(status) {
             case 1:
-                return '<span style="color:red;">Идет</span>';
-            case 2:
                 return '<span style="color:orange;">Ожидает</span>';
+            case 2:
+                return '<span style="color:red;">Идет</span>';
             case 3:
                 return '<span style="color:green;">Сдан</span>';
             case 4:
                 return '<span style="color:gray;">Прерван</span>';
+            case 5:
+                return '<span style="color:blue;">Пропущен</span>';
             default:
                 return null;
         }
     },
     formatAction: function(val, row) {
-        var out = '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doInfo(\'' + row.id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
-        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doPlay(\'' + row.id + '\');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>';
+        var out = '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doInfo(\'' + row._id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
+        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doPlay(\'' + row._id + '\');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>';
         return out;
     },
     formatDuration: function(val, row) {
-        if(val == null) return null;
-        else {
-            var d = new Date(val);
-            return moment(d).utc().format('HH:mm:ss');
-        }
+        if(row.startDate == null) return null;
+        var startDate = moment(row.startDate);
+        var stopDate = moment();
+        if(row.stopDate != null) stopDate = moment(row.stopDate);
+        var duration = stopDate - startDate;
+        return moment(duration).utc().format('HH:mm:ss');
     },
     formatDate: function(val, row) {
         if(val == null) return null;
@@ -310,6 +333,20 @@ var MonitorView = Backbone.View.extend({
             var d = new Date(val);
             return moment(d).format('DD.MM.YYYY HH:mm:ss');
         }
+    },
+    formatSubject: function(val, row) {
+        if(val == null) return null;
+        return val.title + " (" + val.code + ")";
+    },
+    formatStudent: function(val, row) {
+        if(val == null) return null;
+        var user = val;
+        return user.lastname + " " + user.firstname + " " + user.middlename;
+    },
+    formatCurator: function(val, row) {
+        if(val == null || val.length === 0) return null;
+        var user = val[0];
+        return user.lastname + " " + user.firstname + " " + user.middlename;
     },
     doSearch: function() {
         var status = 0;
@@ -337,6 +374,18 @@ var MonitorView = Backbone.View.extend({
     },
     doInfo: function(rowid) {
         console.log("info " + rowid);
+        var self = this;
+        var tpl = _.template(this._ExamInfoTpl.html());
+        var monitor = new this.Monitor({
+            id: rowid
+        });
+        monitor.fetch({
+            success: function(model, response, options) {
+                var html = tpl(model.toJSON());
+                self._DialogInfo.html(html);
+                self._DialogInfo.dialog('open');
+            }
+        });
     },
     doPlay: function(rowid) {
         app.workspace.navigate("vision/" + rowid, {
@@ -353,25 +402,56 @@ var MonitorView = Backbone.View.extend({
 var VisionView = Backbone.View.extend({
     events: {
         "click .student-info-btn": "showStudentInfo",
-        "click .exam-info-btn": "showExamInfo",
+        "click .exam-info-btn": "showSubjectInfo",
         "click .exam-stop-btn": "stopExam",
         "click .exam-apply-btn": "applyExam"
     },
     initialize: function() {
-        this._DialogStudent = $('#student-info-dlg');
-        this._DialogExam = $('#exam-info-dlg');
-        this._TimeWidget = $('.time-widget');
-        this._DurationWidget = $('.duration-widget');
-        this.notes = new NotesView({
-            el: $("#panel-notes")
+        // Vision model
+        var Vision = Backbone.Model.extend({
+            urlRoot: '/vision'
         });
-        this.chat = new ChatView({
-            el: $("#panel-chat")
+        this._NetworkWidget = this.$('.network-widget');
+        this._TimeWidget = this.$('.time-widget');
+        this._DurationWidget = this.$('.duration-widget');
+        this._StudentWidget = this.$('.student-widget');
+        this._ExamWidget = this.$('.exam-widget');
+        this._DialogStudent = $('#student-info-dlg');
+        this._DialogSubject = $('#subject-info-dlg');
+        this._StudentInfoTpl = $("#student-info-tpl");
+        this._SubjectInfoTpl = $("#subject-info-tpl");
+        this.timer = moment(0);
+        this.vision = new Vision({
+            id: this.id
         });
         this.render();
     },
     render: function() {
         var self = this;
+        this.vision.fetch({
+            success: function(model, response, options) {
+                var student = model.get("student");
+                var subject = model.get("subject");
+                var startDate = model.get("beginDate");
+                var duration = moment() - moment(startDate);
+                if(duration > 0) self.timer = moment(duration);
+                self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
+                self._ExamWidget.text(subject.title + " (" + subject.code + ")");
+                // Sub views
+                self.notes = new NotesView({
+                    el: $("#panel-notes"),
+                    id: 'notes-'+self.id
+                });
+                self.chat = new ChatView({
+                    el: $("#panel-chat"),
+                    id: 'chat-'+self.id
+                });
+                self.protocol = new ProtocolView({
+                    el: $("#panel-protocol"),
+                    id: 'protocol-'+self.id
+                });
+            }
+        });
         var maximizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
             p.appendTo(container).css({
@@ -403,11 +483,11 @@ var VisionView = Backbone.View.extend({
                 }
             });
         });
-        var timer = 0;
+        this._StudentWidget.text();
+        this._ExamWidget.text();
         var t1 = setInterval(function() {
-            timer++;
-            var d = new Date(timer * 1000);
-            self._DurationWidget.text(moment(d).utc().format('HH:mm:ss'));
+            self.timer.add(1, 'seconds');
+            self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
@@ -419,13 +499,22 @@ var VisionView = Backbone.View.extend({
             clearInterval(element);
         });
         this.notes.remove();
+        this.protocol.remove();
         this.chat.remove();
     },
     showStudentInfo: function() {
+        var tpl = _.template(this._StudentInfoTpl.html());
+        var vision = this.vision.toJSON();
+        var html = tpl(vision);
+        this._DialogStudent.html(html);
         this._DialogStudent.dialog('open');
     },
-    showExamInfo: function() {
-        this._DialogExam.dialog('open');
+    showSubjectInfo: function() {
+        var tpl = _.template(this._SubjectInfoTpl.html());
+        var vision = this.vision.toJSON();
+        var html = tpl(vision);
+        this._DialogSubject.html(html);
+        this._DialogSubject.dialog('open');
     },
     stopExam: function() {
         $.messager.confirm('Прервать', 'Прервать текущий экзамен?', function(r) {
@@ -453,149 +542,128 @@ var VisionView = Backbone.View.extend({
 //
 var NotesView = Backbone.View.extend({
     events: {
-        "click .note-add-btn": "add",
-        "click .note-edit-btn": "edit",
-        "click .note-delete-btn": "delete"
+        "click .note-add-btn": "add"
     },
     initialize: function() {
-        this._Dialog = $("#note-dlg");
-        this._Grid = this.$(".easyui-datagrid");
-        this._DialogForm = this._Dialog.find("form");
-        this._DialogTime = this._Dialog.find(".note-time");
-        this._DialogText = this._Dialog.find(".note-text");
-        this.render();
-    },
-    render: function() {
-        var self = this;
-        self._Grid.datagrid({
-            columns: [
-                [{
-                    field: 'noteTime',
-                    title: 'Время',
-                    width: '30%',
-                    formatter: self.formatTime
-                }, {
-                    field: 'noteText',
-                    title: 'Текст заметки',
-                    width: '70%'
-                }]
-            ],
-            url: '/api/notes',
-            method: 'get'
-        });
-    },
-    destroy: function() {
-        // ...
-    },
-    add: function() {
-        var self = this;
-        var addNote = function() {
-            var noteText = self._DialogText.textbox('getValue');
-            $.ajax({
-                method: "POST",
-                url: "/api/notes",
-                data: {
-                    noteText: noteText
-                }
-            }).done(function(data) {
-                self._Grid.datagrid('appendRow', {
-                    noteId: data.noteId,
-                    noteTime: data.noteTime,
-                    noteText: noteText
-                });
-                self.close();
-                var rows = self._Grid.datagrid('getRows').length;
-                self._Grid.datagrid('scrollTo', rows - 1);
-            });
-        }
-        var closeDlg = function() {
-            self.close();
-        }
-        self._Dialog.dialog({
-            title: 'Добавление заметки',
-            buttons: [{
-                text: 'Сохранить',
-                iconCls: 'fa fa-check',
-                handler: addNote
-            }, {
-                text: 'Отменить',
-                iconCls: 'fa fa-times',
-                handler: closeDlg
-            }],
-            onOpen: function() {
-                moment.locale('ru');
-                var timeStr = moment().format('LLL');
-                self._DialogTime.text(timeStr);
+        // Note model
+        var Note = Backbone.Model.extend({
+            //urlRoot: '/notes'
+            idAttribute: "_id",
+            toJSON: function() {
+                return {
+                    time: moment(this.get('time')).format('HH:mm:ss'),
+                    text: this.get('text')
+                };
             }
         });
-        self._Dialog.dialog('open');
-    },
-    edit: function() {
-        var self = this;
-        var row = self._Grid.datagrid('getSelected');
-        var idx = self._Grid.datagrid('getRowIndex', row);
-        if(idx > -1) {
-            var updateNote = function() {
-                var noteText = self._DialogText.textbox('getValue');
-                $.ajax({
-                    method: "PUT",
-                    url: "/api/notes/" + row.noteId,
-                    data: {
-                        noteText: noteText
-                    }
-                }).done(function(data) {
-                    self._Grid.datagrid('updateRow', {
-                        index: idx,
-                        row: {
-                            noteText: noteText
+        // Notes collection
+        var NotesList = Backbone.Collection.extend({
+            url: '/notes',
+            model: Note,
+            comparator: 'time'
+        });
+        // Single item view
+        this.ItemView = Backbone.View.extend({
+            tagName: "li",
+            events: {
+                "click a.note-remove": "delete",
+                "click a.note-edit": "edit"
+            },
+            initialize: function() {
+                this.template = _.template($('#note-item-tpl').html());
+                this._Dialog = $("#note-dlg");
+                this._DialogForm = this._Dialog.find("form");
+                this._DialogTime = this._Dialog.find(".note-time");
+                this._DialogText = this._Dialog.find(".note-text");
+                this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'destroy', this.remove);
+            },
+            render: function() {
+                this.$el.html(this.template(this.model.toJSON()));
+                return this;
+            },
+            edit: function() {
+                var self = this;
+                var updateNote = function() {
+                    var noteText = self._DialogText.textbox('getValue');
+                    self.model.save({
+                        text: noteText
+                    }, {
+                        success: function() {
+                            self.close();
                         }
                     });
+                }
+                var closeDlg = function() {
                     self.close();
+                }
+                self._Dialog.dialog({
+                    title: 'Редактирование заметки',
+                    buttons: [{
+                        text: 'Сохранить',
+                        iconCls: 'fa fa-check',
+                        handler: updateNote
+                    }, {
+                        text: 'Отменить',
+                        iconCls: 'fa fa-times',
+                        handler: closeDlg
+                    }],
+                    onOpen: function() {
+                        moment.locale('ru');
+                        var timeStr = moment(self.model.get('time')).format('LLL');
+                        self._DialogTime.text(timeStr);
+                    }
+                });
+                self._DialogForm.form('load', this.model.toJSON());
+                self._Dialog.dialog('open');
+            },
+            close: function() {
+                this._DialogForm.form('reset');
+                this._Dialog.dialog('close');
+            },
+            delete: function() {
+                var self = this;
+                $.messager.confirm('Подтверждение', 'Вы действительно хотите удалить выбранную заметку?', function(r) {
+                    if(r) {
+                        self.model.destroy();
+                    }
                 });
             }
-            var closeDlg = function() {
-                self.close();
-            }
-            self._Dialog.dialog({
-                title: 'Редактирование заметки',
-                buttons: [{
-                    text: 'Сохранить',
-                    iconCls: 'fa fa-check',
-                    handler: updateNote
-                }, {
-                    text: 'Отменить',
-                    iconCls: 'fa fa-times',
-                    handler: closeDlg
-                }],
-                onOpen: function() {
-                    moment.locale('ru');
-                    var timeStr = moment(row.noteTime).format('LLL');
-                    self._DialogTime.text(timeStr);
-                }
-            });
-            self._DialogForm.form('load', row);
-            self._Dialog.dialog('open');
-        }
-    },
-    delete: function() {
+        });
         var self = this;
-        var row = self._Grid.datagrid('getSelected');
-        var idx = self._Grid.datagrid('getRowIndex', row);
-        if(idx > -1) {
-            $.messager.confirm('Подтверждение', 'Вы действительно хотите удалить выбранную заметку?', function(r) {
-                if(r) {
-                    self._Grid.datagrid('deleteRow', idx);
-                }
-            });
-        }
+        this._Panel = this.$(".notes-panel");
+        this._List = this.$(".notes-list");
+        this._Input = this.$(".note-input");
+        this._Input.textbox('textbox').bind('keypress', function(e) {
+            if(e.keyCode == 13) self.add();
+        });
+        this.collection = new NotesList();
+        this.listenTo(this.collection, 'add', this.appendItem);
+        this.listenTo(this.collection, 'remove', this.removeItem);
+        this.collection.fetch();
+        app.socket.on(this.id, function(data) {
+            if (!app.profile.isMe(data.userId)) {
+                self.collection.fetch();
+            }
+        });
     },
-    close: function() {
-        this._DialogForm.form('reset');
-        this._Dialog.dialog('close');
+    add: function() {
+        var noteText = this._Input.textbox('getValue');
+        if(!noteText) return;
+        this.collection.create({
+            text: noteText
+        });
+        this._Input.textbox('setValue', '');
     },
-    formatTime: function(val, row) {
-        var noteTime = moment(val).format('HH:mm:ss');
-        return noteTime;
+    appendItem: function(model) {
+        var view = new this.ItemView({
+            model: model
+        });
+        this._List.append(view.render().el);
+        this._Panel.scrollTop(this._Panel[0].scrollHeight);
+    },
+    removeItem: function(model) {
+        model.destroy();
     }
 });
 //
@@ -610,61 +678,150 @@ var ChatView = Backbone.View.extend({
         "change .chat-attach": "doFileChange"
     },
     initialize: function() {
+        // Chat model
+        var Chat = Backbone.Model.extend({
+            idAttribute: "_id",
+            toJSON: function() {
+                var time = moment(this.get('time')).format('HH:mm:ss');
+                var author = this.get('author');
+                var text = this.get('text');
+                var me = app.profile.isMe(author._id);
+                author = author.lastname + " " + author.firstname.charAt(0) + "." + author.middlename.charAt(0) + ".";
+                return {
+                    color: me ? 'red' : 'blue',
+                    time: time,
+                    author: author,
+                    text: text
+                };
+            }
+        });
+        // Chat collection
+        var ChatList = Backbone.Collection.extend({
+            url: '/chat',
+            model: Chat,
+            comparator: 'time'
+        });
+        // Single item view
+        this.ItemView = Backbone.View.extend({
+            tagName: "li",
+            initialize: function() {
+                //console.log('initialize');
+                this.template = _.template($('#chat-item-tpl').html());
+                this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'destroy', this.remove);
+            },
+            render: function() {
+                //console.log('render');
+                this.$el.html(this.template(this.model.toJSON()));
+                return this;
+            }
+        });
+        this._Panel = this.$(".chat-panel");
+        this._Form = this.$("form");
         this._Input = this.$(".chat-input");
         this._Output = this.$(".chat-output");
         this._File = this.$(".chat-file");
         this._Attach = this.$(".chat-attach");
         this._Progress = this.$(".chat-progress");
-        this._Form = this.$("form");
-        this.render();
+        $.extend($.fn.progressbar.methods, {
+            setColor: function(jq, color) {
+                var pb = jq.find('.progressbar-value > .progressbar-text');
+                var defaultColor = $.data(jq[0], 'progressbar').options.color;
+                if(!defaultColor) {
+                    defaultColor = pb.css('backgroundColor');
+                    $.data(jq[0], 'progressbar').options.color = defaultColor;
+                }
+                if(color) {
+                    pb.css({
+                        backgroundColor: color
+                    });
+                } else {
+                    pb.css({
+                        backgroundColor: defaultColor
+                    });
+                }
+            }
+        });
+        this.collection = new ChatList();
+        this.listenTo(this.collection, 'add', this.appendItem);
+        this.collection.fetch();
+        var self = this;
+        app.socket.on(this.id, function(data) {
+            if (!app.profile.isMe(data.userId)) {
+                self.collection.fetch();
+            }
+        });
     },
-    render: function() {
-        // ...
+    postMessage: function() {
+        var text = this._Input.text();
+        this._Input.html('');
+        if(!text) return;
+        var author = {
+            _id: app.profile.get('_id'),
+            lastname: app.profile.get('lastname'),
+            firstname: app.profile.get('firstname'),
+            middlename: app.profile.get('middlename')
+        };
+        this.collection.create({
+            author: author,
+            text: text
+        });
     },
-    destroy: function() {
-        // ...
+    attachFile: function() {
+        var files = this.files;
+        if(!files) return;
+        var author = {
+            _id: app.profile.get('_id'),
+            lastname: app.profile.get('lastname'),
+            firstname: app.profile.get('firstname'),
+            middlename: app.profile.get('middlename')
+        };
+        var text = 'Файл: <a href="' + files[0].path + '" target="_blank">' + files[0].originalname + '</a>';
+        this.collection.create({
+            author: author,
+            text: text
+        });
+        this.doReset();
     },
-    doAttach: function() {
-        this._Attach.trigger('click');
-    },
-    doReset: function() {
-        this.filename = null;
-        this._File.fadeOut();
-        this._Form.trigger('reset');
+    appendItem: function(model) {
+        var view = new this.ItemView({
+            model: model
+        });
+        this._Output.append(view.render().el);
+        this._Panel.scrollTop(this._Panel[0].scrollHeight);
     },
     doSend: function() {
-        var str = this._Input.text();
-        if(str.length > 0) {
-            var text = '<div><span style="color:red">[' + moment().format('HH:mm:ss') + '] Я:</span> ' + str + '</div>';
-        }
-        if(this.filename) {
-            var link = '<div><span style="color:blue">Файл:</span> <a href="#">' + this.filename + '</a></div>';
-            this.doReset();
-        }
-        this._Output.append(text);
-        this._Output.append(link);
-        this._Input.html('');
-        var height = this._Output[0].scrollHeight;
-        this._Output.scrollTop(height);
+        this.postMessage();
+        this.attachFile();
     },
     doInputKeyup: function(e) {
         if(e.keyCode == 13) {
             this.doSend();
         }
     },
+    doAttach: function() {
+        this._Attach.trigger('click');
+    },
+    doReset: function() {
+        this.files = null;
+        this._File.hide();
+        this._Form.trigger('reset');
+    },
     doFileChange: function() {
         var self = this;
+        var limitSize = 10 * 1024 * 1024; // 10 MB
         var data = new FormData();
         var files = self._Attach[0].files;
-        if(files.length == 0) {
+        if(files.length === 0 || files[0].size > limitSize) {
             self.doReset();
             return;
         }
         $.each(files, function(key, value) {
             data.append(key, value);
         });
-        self.filename = files['0'].name;
-        self._File.fadeIn();
+        var filename = files['0'].name;
+        self._Progress.progressbar('setColor', null);
+        self._File.show();
         var trancateFile = function(filename, length) {
             var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
             if(filename.length > length) {
@@ -674,23 +831,81 @@ var ChatView = Backbone.View.extend({
         }
         self._Progress.progressbar({
             value: 0,
-            text: trancateFile(self.filename, 15)
+            text: trancateFile(filename, 15)
         });
         $.ajax({
             type: 'post',
-            url: '/api/upload',
+            url: '/upload',
             data: data,
-            xhrFields: {
-                onprogress: function(progress) {
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
+                xhr.upload.onprogress = function(progress) {
                     var percentage = Math.floor((progress.loaded / progress.total) * 100);
                     self._Progress.progressbar('setValue', percentage);
-                }
+                };
+                return xhr;
             },
             processData: false,
             contentType: false
         }).done(function(data) {
+            self.files = data;
             console.log(data);
+            self._Progress.progressbar('setColor', 'green');
         });
+    }
+});
+//
+// Protocol view
+//
+var ProtocolView = Backbone.View.extend({
+    initialize: function() {
+        // Protocol model
+        var Protocol = Backbone.Model.extend({
+            idAttribute: "_id",
+            toJSON: function() {
+                return {
+                    time: moment(this.get('time')).format('HH:mm:ss'),
+                    text: this.get('text')
+                };
+            }
+        });
+        // Protocol collection
+        var ProtocolList = Backbone.Collection.extend({
+            url: '/protocol',
+            model: Protocol,
+            comparator: 'time'
+        });
+        // Single item view
+        this.ItemView = Backbone.View.extend({
+            tagName: "li",
+            initialize: function() {
+                this.template = _.template($('#protocol-item-tpl').html());
+                this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'destroy', this.remove);
+            },
+            render: function() {
+                this.$el.html(this.template(this.model.toJSON()));
+                return this;
+            }
+        });
+        this._Panel = this.$(".protocol-panel");
+        this._Output = this.$(".protocol-output");
+        this.collection = new ProtocolList();
+        this.listenTo(this.collection, 'add', this.appendItem);
+        this.collection.fetch();
+        var self = this;
+        app.socket.on(this.id, function(data) {
+            if (!app.profile.isMe(data.userId)) {
+                self.collection.fetch();
+            }
+        });
+    },
+    appendItem: function(model) {
+        var view = new this.ItemView({
+            model: model
+        });
+        this._Output.append(view.render().el);
+        this._Panel.scrollTop(this._Panel[0].scrollHeight);
     }
 });
 //
@@ -699,6 +914,8 @@ var ChatView = Backbone.View.extend({
 var AppView = Backbone.View.extend({
     initialize: function() {
         app = this;
+        var url = window.location.host + '/notify';
+        this.socket = io.connect(url);
         this.workspace = new Workspace();
         this.profile = new Profile();
         this.profile.update();
