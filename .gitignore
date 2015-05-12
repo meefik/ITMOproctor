@@ -31,3 +31,6 @@ public/data
 
 # Bower
 bower_components
+
+# Uploads
+uploads/

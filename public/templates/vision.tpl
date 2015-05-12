@@ -1,13 +1,9 @@
 <div id="vision" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#menu-help',iconCls:'fa fa-question-circle'">Справка</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
-            <a href="javascript:void(0);" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></a>
-        </div>
-        <div id="menu-help">
-            <div>Помощь</div>
-            <div>О программе</div>
+            <button class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</button>
+            <button class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></button>
+            <button class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></button>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
@@ -99,8 +95,8 @@
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Продолжительность: <strong><span class="duration-widget">00:00:00</span>
             </strong>
             </span>
-            <a href="javascript:void(0);" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</a>
-            <a href="javascript:void(0);" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</a>
+            <button class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</button>
+            <button class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</button>
         </div>
     </div>
 </div>

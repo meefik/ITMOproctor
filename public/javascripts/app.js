@@ -418,6 +418,7 @@ var MonitorView = Backbone.View.extend({
 //
 var VisionView = Backbone.View.extend({
     events: {
+        "click .screenshot-btn": "doScreenshot",
         "click .student-info-btn": "showStudentInfo",
         "click .exam-info-btn": "showSubjectInfo",
         "click .exam-stop-btn": "stopExam",
@@ -532,6 +533,9 @@ var VisionView = Backbone.View.extend({
         var html = tpl(vision);
         this._DialogSubject.html(html);
         this._DialogSubject.dialog('open');
+    },
+    doScreenshot: function() {
+        // ...
     },
     stopExam: function() {
         var self = this;
