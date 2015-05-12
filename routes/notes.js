@@ -8,7 +8,11 @@ router.get('/', function(req, res) {
         examId: req.user.examId
     };
     dao.notes.list(args, function(err, data) {
-        res.json(data);
+        if(!err && data) {
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 // Create new note
@@ -19,8 +23,12 @@ router.post('/', function(req, res) {
         text: req.body.text
     };
     dao.notes.add(args, function(err, data) {
-        req.notify('notes');
-        res.json(data);
+        if(!err && data) {
+            req.notify('notes');
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 // Update note
@@ -32,8 +40,12 @@ router.put('/:noteId', function(req, res) {
         text: req.body.text
     };
     dao.notes.update(args, function(err, data) {
-        req.notify('notes');
-        res.json(data);
+        if(!err && data) {
+            req.notify('notes');
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 // Delete note
@@ -44,8 +56,12 @@ router.delete('/:noteId', function(req, res) {
         examId: req.user.examId
     };
     dao.notes.delete(args, function(err, data) {
-        req.notify('notes');
-        res.json(data);
+        if(!err && data) {
+            req.notify('notes');
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 module.exports = router;

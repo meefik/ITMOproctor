@@ -105,7 +105,7 @@ var dao = {
         }
     },
     vision: {
-        info: function(args, callback) {
+        start: function(args, callback) {
             var opts = [{
                 path: 'subject'
             }, {
@@ -114,30 +114,47 @@ var dao = {
                 path: 'curator'
             }];
             var Exam = require('./models/exam');
+            var Passport = require('./models/passport');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                if(err) {
+                if(err || !exam) {
                     callback(err, exam);
                 } else {
+                    //console.log(exam);
                     var data = exam.toJSON();
-                    data.passport = {
-                        lastname: "Иванов",
-                        firstname: "Иван",
-                        middlename: "Иванович",
-                        gender: "Мужской",
-                        birthday: moment("01.02.1993", "DD.MM.YYYY"),
-                        citizenship: "РФ",
-                        birthplace: "Москва",
-                        series: "1234",
-                        number: "123456",
-                        department: "ОВД какого-то района",
-                        issuedate: moment("02.03.2010", "DD.MM.YYYY"),
-                        departmentcode: "123-456-789",
-                        registration: "Город, Улица, Дом, Квартира",
-                        description: "-"
-                    };
-                    callback(err, data);
+                    Passport.findOne({
+                        userId: data.student._id
+                    }).exec(function(err, passport) {
+                        if(err) data.passport = null;
+                        else {
+                            data.passport = passport;
+                        }
+                        callback(err, data);
+                    });
+                    Exam.update({
+                        _id: args.examId
+                    }, {
+                        $set: {
+                            startDate: exam.startDate || moment().toJSON(),
+                        },
+                        $addToSet: {
+                            curator: args.userId
+                        }
+                    }, function(err, data) {
+                        if(err) console.log(err);
+                    });
                 }
             });
+        },
+        finish: function(args, callback) {
+            var Exam = require('./models/exam');
+            Exam.update({
+                _id: args.examId
+            }, {
+                $set: {
+                    stopDate: moment(),
+                    resolution: args.resolution
+                }
+            }, callback);
         }
     },
     notes: {
@@ -186,7 +203,7 @@ var dao = {
             var User = require('./models/user');
             var chat = new Chat(args);
             chat.save(function(err, data) {
-                if(err) callback(err, data);
+                if(err || !data) callback(err, data);
                 else {
                     Chat.populate(data, {
                         path: 'author',

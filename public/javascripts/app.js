@@ -62,7 +62,7 @@ var Profile = Backbone.Model.extend({
     isAuth: function() {
         return this.has("username");
     },
-    isMe: function(id){
+    isMe: function(id) {
         return this.get('_id') === id;
     }
 });
@@ -213,6 +213,7 @@ var MonitorView = Backbone.View.extend({
         this._LoguserWidget = this.$(".loguser-widget");
         this._DialogInfo = $("#exam-info-dlg");
         this._ExamInfoTpl = $("#exam-info-tpl");
+        this._ActionItemTpl = $("#action-item-tpl");
         this.render();
     },
     destroy: function() {
@@ -283,7 +284,13 @@ var MonitorView = Backbone.View.extend({
                 self.doSearch();
             }
         });
-        this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("role") + ")");
+        var role = {
+            "0": "Гость",
+            "1": "Студент",
+            "2": "Инспектор",
+            "3": "Преподаватель"
+        };
+        this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + role[app.profile.get("role")] + ")");
         var t1 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
         }, 1000);
@@ -315,9 +322,19 @@ var MonitorView = Backbone.View.extend({
         }
     },
     formatAction: function(val, row) {
-        var out = '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doInfo(\'' + row._id + '\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>';
-        out += '<a href="javascript:void(0);" style="padding:0 8px 0 8px;" onclick="app.content.doPlay(\'' + row._id + '\');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>';
-        return out;
+        var html = '<div class="action-item" style="clear:both">\
+            <a href="javascript:void(0);" style="padding-left:10px;float:left" onclick="app.content.doInfo(\'<%- rowId %>\');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>\
+            <% if(openEnabled) { %>\
+            <a href="javascript:void(0);" style="padding-right:10px;float:right" onclick="app.content.doPlay(\'<%- rowId %>\');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>\
+            <% } %></div>';
+        var tpl = _.template(html);
+        var d = new Date();
+        var startDate = row.startDate;
+        var endDate = new Date(row.endDate);
+        return tpl({
+            rowId: row._id,
+            openEnabled: (endDate > d || (row.resolution == null && startDate != null))
+        });
     },
     formatDuration: function(val, row) {
         if(row.startDate == null) return null;
@@ -440,15 +457,15 @@ var VisionView = Backbone.View.extend({
                 // Sub views
                 self.notes = new NotesView({
                     el: $("#panel-notes"),
-                    id: 'notes-'+self.id
+                    id: 'notes-' + self.id
                 });
                 self.chat = new ChatView({
                     el: $("#panel-chat"),
-                    id: 'chat-'+self.id
+                    id: 'chat-' + self.id
                 });
                 self.protocol = new ProtocolView({
                     el: $("#panel-protocol"),
-                    id: 'protocol-'+self.id
+                    id: 'protocol-' + self.id
                 });
             }
         });
@@ -517,21 +534,35 @@ var VisionView = Backbone.View.extend({
         this._DialogSubject.dialog('open');
     },
     stopExam: function() {
+        var self = this;
         $.messager.confirm('Прервать', 'Прервать текущий экзамен?', function(r) {
             if(r) {
-                console.log('exam stop');
-                app.workspace.navigate("monitor", {
-                    trigger: true
+                self.vision.save({
+                    _id: self.id,
+                    resolution: false
+                }, {
+                    success: function() {
+                        app.workspace.navigate("monitor", {
+                            trigger: true
+                        });
+                    }
                 });
             }
         });
     },
     applyExam: function() {
+        var self = this;
         $.messager.confirm('Подписать', 'Подписать текущий экзамен?', function(r) {
             if(r) {
-                console.log('exam apply');
-                app.workspace.navigate("monitor", {
-                    trigger: true
+                self.vision.save({
+                    _id: self.id,
+                    resolution: true
+                }, {
+                    success: function() {
+                        app.workspace.navigate("monitor", {
+                            trigger: true
+                        });
+                    }
                 });
             }
         });
@@ -642,7 +673,7 @@ var NotesView = Backbone.View.extend({
         this.listenTo(this.collection, 'remove', this.removeItem);
         this.collection.fetch();
         app.socket.on(this.id, function(data) {
-            if (!app.profile.isMe(data.userId)) {
+            if(!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
@@ -747,7 +778,7 @@ var ChatView = Backbone.View.extend({
         this.collection.fetch();
         var self = this;
         app.socket.on(this.id, function(data) {
-            if (!app.profile.isMe(data.userId)) {
+            if(!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
@@ -895,7 +926,7 @@ var ProtocolView = Backbone.View.extend({
         this.collection.fetch();
         var self = this;
         app.socket.on(this.id, function(data) {
-            if (!app.profile.isMe(data.userId)) {
+            if(!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });

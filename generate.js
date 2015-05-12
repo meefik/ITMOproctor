@@ -5,6 +5,7 @@ var moment = require('moment');
 var User = require('./db/models/user');
 var Exam = require('./db/models/exam');
 var Subject = require('./db/models/subject');
+var Passport = require('./db/models/passport');
 var DatabaseGenerator = {
     rowAmount: 100,
     randomizeNumber: function(min, max) {
@@ -109,6 +110,26 @@ var DatabaseGenerator = {
                 if(err) console.log(err);
                 else {
                     console.log("user: " + data.username + " " + data._id);
+                    var passport = new Passport({
+                        userId: data._id,
+                        lastname: data.lastname,
+                        firstname: data.firstname,
+                        middlename: data.middlename,
+                        gender: "Мужской",
+                        birthday: data.birthday,
+                        citizenship: "РФ",
+                        birthplace: "Москва",
+                        series: "1234",
+                        number: "123456",
+                        department: "ОВД какого-то района",
+                        issuedate: moment("02.03.2010", "DD.MM.YYYY"),
+                        departmentcode: "123-456-789",
+                        registration: "Город, Улица, Дом, Квартира",
+                        description: "-"
+                    });
+                    passport.save(function(err, data) {
+                        if(err) console.log(err);
+                    });
                 }
             });
         }
@@ -276,7 +297,7 @@ var DatabaseGenerator = {
                             eBeginDate = moment(bdate + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
                             eEndDate = moment(edate + ' ' + endHour + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = null;
-                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(),eBeginDate.valueOf()+1800000));
+                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
                             eStopDate = null;
                             eCurator = self.setCurators(users);
                             break;
@@ -286,8 +307,8 @@ var DatabaseGenerator = {
                             eBeginDate = moment(date + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
                             eEndDate = moment(date + ' ' + (startHour + 3) + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = true;
-                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(),eBeginDate.valueOf()+1800000));
-                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(),eEndDate.valueOf()));
+                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
+                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(), eEndDate.valueOf()));
                             eCurator = self.setCurators(users);
                             break;
                         case 3: //прерван
@@ -296,8 +317,8 @@ var DatabaseGenerator = {
                             eBeginDate = moment(date + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
                             eEndDate = moment(date + ' ' + (startHour + 3) + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = false;
-                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(),eBeginDate.valueOf()+1800000));
-                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(),eEndDate.valueOf()));
+                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
+                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(), eEndDate.valueOf()));
                             eCurator = self.setCurators(users);
                             break;
                         case 4: //пропущен
@@ -310,7 +331,7 @@ var DatabaseGenerator = {
                             eStopDate = null;
                             eCurator = [];
                             break;
-                    }                    
+                    }
                     // save exam
                     var userExam = {
                         examId: examFirstIdRandom,
@@ -347,7 +368,7 @@ var DatabaseGenerator = {
             middlename: 'Демович',
             email: 'demo@example.com',
             birthday: moment('12.03.1982', 'DD.MM.YYYY'),
-            role: 0
+            role: 2 // Инспектор
         }];
         User.remove({}, function(err) {
             userArr.forEach(function(item) {
@@ -357,7 +378,9 @@ var DatabaseGenerator = {
                     else console.log("user: " + data.username + " " + data._id);
                 });
             });
-            DatabaseGenerator.generateUsers();
+            Passport.remove({}, function(err) {
+                DatabaseGenerator.generateUsers();
+            });
         });
         setTimeout(function() {
             Subject.remove({}, function(err) {

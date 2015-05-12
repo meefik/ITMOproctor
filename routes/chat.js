@@ -8,7 +8,11 @@ router.get('/', function(req, res) {
         examId: req.user.examId
     };
     dao.chat.list(args, function(err, data) {
-        res.json(data);
+        if(!err && data) {
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 // Create new message
@@ -19,8 +23,12 @@ router.post('/', function(req, res) {
         text: req.body.text
     };
     dao.chat.add(args, function(err, data) {
-        req.notify('chat');
-        res.json(data);
+        if(!err && data) {
+            req.notify('chat');
+            res.json(data);
+        } else {
+            res.status(400).end();
+        }
     });
 });
 module.exports = router;
