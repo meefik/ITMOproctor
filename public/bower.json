@@ -12,6 +12,7 @@
     "moment": "~2.10.2",
     "font-awesome": "~4.3.0",
     "jeasyui": "~1.4.2",
-    "backbone": "master"
+    "backbone": "master",
+    "html2canvas": "~0.4.1"
   }
 }

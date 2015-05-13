@@ -15,7 +15,7 @@
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong class="time-widget">00:00:00</strong></span>
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'"><span class="loguser-widget">...</span></span>
-            <button class="easyui-linkbutton app-logout" data-options="iconCls:'fa fa-sign-out'" style="float:right;">Выход</button>
+            <a href="javascript:void(0)" class="easyui-linkbutton app-logout" data-options="iconCls:'fa fa-sign-out'" style="float:right;">Выход</a>
         </div>
     </div>
 </div>

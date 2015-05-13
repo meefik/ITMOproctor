@@ -436,6 +436,9 @@ var VisionView = Backbone.View.extend({
         this._ExamWidget = this.$('.exam-widget');
         this._DialogStudent = $('#student-info-dlg');
         this._DialogSubject = $('#subject-info-dlg');
+        this._DialogScreenshot = $("#screenshot-dlg");
+        this._ScreenshotPreview = this._DialogScreenshot.find('img');
+        this._ScreenshotComment = this._DialogScreenshot.find('.screenshot-comment');
         this._StudentInfoTpl = $("#student-info-tpl");
         this._SubjectInfoTpl = $("#subject-info-tpl");
         this.timer = moment(0);
@@ -535,7 +538,55 @@ var VisionView = Backbone.View.extend({
         this._DialogSubject.dialog('open');
     },
     doScreenshot: function() {
-        // ...
+        var self = this;
+        var dataUrl;
+        var closeBtn = function() {
+            self._DialogScreenshot.dialog('close');
+            self._ScreenshotComment.textbox('setValue', '');
+        };
+        var saveBtn = function() {
+            var blobBin = atob(dataUrl.split(',')[1]);
+            var array = [];
+            for(var i = 0; i < blobBin.length; i++) {
+                array.push(blobBin.charCodeAt(i));
+            }
+            var file = new Blob([new Uint8Array(array)], {
+                type: 'image/png'
+            });
+            var formdata = new FormData();
+            formdata.append("screenshot", file, "screenshot.png");
+            $.ajax({
+                url: "/upload",
+                type: "post",
+                data: formdata,
+                processData: false,
+                contentType: false,
+            }).done(function(respond) {
+                console.log(respond);
+                closeBtn();
+            });
+        };
+        html2canvas(document.body, {
+            onrendered: function(canvas) {
+                dataUrl = canvas.toDataURL('image/png');
+                $(canvas).remove();
+                self._DialogScreenshot.dialog({
+                    buttons: [{
+                        text: 'Сохранить',
+                        iconCls: 'fa fa-check',
+                        handler: saveBtn
+                    }, {
+                        text: 'Отменить',
+                        iconCls: 'fa fa-times',
+                        handler: closeBtn
+                    }]
+                });
+                self._ScreenshotPreview.attr({
+                    src: dataUrl
+                });
+                self._DialogScreenshot.dialog('open');
+            }
+        });
     },
     stopExam: function() {
         var self = this;

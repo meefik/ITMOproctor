@@ -1,9 +1,9 @@
 <div id="vision" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <button class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</button>
-            <button class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></button>
-            <button class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></button>
+            <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></a>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
@@ -95,19 +95,23 @@
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Продолжительность: <strong><span class="duration-widget">00:00:00</span>
             </strong>
             </span>
-            <button class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</button>
-            <button class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</button>
+            <a href="javascript:void(0)" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</a>
         </div>
     </div>
 </div>
 <!-- Dialogs -->
-<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="iconCls:'fa fa-user',resizable:true,modal:true,closed:true"></div>
-<div id="subject-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="iconCls:'fa fa-tags',resizable:true,modal:true,closed:true"></div>
+<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,modal:true,closed:true"></div>
+<div id="subject-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="resizable:true,modal:true,closed:true"></div>
 <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
     <form>
         <p>Заметка на <strong class="note-time"></strong></p>
         <input type="text" name="text" class="easyui-textbox note-text" data-options="width:'100%',height:150,multiline:true,prompt:'Введите текст заметки...'">
     </form>
+</div>
+<div id="screenshot-dlg" class="easyui-dialog" title="Снимок экрана" style="padding:5px;width:500px;height:415px;text-align:center;" data-options="modal:true,closed:true">
+    <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
+    <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
 <!-- Templates -->
 <script type="text/template" id="subject-info-tpl">
