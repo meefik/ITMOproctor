@@ -13,6 +13,6 @@
     "font-awesome": "~4.3.0",
     "jeasyui": "~1.4.2",
     "backbone": "master",
-    "html2canvas": "~0.4.1"
+    "html2canvas": "master"
   }
 }
