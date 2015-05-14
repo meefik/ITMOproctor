@@ -117,13 +117,13 @@
 </div>
 <div id="exam-apply-dlg" style="padding:5px">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">принять</strong> экзамен, отменить операцию будет невозможно.</div> 
-    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold"></span></div>
-    <input class="easyui-validatebox textbox protection-code-input" style="width:50px;font-size:12px;padding:3px">
+    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
+    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
 </div>
 <div id="exam-reject-dlg" style="padding:5px">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:red">прервать</strong> экзамен, отменить операцию будет невозможно.</div> 
-    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold"></span></div>
-    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;padding:3px">
+    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
+    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
     <div style="padding-top:10px;padding-bottom:3px">Комментарий:</div>
     <input class="easyui-textbox reject-comment" data-options="multiline:true,prompt:'Введите комментарий...'" style="width:100%;height:50px;">
 </div>
