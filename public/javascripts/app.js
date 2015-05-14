@@ -421,10 +421,11 @@ var VisionView = Backbone.View.extend({
         "click .screenshot-btn": "doScreenshot",
         "click .student-info-btn": "showStudentInfo",
         "click .exam-info-btn": "showSubjectInfo",
-        "click .exam-stop-btn": "stopExam",
+        "click .exam-stop-btn": "rejectExam",
         "click .exam-apply-btn": "applyExam"
     },
     initialize: function() {
+        var self = this;
         // Vision model
         var Vision = Backbone.Model.extend({
             urlRoot: '/vision'
@@ -439,8 +440,24 @@ var VisionView = Backbone.View.extend({
         this._DialogScreenshot = $("#screenshot-dlg");
         this._ScreenshotPreview = this._DialogScreenshot.find('img');
         this._ScreenshotComment = this._DialogScreenshot.find('.screenshot-comment');
+        this._DialogExamApply = $("#exam-apply-dlg");
+        this._ApplyCode = this._DialogExamApply.find('.protection-code');
+        this._ApplyCodeInput = this._DialogExamApply.find('.protection-code-input');
+        this._DialogExamReject = $("#exam-reject-dlg");
+        this._RejectCode = this._DialogExamReject.find('.protection-code');
+        this._RejectCodeInput = this._DialogExamReject.find('.protection-code-input');
+        this._RejectComment = this._DialogExamReject.find('.reject-comment');
         this._StudentInfoTpl = $("#student-info-tpl");
         this._SubjectInfoTpl = $("#subject-info-tpl");
+        // set validate method
+        $.extend($.fn.validatebox.defaults.rules, {
+            protectionCode: {
+                validator: function(value, param) {
+                    return value == self.protectionCode;
+                },
+                message: 'Неверный код подтверждения'
+            }
+        });
         this.timer = moment(0);
         this.vision = new Vision({
             id: this.id
@@ -491,7 +508,7 @@ var VisionView = Backbone.View.extend({
             });
             pobj.panel('resize');
         }
-        self.$(".ws-widget").each(function(index) {
+        this.$(".ws-widget").each(function(index) {
             var ws = self.$(".ws-content");
             var container = $(this);
             var widget = container.find(".easyui-panel");
@@ -503,6 +520,14 @@ var VisionView = Backbone.View.extend({
                     restoreWidget(container, widget);
                 }
             });
+        });
+        this._ApplyCodeInput.validatebox({
+            required: true,
+            validType: 'protectionCode',
+        });
+        this._RejectCodeInput.validatebox({
+            required: true,
+            validType: 'protectionCode',
         });
         this._StudentWidget.text();
         this._ExamWidget.text();
@@ -570,7 +595,11 @@ var VisionView = Backbone.View.extend({
             onrendered: function(canvas) {
                 dataUrl = canvas.toDataURL('image/png');
                 $(canvas).remove();
+                self._ScreenshotPreview.attr({
+                    src: dataUrl
+                });
                 self._DialogScreenshot.dialog({
+                    closed: false,
                     buttons: [{
                         text: 'Сохранить',
                         iconCls: 'fa fa-check',
@@ -581,46 +610,102 @@ var VisionView = Backbone.View.extend({
                         handler: closeBtn
                     }]
                 });
-                self._ScreenshotPreview.attr({
-                    src: dataUrl
-                });
-                self._DialogScreenshot.dialog('open');
             }
         });
     },
-    stopExam: function() {
+    rejectExam: function() {
         var self = this;
-        $.messager.confirm('Прервать', 'Прервать текущий экзамен?', function(r) {
-            if(r) {
-                self.vision.save({
-                    _id: self.id,
-                    resolution: false
-                }, {
-                    success: function() {
-                        app.workspace.navigate("monitor", {
-                            trigger: true
+        var reset = function() {
+            self.generateCode();
+            self._RejectCode.text(self.protectionCode);
+            self._RejectCodeInput.val('');
+            self._RejectCodeInput.focus();
+        };
+        this._DialogExamReject.dialog({
+            title: 'Прервать экзамен',
+            closed: false,
+            width: 350,
+            height: 245,
+            buttons: [{
+                text: 'Подтвердить',
+                handler: function() {
+                    if(self._RejectCodeInput.validatebox('isValid')) {
+                        self.vision.save({
+                            _id: self.id,
+                            resolution: false,
+                            comment: self._RejectComment.textbox('getValue')
+                        }, {
+                            success: function() {
+                                self._DialogExamReject.dialog('close');
+                                app.workspace.navigate("monitor", {
+                                    trigger: true
+                                });
+                            }
                         });
+                    } else {
+                        reset();
                     }
-                });
+                }
+            }, {
+                text: 'Отмена',
+                handler: function() {
+                    self._DialogExamReject.dialog('close');
+                }
+            }],
+            onOpen: function() {
+                reset();
             }
         });
     },
     applyExam: function() {
         var self = this;
-        $.messager.confirm('Подписать', 'Подписать текущий экзамен?', function(r) {
-            if(r) {
-                self.vision.save({
-                    _id: self.id,
-                    resolution: true
-                }, {
-                    success: function() {
-                        app.workspace.navigate("monitor", {
-                            trigger: true
+        var reset = function() {
+            self.generateCode();
+            self._ApplyCode.text(self.protectionCode);
+            self._ApplyCodeInput.val('');
+            self._ApplyCodeInput.focus();
+        };
+        this._DialogExamApply.dialog({
+            title: 'Принять экзамен',
+            closed: false,
+            width: 350,
+            height: 180,
+            buttons: [{
+                text: 'Подтвердить',
+                handler: function() {
+                    if(self._ApplyCodeInput.validatebox('isValid')) {
+                        self.vision.save({
+                            _id: self.id,
+                            resolution: true,
+                            comment: null
+                        }, {
+                            success: function() {
+                                self._DialogExamApply.dialog('close');
+                                app.workspace.navigate("monitor", {
+                                    trigger: true
+                                });
+                            }
                         });
+                    } else {
+                        reset();
                     }
-                });
+                }
+            }, {
+                text: 'Отмена',
+                handler: function() {
+                    self._DialogExamApply.dialog('close');
+                }
+            }],
+            onOpen: function() {
+                reset();
             }
         });
+    },
+    generateCode: function() {
+        var randomizeNumber = function(min, max) {
+            return Math.ceil((Math.random() * (max - min)) + min);
+        }
+        this.protectionCode = randomizeNumber(1000, 9999);
     }
 });
 //

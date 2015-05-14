@@ -152,7 +152,8 @@ var dao = {
             }, {
                 $set: {
                     stopDate: moment(),
-                    resolution: args.resolution
+                    resolution: args.resolution,
+                    comment: args.comment
                 }
             }, callback);
         }

@@ -19,8 +19,10 @@ router.get('/:examId', function(req, res) {
 router.put('/:examId', function(req, res) {
     var args = {
         examId: req.user.examId,
-        resolution: req.body.resolution
+        resolution: req.body.resolution,
+        comment: req.body.comment
     }
+    console.log(args);
     dao.vision.finish(args, function(err, data) {
         if(!err && data) {
             delete req.user.examId;

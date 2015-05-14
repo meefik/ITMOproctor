@@ -11,7 +11,9 @@
             <div data-options="region:'west',border:false" style="width:30%">
                 <div class="easyui-layout" data-options="fit:true">
                     <div data-options="region:'north',border:false" class="ws-widget" style="height:40%">
-                        <div id="panel-video" class="easyui-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">&nbsp;</div>
+                        <div id="panel-video" class="easyui-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
+                            &nbsp;
+                        </div>
                     </div>
                     <div data-options="region:'center',border:false" class="ws-widget">
                         <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
@@ -112,6 +114,18 @@
 <div id="screenshot-dlg" class="easyui-dialog" title="Снимок экрана" style="padding:5px;width:500px;height:415px;text-align:center;" data-options="modal:true,closed:true">
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
+</div>
+<div id="exam-apply-dlg" style="padding:5px">
+    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">принять</strong> экзамен, отменить операцию будет невозможно.</div> 
+    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold"></span></div>
+    <input class="easyui-validatebox textbox protection-code-input" style="width:50px;font-size:12px;padding:3px">
+</div>
+<div id="exam-reject-dlg" style="padding:5px">
+    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:red">прервать</strong> экзамен, отменить операцию будет невозможно.</div> 
+    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold"></span></div>
+    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;padding:3px">
+    <div style="padding-top:10px;padding-bottom:3px">Комментарий:</div>
+    <input class="easyui-textbox reject-comment" data-options="multiline:true,prompt:'Введите комментарий...'" style="width:100%;height:50px;">
 </div>
 <!-- Templates -->
 <script type="text/template" id="subject-info-tpl">
