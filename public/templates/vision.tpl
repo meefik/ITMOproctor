@@ -115,12 +115,12 @@
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
-<div id="exam-apply-dlg" style="padding:5px">
+<div id="exam-apply-dlg" style="padding:5px" title="Принять экзамен" data-options="width:350,height:180,modal:true,closed:true">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">принять</strong> экзамен, отменить операцию будет невозможно.</div> 
     <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
     <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
 </div>
-<div id="exam-reject-dlg" style="padding:5px">
+<div id="exam-reject-dlg" style="padding:5px" title="Прервать экзамен" data-options="width:350,height:245,modal:true,closed:true">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:red">прервать</strong> экзамен, отменить операцию будет невозможно.</div> 
     <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
     <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">

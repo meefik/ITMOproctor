@@ -622,10 +622,7 @@ var VisionView = Backbone.View.extend({
             self._RejectCodeInput.focus();
         };
         this._DialogExamReject.dialog({
-            title: 'Прервать экзамен',
             closed: false,
-            width: 350,
-            height: 245,
             buttons: [{
                 text: 'Подтвердить',
                 handler: function() {
@@ -666,10 +663,7 @@ var VisionView = Backbone.View.extend({
             self._ApplyCodeInput.focus();
         };
         this._DialogExamApply.dialog({
-            title: 'Принять экзамен',
             closed: false,
-            width: 350,
-            height: 180,
             buttons: [{
                 text: 'Подтвердить',
                 handler: function() {
