@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var dao = require('../db/dao');
+var db = require('../db');
 router.get('/', function(req, res) {
     console.log(req.query);
-    dao.monitor.list(req.query, function(err, data, count) {
+    db.monitor.list(req.query, function(err, data, count) {
         if(!err && data) {
             var rows = {
                 "total": count,
@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
     });
 });
 router.get('/:examId', function(req, res) {
-    dao.monitor.info(req.params, function(err, data) {
+    db.monitor.info(req.params, function(err, data) {
         if(!err && data) {
             res.json(data);
         } else {

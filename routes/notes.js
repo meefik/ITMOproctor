@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-var dao = require('../db/dao');
+var db = require('../db');
 // List all notes
 router.get('/', function(req, res) {
     var args = {
         examId: req.user.examId
     };
-    dao.notes.list(args, function(err, data) {
+    db.notes.list(args, function(err, data) {
         if(!err && data) {
             res.json(data);
         } else {
@@ -22,7 +22,7 @@ router.post('/', function(req, res) {
         examId: req.user.examId,
         text: req.body.text
     };
-    dao.notes.add(args, function(err, data) {
+    db.notes.add(args, function(err, data) {
         if(!err && data) {
             req.notify('notes');
             res.json(data);
@@ -39,7 +39,7 @@ router.put('/:noteId', function(req, res) {
         examId: req.user.examId,
         text: req.body.text
     };
-    dao.notes.update(args, function(err, data) {
+    db.notes.update(args, function(err, data) {
         if(!err && data) {
             req.notify('notes');
             res.json(data);
@@ -55,7 +55,7 @@ router.delete('/:noteId', function(req, res) {
         author: req.user._id,
         examId: req.user.examId
     };
-    dao.notes.delete(args, function(err, data) {
+    db.notes.delete(args, function(err, data) {
         if(!err && data) {
             req.notify('notes');
             res.json(data);

@@ -104,7 +104,7 @@
 </div>
 <!-- Dialogs -->
 <div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,modal:true,closed:true"></div>
-<div id="subject-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:600px;height:400px;" data-options="resizable:true,modal:true,closed:true"></div>
+<div id="subject-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:500px;height:250px;" data-options="resizable:true,modal:true,closed:true"></div>
 <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
     <form>
         <p>Заметка на <strong class="note-time"></strong></p>
@@ -226,10 +226,15 @@
 </div>
 </script>
 <script type="text/template" id="note-item-tpl">
-<div class="note-view">
-    <span style="font-weight: bold;padding-right:1em"><%- time %></span><span><%= text %></span>&nbsp;
-    <a href="javascript:void(0);" class="note-edit">edit</a>
-    <a href="javascript:void(0);" class="note-remove">del</a>
+<div class="note-view" style="border-bottom:1px solid #efefef;width:100%;position:relative;" onmouseover="javascript:$(this).find('.edit-buttons').show();" onmouseout="javascript:$(this).find('.edit-buttons').hide();">
+    <div style="padding:5px;">
+            <span style="font-weight:bold;padding-right:1em;"><%- time %></span>            
+            <span style="white-space:pre-wrap;"><%= text %></span>        
+    </div>
+    <div class="edit-buttons" style="padding:0 5px 4px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
+        <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="Редактировать"><i class="fa fa-pencil"></i></a>
+        <a href="javascript:void(0);" class="note-remove" style="font-size:1.4em;color:gray;" title="Удалить"><i class="fa fa-close"></i></a>
+    </div>
 </div>
 </script>
 <script type="text/template" id="chat-item-tpl">

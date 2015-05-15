@@ -579,15 +579,20 @@ var VisionView = Backbone.View.extend({
                 type: 'image/png'
             });
             var formdata = new FormData();
-            formdata.append("screenshot", file, "screenshot.png");
+            formdata.append(0, file, "screenshot.png");
             $.ajax({
-                url: "/upload",
+                url: "/storage",
                 type: "post",
                 data: formdata,
                 processData: false,
                 contentType: false,
             }).done(function(respond) {
                 console.log(respond);
+                var comment = self._ScreenshotComment.textbox('getValue') || 'без комментария';
+                var noteText = '<a href="/storage/' + respond._id + '" target="_blank">Снимок экрана</a> (' + comment + ')';
+                self.notes.collection.create({
+                    text: noteText
+                });
                 closeBtn();
             });
         };
@@ -933,15 +938,15 @@ var ChatView = Backbone.View.extend({
         });
     },
     attachFile: function() {
-        var files = this.files;
-        if(!files) return;
+        var storage = this.storage;
+        if(!storage) return;
         var author = {
             _id: app.profile.get('_id'),
             lastname: app.profile.get('lastname'),
             firstname: app.profile.get('firstname'),
             middlename: app.profile.get('middlename')
         };
-        var text = 'Файл: <a href="' + files[0].path + '" target="_blank">' + files[0].originalname + '</a>';
+        var text = 'Файл: <a href="/storage/' + storage._id + '" target="_blank">' + storage.filename + '</a>';
         this.collection.create({
             author: author,
             text: text
@@ -968,7 +973,7 @@ var ChatView = Backbone.View.extend({
         this._Attach.trigger('click');
     },
     doReset: function() {
-        this.files = null;
+        this.storage = null;
         this._File.hide();
         this._Form.trigger('reset');
     },
@@ -1000,7 +1005,7 @@ var ChatView = Backbone.View.extend({
         });
         $.ajax({
             type: 'post',
-            url: '/upload',
+            url: '/storage',
             data: data,
             xhr: function() {
                 var xhr = $.ajaxSettings.xhr();
@@ -1012,9 +1017,9 @@ var ChatView = Backbone.View.extend({
             },
             processData: false,
             contentType: false
-        }).done(function(data) {
-            self.files = data;
-            console.log(data);
+        }).done(function(respond) {
+            console.log(respond);
+            self.storage = respond;
             self._Progress.progressbar('setColor', 'green');
         });
     }

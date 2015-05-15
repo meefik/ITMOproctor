@@ -10,7 +10,7 @@ var passport = require('passport');
 var multer = require('multer');
 var config = require('nconf').file('./config.json');
 var profile = require('./routes/profile');
-var upload = require('./routes/upload');
+var storage = require('./routes/storage');
 var monitor = require('./routes/monitor');
 var vision = require('./routes/vision');
 var notes = require('./routes/notes');
@@ -52,7 +52,7 @@ app.use(session({
     secret: 'cookie_secret',
     name: 'proctor',
     store: new MongoStore({
-        mongooseConnection: db.connection,
+        mongooseConnection: db.mongoose.connection,
         ttl: 14 * 24 * 60 * 60 // = 14 days. Default 
     }),
     proxy: true,
@@ -81,7 +81,7 @@ app.use(function(req, res, next) {
     next();
 });
 app.use('/profile', profile);
-app.use('/upload', profile.isAuth, upload);
+app.use('/storage', profile.isAuth, storage);
 app.use('/monitor', profile.isAuth, monitor);
 app.use('/vision', profile.isAuth, vision);
 app.use('/notes', profile.isAuth, notes);
@@ -97,7 +97,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if(app.get('env') === 'development') {
-    db.set('debug', true);
+    db.mongoose.set('debug', true);
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {

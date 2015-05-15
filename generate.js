@@ -1,6 +1,16 @@
 var config = require('nconf').file('./config.json');
-var db = require('./db');
-var Schema = db.Schema;
+var mongoose = require('mongoose');
+var config = require('nconf');
+mongoose.connect(config.get('mongoose:uri'));
+var conn = mongoose.connection;
+conn.on('error', function(err) {
+    console.error("MongoDB connection error:", err.message);
+});
+conn.once('open', function() {
+    console.info("MongoDB is connected.");
+    DatabaseGenerator.generator();
+});
+var Schema = mongoose.Schema;
 var moment = require('moment');
 var User = require('./db/models/user');
 var Exam = require('./db/models/exam');
@@ -395,14 +405,8 @@ var DatabaseGenerator = {
     }
 };
 //
-// Generate
-//
-setTimeout(function() {
-    DatabaseGenerator.generator();
-}, 100);
-//
 // Disconnect
 //
 setTimeout(function() {
-    db.disconnect();
-}, 5000);
+    mongoose.disconnect();
+}, 10000);

@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var dao = require('../db/dao');
-passport.use(new LocalStrategy(dao.auth));
+var db = require('../db');
+passport.use(new LocalStrategy(db.auth));
 passport.serializeUser(function(user, done) {
     done(null, user);
 });

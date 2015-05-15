@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-var dao = require('../db/dao');
+var db = require('../db');
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id
     }
-    dao.vision.start(args, function(err, data) {
+    db.vision.start(args, function(err, data) {
         if(!err && data) {
             req.user.examId = data._id;
             res.json(data);
@@ -23,7 +23,7 @@ router.put('/:examId', function(req, res) {
         comment: req.body.comment
     }
     console.log(args);
-    dao.vision.finish(args, function(err, data) {
+    db.vision.finish(args, function(err, data) {
         if(!err && data) {
             delete req.user.examId;
             res.json(data);

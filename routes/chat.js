@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-var dao = require('../db/dao');
+var db = require('../db');
 // List all messages
 router.get('/', function(req, res) {
     var args = {
         examId: req.user.examId
     };
-    dao.chat.list(args, function(err, data) {
+    db.chat.list(args, function(err, data) {
         if(!err && data) {
             res.json(data);
         } else {
@@ -22,7 +22,7 @@ router.post('/', function(req, res) {
         examId: req.user.examId,
         text: req.body.text
     };
-    dao.chat.add(args, function(err, data) {
+    db.chat.add(args, function(err, data) {
         if(!err && data) {
             req.notify('chat');
             res.json(data);
