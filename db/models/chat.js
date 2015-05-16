@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Exam = require('./exam').schema;
 var User = require('./user').schema;
+var Attach = require('./attach').schema;
 var Chat = new Schema({
     // Идентификатор экзамена (связь N:1)
     examId: {
@@ -28,8 +29,6 @@ var Chat = new Schema({
         type: String
     },
     // Ссылка на вложение
-    attach: {
-        type: Schema.Types.ObjectId
-    }
+    attach: [Attach]
 });
 module.exports = mongoose.model('Chat', Chat);

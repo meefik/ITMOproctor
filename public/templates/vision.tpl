@@ -115,8 +115,8 @@
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
-<div id="exam-apply-dlg" style="padding:5px" title="Принять экзамен" data-options="width:350,height:180,modal:true,closed:true">
-    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">принять</strong> экзамен, отменить операцию будет невозможно.</div> 
+<div id="exam-apply-dlg" style="padding:5px" title="Подписать экзамен" data-options="width:350,height:180,modal:true,closed:true">
+    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">подписать</strong> экзамен, отменить операцию будет невозможно.</div> 
     <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
     <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
 </div>
@@ -228,8 +228,13 @@
 <script type="text/template" id="note-item-tpl">
 <div class="note-view" style="border-bottom:1px solid #efefef;width:100%;position:relative;" onmouseover="javascript:$(this).find('.edit-buttons').show();" onmouseout="javascript:$(this).find('.edit-buttons').hide();">
     <div style="padding:5px;">
-            <span style="font-weight:bold;padding-right:1em;"><%- time %></span>            
+            <span style="font-weight:bold;padding-right:.5em;"><%- moment(time).format('HH:mm') %></span>            
             <span style="white-space:pre-wrap;"><%= text %></span>        
+            <% if(attach.length > 0) { %>
+                <% _.each(attach, function(element, index, list){ %>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                <% }); %>
+            <% } %>
     </div>
     <div class="edit-buttons" style="padding:0 5px 3px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
         <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="Редактировать"><i class="fa fa-pencil"></i></a>
@@ -239,11 +244,18 @@
 </script>
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
-    <span style="font-weight: bold;padding-right:1em;color:<%- color %>"><%- time %> <%- author %></span><span><%= text %></span>
+    <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>
+    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>. <%- author.middlename.charAt(0) %>.:</span><span><%= text %>
+        <% if(attach.length > 0) { %>
+            <% _.each(attach, function(element, index, list){ %>
+                <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+            <% }); %>
+        <% } %>
+    </span>
 </div>
 </script>
 <script type="text/template" id="protocol-item-tpl">
-<div class="chat-view">
-    <span style="font-weight: bold;padding-right:1em"><%- time %></span><span><%= text %></span>
+<div class="protocol-view">
+    <span style="font-weight: bold;padding-right:.5em"><%- moment(time).format('HH:mm:ss') %></span><span><%= text %></span>
 </div>
 </script>

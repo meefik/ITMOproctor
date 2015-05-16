@@ -54,11 +54,16 @@ var db = {
                 case '2':
                     //console.log('Идет экзамен');
                     var q = {
-                        beginDate: {
-                            "$lte": moment()
+                        startDate: {
+                            '$ne': null
                         },
-                        endDate: {
-                            "$gte": moment()
+                        stopDate: {
+                            '$eq': null
+                        },
+                        curator: {
+                            '$not': {
+                                $size:0
+                            }               
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -67,7 +72,13 @@ var db = {
                     //console.log('Ожидают');
                     var q = {
                         beginDate: {
-                            "$gt": moment()
+                            '$lte': moment()
+                        },
+                        endDate: {
+                            '$gt': moment()
+                        },
+                        curator:{
+                            $size:0
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -200,7 +211,7 @@ var db = {
             // Populate options
             var opts = [{
                 path: 'author',
-                select: 'firstname lastname middlename'
+                select: 'firstname lastname middlename',
             }];
             Chat.find(args).populate(opts).sort('time').exec(callback);
         },

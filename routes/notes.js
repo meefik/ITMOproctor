@@ -20,7 +20,8 @@ router.post('/', function(req, res) {
     var args = {
         author: req.user._id,
         examId: req.user.examId,
-        text: req.body.text
+        text: req.body.text,
+        attach: req.body.attach
     };
     db.notes.add(args, function(err, data) {
         if(!err && data) {

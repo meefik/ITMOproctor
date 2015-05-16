@@ -301,11 +301,12 @@ var MonitorView = Backbone.View.extend({
         var d = new Date();
         var beginDate = new Date(row.beginDate);
         var endDate = new Date(row.endDate);
-        if(beginDate > d) status = 1;
-        if(beginDate <= d && endDate >= d) status = 2;
+        if(beginDate <= d && endDate > d && row.curator.length == 0) status = 1;
+        if(row.startDate != null && row.stopDate == null && row.curator.length != 0) status = 2;
         if(row.resolution === true) status = 3;
         if(row.resolution === false) status = 4;
-        if(row.resolution == null && endDate < d) status = 5;
+        if(endDate <= d && row.curator.length == 0) status = 5;
+        if(beginDate > d) status = 6;
         switch(status) {
             case 1:
                 return '<span style="color:orange;">Ожидает</span>';
@@ -314,9 +315,11 @@ var MonitorView = Backbone.View.extend({
             case 3:
                 return '<span style="color:green;">Сдан</span>';
             case 4:
-                return '<span style="color:gray;">Прерван</span>';
+                return '<span style="color:purple;">Прерван</span>';
             case 5:
-                return '<span style="color:blue;">Пропущен</span>';
+                return '<span style="color:gray;">Пропущен</span>';
+            case 6:
+                return '<span style="color:blue;">Запланирован</span>';
             default:
                 return null;
         }
@@ -330,10 +333,11 @@ var MonitorView = Backbone.View.extend({
         var tpl = _.template(html);
         var d = new Date();
         var startDate = row.startDate;
+        var beginDate = new Date(row.beginDate);
         var endDate = new Date(row.endDate);
         return tpl({
             rowId: row._id,
-            openEnabled: (endDate > d || (row.resolution == null && startDate != null))
+            openEnabled: (beginDate <= d && endDate > d)
         });
     },
     formatDuration: function(val, row) {
@@ -588,10 +592,16 @@ var VisionView = Backbone.View.extend({
                 contentType: false,
             }).done(function(respond) {
                 console.log(respond);
-                var comment = self._ScreenshotComment.textbox('getValue') || 'без комментария';
-                var noteText = '<a href="/storage/' + respond._id + '" target="_blank">Снимок экрана</a> (' + comment + ')';
+                var comment = self._ScreenshotComment.textbox('getValue');
+                var attach = [];
+                attach.push({
+                    fileId: respond._id,
+                    filename: respond.filename
+                });
                 self.notes.collection.create({
-                    text: noteText
+                    time: new Date(),
+                    text: comment,
+                    attach: attach
                 });
                 closeBtn();
             });
@@ -718,13 +728,7 @@ var NotesView = Backbone.View.extend({
         // Note model
         var Note = Backbone.Model.extend({
             //urlRoot: '/notes'
-            idAttribute: "_id",
-            toJSON: function() {
-                return {
-                    time: moment(this.get('time')).format('HH:mm:ss'),
-                    text: this.get('text')
-                };
-            }
+            idAttribute: "_id"
         });
         // Notes collection
         var NotesList = Backbone.Collection.extend({
@@ -821,7 +825,9 @@ var NotesView = Backbone.View.extend({
         var noteText = this._Input.textbox('getValue');
         if(!noteText) return;
         this.collection.create({
-            text: noteText
+            time: new Date(),
+            text: noteText,
+            attach: []
         });
         this._Input.textbox('setValue', '');
     },
@@ -850,20 +856,7 @@ var ChatView = Backbone.View.extend({
     initialize: function() {
         // Chat model
         var Chat = Backbone.Model.extend({
-            idAttribute: "_id",
-            toJSON: function() {
-                var time = moment(this.get('time')).format('HH:mm:ss');
-                var author = this.get('author');
-                var text = this.get('text');
-                var me = app.profile.isMe(author._id);
-                author = author.lastname + " " + author.firstname.charAt(0) + "." + author.middlename.charAt(0) + ".";
-                return {
-                    color: me ? 'red' : 'blue',
-                    time: time,
-                    author: author,
-                    text: text
-                };
-            }
+            idAttribute: "_id"
         });
         // Chat collection
         var ChatList = Backbone.Collection.extend({
@@ -913,6 +906,7 @@ var ChatView = Backbone.View.extend({
                 }
             }
         });
+        this.attach = [];
         this.collection = new ChatList();
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
@@ -923,10 +917,8 @@ var ChatView = Backbone.View.extend({
             }
         });
     },
-    postMessage: function() {
+    doSend: function() {
         var text = this._Input.text();
-        this._Input.html('');
-        if(!text) return;
         var author = {
             _id: app.profile.get('_id'),
             lastname: app.profile.get('lastname'),
@@ -934,23 +926,10 @@ var ChatView = Backbone.View.extend({
             middlename: app.profile.get('middlename')
         };
         this.collection.create({
+            time: new Date(),
             author: author,
-            text: text
-        });
-    },
-    attachFile: function() {
-        var storage = this.storage;
-        if(!storage) return;
-        var author = {
-            _id: app.profile.get('_id'),
-            lastname: app.profile.get('lastname'),
-            firstname: app.profile.get('firstname'),
-            middlename: app.profile.get('middlename')
-        };
-        var text = 'Файл: <a href="/storage/' + storage._id + '" target="_blank">' + storage.filename + '</a>';
-        this.collection.create({
-            author: author,
-            text: text
+            text: text,
+            attach: this.attach
         });
         this.doReset();
     },
@@ -961,21 +940,18 @@ var ChatView = Backbone.View.extend({
         this._Output.append(view.render().el);
         this._Panel.scrollTop(this._Panel[0].scrollHeight);
     },
-    doSend: function() {
-        this.postMessage();
-        this.attachFile();
-    },
     doInputKeyup: function(e) {
         if(e.keyCode == 13) {
             this.doSend();
         }
     },
     doAttach: function() {
-        if (this.storage) return;
+        if(this.attach.length > 0) return;
         this._AttachInput.trigger('click');
     },
     doReset: function() {
-        this.storage = null;
+        this.attach = [];
+        this._Input.html('');
         this._FileBtn.hide();
         this._AttachBtn.linkbutton('enable');
         this._Form.trigger('reset');
@@ -1022,7 +998,10 @@ var ChatView = Backbone.View.extend({
             contentType: false
         }).done(function(respond) {
             console.log(respond);
-            self.storage = respond;
+            self.attach.push({
+                fileId: respond._id,
+                filename: respond.filename
+            });
             self._Progress.progressbar('setColor', 'green');
         });
     }
@@ -1034,13 +1013,7 @@ var ProtocolView = Backbone.View.extend({
     initialize: function() {
         // Protocol model
         var Protocol = Backbone.Model.extend({
-            idAttribute: "_id",
-            toJSON: function() {
-                return {
-                    time: moment(this.get('time')).format('HH:mm:ss'),
-                    text: this.get('text')
-                };
-            }
+            idAttribute: "_id"
         });
         // Protocol collection
         var ProtocolList = Backbone.Collection.extend({

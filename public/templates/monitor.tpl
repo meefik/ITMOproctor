@@ -39,18 +39,18 @@
     <tr>
         <td><strong>Начало:</strong></td>
         <td>
-            <%= moment(beginDate).format('DD.MM.YYYY hh:mm') %>
+            <%= moment(beginDate).format('DD.MM.YYYY HH:mm') %>
             <% if(startDate != null) { %>
-                (<%= moment(startDate).format('hh:mm') %>)
+                (<%= moment(startDate).format('HH:mm') %>)
             <% } %>
         </td>
     </tr>
     <tr>
         <td><strong>Окончание:</strong></td>
         <td>
-            <%= moment(endDate).format('DD.MM.YYYY hh:mm') %> 
+            <%= moment(endDate).format('DD.MM.YYYY HH:mm') %> 
             <% if(stopDate != null) { %>
-                (<%= moment(stopDate).format('hh:mm') %>)
+                (<%= moment(stopDate).format('HH:mm') %>)
             <% } %>
         </td>
     </tr>
