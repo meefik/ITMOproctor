@@ -26,6 +26,10 @@ var Chat = new Schema({
     // Текст сообщения
     text: {
         type: String
+    },
+    // Ссылка на вложение
+    attach: {
+        type: Schema.Types.ObjectId
     }
 });
 module.exports = mongoose.model('Chat', Chat);

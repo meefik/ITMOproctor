@@ -843,9 +843,9 @@ var ChatView = Backbone.View.extend({
     events: {
         "click .chat-send-btn": "doSend",
         "click .chat-attach-btn": "doAttach",
-        "click .chat-file": "doReset",
+        "click .chat-file-btn": "doReset",
         "keyup .chat-input": "doInputKeyup",
-        "change .chat-attach": "doFileChange"
+        "change .chat-attach-input": "doFileChange"
     },
     initialize: function() {
         // Chat model
@@ -890,8 +890,9 @@ var ChatView = Backbone.View.extend({
         this._Form = this.$("form");
         this._Input = this.$(".chat-input");
         this._Output = this.$(".chat-output");
-        this._File = this.$(".chat-file");
-        this._Attach = this.$(".chat-attach");
+        this._FileBtn = this.$(".chat-file-btn");
+        this._AttachInput = this.$(".chat-attach-input");
+        this._AttachBtn = this.$(".chat-attach-btn");
         this._Progress = this.$(".chat-progress");
         $.extend($.fn.progressbar.methods, {
             setColor: function(jq, color) {
@@ -970,20 +971,21 @@ var ChatView = Backbone.View.extend({
         }
     },
     doAttach: function() {
-        this._Attach.trigger('click');
+        if (this.storage) return;
+        this._AttachInput.trigger('click');
     },
     doReset: function() {
         this.storage = null;
-        this._File.hide();
+        this._FileBtn.hide();
+        this._AttachBtn.linkbutton('enable');
         this._Form.trigger('reset');
     },
     doFileChange: function() {
         var self = this;
         var limitSize = 10 * 1024 * 1024; // 10 MB
         var data = new FormData();
-        var files = self._Attach[0].files;
+        var files = self._AttachInput[0].files;
         if(files.length === 0 || files[0].size > limitSize) {
-            self.doReset();
             return;
         }
         $.each(files, function(key, value) {
@@ -991,7 +993,8 @@ var ChatView = Backbone.View.extend({
         });
         var filename = files['0'].name;
         self._Progress.progressbar('setColor', null);
-        self._File.show();
+        self._FileBtn.show();
+        self._AttachBtn.linkbutton('disable');
         var trancateFile = function(filename, length) {
             var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
             if(filename.length > length) {

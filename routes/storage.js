@@ -1,12 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
+var path = require('path');
 var db = require('../db');
-// File upload
+// Upload file
 router.post('/', function(req, res, next) {
     var file = req.files[0];
     if(!file) return res.status(404).end();
-    var path = './uploads/' + file.name;
+    var path = path.join('uploads', path.basename(file.name));
     var writestream = db.gfs.createWriteStream({
         filename: file.originalname
     });
@@ -16,7 +17,7 @@ router.post('/', function(req, res, next) {
         fs.unlink(path);
     });
 });
-// File download
+// Download file
 router.get('/:fileId', function(req, res, next) {
     var fileId = req.params.fileId;
     db.gfs.findOne({
@@ -33,4 +34,14 @@ router.get('/:fileId', function(req, res, next) {
         }
     });
 });
+/*
+// Delete file from uploads directory
+router.delete('/:filename', function(req, res, next) {
+    var filename = req.params.filename;
+    var path = path.join('uploads', path.basename(filename));
+    fs.exists(path, function(exists) {
+        if(exists) fs.unlink(path);
+    });
+});
+*/
 module.exports = router;

@@ -26,13 +26,13 @@
                                     <div class="easyui-layout" data-options="fit:true">
                                         <div data-options="region:'north',border:false">
                                             <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
-                                                <button class="easyui-linkbutton chat-file" data-options="plain:true,iconCls:'fa fa-download'" style="float:left;display:none;">
+                                                <button class="easyui-linkbutton chat-file-btn" data-options="plain:true,iconCls:'fa fa-download'" style="float:left;display:none;">
                                                     <div class="easyui-progressbar chat-progress" data-options="width:150,height:18" style="margin:3px 0 3px 0"></div>
                                                 </button>
                                                 <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right">Отправить</button>
                                                 <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right">Прикрепить</button>
                                                 <form method="post" enctype="multipart/form-data" style="display:none;">
-                                                    <input type="file" name="chatFile" class="chat-attach" />
+                                                    <input type="file" name="chatFile" class="chat-attach-input" />
                                                 </form>
                                             </div>
                                         </div>
@@ -231,7 +231,7 @@
             <span style="font-weight:bold;padding-right:1em;"><%- time %></span>            
             <span style="white-space:pre-wrap;"><%= text %></span>        
     </div>
-    <div class="edit-buttons" style="padding:0 5px 4px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
+    <div class="edit-buttons" style="padding:0 5px 3px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
         <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="Редактировать"><i class="fa fa-pencil"></i></a>
         <a href="javascript:void(0);" class="note-remove" style="font-size:1.4em;color:gray;" title="Удалить"><i class="fa fa-close"></i></a>
     </div>

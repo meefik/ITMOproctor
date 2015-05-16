@@ -26,6 +26,10 @@ var Note = new Schema({
     // Текст заметки
     text: {
         type: String
+    },
+    // Ссылка на вложение
+    attach: {
+        type: Schema.Types.ObjectId
     }
 });
 module.exports = mongoose.model('Note', Note);
