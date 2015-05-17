@@ -199,17 +199,17 @@ var DatabaseGenerator = {
             i++;
         }
         while(count < amount) {
-            ind = this.randomizeNumber(-0.7, curators.length);
+            ind = this.randomizeNumber(-0.7, curators.length-1);
             examCurators.push(curators[ind]);
             count++;
         }
         return examCurators;
     },
     randomizeExamStatus: function(studentsAmount, amount) {
-        // 0 - ожидает, 1 - идет, 2 - сдан, 3 - прерван, 4 - пропущен
-        var proportions = [0.2, 0.2, 0.2, 0.2, 0.2]; // proportions for exam status        
+        // 0 - ожидает, 1 - идет, 2 - сдан, 3 - прерван, 4 - пропущен, 5 - запланирован
+        var proportions = [0.16, 0.16, 0.16, 0.16, 0.16, 0.16]; // proportions for exam status        
         var amountEach = [];
-        var countEach = [0, 0, 0, 0, 0];
+        var countEach = [0, 0, 0, 0, 0, 0];
         var examStatus = [];
         var countAmount = 0;
         for(var i = 0; i < proportions.length; i++) { // set amount for each of the roles
@@ -223,11 +223,11 @@ var DatabaseGenerator = {
             }
         }
         for(var i = 0; i < studentsAmount * this.subjectsAmountForEachStudent; i++) { // randomize roles
-            var temp = this.randomizeNumber(-0.5, 4);
+            var temp = this.randomizeNumber(-0.5, 5);
             countEach[temp]++;
             while(countEach[temp] > amountEach[temp]) {
                 countEach[temp]--;
-                temp = this.randomizeNumber(-0.5, 4);
+                temp = this.randomizeNumber(-0.5, 5);
                 countEach[temp]++;
             }
             examStatus.push(temp);
@@ -273,16 +273,6 @@ var DatabaseGenerator = {
                     var now = moment();
                     switch(eStatus) {
                         case 0: //ожидает
-                            var date = checkDay(now.date() + self.randomizeNumber(0.1, 10)) + '.' + checkMonth(now.month() + 1 + self.randomizeNumber(-0.1, 5)) + '.' + now.year();
-                            var startHour = self.randomizeNumber(6, 13);
-                            eBeginDate = moment(date + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
-                            eEndDate = moment(date + ' ' + (startHour + 3) + ':00', 'DD.MM.YYYY HH:mm');
-                            eResolution = null;
-                            eStartDate = null;
-                            eStopDate = null;
-                            eCurator = [];
-                            break;
-                        case 1: //идет
                             var startHour = now.hour() - self.randomizeNumber(0.1, 2);
                             startHour = startHour < 0 ? 0 : startHour;
                             var endHour = (startHour + 3);
@@ -307,7 +297,36 @@ var DatabaseGenerator = {
                             eBeginDate = moment(bdate + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
                             eEndDate = moment(edate + ' ' + endHour + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = null;
-                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
+                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), now.valueOf()));
+                            eStopDate = null;
+                            eCurator = [];
+                            break;
+                        case 1: //идет
+                            var startHour = now.hour() - self.randomizeNumber(0.1, 2);                            
+                            startHour = startHour < 0 ? 0: startHour;
+                            var endHour = (startHour + 3);
+                            var edate;
+                            // check for end date on going beyond the date normal values
+                            if(endHour > 23) {
+                                endHour = endHour - 24;
+                                if((now.date() + 1) > now.daysInMonth()) {
+                                    if(now.month() + 2 > 12) {
+                                        edate = '1.1.' + (now.year() + 1);
+                                    } else {
+                                        edate = '1.' + (now.month() + 2) + '.' + now.year();
+                                    }
+                                } else {
+                                    edate = (now.date() + 1) + '.' + checkMonth(now.month() + 1) + '.' + now.year();
+                                }
+                            } else {
+                                edate = now.date() + '.' + checkMonth(now.month() + 1) + '.' + now.year();
+                            }
+                            // end check
+                            var bdate = now.date() + '.' + checkMonth(now.month() + 1) + '.' + now.year();
+                            eBeginDate = moment(bdate + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
+                            eEndDate = moment(edate + ' ' + endHour + ':00', 'DD.MM.YYYY HH:mm');
+                            eResolution = null;
+                            eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), now.valueOf()));
                             eStopDate = null;
                             eCurator = self.setCurators(users);
                             break;
@@ -318,7 +337,7 @@ var DatabaseGenerator = {
                             eEndDate = moment(date + ' ' + (startHour + 3) + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = true;
                             eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
-                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(), eEndDate.valueOf()));
+                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf() + 3600000, eEndDate.valueOf()));
                             eCurator = self.setCurators(users);
                             break;
                         case 3: //прерван
@@ -328,7 +347,7 @@ var DatabaseGenerator = {
                             eEndDate = moment(date + ' ' + (startHour + 3) + ':00', 'DD.MM.YYYY HH:mm');
                             eResolution = false;
                             eStartDate = moment(self.randomizeNumber(eBeginDate.valueOf(), eBeginDate.valueOf() + 1800000));
-                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf(), eEndDate.valueOf()));
+                            eStopDate = moment(self.randomizeNumber(eStartDate.valueOf() + 3600000, eEndDate.valueOf()));
                             eCurator = self.setCurators(users);
                             break;
                         case 4: //пропущен
@@ -341,7 +360,19 @@ var DatabaseGenerator = {
                             eStopDate = null;
                             eCurator = [];
                             break;
+                        case 5: //запланирован
+                            var startHour = self.randomizeNumber(6, 13);
+                            var endHour = (startHour + 3);
+                            var date = checkDay(self.randomizeNumber(1, 28)) + '.' + checkMonth(now.month() + 1 + self.randomizeNumber(0.7, 5)) + '.' + now.year();
+                            eBeginDate = moment(date + ' ' + startHour + ':00', 'DD.MM.YYYY HH:mm');
+                            eEndDate = moment(date + ' ' + endHour + ':00', 'DD.MM.YYYY HH:mm');
+                            eResolution = null;
+                            eStartDate = null;
+                            eStopDate = null;
+                            eCurator = [];
+                            break;
                     }
+                    
                     // save exam
                     var userExam = {
                         examId: examFirstIdRandom,

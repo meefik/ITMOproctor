@@ -27,6 +27,17 @@ var db = {
             return done(null, user);
         });
     },
+    storage: {
+        upload: function() {
+            var id = mongoose.Types.ObjectId();
+        },
+        download: function() {
+            
+        },
+        remove: function() {
+            
+        }
+    },
     monitor: {
         list: function(args, callback) {
             var rows = args.rows ? parseInt(args.rows) : 100;

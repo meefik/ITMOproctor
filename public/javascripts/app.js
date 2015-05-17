@@ -474,7 +474,7 @@ var VisionView = Backbone.View.extend({
             success: function(model, response, options) {
                 var student = model.get("student");
                 var subject = model.get("subject");
-                var startDate = model.get("beginDate");
+                var startDate = model.get("startDate");
                 var duration = moment() - moment(startDate);
                 if(duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
@@ -538,6 +538,10 @@ var VisionView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
+            var nowDate = moment();
+            var endDate = moment(self.vision.get("endDate"));
+            if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            else if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
