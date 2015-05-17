@@ -3,8 +3,9 @@ var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
 var conn = mongoose.connection;
 var Grid = require('gridfs-stream');
-//Grid.mongo = mongoose.mongo;
 var moment = require('moment');
+var fs = require('fs');
+var path = require('path');
 var db = {
     auth: function(username, password, done) {
         var User = require('./models/user');
@@ -28,14 +29,45 @@ var db = {
         });
     },
     storage: {
-        upload: function() {
-            var id = mongoose.Types.ObjectId();
+        upload: function(files, callback) {
+            files.forEach(function(file, i, arr) {
+                var id = mongoose.Types.ObjectId();
+                var fullname = path.join('uploads', path.basename(file.uploadname));
+                fs.exists(fullname, function(exists) {
+                    if(!exists) return;
+                    var writestream = db.gfs.createWriteStream({
+                        _id: file.fileId,
+                        filename: file.filename
+                    });
+                    fs.createReadStream(fullname).pipe(writestream);
+                    writestream.on('close', function(data) {
+                        if(callback) callback(data);
+                        fs.unlink(fullname);
+                    });
+                });
+            });
         },
-        download: function() {
-            
+        download: function(fileId, callback) {
+            db.gfs.findOne({
+                _id: fileId
+            }, function(err, data) {
+                if(!err && data) {
+                    var readstream = db.gfs.createReadStream({
+                        _id: fileId
+                    });
+                    readstream.pipe(callback(data));
+                } else {
+                    callback();
+                }
+            });
         },
-        remove: function() {
-            
+        remove: function(files, callback) {
+            if(!callback) callback = function(err) {};
+            files.forEach(function(file, i, arr) {
+                db.gfs.remove({
+                    _id: file.fileId
+                }, callback);
+            });
         }
     },
     monitor: {
@@ -73,8 +105,8 @@ var db = {
                         },
                         curator: {
                             '$not': {
-                                $size:0
-                            }               
+                                $size: 0
+                            }
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -88,8 +120,8 @@ var db = {
                         endDate: {
                             '$gt': moment()
                         },
-                        curator:{
-                            $size:0
+                        curator: {
+                            $size: 0
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -191,12 +223,17 @@ var db = {
             Note.find(args).sort('time').exec(callback);
         },
         add: function(args, callback) {
+            for(var i = 0; i < args.attach.length; i++) {
+                args.attach[i].fileId = mongoose.Types.ObjectId();
+            }
             var Note = require('./models/note');
             var note = new Note(args);
-            note.save(callback);
-        },
-        get: function(args, callback) {
-            // get note by id
+            note.save(function(err, data) {
+                callback(err, data);
+                if(args.attach.length > 0) {
+                    db.storage.upload(args.attach);
+                }
+            });
         },
         update: function(args, callback) {
             var Note = require('./models/note');
@@ -211,9 +248,17 @@ var db = {
         },
         delete: function(args, callback) {
             var Note = require('./models/note');
-            Note.remove({
+            Note.findOne({
                 _id: args._id
-            }, callback);
+            }, function(err, data) {
+                callback(err, data);
+                if(!err && data) {
+                    if(data.attach.length > 0) {
+                        db.storage.remove(data.attach);
+                    }
+                    data.remove();
+                }
+            });
         }
     },
     chat: {
@@ -227,6 +272,9 @@ var db = {
             Chat.find(args).populate(opts).sort('time').exec(callback);
         },
         add: function(args, callback) {
+            for(var i = 0; i < args.attach.length; i++) {
+                args.attach[i].fileId = mongoose.Types.ObjectId();
+            }
             var Chat = require('./models/chat');
             var User = require('./models/user');
             var chat = new Chat(args);
@@ -237,6 +285,9 @@ var db = {
                         path: 'author',
                         select: 'firstname lastname middlename'
                     }, callback);
+                    if(args.attach.length > 0) {
+                        db.storage.upload(args.attach);
+                    }
                 }
             });
         }

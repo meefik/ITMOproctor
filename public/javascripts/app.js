@@ -599,8 +599,9 @@ var VisionView = Backbone.View.extend({
                 var comment = self._ScreenshotComment.textbox('getValue');
                 var attach = [];
                 attach.push({
-                    fileId: respond._id,
-                    filename: respond.filename
+                    fileId: respond.fileId,
+                    filename: respond.originalname,
+                    uploadname: respond.name
                 });
                 self.notes.collection.create({
                     time: new Date(),
@@ -1003,8 +1004,9 @@ var ChatView = Backbone.View.extend({
         }).done(function(respond) {
             console.log(respond);
             self.attach.push({
-                fileId: respond._id,
-                filename: respond.filename
+                fileId: respond.fileId,
+                filename: respond.originalname,
+                uploadname: respond.name
             });
             self._Progress.progressbar('setColor', 'green');
         });
