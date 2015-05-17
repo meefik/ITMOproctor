@@ -1,5 +1,8 @@
 {
     "mongoose": {
         "uri": "mongodb://localhost/proctor"
+    },
+    "ws": {
+        "uri": "ws://de.ifmo.ru:8888/kurento"
     }
 }

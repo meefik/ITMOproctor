@@ -540,8 +540,8 @@ var VisionView = Backbone.View.extend({
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
             var nowDate = moment();
             var endDate = moment(self.vision.get("endDate"));
-            if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
-            else if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
@@ -818,7 +818,6 @@ var NotesView = Backbone.View.extend({
         });
         this.collection = new NotesList();
         this.listenTo(this.collection, 'add', this.appendItem);
-        this.listenTo(this.collection, 'remove', this.removeItem);
         this.collection.fetch();
         app.socket.on(this.id, function(data) {
             if(!app.profile.isMe(data.userId)) {
@@ -842,9 +841,6 @@ var NotesView = Backbone.View.extend({
         });
         this._List.append(view.render().el);
         this._Panel.scrollTop(this._Panel[0].scrollHeight);
-    },
-    removeItem: function(model) {
-        model.destroy();
     }
 });
 //

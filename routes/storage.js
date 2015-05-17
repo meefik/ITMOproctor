@@ -2,10 +2,14 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var path = require('path');
+var urlify = require('urlify').create();
 var db = require('../db');
 // Upload file
 router.post('/', function(req, res, next) {
     var file = req.files[0];
+    var extension = file.extension ? '.' + file.extension : '';
+    var filename = path.basename(file.originalname, extension);
+    file.originalname = urlify(filename) + extension;
     if(!file) return res.status(404).end();
     res.json(file);
 });

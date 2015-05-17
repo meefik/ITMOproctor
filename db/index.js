@@ -248,7 +248,7 @@ var db = {
         },
         delete: function(args, callback) {
             var Note = require('./models/note');
-            Note.findOne({
+            Note.findOneAndRemove({
                 _id: args._id
             }, function(err, data) {
                 callback(err, data);
@@ -256,8 +256,7 @@ var db = {
                     if(data.attach.length > 0) {
                         db.storage.remove(data.attach);
                     }
-                    data.remove();
-                }
+                };
             });
         }
     },
