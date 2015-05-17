@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
 var Passport = require('./passport').schema;
+var Attach = require('./attach').schema;
 var User = new Schema({
     // Логин
     username: {
@@ -55,9 +56,7 @@ var User = new Schema({
         default: 0
     },
     // Cсылка на файл с фотографией пользователя
-    photo: {
-        type: Schema.Types.ObjectId
-    }
+    photo: [Attach]
 });
 User.methods.encryptPassword = function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');

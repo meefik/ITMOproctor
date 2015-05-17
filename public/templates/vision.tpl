@@ -170,56 +170,65 @@
 </script>
 <script type="text/template" id="student-info-tpl">
 <div style="padding:15px">
-    <img src="<%= student.photo %>" alt="Фотография" width="240" height="320" style="border: 1px solid #eee; float:left; margin-right: 15px">
+    <% var photo = student.photo.length > 0 ? '/storage/'+student.photo[0].fileId : null; %>
+    <div style="width:240px;height:320px;float:left;margin-right:15px;">
+        <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
+    </div>
     <div style="float:clear">
     <table cellpadding="5">
     <tr>
         <td>ФИО:</td>
-        <td><%= passport.lastname %> <%= passport.firstname %> <%= passport.middlename %></td>
+        <td><%- passport.lastname %> <%- passport.firstname %> <%- passport.middlename %></td>
     </tr>
     <tr>
         <td>Пол:</td>
-        <td><%= passport.gender %></td>
+        <td><%- passport.gender %></td>
     </tr>
     <tr>
         <td>Дата рождения:</td>
-        <td><%= moment(passport.birthday).format("DD.MM.YYYY") %></td>
+        <td><%- moment(passport.birthday).format("DD.MM.YYYY") %></td>
     </tr>
     <tr>
         <td>Гражданство:</td>
-        <td><%= passport.citizenship %></td>
+        <td><%- passport.citizenship %></td>
     </tr>
     <tr>
         <td>Место рождения:</td>
-        <td><%= passport.birthplace %></td>
+        <td><%- passport.birthplace %></td>
     </tr>
     <tr>
         <td>Паспорт:</td>
-        <td><%= passport.series %> <%= passport.number %></td>
+        <td><%- passport.series %> <%= passport.number %></td>
     </tr>
     <tr>
         <td>Кем выдан:</td>
-        <td><%= passport.department %></td>
+        <td><%- passport.department %></td>
     </tr>
     <tr>
         <td>Дата выдачи:</td>
-        <td><%= moment(passport.issuedate).format("DD.MM.YYYY") %></td>
+        <td><%- moment(passport.issuedate).format("DD.MM.YYYY") %></td>
     </tr>
     <tr>
         <td>Код подразделения:</td>
-        <td><%= passport.departmentcode %></td>
+        <td><%- passport.departmentcode %></td>
     </tr>
     <tr>
         <td>Место регистрации:</td>
-        <td><%= passport.registration %></td>
+        <td><%- passport.registration %></td>
     </tr>
     <tr>
         <td>Дополнительная информация:</td>
-        <td><%= passport.description %></td>
+        <td><%- passport.description %></td>
     </tr>
     <tr>
         <td>Копии страниц паспорта:</td>
-        <td><a href="#">страницы 1-2</a>, <a href="#">страница 4</a></td>
+        <td>
+            <% if(passport.attach.length > 0) { %>
+                <% _.each(passport.attach, function(element, index, list){ %>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                <% }); %>
+            <% } %>
+        </td>
     </tr>
     </table>
     </div>

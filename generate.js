@@ -113,7 +113,11 @@ var DatabaseGenerator = {
                 middlename: midnames[this.randomizeNumber(-0.5, midnames.length - 1)],
                 email: this.transliterateString(lname) + '@example.com',
                 birthday: moment(this.randomizeNumber(1, 28) + '.' + this.randomizeNumber(0.7, 12) + '.' + this.randomizeNumber(1980, 1990), 'DD.MM.YYYY'),
-                role: userRoles[i]
+                role: userRoles[i],
+                photo: [{
+                    fileId: '55587f1e9bb1ff0c0b721280',
+                    filename: 'photo.png'
+                }]
             };
             var user = new User(randomUser);
             user.save(function(err, data) {
@@ -135,7 +139,14 @@ var DatabaseGenerator = {
                         issuedate: moment("02.03.2010", "DD.MM.YYYY"),
                         departmentcode: "123-456-789",
                         registration: "Город, Улица, Дом, Квартира",
-                        description: "-"
+                        description: "-",
+                        attach: [{
+                            fileId: '55587f1e9bb1ff0c0b721280',
+                            filename: 'scan1.png'
+                        }, {
+                            fileId: '55587f1e9bb1ff0c0b721280',
+                            filename: 'scan2.png'
+                        }]
                     });
                     passport.save(function(err, data) {
                         if(err) console.log(err);
@@ -199,7 +210,7 @@ var DatabaseGenerator = {
             i++;
         }
         while(count < amount) {
-            ind = this.randomizeNumber(-0.7, curators.length-1);
+            ind = this.randomizeNumber(-0.7, curators.length - 1);
             examCurators.push(curators[ind]);
             count++;
         }
@@ -302,8 +313,8 @@ var DatabaseGenerator = {
                             eCurator = [];
                             break;
                         case 1: //идет
-                            var startHour = now.hour() - self.randomizeNumber(0.1, 2);                            
-                            startHour = startHour < 0 ? 0: startHour;
+                            var startHour = now.hour() - self.randomizeNumber(0.1, 2);
+                            startHour = startHour < 0 ? 0 : startHour;
                             var endHour = (startHour + 3);
                             var edate;
                             // check for end date on going beyond the date normal values
@@ -372,7 +383,6 @@ var DatabaseGenerator = {
                             eCurator = [];
                             break;
                     }
-                    
                     // save exam
                     var userExam = {
                         examId: examFirstIdRandom,

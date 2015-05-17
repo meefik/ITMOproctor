@@ -3,6 +3,7 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var Attach = require('./attach').schema;
 var Passport = new Schema({
     // Идентификатор пользователя (связь 1:1)
     userId: {
@@ -81,8 +82,6 @@ var Passport = new Schema({
         type: String
     },
     // Копии страниц паспорта
-    scan: [{
-        type: Schema.Types.ObjectId
-    }]
+    attach: [Attach]
 });
 module.exports = mongoose.model('Passport', Passport);
