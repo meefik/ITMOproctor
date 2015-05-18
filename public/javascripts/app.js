@@ -270,15 +270,11 @@ var MonitorView = Backbone.View.extend({
             method: 'get'
         });
         this._DateSearch.datebox({
-            onSelect: function(date) {
-                self.doSearch();
+            onChange: function(date) {
+                var valid = moment(date, "DD.MM.YYYY", true).isValid();
+                if(!date || valid) self.doSearch();
             }
         });
-        this._DateSearch.datebox('options').keyHandler.query = function(q) {
-            if(q === '') {
-                self.doSearch();
-            }
-        }
         this._TextSearch.searchbox({
             searcher: function(value, name) {
                 self.doSearch();
