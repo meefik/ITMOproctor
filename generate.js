@@ -17,7 +17,7 @@ var Exam = require('./db/models/exam');
 var Subject = require('./db/models/subject');
 var Passport = require('./db/models/passport');
 var DatabaseGenerator = {
-    rowAmount: 100,
+    rowAmount: 300,
     randomizeNumber: function(min, max) {
         num = Math.ceil((Math.random() * (max - min)) + min);
         return num;

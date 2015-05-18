@@ -76,15 +76,15 @@ var db = {
             var page = args.page ? parseInt(args.page) - 1 : 0;
             var status = args.status;
             var date = args.date ? moment(args.date, 'DD.MM.YYYY') : null;
-            var text = args.text;
+            var text = args.text ? args.text.trim().split(' ') : null;
             var merge = require('merge');
             var query = {};
             // Date
             if(date) {
                 var q = {
                     beginDate: {
-                        "$gte": moment(date),
-                        "$lte": moment(date).add(1, 'days')
+                        $gte: moment(date),
+                        $lte: moment(date).add(1, 'days')
                     }
                 };
                 query = merge.recursive(true, query, q);
@@ -98,13 +98,13 @@ var db = {
                     //console.log('Идет экзамен');
                     var q = {
                         startDate: {
-                            '$ne': null
+                            $ne: null
                         },
                         stopDate: {
-                            '$eq': null
+                            $eq: null
                         },
                         curator: {
-                            '$not': {
+                            $not: {
                                 $size: 0
                             }
                         }
@@ -115,10 +115,10 @@ var db = {
                     //console.log('Ожидают');
                     var q = {
                         beginDate: {
-                            '$lte': moment()
+                            $lte: moment()
                         },
                         endDate: {
-                            '$gt': moment()
+                            $gt: moment()
                         },
                         curator: {
                             $size: 0
@@ -127,14 +127,10 @@ var db = {
                     query = merge.recursive(true, query, q);
                     break;
             }
-            // Full text search
-            if(text) {
-                // client side
-                console.log(text);
-            }
             // Populate options
             var opts = [{
-                path: 'subject'
+                path: 'subject',
+                select: 'title code'
             }, {
                 path: 'student',
                 select: 'firstname lastname middlename'
@@ -144,11 +140,46 @@ var db = {
             }];
             // Query
             var Exam = require('./models/exam');
-            Exam.find(query).count(function(err, count) {
-                Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
-                    callback(err, data, count);
+            if(text) {
+                // Full text search
+                Exam.find(query).sort('beginDate').populate(opts).exec(function(err, data) {
+                    var out = [];
+                    var dl = data.length;
+                    for(var i = 0; i < dl; i++) {
+                        var item = data[i];
+                        var curator = {};
+                        if(item.curator.length > 0) curator = item.curator[0];
+                        var arr = [item.examId,
+                            item.student.lastname, item.student.firstname, item.student.middlename,
+                            curator.lastname, curator.firstname, curator.middlename,
+                            item.subject.title, item.subject.code
+                        ];
+                        var cond = true;
+                        for(var k = 0; k < text.length; k++) {
+                            var match = false;
+                            var re = new RegExp(text[k], 'i');
+                            for(var j = 0; j < arr.length; j++) {
+                                if(re.test(arr[j])) {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            cond = cond && match;
+                            if(!cond) break;
+                        }
+                        if(cond) out.push(item);
+                    }
+                    var begin = rows * page;
+                    var end = begin + rows;
+                    callback(err, out.slice(begin, end), out.length);
                 });
-            });
+            } else {
+                Exam.find(query).count(function(err, count) {
+                    Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
+                        callback(err, data, count);
+                    });
+                });
+            }
         },
         info: function(args, callback) {
             var Exam = require('./models/exam');
