@@ -82,7 +82,7 @@
         </td>
     </tr>
     <tr>
-        <td><strong>Кураторы:</strong></td>
+        <td><strong>Наблюдатели:</strong></td>
         <td>
             <% curator.shift(); %>
             <% _.each(curator, function(item) { %>
@@ -102,4 +102,12 @@
         <td><%= comment %></td>
     </tr>
 </table>
+</script>
+<script type="text/template" id="action-item-tpl">
+<div class="action-item" style="clear:both">
+    <a href="javascript:void(0);" style="padding-left:10px;float:left" onclick="app.content.doInfo('<%- rowId %>');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>
+    <% if(openEnabled) { %>
+        <a href="javascript:void(0);" style="padding-right:10px;float:right" onclick="app.content.doPlay('<%- rowId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
+    <% } %>
+</div>
 </script>

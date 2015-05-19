@@ -11,12 +11,15 @@
             <div data-options="region:'west',border:false" style="width:30%">
                 <div class="easyui-layout" data-options="fit:true">
                     <div data-options="region:'north',border:false" class="ws-widget" style="height:40%">
-                        <div id="panel-video" class="easyui-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
-                            &nbsp;
+                        <div id="panel-video" class="easyui-panel ws-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
+                            <!-- Begin: Video -->
+                            <video id="videoOutput" autoplay poster="images/webrtc.png"></video>
+                            <video id="videoInput" autoplay poster="images/webrtc.png"></video>
+                            <!-- End: Video -->
                         </div>
                     </div>
                     <div data-options="region:'center',border:false" class="ws-widget">
-                        <div id="panel-chat" class="easyui-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
+                        <div id="panel-chat" class="easyui-panel ws-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
                             <!-- Begin: Chat -->
                             <div class="easyui-layout" data-options="fit:true">
                                 <div class="chat-panel" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;">
@@ -48,12 +51,12 @@
             <div data-options="region:'center',border:false" style="width:70%">
                 <div class="easyui-layout" data-options="fit:true">
                     <div data-options="region:'north',border:false" class="ws-widget" style="height:60%">
-                        <div id="panel-desktop" class="easyui-panel" title="Рабочий стол" data-options="fit:true,iconCls:'fa fa-desktop',maximizable:true">&nbsp;</div>
+                        <div id="panel-desktop" class="easyui-panel ws-panel" title="Рабочий стол" data-options="fit:true,iconCls:'fa fa-desktop',maximizable:true">&nbsp;</div>
                     </div>
                     <div data-options="region:'center',border:false">
                         <div class="easyui-layout" data-options="fit:true">
                             <div data-options="region:'center',border:false" class="ws-widget">
-                                <div id="panel-protocol" class="easyui-panel" title="Протокол" data-options="fit:true,iconCls:'fa fa-file-text-o',maximizable:true">
+                                <div id="panel-protocol" class="easyui-panel ws-panel" title="Протокол" data-options="fit:true,iconCls:'fa fa-file-text-o',maximizable:true">
                                     <!-- Begin: Protocol -->
                                     <div class="easyui-panel protocol-panel" data-options="fit:true,border:false">
                                         <ul class="protocol-output" style="list-style-type: none;padding:.3em;margin:0"></ul>
@@ -62,7 +65,7 @@
                                 </div>
                             </div>
                             <div data-options="region:'east',border:false,minWidth:300" class="ws-widget" style="width:30%">
-                                <div id="panel-notes" class="easyui-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">
+                                <div id="panel-notes" class="easyui-panel ws-panel" title="Заметки" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true">
                                     <!-- Begin: Notes -->
                                     <div class="easyui-layout" data-options="fit:true">
                                         <div data-options="region:'north',border:false" style="height:33px;border-bottom-width: 1px;">

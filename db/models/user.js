@@ -50,7 +50,7 @@ var User = new Schema({
     birthday: {
         type: Date
     },
-    // Роль: 0 - Гость, 1 - Студент, 2 - Инспектор, 3 - Преподаватель
+    // Роль пользователя
     role: {
         type: Number,
         default: 0

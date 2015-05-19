@@ -13,6 +13,8 @@
     "font-awesome": "~4.3.0",
     "jeasyui": "~1.4.2",
     "backbone": "master",
-    "html2canvas": "master"
+    "html2canvas": "master",
+    "adapter.js": "*",
+    "kurento-utils": "5.1.0"
   }
 }
