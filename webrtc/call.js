@@ -1,4 +1,4 @@
-function webrtc(app) {
+module.exports = function(app) {
     var io = app.get('io:call');
     var config = require('nconf');
     var kurento = require('kurento-client');
@@ -307,4 +307,3 @@ function webrtc(app) {
         });
     }
 }
-module.exports = webrtc;
