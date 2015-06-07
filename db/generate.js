@@ -1,4 +1,4 @@
-var config = require('nconf').file('./config.json');
+var config = require('nconf').file('../config.json');
 var mongoose = require('mongoose');
 var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
@@ -12,10 +12,10 @@ conn.once('open', function() {
 });
 var Schema = mongoose.Schema;
 var moment = require('moment');
-var User = require('./db/models/user');
-var Exam = require('./db/models/exam');
-var Subject = require('./db/models/subject');
-var Passport = require('./db/models/passport');
+var User = require('./models/user');
+var Exam = require('./models/exam');
+var Subject = require('./models/subject');
+var Passport = require('./models/passport');
 var DatabaseGenerator = {
     rowAmount: 300,
     randomizeNumber: function(min, max) {

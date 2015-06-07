@@ -327,6 +327,46 @@ var db = {
             var Protocol = require('./models/protocol');
             Protocol.find(args).sort('time').exec(callback);
         }
+    },
+    student: {
+        start: function(args, callback) {
+            var opts = [{
+                path: 'subject'
+            }, {
+                path: 'student'
+            }, {
+                path: 'curator'
+            }];
+            var d = moment();
+            var d = moment().add(-1, 'day');
+            var Exam = require('./models/exam');
+            Exam.find({
+                student: args.userId,
+                resolution: null,
+                beginDate: {
+                    $lte: d
+                }
+            }).sort('beginDate').limit(1).populate(opts).exec(function(err, exam) {
+                console.log(exam);
+                if(!err && exam.length > 0) {
+                    var data = exam[0];
+                    callback(err, data);
+                    if(!data.startDate) {
+                        Exam.update({
+                            _id: data._id
+                        }, {
+                            $set: {
+                                startDate: moment().toJSON(),
+                            }
+                        }, function(err, data) {
+                            if(err) console.log(err);
+                        });
+                    }
+                } else {
+                    callback(err, null);
+                }
+            });
+        }
     }
 }
 conn.on('error', function(err) {

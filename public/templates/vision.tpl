@@ -16,6 +16,7 @@
                             <video id="videoOutput" autoplay poster="images/webrtc.png"></video>
                             <video id="videoInput" autoplay poster="images/webrtc.png"></video>
                             <!-- End: Video -->
+                            &nbsp;
                         </div>
                     </div>
                     <div data-options="region:'center',border:false" class="ws-widget">
@@ -46,11 +47,12 @@
                             <!-- End: Chat -->
                         </div>
                     </div>
+                    
                 </div>
             </div>
             <div data-options="region:'center',border:false" style="width:70%">
                 <div class="easyui-layout" data-options="fit:true">
-                    <div data-options="region:'north',border:false" class="ws-widget" style="height:60%">
+                    <div data-options="region:'north',border:false" class="ws-widget" style="height:70%">
                         <div id="panel-desktop" class="easyui-panel ws-panel" title="Рабочий стол" data-options="fit:true,iconCls:'fa fa-desktop',maximizable:true">&nbsp;</div>
                     </div>
                     <div data-options="region:'center',border:false">

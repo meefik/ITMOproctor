@@ -1,0 +1,26 @@
+{
+    "passport": [{
+        "userId": "123456789",
+        "lastname": "Иванов",
+        "firstname": "Иван",
+        "middlename": "Иванович",
+        "gender": "Мужской",
+        "birthday": "01.01.2000",
+        "citizenship": "РФ",
+        "birthplace": "Москва",
+        "series": "1234",
+        "number": "123456",
+        "department": "ОВД какого-то района",
+        "issuedate": "02.03.2010",
+        "departmentcode": "123-456-789",
+        "registration": "Город, Улица, Дом, Квартира",
+        "description": "-",
+        "attach": [{
+            "fileId": "55587f1e9bb1ff0c0b721280",
+            "filename": "scan1.png"
+        }, {
+            "fileId": "55587f1e9bb1ff0c0b721280",
+            "filename": "scan2.png"
+        }]
+    }]
+}

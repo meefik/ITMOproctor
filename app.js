@@ -49,8 +49,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
-// routing
-require('./routes')(app);
 // notifications
 app.use(function(req, res, next) {
     req.notify = function(target) {
@@ -65,6 +63,8 @@ app.use(function(req, res, next) {
     }
     next();
 });
+// routing
+require('./routes')(app);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

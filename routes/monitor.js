@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 router.get('/', function(req, res) {
-    console.log(req.query);
     db.monitor.list(req.query, function(err, data, count) {
         if(!err && data) {
             var rows = {

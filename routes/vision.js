@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var moment = require('moment');
 var db = require('../db');
 router.get('/:examId', function(req, res) {
     var args = {

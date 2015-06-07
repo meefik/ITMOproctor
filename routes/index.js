@@ -5,6 +5,7 @@ var vision = require('./vision');
 var notes = require('./notes');
 var chat = require('./chat');
 var protocol = require('./protocol');
+var student = require('./student');
 module.exports = function(app) {
     app.use('/profile', profile);
     app.use('/storage', profile.isAuth, storage);
@@ -13,4 +14,5 @@ module.exports = function(app) {
     app.use('/notes', profile.isAuth, notes);
     app.use('/chat', profile.isAuth, chat);
     app.use('/protocol', profile.isAuth, protocol);
+    app.use('/student', profile.isAuth, student);
 }

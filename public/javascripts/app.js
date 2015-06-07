@@ -75,11 +75,27 @@ var Workspace = Backbone.Router.extend({
         "login": "login",
         "monitor": "monitor",
         "vision/:examid": "vision",
-        "play/:examid": "play"
+        "play/:examid": "play",
+        "student": "student",
+        "admin": "admin"
     },
     main: function() {
         if(app.profile.isAuth()) {
-            this.navigate("monitor", {
+            var role = app.profile.get("role");
+            var navigate = "login";
+            switch(role) {
+                case 1:
+                    navigate = "student";
+                    break;
+                case 2:
+                case 3:
+                    navigate = "monitor";
+                    break;
+                case 4:
+                    navigate = "admin";
+                    break;
+            }
+            this.navigate(navigate, {
                 trigger: true
             });
         } else {
@@ -126,6 +142,22 @@ var Workspace = Backbone.Router.extend({
         if(this.redirect()) return;
         this.destroy();
     },
+    student: function() {
+        console.log("route: #student");
+        if(this.redirect()) return;
+        this.destroy();
+        app.render("/templates/student.tpl", function() {
+            var view = new StudentView({
+                el: $("#student")
+            });
+            app.content = view;
+        });
+    },
+    admin: function() {
+        console.log("route: #admin");
+        if(this.redirect()) return;
+        this.destroy();
+    },
     redirect: function() {
         if(!app.profile.isAuth()) {
             this.navigate("login", {
@@ -139,7 +171,6 @@ var Workspace = Backbone.Router.extend({
     destroy: function() {
         if(app.content) {
             app.content.destroy();
-            app.content.remove();
             delete app.content;
         }
     }
@@ -158,7 +189,7 @@ var LoginView = Backbone.View.extend({
         this.render();
     },
     destroy: function() {
-        // ...
+        this.remove();
     },
     render: function() {
         this.focus();
@@ -171,7 +202,7 @@ var LoginView = Backbone.View.extend({
             password: password
         });
         if(user.login()) {
-            app.workspace.navigate("monitor", {
+            app.workspace.navigate("", {
                 trigger: true
             });
         } else {
@@ -219,6 +250,7 @@ var MonitorView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
+        this.remove();
     },
     render: function() {
         var self = this;
@@ -266,8 +298,11 @@ var MonitorView = Backbone.View.extend({
                     formatter: self.formatAction
                 }]
             ],
-            url: '/monitor?date=' + currentDate,
-            method: 'get'
+            url: '/monitor',
+            method: 'get',
+            queryParams: {
+                date: currentDate
+            }
         });
         this._DateSearch.datebox({
             value: currentDate,
@@ -282,10 +317,10 @@ var MonitorView = Backbone.View.extend({
             }
         });
         var role = {
-            "0": "Гость",
             "1": "Студент",
             "2": "Инспектор",
-            "3": "Преподаватель"
+            "3": "Наблюдатель",
+            "4": "Администратор"
         };
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + role[app.profile.get("role")] + ")");
         var t1 = setInterval(function() {
@@ -487,7 +522,7 @@ var VisionView = Backbone.View.extend({
                 });
                 self.video = new VideoView({
                     el: $("#panel-video"),
-                    id: 'protocol-' + self.id
+                    id: 'video-' + self.id
                 });
             }
         });
@@ -500,7 +535,7 @@ var VisionView = Backbone.View.extend({
             });
             pobj.panel('resize');
             pobj.find('video').each(function(index, element) {
-                if (element.src != '') {
+                if(element.src != '') {
                     element.play();
                 }
                 if(element.id == 'videoInput') {
@@ -551,10 +586,11 @@ var VisionView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        this.notes.remove();
-        this.protocol.remove();
-        this.chat.remove();
-        this.video.remove();
+        if(this.notes) this.notes.destroy();
+        if(this.protocol) this.protocol.destroy();
+        if(this.chat) this.chat.destroy();
+        if(this.video) this.video.destroy();
+        this.remove();
     },
     showStudentInfo: function() {
         var tpl = _.template(this._StudentInfoTpl.html());
@@ -825,6 +861,9 @@ var NotesView = Backbone.View.extend({
             }
         });
     },
+    destroy: function() {
+        this.remove();
+    },
     add: function() {
         var noteText = this._Input.textbox('getValue');
         if(!noteText) return;
@@ -918,20 +957,25 @@ var ChatView = Backbone.View.extend({
             }
         });
     },
+    destroy: function() {
+        this.remove();
+    },
     doSend: function() {
         var text = this._Input.text();
-        var author = {
-            _id: app.profile.get('_id'),
-            lastname: app.profile.get('lastname'),
-            firstname: app.profile.get('firstname'),
-            middlename: app.profile.get('middlename')
-        };
-        this.collection.create({
-            time: new Date(),
-            author: author,
-            text: text,
-            attach: this.attach
-        });
+        if(text || this.attach.length > 0) {
+            var author = {
+                _id: app.profile.get('_id'),
+                lastname: app.profile.get('lastname'),
+                firstname: app.profile.get('firstname'),
+                middlename: app.profile.get('middlename')
+            };
+            this.collection.create({
+                time: new Date(),
+                author: author,
+                text: text,
+                attach: this.attach
+            });
+        }
         this.doReset();
     },
     appendItem: function(model) {
@@ -1048,6 +1092,9 @@ var ProtocolView = Backbone.View.extend({
             }
         });
     },
+    destroy: function() {
+        this.remove();
+    },
     appendItem: function(model) {
         var view = new this.ItemView({
             model: model
@@ -1113,6 +1160,9 @@ var VideoView = Backbone.View.extend({
         this.register();
         //this.call();
     },
+    destroy: function() {
+        this.remove();
+    },
     setRegisterState: function(nextState) {
         console.log('setRegisterState: ' + nextState);
         switch(nextState) {
@@ -1155,7 +1205,7 @@ var VideoView = Backbone.View.extend({
             this.setRegisterState('NOT_REGISTERED');
             var errorMessage = message.message ? message.message : 'Unknown reason for register rejection.';
             console.log(errorMessage);
-            alert('Error registering user. See console for further information.');
+            console.error('Error registering user. See console for further information.');
         }
     },
     callResponse: function(message) {
@@ -1271,6 +1321,108 @@ var VideoView = Backbone.View.extend({
             arguments[i].poster = 'images/webrtc.png';
             arguments[i].style.background = '';
         }
+    }
+});
+//
+// Student view
+//
+var StudentView = Backbone.View.extend({
+    events: {
+        "click .app-logout": "doLogout"
+    },
+    initialize: function() {
+        var self = this;
+        // Vision model
+        var Student = Backbone.Model.extend({
+            urlRoot: '/student'
+        });
+        this._NetworkWidget = this.$('.network-widget');
+        this._TimeWidget = this.$('.time-widget');
+        this._DurationWidget = this.$('.duration-widget');
+        this._StudentWidget = this.$('.student-widget');
+        this.timer = moment(0);
+        this.student = new Student();
+        this.render();
+    },
+    render: function() {
+        var self = this;
+        this.student.fetch({
+            success: function(model, response, options) {
+                var startDate = model.get("startDate");
+                var duration = moment() - moment(startDate);
+                if(duration > 0) self.timer = moment(duration);
+                var student = model.get("student");
+                var examId = model.get("_id");
+                self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
+                // Sub views
+                self.chat = new ChatView({
+                    el: $("#panel-chat"),
+                    id: 'chat-' + examId
+                });
+                self.video = new VideoView({
+                    el: $("#panel-video"),
+                    id: 'video-' + examId
+                });
+            }
+        });
+        var resizeWidget = function(container, pobj) {
+            var p = pobj.panel('panel');
+            p.detach().appendTo(container).css({
+                top: 0,
+                left: 0,
+                position: 'absolute',
+                width: container.width(),
+                height: container.height()
+            });
+            pobj.panel('resize');
+            pobj.find('video').each(function(index, element) {
+                if(element.src != '') {
+                    element.play();
+                }
+                if(element.id == 'videoInput') {
+                    element.style.left = '';
+                    element.style.bottom = '';
+                    element.style.top = '5px';
+                    element.style.right = '5px';
+                }
+            });
+        }
+        this.$(".ws-widget").each(function(index, element) {
+            var ws = self.$(".ws-content");
+            var container = $(element);
+            var widget = container.find(".ws-panel");
+            widget.panel({
+                onMaximize: function() {
+                    resizeWidget(ws, widget);
+                },
+                onRestore: function() {
+                    resizeWidget(container, widget);
+                }
+            });
+        });
+        var t1 = setInterval(function() {
+            self.timer.add(1, 'seconds');
+            self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
+            var nowDate = moment();
+            var endDate = moment(self.student.get("endDate"));
+            if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+        }, 1000);
+        var t2 = setInterval(function() {
+            self._TimeWidget.text(moment().format('HH:mm:ss'));
+        }, 1000);
+        this.timers = [t1, t2];
+    },
+    destroy: function() {
+        this.timers.forEach(function(element, index, array) {
+            clearInterval(element);
+        });
+        if(this.chat) this.chat.destroy();
+        if(this.video) this.video.destroy();
+        this.remove();
+    },
+    doLogout: function() {
+        app.logout();
     }
 });
 //
