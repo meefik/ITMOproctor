@@ -2,6 +2,7 @@ module.exports = function(app) {
     var io = app.get('io:call');
     var config = require('nconf');
     var kurento = require('kurento-client');
+    
     /*
      * Definition of global variables.
      */
@@ -276,8 +277,11 @@ module.exports = function(app) {
         if(!name) {
             return onError("empty user name");
         }
-        if(userRegistry.getByName(name)) {
-            return onError("already registered");
+        var user = userRegistry.getByName(name);
+        if(user) {
+            //return onError("already registered");
+            stop(user.id);
+            userRegistry.unregister(user.id);
         }
         userRegistry.register(new UserSession(id, name, ws));
         try {

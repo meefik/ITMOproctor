@@ -1138,7 +1138,10 @@ var VideoView = Backbone.View.extend({
             }
         });
         this.register();
-        //this.call();
+        if(app.profile.get("role") === 2) {
+            console.log("call");
+            this.call();
+        }
     },
     destroy: function() {
         this.remove();
