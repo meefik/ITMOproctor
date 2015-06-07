@@ -1,6 +1,37 @@
 {
+    "user": [{
+        "_id": "55633e000cf842a221a37ad5",
+        "username": "inspector",
+        "password": "inspector",
+        "salt": "secret",
+        "lastname": "Пертов",
+        "firstname": "Петр",
+        "middlename": "Пертович",
+        "email": "inspector@example.com",
+        "birthday": "1982-03-11T00:00:00.000Z",
+        "role": 2,
+        "photo": [{
+            "fileId": "55587f1e9bb1ff0c0b721280",
+            "filename": "scan1.png"
+        }]
+    },{
+        "_id": "55633e000cf842a221a37ae3",
+        "username": "student",
+        "password": "student",
+        "salt": "secret",
+        "lastname": "Иванов",
+        "firstname": "Иван",
+        "middlename": "Иванович",
+        "email": "student@example.com",
+        "birthday": "1992-07-22T00:00:00.000Z",
+        "role": 1,
+        "photo": [{
+            "fileId": "55587f1e9bb1ff0c0b721280",
+            "filename": "scan1.png"
+        }]
+    }],
     "passport": [{
-        "userId": "123456789",
+        "userId": "55633e000cf842a221a37ae3",
         "lastname": "Иванов",
         "firstname": "Иван",
         "middlename": "Иванович",
@@ -22,5 +53,28 @@
             "fileId": "55587f1e9bb1ff0c0b721280",
             "filename": "scan2.png"
         }]
+    }],
+    "subject": [{
+        "_id": "55633e000cf842a221a37b19",
+        "title": "Специальность",
+        "speciality": "Вычислительные машины, комплексы и компьютерные сети",
+        "code": "05.13.15"
+    },{
+        "_id": "55633e000cf842a221a37b47",
+        "title": "Иностранный язык",
+        "speciality": "Экономика и управление народным хозяйством",
+        "code": "08.00.05"
+    }],
+    "exam": [{
+        "examId": "100001",
+        "subject": "55633e000cf842a221a37b19",
+        "student": "55633e000cf842a221a37ae3",
+        "curator": [],
+        "beginDate": "2015-06-07T16:00:00.000Z",
+        "endDate": "2015-06-07T21:00:00.000Z",
+        "startDate": null,
+        "stopDate": null,
+        "resolution": null,
+        "comment": null
     }]
 }

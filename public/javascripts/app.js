@@ -76,7 +76,8 @@ var Workspace = Backbone.Router.extend({
         "monitor": "monitor",
         "vision/:examid": "vision",
         "play/:examid": "play",
-        "student": "student",
+        "countdown": "countdown",
+        "student/:examid": "student",
         "admin": "admin"
     },
     main: function() {
@@ -85,7 +86,7 @@ var Workspace = Backbone.Router.extend({
             var navigate = "login";
             switch(role) {
                 case 1:
-                    navigate = "student";
+                    navigate = "countdown";
                     break;
                 case 2:
                 case 3:
@@ -137,21 +138,33 @@ var Workspace = Backbone.Router.extend({
             app.content = view;
         });
     },
-    play: function(examid) {
-        console.log("route: #play");
+    countdown: function() {
+        console.log("route: #countdown");
         if(this.redirect()) return;
         this.destroy();
+        app.render("/templates/countdown.tpl", function() {
+            var view = new CountdownView({
+                el: $("#countdown")
+            });
+            app.content = view;
+        });
     },
-    student: function() {
+    student: function(examid) {
         console.log("route: #student");
         if(this.redirect()) return;
         this.destroy();
         app.render("/templates/student.tpl", function() {
             var view = new StudentView({
-                el: $("#student")
+                el: $("#student"),
+                id: examid
             });
             app.content = view;
         });
+    },
+    play: function(examid) {
+        console.log("route: #play");
+        if(this.redirect()) return;
+        this.destroy();
     },
     admin: function() {
         console.log("route: #admin");
@@ -452,7 +465,7 @@ var VisionView = Backbone.View.extend({
     events: {
         "click .screenshot-btn": "doScreenshot",
         "click .student-info-btn": "showStudentInfo",
-        "click .exam-info-btn": "showSubjectInfo",
+        "click .exam-info-btn": "showExamInfo",
         "click .exam-stop-btn": "rejectExam",
         "click .exam-apply-btn": "applyExam"
     },
@@ -468,19 +481,18 @@ var VisionView = Backbone.View.extend({
         this._StudentWidget = this.$('.student-widget');
         this._ExamWidget = this.$('.exam-widget');
         this._DialogStudent = $('#student-info-dlg');
-        this._DialogSubject = $('#subject-info-dlg');
+        this._DialogExam = $('#exam-info-dlg');
         this._DialogScreenshot = $("#screenshot-dlg");
         this._ScreenshotPreview = this._DialogScreenshot.find('img');
         this._ScreenshotComment = this._DialogScreenshot.find('.screenshot-comment');
-        this._DialogExamApply = $("#exam-apply-dlg");
-        this._ApplyCode = this._DialogExamApply.find('.protection-code');
-        this._ApplyCodeInput = this._DialogExamApply.find('.protection-code-input');
-        this._DialogExamReject = $("#exam-reject-dlg");
-        this._RejectCode = this._DialogExamReject.find('.protection-code');
-        this._RejectCodeInput = this._DialogExamReject.find('.protection-code-input');
-        this._RejectComment = this._DialogExamReject.find('.reject-comment');
+        this._DialogConfirm = $("#exam-confirm-dlg");
+        this._ProtectionCode = this._DialogConfirm.find('.protection-code');
+        this._ProtectionCodeInput = this._DialogConfirm.find('.protection-code-input');
+        this._ExamComment = this._DialogConfirm.find('.exam-comment');
+        this._ApplyText = this._DialogConfirm.find('.apply-text');
+        this._RejectText = this._DialogConfirm.find('.reject-text');
         this._StudentInfoTpl = $("#student-info-tpl");
-        this._SubjectInfoTpl = $("#subject-info-tpl");
+        this._ExamInfoTpl = $("#exam-info-tpl");
         // set validate method
         $.extend($.fn.validatebox.defaults.rules, {
             protectionCode: {
@@ -559,11 +571,7 @@ var VisionView = Backbone.View.extend({
                 }
             });
         });
-        this._ApplyCodeInput.validatebox({
-            required: true,
-            validType: 'protectionCode',
-        });
-        this._RejectCodeInput.validatebox({
+        this._ProtectionCodeInput.validatebox({
             required: true,
             validType: 'protectionCode',
         });
@@ -599,12 +607,12 @@ var VisionView = Backbone.View.extend({
         this._DialogStudent.html(html);
         this._DialogStudent.dialog('open');
     },
-    showSubjectInfo: function() {
-        var tpl = _.template(this._SubjectInfoTpl.html());
+    showExamInfo: function() {
+        var tpl = _.template(this._ExamInfoTpl.html());
         var vision = this.vision.toJSON();
         var html = tpl(vision);
-        this._DialogSubject.html(html);
-        this._DialogSubject.dialog('open');
+        this._DialogExam.html(html);
+        this._DialogExam.dialog('open');
     },
     doScreenshot: function() {
         var self = this;
@@ -669,27 +677,34 @@ var VisionView = Backbone.View.extend({
             }
         });
     },
-    rejectExam: function() {
+    confirmDlg: function(resolution) {
         var self = this;
         var reset = function() {
             self.generateCode();
-            self._RejectCode.text(self.protectionCode);
-            self._RejectCodeInput.val('');
-            self._RejectCodeInput.focus();
+            self._ProtectionCode.text(self.protectionCode);
+            self._ProtectionCodeInput.val('');
+            self._ProtectionCodeInput.focus();
         };
-        this._DialogExamReject.dialog({
+        if(resolution) {
+            this._ApplyText.show();
+            this._RejectText.hide();
+        } else {
+            this._RejectText.show();
+            this._ApplyText.hide();
+        }
+        this._DialogConfirm.dialog({
             closed: false,
             buttons: [{
                 text: 'Подтвердить',
                 handler: function() {
-                    if(self._RejectCodeInput.validatebox('isValid')) {
+                    if(self._ProtectionCodeInput.validatebox('isValid')) {
                         self.vision.save({
                             _id: self.id,
-                            resolution: false,
-                            comment: self._RejectComment.textbox('getValue')
+                            resolution: resolution,
+                            comment: self._ExamComment.textbox('getValue')
                         }, {
                             success: function() {
-                                self._DialogExamReject.dialog('close');
+                                self._DialogConfirm.dialog('close');
                                 app.workspace.navigate("monitor", {
                                     trigger: true
                                 });
@@ -702,7 +717,7 @@ var VisionView = Backbone.View.extend({
             }, {
                 text: 'Отмена',
                 handler: function() {
-                    self._DialogExamReject.dialog('close');
+                    self._DialogConfirm.dialog('close');
                 }
             }],
             onOpen: function() {
@@ -711,45 +726,10 @@ var VisionView = Backbone.View.extend({
         });
     },
     applyExam: function() {
-        var self = this;
-        var reset = function() {
-            self.generateCode();
-            self._ApplyCode.text(self.protectionCode);
-            self._ApplyCodeInput.val('');
-            self._ApplyCodeInput.focus();
-        };
-        this._DialogExamApply.dialog({
-            closed: false,
-            buttons: [{
-                text: 'Подтвердить',
-                handler: function() {
-                    if(self._ApplyCodeInput.validatebox('isValid')) {
-                        self.vision.save({
-                            _id: self.id,
-                            resolution: true,
-                            comment: null
-                        }, {
-                            success: function() {
-                                self._DialogExamApply.dialog('close');
-                                app.workspace.navigate("monitor", {
-                                    trigger: true
-                                });
-                            }
-                        });
-                    } else {
-                        reset();
-                    }
-                }
-            }, {
-                text: 'Отмена',
-                handler: function() {
-                    self._DialogExamApply.dialog('close');
-                }
-            }],
-            onOpen: function() {
-                reset();
-            }
-        });
+        this.confirmDlg(true);
+    },
+    rejectExam: function() {
+        this.confirmDlg(false);
     },
     generateCode: function() {
         var randomizeNumber = function(min, max) {
@@ -1324,6 +1304,74 @@ var VideoView = Backbone.View.extend({
     }
 });
 //
+// Countdown view
+//
+var CountdownView = Backbone.View.extend({
+    events: {
+        "click .app-logout": "doLogout",
+        "click .start-btn": "doStart"
+    },
+    initialize: function() {
+        var self = this;
+        // Vision model
+        var Student = Backbone.Model.extend({
+            urlRoot: '/student'
+        });
+        this._TimeWidget = this.$('.time-widget');
+        this._StudentWidget = this.$('.student-widget');
+        this._ExamWidget = this.$('.exam-widget');
+        this._CountdownWidget = this.$('.countdown-widget');
+        this._StartBtn = this.$('.start-btn');
+        this.timer = moment(0);
+        this.student = new Student();
+        this.render();
+    },
+    render: function() {
+        var self = this;
+        this.student.fetch({
+            success: function(model, response, options) {
+                var student = model.get("student");
+                var subject = model.get("subject");
+                var beginDate = moment(model.get("beginDate"));
+                self.examId = model.get("_id");
+                self._StudentWidget.text(student.lastname + " " + student.firstname.charAt(0) + "." + student.middlename.charAt(0) + ".");
+                self._ExamWidget.text(subject.title + " (" + subject.code + " - " + subject.speciality + ")");
+                var t = setInterval(function() {
+                    var diff = beginDate.diff();
+                    if(diff < 0) {
+                        diff = 0;
+                        self._StartBtn.attr({
+                            disabled: null
+                        });
+                    }
+                    self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
+                }, 1000);
+                self.timers.push(t);
+            }
+        });
+        var t1 = setInterval(function() {
+            self._TimeWidget.text(moment().format('HH:mm:ss'));
+        }, 1000);
+        this.timers = [t1];
+    },
+    destroy: function() {
+        this.timers.forEach(function(element, index, array) {
+            clearInterval(element);
+        });
+        if(this.chat) this.chat.destroy();
+        if(this.video) this.video.destroy();
+        this.remove();
+    },
+    doLogout: function() {
+        app.logout();
+    },
+    doStart: function() {
+        app.workspace.navigate("student/" + this.examId, {
+            trigger: true
+        });
+    }
+});
+//
 // Student view
 //
 var StudentView = Backbone.View.extend({
@@ -1340,8 +1388,11 @@ var StudentView = Backbone.View.extend({
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
         this._StudentWidget = this.$('.student-widget');
+        this._CuratorWidget = this.$('.curator-widget');
         this.timer = moment(0);
-        this.student = new Student();
+        this.student = new Student({
+            id: this.id
+        });
         this.render();
     },
     render: function() {
@@ -1352,16 +1403,23 @@ var StudentView = Backbone.View.extend({
                 var duration = moment() - moment(startDate);
                 if(duration > 0) self.timer = moment(duration);
                 var student = model.get("student");
-                var examId = model.get("_id");
-                self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
+                var curator = model.get("curator");
+                self._StudentWidget.text(student.lastname + " " + student.firstname.charAt(0) + "." + student.middlename.charAt(0) + ".");
+                self._StudentWidget.attr({
+                    title: student.lastname + " " + student.firstname + " " + student.middlename
+                });
+                self._CuratorWidget.text(curator[0].lastname + " " + curator[0].firstname.charAt(0) + "." + curator[0].middlename.charAt(0) + ".");
+                self._CuratorWidget.attr({
+                    title: curator[0].lastname + " " + curator[0].firstname + " " + curator[0].middlename
+                });
                 // Sub views
                 self.chat = new ChatView({
                     el: $("#panel-chat"),
-                    id: 'chat-' + examId
+                    id: 'chat-' + self.id
                 });
                 self.video = new VideoView({
                     el: $("#panel-video"),
-                    id: 'video-' + examId
+                    id: 'video-' + self.id
                 });
             }
         });

@@ -21,7 +21,6 @@ router.put('/:examId', function(req, res) {
         resolution: req.body.resolution,
         comment: req.body.comment
     }
-    console.log(args);
     db.vision.finish(args, function(err, data) {
         if(!err && data) {
             delete req.user.examId;

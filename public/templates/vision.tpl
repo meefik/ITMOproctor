@@ -108,8 +108,8 @@
     </div>
 </div>
 <!-- Dialogs -->
-<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,modal:true,closed:true"></div>
-<div id="subject-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:500px;height:250px;" data-options="resizable:true,modal:true,closed:true"></div>
+<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,closed:true"></div>
+<div id="exam-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:500px;height:350px;" data-options="resizable:true,closed:true"></div>
 <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
     <form>
         <p>Заметка на <strong class="note-time"></strong></p>
@@ -120,20 +120,15 @@
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
-<div id="exam-apply-dlg" style="padding:5px" title="Подписать экзамен" data-options="width:350,height:180,modal:true,closed:true">
-    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:green">подписать</strong> экзамен, отменить операцию будет невозможно.</div> 
-    <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
-    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
-</div>
-<div id="exam-reject-dlg" style="padding:5px" title="Прервать экзамен" data-options="width:350,height:245,modal:true,closed:true">
-    <div style="padding-bottom:10px">Подтвердите свое решение <strong style="color:red">прервать</strong> экзамен, отменить операцию будет невозможно.</div> 
+<div id="exam-confirm-dlg" style="padding:5px" title="Завершить экзамен" data-options="width:350,height:245,modal:true,closed:true">
+    <div style="padding-bottom:10px">Подтвердите свое решение <strong class="reject-text" style="color:red;display:none">прервать</strong><strong class="apply-text" style="color:green">подписать</strong> экзамен, отменить операцию будет невозможно.</div> 
     <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
     <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
     <div style="padding-top:10px;padding-bottom:3px">Комментарий:</div>
-    <input class="easyui-textbox reject-comment" data-options="multiline:true,prompt:'Введите комментарий...'" style="width:100%;height:50px;">
+    <input class="easyui-textbox exam-comment" data-options="multiline:true,prompt:'Введите комментарий...'" style="width:100%;height:50px;">
 </div>
 <!-- Templates -->
-<script type="text/template" id="subject-info-tpl">
+<script type="text/template" id="exam-info-tpl">
 <table width="100%" cellpadding="5">
     <tr>
         <td><strong>ID:</strong></td>
@@ -169,6 +164,31 @@
         <td><strong>Окончание:</strong></td>
         <td>
             <%= moment(endDate).format("DD.MM.YYYY HH:mm") %>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Студент:</strong></td>
+        <td>
+            <% if(student) { %>
+                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= moment(student.birthday).format('DD.MM.YYYY') %>)
+            <% } %>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Инспектор:</strong></td>
+        <td>
+            <% if(curator[0]) { %>
+                <%= curator[0].lastname %> <%= curator[0].firstname %> <%= curator[0].middlename %>
+            <% } %>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Наблюдатели:</strong></td>
+        <td>
+            <% curator.shift(); %>
+            <% _.each(curator, function(item) { %>
+                <%= item.lastname %> <%= item.firstname %> <%= item.middlename %><br>
+            <% }); %>
         </td>
     </tr>
 </table>
@@ -259,7 +279,7 @@
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
     <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>
-    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>. <%- author.middlename.charAt(0) %>.:</span><span><%= text %>
+    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>.<%- author.middlename.charAt(0) %>.:</span><span><%= text %>
         <% if(attach.length > 0) { %>
             <% _.each(attach, function(element, index, list){ %>
                 <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>

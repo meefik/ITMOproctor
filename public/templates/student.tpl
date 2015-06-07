@@ -2,7 +2,7 @@
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'"><span class="student-widget">...</span></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-eye'" style="float:right;" title="Наблюдатели"><span class="curator-widget">0</span></span>
+            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-eye'" style="float:right;"><span class="curator-widget">...</span></span>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
@@ -57,7 +57,7 @@
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
     <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>
-    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>. <%- author.middlename.charAt(0) %>.:</span><span><%= text %>
+    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>.<%- author.middlename.charAt(0) %>.:</span><span><%= text %>
         <% if(attach.length > 0) { %>
             <% _.each(attach, function(element, index, list){ %>
                 <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>

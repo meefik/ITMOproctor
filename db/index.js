@@ -329,6 +329,26 @@ var db = {
         }
     },
     student: {
+        list: function(args, callback) {
+            var opts = [{
+                path: 'subject'
+            }, {
+                path: 'student'
+            }, {
+                path: 'curator'
+            }];
+            var Exam = require('./models/exam');
+            Exam.find({
+                student: args.userId,
+                resolution: null,
+                beginDate: {
+                    $lte: moment().add(1, 'day')
+                },
+                endDate: {
+                    $gte: moment()
+                }
+            }).sort('beginDate').populate(opts).exec(callback);
+        },
         start: function(args, callback) {
             var opts = [{
                 path: 'subject'
@@ -337,23 +357,14 @@ var db = {
             }, {
                 path: 'curator'
             }];
-            var d = moment();
-            var d = moment().add(-1, 'day');
             var Exam = require('./models/exam');
-            Exam.find({
-                student: args.userId,
-                resolution: null,
-                beginDate: {
-                    $lte: d
-                }
-            }).sort('beginDate').limit(1).populate(opts).exec(function(err, exam) {
+            Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
                 console.log(exam);
-                if(!err && exam.length > 0) {
-                    var data = exam[0];
-                    callback(err, data);
-                    if(!data.startDate) {
+                if(!err && exam) {
+                    callback(err, exam);
+                    if(!exam.startDate) {
                         Exam.update({
-                            _id: data._id
+                            _id: exam._id
                         }, {
                             $set: {
                                 startDate: moment().toJSON(),

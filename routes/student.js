@@ -6,6 +6,19 @@ router.get('/', function(req, res) {
     var args = {
         userId: req.user._id
     }
+    db.student.list(args, function(err, data) {
+        if(!err && data.length > 0) {
+            res.json(data[0]);
+        } else {
+            res.status(400).end();
+        }
+    });
+});
+router.get('/:examId', function(req, res) {
+    var args = {
+        examId: req.params.examId,
+        userId: req.user._id
+    }
     db.student.start(args, function(err, data) {
         if(!err && data) {
             req.user.examId = data._id;
