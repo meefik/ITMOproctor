@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var debug = require('debug')('proctor');
-var server = require('../app');
+var server = require('../server');
 
 var port = process.env.PORT || 3000;
 
