@@ -67,6 +67,219 @@ var Profile = Backbone.Model.extend({
     }
 });
 //
+// Webcall model
+//
+var Webcall = Backbone.Model.extend({
+    initialize: function() {
+        var self = this;
+        this.constraints = this.get("constraints");
+        this.videoInput = this.get("input");
+        this.videoOutput = this.get("output");
+        this.socket = this.get("socket");
+        this.socket.on('message', function(message) {
+            var parsedMessage = JSON.parse(message);
+            console.info('Received message: ' + message);
+            switch (parsedMessage.id) {
+                case 'registerResponse':
+                    self.resgisterResponse(parsedMessage);
+                    break;
+                case 'callResponse':
+                    self.callResponse(parsedMessage);
+                    break;
+                case 'incomingCall':
+                    self.incomingCall(parsedMessage);
+                    break;
+                case 'startCommunication':
+                    self.startCommunication(parsedMessage);
+                    break;
+                case 'stopCommunication':
+                    console.info("Communication ended by remote peer");
+                    self.stop(true);
+                    break;
+                default:
+                    console.error('Unrecognized message', parsedMessage);
+            }
+        });
+    },
+    destroy: function() {
+        this.stop(true);
+        this.socket.removeListener('message');
+    },
+    setRegisterState: function(nextState) {
+        console.log('setRegisterState: ' + nextState);
+        switch (nextState) {
+            case 'NOT_REGISTERED':
+                // ...
+                break;
+            case 'REGISTERING':
+                // ...
+                break;
+            case 'REGISTERED':
+                // ...
+                this.setCallState('NO_CALL');
+                break;
+            default:
+                return;
+        }
+        this.registerState = nextState;
+    },
+    setCallState: function(nextState) {
+        console.log('setCallState:' + nextState);
+        switch (nextState) {
+            case 'NO_CALL':
+                // ...
+                break;
+            case 'PROCESSING_CALL':
+                // ...
+                break;
+            case 'IN_CALL':
+                // ...
+                break;
+            default:
+                return;
+        }
+        this.callState = nextState;
+    },
+    resgisterResponse: function(message) {
+        if (message.response == 'accepted') {
+            this.setRegisterState('REGISTERED');
+        }
+        else {
+            this.setRegisterState('NOT_REGISTERED');
+            var errorMessage = message.message ? message.message : 'Unknown reason for register rejection.';
+            console.log(errorMessage);
+            console.error('Error registering user. See console for further information.');
+        }
+    },
+    callResponse: function(message) {
+        if (message.response != 'accepted') {
+            console.info('Call not accepted by peer. Closing call');
+            var errorMessage = message.message ? message.message : 'Unknown reason for call rejection.';
+            console.log(errorMessage);
+            this.stop(true);
+        }
+        else {
+            this.setCallState('IN_CALL');
+            this.webRtcPeer.processSdpAnswer(message.sdpAnswer);
+        }
+    },
+    incomingCall: function(message) {
+        var self = this;
+        //If bussy just reject without disturbing user
+        if (this.callState != 'NO_CALL') {
+            var response = {
+                id: 'incomingCallResponse',
+                from: message.from,
+                callResponse: 'reject',
+                message: 'bussy'
+            };
+            return this.sendMessage(response);
+        }
+        this.setCallState('PROCESSING_CALL');
+        if (confirm('User ' + message.from + ' is calling you. Do you accept the call?')) {
+            self.showSpinner(self.videoInput, self.videoOutput);
+            self.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(self.videoInput, self.videoOutput, function(sdp, wp) {
+                var response = {
+                    id: 'incomingCallResponse',
+                    from: message.from,
+                    callResponse: 'accept',
+                    sdpOffer: sdp
+                };
+                self.sendMessage(response);
+            }, function(error) {
+                self.setCallState('NO_CALL');
+            }, self.constraints);
+        }
+        else {
+            var response = {
+                id: 'incomingCallResponse',
+                from: message.from,
+                callResponse: 'reject',
+                message: 'user declined'
+            };
+            self.sendMessage(response);
+            self.stop(true);
+        }
+    },
+    startCommunication: function(message) {
+        this.setCallState('IN_CALL');
+        this.webRtcPeer.processSdpAnswer(message.sdpAnswer);
+    },
+    sendMessage: function(message) {
+        var jsonMessage = JSON.stringify(message);
+        console.log('Senging message: ' + jsonMessage);
+        this.socket.send(jsonMessage);
+    },
+    register: function(name) {
+        this.setRegisterState('REGISTERING');
+        var message = {
+            id: 'register',
+            name: name
+        };
+        this.sendMessage(message);
+    },
+    call: function(name, peer) {
+        var self = this;
+        this.setCallState('PROCESSING_CALL');
+        this.showSpinner(this.videoInput, this.videoOutput);
+        kurentoUtils.WebRtcPeer.startSendRecv(this.videoInput, this.videoOutput, function(offerSdp, wp) {
+            self.webRtcPeer = wp;
+            console.log('Invoking SDP offer callback function');
+            var message = {
+                id: 'call',
+                from: name,
+                to: peer,
+                sdpOffer: offerSdp
+            };
+            self.sendMessage(message);
+        }, function(error) {
+            console.log(error);
+            self.setCallState('NO_CALL');
+        }, self.constraints);
+    },
+    stop: function(message) {
+        this.setCallState('NO_CALL');
+        if (this.webRtcPeer) {
+            this.webRtcPeer.dispose();
+            this.webRtcPeer = null;
+            if (!message) {
+                var message = {
+                    id: 'stop'
+                }
+                this.sendMessage(message);
+            }
+        }
+        this.hideSpinner(this.videoInput, this.videoOutput);
+    },
+    showSpinner: function() {
+        for (var i = 0; i < arguments.length; i++) {
+            if (!arguments[i]) continue;
+            arguments[i].poster = 'images/transparent-1px.png';
+            arguments[i].style.background = 'center transparent url("images/spinner.gif") no-repeat';
+        }
+    },
+    hideSpinner: function() {
+        for (var i = 0; i < arguments.length; i++) {
+            if (!arguments[i]) continue;
+            arguments[i].src = '';
+            arguments[i].poster = 'images/webrtc.png';
+            arguments[i].style.background = '';
+        }
+    },
+    getMediaSources: function(kind, callback) {
+        MediaStreamTrack.getSources(function(sources) {
+            var mediaSources = [];
+            for (var i = 0, l = sources.length; i < l; i++) {
+                var source = sources[i];
+                if (source.kind == kind) {
+                    mediaSources.push(source);
+                }
+            }
+            if (callback) callback(mediaSources);
+        });
+    }
+});
+//
 // Application routing
 //
 var Workspace = Backbone.Router.extend({
@@ -81,10 +294,10 @@ var Workspace = Backbone.Router.extend({
         "admin": "admin"
     },
     main: function() {
-        if(app.profile.isAuth()) {
+        if (app.profile.isAuth()) {
             var role = app.profile.get("role");
             var navigate = "login";
-            switch(role) {
+            switch (role) {
                 case 1:
                     navigate = "countdown";
                     break;
@@ -99,7 +312,8 @@ var Workspace = Backbone.Router.extend({
             this.navigate(navigate, {
                 trigger: true
             });
-        } else {
+        }
+        else {
             this.navigate("login", {
                 trigger: true
             });
@@ -117,7 +331,7 @@ var Workspace = Backbone.Router.extend({
     },
     monitor: function() {
         console.log("route: #monitor");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
         app.render("/templates/monitor.tpl", function() {
             var view = new MonitorView({
@@ -128,7 +342,7 @@ var Workspace = Backbone.Router.extend({
     },
     vision: function(examid) {
         console.log("route: #vision");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
         app.render("/templates/vision.tpl", function() {
             var view = new VisionView({
@@ -140,7 +354,7 @@ var Workspace = Backbone.Router.extend({
     },
     countdown: function() {
         console.log("route: #countdown");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
         app.render("/templates/countdown.tpl", function() {
             var view = new CountdownView({
@@ -151,7 +365,7 @@ var Workspace = Backbone.Router.extend({
     },
     student: function(examid) {
         console.log("route: #student");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
         app.render("/templates/student.tpl", function() {
             var view = new StudentView({
@@ -163,26 +377,27 @@ var Workspace = Backbone.Router.extend({
     },
     play: function(examid) {
         console.log("route: #play");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
     },
     admin: function() {
         console.log("route: #admin");
-        if(this.redirect()) return;
+        if (this.redirect()) return;
         this.destroy();
     },
     redirect: function() {
-        if(!app.profile.isAuth()) {
+        if (!app.profile.isAuth()) {
             this.navigate("login", {
                 trigger: true
             });
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     },
     destroy: function() {
-        if(app.content) {
+        if (app.content) {
             app.content.destroy();
             delete app.content;
         }
@@ -214,11 +429,12 @@ var LoginView = Backbone.View.extend({
             username: username,
             password: password
         });
-        if(user.login()) {
+        if (user.login()) {
             app.workspace.navigate("", {
                 trigger: true
             });
-        } else {
+        }
+        else {
             this.reset();
             this.focus();
         }
@@ -321,7 +537,7 @@ var MonitorView = Backbone.View.extend({
             value: currentDate,
             onChange: function(date) {
                 var valid = moment(date, "DD.MM.YYYY", true).isValid();
-                if(!date || valid) self.doSearch();
+                if (!date || valid) self.doSearch();
             }
         });
         this._TextSearch.searchbox({
@@ -346,13 +562,13 @@ var MonitorView = Backbone.View.extend({
         var d = new Date();
         var beginDate = new Date(row.beginDate);
         var endDate = new Date(row.endDate);
-        if(beginDate <= d && endDate > d && row.curator.length == 0) status = 1;
-        if(row.startDate != null && row.stopDate == null && row.curator.length != 0) status = 2;
-        if(row.resolution === true) status = 3;
-        if(row.resolution === false) status = 4;
-        if(endDate <= d && row.curator.length == 0) status = 5;
-        if(beginDate > d) status = 6;
-        switch(status) {
+        if (beginDate <= d && endDate > d && row.curator.length == 0) status = 1;
+        if (row.startDate != null && row.stopDate == null && row.curator.length != 0) status = 2;
+        if (row.resolution === true) status = 3;
+        if (row.resolution === false) status = 4;
+        if (endDate <= d && row.curator.length == 0) status = 5;
+        if (beginDate > d) status = 6;
+        switch (status) {
             case 1:
                 return '<span style="color:orange;">Ожидает</span>';
             case 2:
@@ -382,37 +598,37 @@ var MonitorView = Backbone.View.extend({
         });
     },
     formatDuration: function(val, row) {
-        if(row.startDate == null) return null;
+        if (row.startDate == null) return null;
         var startDate = moment(row.startDate);
         var stopDate = moment();
-        if(row.stopDate != null) stopDate = moment(row.stopDate);
+        if (row.stopDate != null) stopDate = moment(row.stopDate);
         var duration = stopDate - startDate;
         return moment(duration).utc().format('HH:mm:ss');
     },
     formatDate: function(val, row) {
-        if(val == null) return null;
+        if (val == null) return null;
         else {
             var d = new Date(val);
             return moment(d).format('DD.MM.YYYY HH:mm:ss');
         }
     },
     formatSubject: function(val, row) {
-        if(val == null) return null;
+        if (val == null) return null;
         return val.title + " (" + val.code + ")";
     },
     formatStudent: function(val, row) {
-        if(val == null) return null;
+        if (val == null) return null;
         var user = val;
         return user.lastname + " " + user.firstname + " " + user.middlename;
     },
     formatCurator: function(val, row) {
-        if(val == null || val.length === 0) return null;
+        if (val == null || val.length === 0) return null;
         var user = val[0];
         return user.lastname + " " + user.firstname + " " + user.middlename;
     },
     doSearch: function() {
         var status = 0;
-        switch(true) {
+        switch (true) {
             case this._StatusBtn1.linkbutton('options').selected:
                 status = 1;
                 break;
@@ -516,7 +732,7 @@ var VisionView = Backbone.View.extend({
                 var subject = model.get("subject");
                 var startDate = model.get("startDate");
                 var duration = moment() - moment(startDate);
-                if(duration > 0) self.timer = moment(duration);
+                if (duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
                 self._ExamWidget.text(subject.title + " (" + subject.code + ")");
                 // Sub views
@@ -532,9 +748,13 @@ var VisionView = Backbone.View.extend({
                     el: $("#panel-protocol"),
                     id: 'protocol-' + self.id
                 });
-                self.video = new VideoView({
-                    el: $("#panel-video"),
-                    id: 'video-' + self.id
+                self.webcam = new WebcamView({
+                    el: $("#panel-webcam"),
+                    id: 'webcam-' + self.id
+                });
+                self.screen = new ScreenView({
+                    el: $("#panel-screen"),
+                    id: 'screen-' + self.id
                 });
             }
         });
@@ -547,10 +767,10 @@ var VisionView = Backbone.View.extend({
             });
             pobj.panel('resize');
             pobj.find('video').each(function(index, element) {
-                if(element.src != '') {
+                if (element.src != '') {
                     element.play();
                 }
-                if(element.id == 'videoInput') {
+                if (element.className == 'videoInput') {
                     element.style.left = '';
                     element.style.bottom = '';
                     element.style.top = '5px';
@@ -582,8 +802,8 @@ var VisionView = Backbone.View.extend({
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
             var nowDate = moment();
             var endDate = moment(self.vision.get("endDate"));
-            if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
@@ -594,10 +814,11 @@ var VisionView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if(this.notes) this.notes.destroy();
-        if(this.protocol) this.protocol.destroy();
-        if(this.chat) this.chat.destroy();
-        if(this.video) this.video.destroy();
+        if (this.notes) this.notes.destroy();
+        if (this.protocol) this.protocol.destroy();
+        if (this.chat) this.chat.destroy();
+        if (this.webcam) this.webcam.destroy();
+        if (this.screen) this.screen.destroy();
         this.remove();
     },
     showStudentInfo: function() {
@@ -624,7 +845,7 @@ var VisionView = Backbone.View.extend({
         var saveBtn = function() {
             var blobBin = atob(dataUrl.split(',')[1]);
             var array = [];
-            for(var i = 0; i < blobBin.length; i++) {
+            for (var i = 0; i < blobBin.length; i++) {
                 array.push(blobBin.charCodeAt(i));
             }
             var file = new Blob([new Uint8Array(array)], {
@@ -685,10 +906,11 @@ var VisionView = Backbone.View.extend({
             self._ProtectionCodeInput.val('');
             self._ProtectionCodeInput.focus();
         };
-        if(resolution) {
+        if (resolution) {
             this._ApplyText.show();
             this._RejectText.hide();
-        } else {
+        }
+        else {
             this._RejectText.show();
             this._ApplyText.hide();
         }
@@ -697,7 +919,7 @@ var VisionView = Backbone.View.extend({
             buttons: [{
                 text: 'Подтвердить',
                 handler: function() {
-                    if(self._ProtectionCodeInput.validatebox('isValid')) {
+                    if (self._ProtectionCodeInput.validatebox('isValid')) {
                         self.vision.save({
                             _id: self.id,
                             resolution: resolution,
@@ -710,7 +932,8 @@ var VisionView = Backbone.View.extend({
                                 });
                             }
                         });
-                    } else {
+                    }
+                    else {
                         reset();
                     }
                 }
@@ -819,7 +1042,7 @@ var NotesView = Backbone.View.extend({
             delete: function() {
                 var self = this;
                 $.messager.confirm('Подтверждение', 'Вы действительно хотите удалить выбранную заметку?', function(r) {
-                    if(r) {
+                    if (r) {
                         self.model.destroy();
                     }
                 });
@@ -830,13 +1053,13 @@ var NotesView = Backbone.View.extend({
         this._List = this.$(".notes-list");
         this._Input = this.$(".note-input");
         this._Input.textbox('textbox').bind('keypress', function(e) {
-            if(e.keyCode == 13) self.add();
+            if (e.keyCode == 13) self.add();
         });
         this.collection = new NotesList();
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         app.notify.on(this.id, function(data) {
-            if(!app.profile.isMe(data.userId)) {
+            if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
@@ -846,7 +1069,7 @@ var NotesView = Backbone.View.extend({
     },
     add: function() {
         var noteText = this._Input.textbox('getValue');
-        if(!noteText) return;
+        if (!noteText) return;
         this.collection.create({
             time: new Date(),
             text: noteText,
@@ -911,15 +1134,16 @@ var ChatView = Backbone.View.extend({
             setColor: function(jq, color) {
                 var pb = jq.find('.progressbar-value > .progressbar-text');
                 var defaultColor = $.data(jq[0], 'progressbar').options.color;
-                if(!defaultColor) {
+                if (!defaultColor) {
                     defaultColor = pb.css('backgroundColor');
                     $.data(jq[0], 'progressbar').options.color = defaultColor;
                 }
-                if(color) {
+                if (color) {
                     pb.css({
                         backgroundColor: color
                     });
-                } else {
+                }
+                else {
                     pb.css({
                         backgroundColor: defaultColor
                     });
@@ -932,7 +1156,7 @@ var ChatView = Backbone.View.extend({
         this.collection.fetch();
         var self = this;
         app.notify.on(this.id, function(data) {
-            if(!app.profile.isMe(data.userId)) {
+            if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
@@ -942,7 +1166,7 @@ var ChatView = Backbone.View.extend({
     },
     doSend: function() {
         var text = this._Input.text();
-        if(text || this.attach.length > 0) {
+        if (text || this.attach.length > 0) {
             var author = {
                 _id: app.profile.get('_id'),
                 lastname: app.profile.get('lastname'),
@@ -966,12 +1190,12 @@ var ChatView = Backbone.View.extend({
         this._Panel.scrollTop(this._Panel[0].scrollHeight);
     },
     doInputKeyup: function(e) {
-        if(e.keyCode == 13) {
+        if (e.keyCode == 13) {
             this.doSend();
         }
     },
     doAttach: function() {
-        if(this.attach.length > 0) return;
+        if (this.attach.length > 0) return;
         this._AttachInput.trigger('click');
     },
     doReset: function() {
@@ -986,7 +1210,7 @@ var ChatView = Backbone.View.extend({
         var limitSize = 10 * 1024 * 1024; // 10 MB
         var data = new FormData();
         var files = self._AttachInput[0].files;
-        if(files.length === 0 || files[0].size > limitSize) {
+        if (files.length === 0 || files[0].size > limitSize) {
             return;
         }
         $.each(files, function(key, value) {
@@ -998,7 +1222,7 @@ var ChatView = Backbone.View.extend({
         self._AttachBtn.linkbutton('disable');
         var trancateFile = function(filename, length) {
             var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
-            if(filename.length > length) {
+            if (filename.length > length) {
                 filename = filename.substring(0, length) + '...' + extension;
             }
             return filename;
@@ -1067,7 +1291,7 @@ var ProtocolView = Backbone.View.extend({
         this.collection.fetch();
         var self = this;
         app.notify.on(this.id, function(data) {
-            if(!app.profile.isMe(data.userId)) {
+            if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
@@ -1084,226 +1308,111 @@ var ProtocolView = Backbone.View.extend({
     }
 });
 //
-// Video view
+// Webcam view
 //
-var VideoView = Backbone.View.extend({
+var WebcamView = Backbone.View.extend({
     initialize: function() {
-        this._VideoInput = $("#videoInput");
-        this._VideoOutput = $("#videoOutput");
-        this.videoInput = this._VideoInput.get(0);
-        this.videoOutput = this._VideoOutput.get(0);
+        this._VideoInput = this.$(".video-input");
+        this._VideoOutput = this.$(".video-output");
         this._VideoInput.draggable({
             onDrag: function(e) {
                 var d = e.data;
                 var parent = $(d.parent);
                 var target = $(d.target);
-                if(d.left < 0) {
+                if (d.left < 0) {
                     d.left = 0
                 }
-                if(d.top < 0) {
+                if (d.top < 0) {
                     d.top = 0
                 }
-                if(d.left + target.outerWidth() > parent.width()) {
+                if (d.left + target.outerWidth() > parent.width()) {
                     d.left = parent.width() - target.outerWidth();
                 }
-                if(d.top + target.outerHeight() > parent.height()) {
+                if (d.top + target.outerHeight() > parent.height()) {
                     d.top = parent.height() - target.outerHeight();
                 }
             }
         });
-        //var drag = new Draggabilly(this.videoInput,{containment: '#panel-video'});
+        var videoInput = this._VideoInput.get(0);
+        var videoOutput = this._VideoOutput.get(0);
+        var constraints = {
+            audio: true,
+            video: {
+                mandatory: {
+                    maxWidth: 640,
+                    maxHeight: 480,
+                    maxFrameRate: 15,
+                    minFrameRate: 15
+                }
+            }
+        };
+        this.webcall = new Webcall({
+            socket: app.call,
+            constraints: constraints,
+            input: videoInput,
+            output: videoOutput
+        });
         var self = this;
-        app.call.on('message', function(message) {
-            var parsedMessage = JSON.parse(message);
-            console.info('Received message: ' + message);
-            switch(parsedMessage.id) {
-                case 'registerResponse':
-                    self.resgisterResponse(parsedMessage);
-                    break;
-                case 'callResponse':
-                    self.callResponse(parsedMessage);
-                    break;
-                case 'incomingCall':
-                    self.incomingCall(parsedMessage);
-                    break;
-                case 'startCommunication':
-                    self.startCommunication(parsedMessage);
-                    break;
-                case 'stopCommunication':
-                    console.info("Communication ended by remote peer");
-                    self.stop(true);
-                    break;
-                default:
-                    console.error('Unrecognized message', parsedMessage);
+        this.webcall.getMediaSources('video', function(sources) {
+            constraints.video.optional = [{
+                sourceId: sources[0].id
+            }];
+            var prefix = "webcam-";
+            var name = prefix + app.profile.get('_id');
+            self.webcall.register(name);
+            // if student
+            if (app.profile.get("role") === 2) {
+                console.log("call");
+                var peer = prefix + app.content.vision.get('student')._id;
+                self.webcall.call(name, peer);
             }
         });
-        this.register();
-        if(app.profile.get("role") === 2) {
+    },
+    destroy: function() {
+        if (this.webcall) this.webcall.destroy();
+        this.remove();
+    }
+});
+//
+// Screen view
+//
+var ScreenView = Backbone.View.extend({
+    initialize: function() {
+        this._VideoInput = this.$(".video-input");
+        this._VideoOutput = this.$(".video-output");
+        var videoInput = this._VideoInput.get(0);
+        var videoOutput = this._VideoOutput.get(0);
+        var constraints = {
+            audio: false,
+            video: {
+                mandatory: {
+                    maxWidth: 640,
+                    maxHeight: 480,
+                    maxFrameRate: 15,
+                    minFrameRate: 15
+                }
+            }
+        };
+        if (videoInput) constraints.video.mandatory.chromeMediaSource = 'screen';
+        this.webcall = new Webcall({
+            socket: app.screen,
+            constraints: constraints,
+            input: videoInput,
+            output: videoOutput
+        });
+        var prefix = "screen-";
+        var name = prefix + app.profile.get('_id');
+        this.webcall.register(name);
+        // if student
+        if (app.profile.get("role") === 2) {
             console.log("call");
-            this.call();
+            var peer = prefix + app.content.vision.get('student')._id;
+            this.webcall.call(name, peer);
         }
     },
     destroy: function() {
+        if (this.webcall) this.webcall.destroy();
         this.remove();
-    },
-    setRegisterState: function(nextState) {
-        console.log('setRegisterState: ' + nextState);
-        switch(nextState) {
-            case 'NOT_REGISTERED':
-                // ...
-                break;
-            case 'REGISTERING':
-                // ...
-                break;
-            case 'REGISTERED':
-                // ...
-                this.setCallState('NO_CALL');
-                break;
-            default:
-                return;
-        }
-        this.registerState = nextState;
-    },
-    setCallState: function(nextState) {
-        console.log('setCallState:' + nextState);
-        switch(nextState) {
-            case 'NO_CALL':
-                // ...
-                break;
-            case 'PROCESSING_CALL':
-                // ...
-                break;
-            case 'IN_CALL':
-                // ...
-                break;
-            default:
-                return;
-        }
-        this.callState = nextState;
-    },
-    resgisterResponse: function(message) {
-        if(message.response == 'accepted') {
-            this.setRegisterState('REGISTERED');
-        } else {
-            this.setRegisterState('NOT_REGISTERED');
-            var errorMessage = message.message ? message.message : 'Unknown reason for register rejection.';
-            console.log(errorMessage);
-            console.error('Error registering user. See console for further information.');
-        }
-    },
-    callResponse: function(message) {
-        if(message.response != 'accepted') {
-            console.info('Call not accepted by peer. Closing call');
-            var errorMessage = message.message ? message.message : 'Unknown reason for call rejection.';
-            console.log(errorMessage);
-            this.stop(true);
-        } else {
-            this.setCallState('IN_CALL');
-            this.webRtcPeer.processSdpAnswer(message.sdpAnswer);
-        }
-    },
-    incomingCall: function(message) {
-        var self = this;
-        //If bussy just reject without disturbing user
-        if(this.callState != 'NO_CALL') {
-            var response = {
-                id: 'incomingCallResponse',
-                from: message.from,
-                callResponse: 'reject',
-                message: 'bussy'
-            };
-            return this.sendMessage(response);
-        }
-        this.setCallState('PROCESSING_CALL');
-        if(confirm('User ' + message.from + ' is calling you. Do you accept the call?')) {
-            self.showSpinner(self.videoInput, self.videoOutput);
-            this.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(self.videoInput, self.videoOutput, function(sdp, wp) {
-                var response = {
-                    id: 'incomingCallResponse',
-                    from: message.from,
-                    callResponse: 'accept',
-                    sdpOffer: sdp
-                };
-                self.sendMessage(response);
-            }, function(error) {
-                self.setCallState('NO_CALL');
-            });
-        } else {
-            var response = {
-                id: 'incomingCallResponse',
-                from: message.from,
-                callResponse: 'reject',
-                message: 'user declined'
-            };
-            self.sendMessage(response);
-            self.stop(true);
-        }
-    },
-    startCommunication: function(message) {
-        this.setCallState('IN_CALL');
-        this.webRtcPeer.processSdpAnswer(message.sdpAnswer);
-    },
-    sendMessage: function(message) {
-        var jsonMessage = JSON.stringify(message);
-        console.log('Senging message: ' + jsonMessage);
-        app.call.send(jsonMessage);
-    },
-    register: function() {
-        var name = app.profile.get('_id');
-        this.setRegisterState('REGISTERING');
-        var message = {
-            id: 'register',
-            name: name
-        };
-        this.sendMessage(message);
-    },
-    call: function() {
-        var self = this;
-        var name = app.profile.get('_id');
-        var peer = app.content.vision.get('student')._id;
-        this.setCallState('PROCESSING_CALL');
-        this.showSpinner(this.videoInput, this.videoOutput);
-        kurentoUtils.WebRtcPeer.startSendRecv(this.videoInput, this.videoOutput, function(offerSdp, wp) {
-            self.webRtcPeer = wp;
-            console.log('Invoking SDP offer callback function');
-            var message = {
-                id: 'call',
-                from: name,
-                to: peer,
-                sdpOffer: offerSdp
-            };
-            self.sendMessage(message);
-        }, function(error) {
-            console.log(error);
-            self.setCallState('NO_CALL');
-        });
-    },
-    stop: function(message) {
-        this.setCallState('NO_CALL');
-        if(this.webRtcPeer) {
-            this.webRtcPeer.dispose();
-            this.webRtcPeer = null;
-            if(!message) {
-                var message = {
-                    id: 'stop'
-                }
-                this.sendMessage(message);
-            }
-        }
-        this.hideSpinner(this.videoInput, this.videoOutput);
-    },
-    showSpinner: function() {
-        for(var i = 0; i < arguments.length; i++) {
-            arguments[i].poster = 'images/transparent-1px.png';
-            arguments[i].style.background = 'center transparent url("images/spinner.gif") no-repeat';
-        }
-    },
-    hideSpinner: function() {
-        for(var i = 0; i < arguments.length; i++) {
-            arguments[i].src = '';
-            arguments[i].poster = 'images/webrtc.png';
-            arguments[i].style.background = '';
-        }
     }
 });
 //
@@ -1341,7 +1450,7 @@ var CountdownView = Backbone.View.extend({
                 self._ExamWidget.text(subject.title + " (" + subject.code + " - " + subject.speciality + ")");
                 var t = setInterval(function() {
                     var diff = beginDate.diff();
-                    if(diff < 0) {
+                    if (diff < 0) {
                         diff = 0;
                         self._StartBtn.attr({
                             disabled: null
@@ -1361,8 +1470,8 @@ var CountdownView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if(this.chat) this.chat.destroy();
-        if(this.video) this.video.destroy();
+        if (this.chat) this.chat.destroy();
+        if (this.video) this.video.destroy();
         this.remove();
     },
     doLogout: function() {
@@ -1404,7 +1513,7 @@ var StudentView = Backbone.View.extend({
             success: function(model, response, options) {
                 var startDate = model.get("startDate");
                 var duration = moment() - moment(startDate);
-                if(duration > 0) self.timer = moment(duration);
+                if (duration > 0) self.timer = moment(duration);
                 var student = model.get("student");
                 var curator = model.get("curator");
                 self._StudentWidget.text(student.lastname + " " + student.firstname.charAt(0) + "." + student.middlename.charAt(0) + ".");
@@ -1420,9 +1529,13 @@ var StudentView = Backbone.View.extend({
                     el: $("#panel-chat"),
                     id: 'chat-' + self.id
                 });
-                self.video = new VideoView({
-                    el: $("#panel-video"),
-                    id: 'video-' + self.id
+                self.webcam = new WebcamView({
+                    el: $("#panel-webcam"),
+                    id: 'webcam-' + self.id
+                });
+                self.screen = new ScreenView({
+                    el: $("#panel-screen"),
+                    id: 'screen-' + self.id
                 });
             }
         });
@@ -1437,10 +1550,10 @@ var StudentView = Backbone.View.extend({
             });
             pobj.panel('resize');
             pobj.find('video').each(function(index, element) {
-                if(element.src != '') {
+                if (element.src != '') {
                     element.play();
                 }
-                if(element.id == 'videoInput') {
+                if (element.className == 'videoInput') {
                     element.style.left = '';
                     element.style.bottom = '';
                     element.style.top = '5px';
@@ -1466,8 +1579,8 @@ var StudentView = Backbone.View.extend({
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
             var nowDate = moment();
             var endDate = moment(self.student.get("endDate"));
-            if(endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if(endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
@@ -1478,8 +1591,9 @@ var StudentView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if(this.chat) this.chat.destroy();
-        if(this.video) this.video.destroy();
+        if (this.chat) this.chat.destroy();
+        if (this.webcam) this.webcam.destroy();
+        if (this.screen) this.screen.destroy();
         this.remove();
     },
     doLogout: function() {
@@ -1495,6 +1609,7 @@ var AppView = Backbone.View.extend({
         var url = window.location.host;
         this.notify = io.connect(url + '/notify');
         this.call = io.connect(url + '/call');
+        this.screen = io.connect(url + '/screen');
         this.workspace = new Workspace();
         this.profile = new Profile();
         this.profile.update();
@@ -1504,13 +1619,13 @@ var AppView = Backbone.View.extend({
         this.$el.panel({
             href: url,
             onLoad: function() {
-                if(callback) callback();
+                if (callback) callback();
             }
         });
     },
     logout: function() {
         var workspace = this.workspace;
-        if(this.profile.logout()) {
+        if (this.profile.logout()) {
             workspace.navigate("login", {
                 trigger: true
             });

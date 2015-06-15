@@ -1,6 +1,4 @@
-var call = require('./call');
-var screen = require('./screen');
-module.exports = function(app) {
-    call(app);
-    screen(app);
+module.exports = function(io) {
+    var webcall = require('./webcall');
+    webcall(io, ['/call', '/screen']);
 }

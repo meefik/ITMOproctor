@@ -13,8 +13,7 @@ var db = require('./db');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-app.set('io:notify', io.of('/notify'));
-app.set('io:call', io.of('/call'));
+var notify = io.of('/notify');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public/images/favicon.png')));
@@ -58,8 +57,7 @@ app.use(function(req, res, next) {
             examId: examId,
             userId: userId
         };
-        var io = req.app.get('io:notify');
-        io.emit(target + '-' + examId, out);
+        notify.emit(target + '-' + examId, out);
     }
     next();
 });
@@ -94,5 +92,5 @@ app.use(function(err, req, res, next) {
     });
 });
 // webrtc
-require('./webrtc')(app);
+require('./webrtc')(io);
 module.exports = server;

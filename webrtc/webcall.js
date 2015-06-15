@@ -1,11 +1,11 @@
-module.exports = function(app) {
-    var io = app.get('io:call');
+module.exports = function(io, targets) {
     var config = require('nconf');
     var kurento = require('kurento-client');
-    
+
     /*
      * Definition of global variables.
      */
+
     var kurentoClient = null;
     var userRegistry = new UserRegistry();
     var pipelines = {};
@@ -15,11 +15,12 @@ module.exports = function(app) {
         idCounter++;
         return idCounter.toString();
     }
+
     /*
      * Definition of helper classes
      */
-    //Represents caller and callee sessions
 
+    //Represents caller and callee sessions
     function UserSession(id, name, ws) {
         this.id = id;
         this.name = name;
@@ -30,8 +31,8 @@ module.exports = function(app) {
     UserSession.prototype.sendMessage = function(message) {
         this.ws.send(JSON.stringify(message));
     }
-    //Represents registrar of users
 
+    //Represents registrar of users
     function UserRegistry() {
         this.usersById = {};
         this.usersByName = {};
@@ -42,8 +43,8 @@ module.exports = function(app) {
     }
     UserRegistry.prototype.unregister = function(id) {
         var user = this.getById(id);
-        if(user) delete this.usersById[id]
-        if(user && this.getByName(user.name)) delete this.usersByName[user.name];
+        if (user) delete this.usersById[id]
+        if (user && this.getByName(user.name)) delete this.usersByName[user.name];
     }
     UserRegistry.prototype.getById = function(id) {
         return this.usersById[id];
@@ -53,12 +54,12 @@ module.exports = function(app) {
     }
     UserRegistry.prototype.removeById = function(id) {
         var userSession = this.usersById[id];
-        if(!userSession) return;
+        if (!userSession) return;
         delete this.usersById[id];
         delete this.usersByName[userSession.name];
     }
-    //Represents a B2B active call
 
+    //Represents a B2B active call
     function CallMediaPipeline() {
         this._pipeline = null;
         this._callerWebRtcEndpoint = null;
@@ -67,30 +68,30 @@ module.exports = function(app) {
     CallMediaPipeline.prototype.createPipeline = function(callback) {
         var self = this;
         getKurentoClient(function(error, kurentoClient) {
-            if(error) {
+            if (error) {
                 return callback(error);
             }
             kurentoClient.create('MediaPipeline', function(error, pipeline) {
-                if(error) {
+                if (error) {
                     return callback(error);
                 }
                 pipeline.create('WebRtcEndpoint', function(error, callerWebRtcEndpoint) {
-                    if(error) {
+                    if (error) {
                         pipeline.release();
                         return callback(error);
                     }
                     pipeline.create('WebRtcEndpoint', function(error, calleeWebRtcEndpoint) {
-                        if(error) {
+                        if (error) {
                             pipeline.release();
                             return callback(error);
                         }
                         callerWebRtcEndpoint.connect(calleeWebRtcEndpoint, function(error) {
-                            if(error) {
+                            if (error) {
                                 pipeline.release();
                                 return callback(error);
                             }
                             calleeWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
-                                if(error) {
+                                if (error) {
                                     pipeline.release();
                                     return callback(error);
                                 }
@@ -112,52 +113,55 @@ module.exports = function(app) {
         this._calleeWebRtcEndpoint.processOffer(sdpOffer, callback);
     }
     CallMediaPipeline.prototype.release = function() {
-        if(this._pipeline) this._pipeline.release();
+        if (this._pipeline) this._pipeline.release();
         this._pipeline = null;
     }
+
     /*
      * Websockets
      */
-    io.on('connection', function(ws) {
-        var sessionId = nextUniqueId();
-        console.log('Connection received with sessionId ' + sessionId);
-        ws.on('error', function(error) {
-            console.log('Connection ' + sessionId + ' error');
-            stop(sessionId);
+    function bind(socket) {
+        socket.on('connection', function(ws) {
+            var sessionId = nextUniqueId();
+            console.log('Connection received with sessionId ' + sessionId);
+            ws.on('error', function(error) {
+                console.log('Connection ' + sessionId + ' error');
+                stop(sessionId);
+            });
+            ws.on('close', function() {
+                console.log('Connection ' + sessionId + ' closed');
+                stop(sessionId);
+                userRegistry.unregister(sessionId);
+            });
+            ws.on('message', function(_message) {
+                var message = JSON.parse(_message);
+                console.log('Connection ' + sessionId + ' received message ', message);
+                switch (message.id) {
+                    case 'register':
+                        register(sessionId, message.name, ws);
+                        break;
+                    case 'call':
+                        call(sessionId, message.to, message.from, message.sdpOffer);
+                        break;
+                    case 'incomingCallResponse':
+                        incomingCallResponse(sessionId, message.from, message.callResponse, message.sdpOffer);
+                        break;
+                    case 'stop':
+                        stop(sessionId);
+                        break;
+                    default:
+                        ws.send(JSON.stringify({
+                            id: 'error',
+                            message: 'Invalid message ' + message
+                        }));
+                        break;
+                }
+            });
         });
-        ws.on('close', function() {
-            console.log('Connection ' + sessionId + ' closed');
-            stop(sessionId);
-            userRegistry.unregister(sessionId);
-        });
-        ws.on('message', function(_message) {
-            var message = JSON.parse(_message);
-            console.log('Connection ' + sessionId + ' received message ', message);
-            switch(message.id) {
-                case 'register':
-                    register(sessionId, message.name, ws);
-                    break;
-                case 'call':
-                    call(sessionId, message.to, message.from, message.sdpOffer);
-                    break;
-                case 'incomingCallResponse':
-                    incomingCallResponse(sessionId, message.from, message.callResponse, message.sdpOffer);
-                    break;
-                case 'stop':
-                    stop(sessionId);
-                    break;
-                default:
-                    ws.send(JSON.stringify({
-                        id: 'error',
-                        message: 'Invalid message ' + message
-                    }));
-                    break;
-            }
-        });
-    });
+    }
 
     function stop(sessionId) {
-        if(!pipelines[sessionId]) {
+        if (!pipelines[sessionId]) {
             return;
         }
         var pipeline = pipelines[sessionId];
@@ -166,7 +170,7 @@ module.exports = function(app) {
         var stopperUser = userRegistry.getById(sessionId);
         var stoppedUser = userRegistry.getByName(stopperUser.peer);
         stopperUser.peer = null;
-        if(stoppedUser) {
+        if (stoppedUser) {
             stoppedUser.peer = null;
             delete pipelines[stoppedUser.id];
             var message = {
@@ -179,38 +183,38 @@ module.exports = function(app) {
 
     function incomingCallResponse(calleeId, from, callResponse, calleeSdp) {
         function onError(callerReason, calleeReason) {
-            if(pipeline) pipeline.release();
-            if(caller) {
+            if (pipeline) pipeline.release();
+            if (caller) {
                 var callerMessage = {
                     id: 'callResponse',
                     response: 'rejected'
                 };
-                if(callerReason) callerMessage.message = callerReason;
+                if (callerReason) callerMessage.message = callerReason;
                 caller.sendMessage(callerMessage);
             }
             var calleeMessage = {
                 id: 'stopCommunication'
             };
-            if(calleeReason) calleeMessage.message = calleeReason;
+            if (calleeReason) calleeMessage.message = calleeReason;
             callee.sendMessage(calleeMessage);
         }
         var callee = userRegistry.getById(calleeId);
-        if(!from || !userRegistry.getByName(from)) {
+        if (!from || !userRegistry.getByName(from)) {
             return onError(null, 'unknown from = ' + from);
         }
         var caller = userRegistry.getByName(from);
-        if(callResponse === 'accept') {
+        if (callResponse === 'accept') {
             var pipeline = new CallMediaPipeline();
             pipeline.createPipeline(function(error) {
-                if(error) {
+                if (error) {
                     return onError(error, error);
                 }
                 pipeline.generateSdpAnswerForCaller(caller.sdpOffer, function(error, callerSdpAnswer) {
-                    if(error) {
+                    if (error) {
                         return onError(error, error);
                     }
                     pipeline.generateSdpAnswerForCallee(calleeSdp, function(error, calleeSdpAnswer) {
-                        if(error) {
+                        if (error) {
                             return onError(error, error);
                         }
                         pipelines[caller.id] = pipeline;
@@ -229,7 +233,8 @@ module.exports = function(app) {
                     });
                 });
             });
-        } else {
+        }
+        else {
             var decline = {
                 id: 'callResponse',
                 response: 'rejected',
@@ -242,7 +247,7 @@ module.exports = function(app) {
     function call(callerId, to, from, sdpOffer) {
         var caller = userRegistry.getById(callerId);
         var rejectCause = 'user ' + to + ' is not registered';
-        if(userRegistry.getByName(to)) {
+        if (userRegistry.getByName(to)) {
             var callee = userRegistry.getByName(to);
             caller.sdpOffer = sdpOffer
             callee.peer = from;
@@ -253,7 +258,8 @@ module.exports = function(app) {
             };
             try {
                 return callee.sendMessage(message);
-            } catch(exception) {
+            }
+            catch (exception) {
                 rejectCause = "Error " + exception;
             }
         }
@@ -274,11 +280,11 @@ module.exports = function(app) {
                 message: error
             }));
         }
-        if(!name) {
+        if (!name) {
             return onError("empty user name");
         }
         var user = userRegistry.getByName(name);
-        if(user) {
+        if (user) {
             //return onError("already registered");
             stop(user.id);
             userRegistry.unregister(user.id);
@@ -289,19 +295,20 @@ module.exports = function(app) {
                 id: 'registerResponse',
                 response: 'accepted'
             }));
-        } catch(exception) {
+        }
+        catch (exception) {
             onError(exception);
         }
     }
-    //Recover kurentoClient for the first time.
 
+    //Recover kurentoClient for the first time.
     function getKurentoClient(callback) {
-        if(kurentoClient !== null) {
+        if (kurentoClient !== null) {
             return callback(null, kurentoClient);
         }
         var ws_uri = config.get('ws:uri');
         kurento(ws_uri, function(error, _kurentoClient) {
-            if(error) {
+            if (error) {
                 var message = 'Coult not find media server at address ' + argv.ws_uri;
                 console.log(message);
                 return callback(message + ". Exiting with error " + error);
@@ -309,5 +316,11 @@ module.exports = function(app) {
             kurentoClient = _kurentoClient;
             callback(null, kurentoClient);
         });
+    }
+    
+    //Bind sockets
+    for (var i in targets) {
+        var socket = io.of(targets[i]);
+        bind(socket);
     }
 }

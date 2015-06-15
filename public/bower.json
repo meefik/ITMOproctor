@@ -12,9 +12,8 @@
     "moment": "~2.10.2",
     "font-awesome": "~4.3.0",
     "jeasyui": "~1.4.2",
-    "backbone": "master",
-    "html2canvas": "master",
-    "adapter.js": "*",
-    "kurento-utils": "5.1.0"
+    "backbone": "~1.2.1",
+    "adapter.js": "~0.1.1",
+    "kurento-utils": "~5.1.0"
   }
 }

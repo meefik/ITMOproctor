@@ -8,11 +8,11 @@
     <div class="ws-content" data-options="region:'center',border:false">
         <div class="easyui-layout" data-options="fit:true">
             <div data-options="region:'north',border:false" class="ws-widget" style="height:40%">
-                <div id="panel-video" class="easyui-panel ws-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
-                    <!-- Begin: Video -->
-                    <video id="videoOutput" autoplay poster="images/webrtc.png"></video>
-                    <video id="videoInput" autoplay poster="images/webrtc.png"></video>
-                    <!-- End: Video -->
+                <div id="panel-webcam" class="easyui-panel ws-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
+                    <!-- Begin: Webcam -->
+                    <video class="video-output" autoplay poster="images/webrtc.png"></video>
+                    <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                    <!-- End: Webcam -->
                 </div>
             </div>
             <div data-options="region:'center',border:false" class="ws-widget">
@@ -54,6 +54,11 @@
         </div>
     </div>
 </div>
+<!-- Begin: Screen -->
+<div id="panel-screen" style="display:none">
+    <video class="video-input" autoplay poster="images/webrtc.png"></video>
+</div>
+<!-- End: Screen -->
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
     <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>
