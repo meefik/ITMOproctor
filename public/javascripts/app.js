@@ -176,20 +176,20 @@ var Webcall = Backbone.Model.extend({
             return this.sendMessage(response);
         }
         this.setCallState('PROCESSING_CALL');
-        if (confirm('User ' + message.from + ' is calling you. Do you accept the call?')) {
-            self.showSpinner(self.videoInput, self.videoOutput);
-            self.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(self.videoInput, self.videoOutput, function(sdp, wp) {
-                var response = {
-                    id: 'incomingCallResponse',
-                    from: message.from,
-                    callResponse: 'accept',
-                    sdpOffer: sdp
-                };
-                self.sendMessage(response);
-            }, function(error) {
-                self.setCallState('NO_CALL');
-            }, self.constraints);
-        }
+        //if (confirm('User ' + message.from + ' is calling you. Do you accept the call?')) {
+        self.showSpinner(self.videoInput, self.videoOutput);
+        self.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(self.videoInput, self.videoOutput, function(sdp, wp) {
+            var response = {
+                id: 'incomingCallResponse',
+                from: message.from,
+                callResponse: 'accept',
+                sdpOffer: sdp
+            };
+            self.sendMessage(response);
+        }, function(error) {
+            self.setCallState('NO_CALL');
+        }, self.constraints);
+        /*}
         else {
             var response = {
                 id: 'incomingCallResponse',
@@ -199,7 +199,7 @@ var Webcall = Backbone.Model.extend({
             };
             self.sendMessage(response);
             self.stop(true);
-        }
+        }*/
     },
     startCommunication: function(message) {
         this.setCallState('IN_CALL');
@@ -1393,7 +1393,14 @@ var ScreenView = Backbone.View.extend({
                 }
             }
         };
-        if (videoInput) constraints.video.mandatory.chromeMediaSource = 'screen';
+        if (videoInput) {
+            constraints.video.mandatory.chromeMediaSource = 'desktop';
+            constraints.video.mandatory.chromeMediaSourceId = 'screen:0';
+        }
+        //parent.postMessage("getSourceId","*");
+        //navigator.webkitGetUserMedia(constraints, function(stream){
+        //    $('#panel-webcam .video-output').get(0).src = URL.createObjectURL(stream);
+        //}, function(error){console.log(error);});
         this.webcall = new Webcall({
             socket: app.screen,
             constraints: constraints,
@@ -1409,6 +1416,7 @@ var ScreenView = Backbone.View.extend({
             var peer = prefix + app.content.vision.get('student')._id;
             this.webcall.call(name, peer);
         }
+
     },
     destroy: function() {
         if (this.webcall) this.webcall.destroy();

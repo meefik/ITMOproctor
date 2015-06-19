@@ -359,7 +359,6 @@ var db = {
             }];
             var Exam = require('./models/exam');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                console.log(exam);
                 if(!err && exam) {
                     callback(err, exam);
                     if(!exam.startDate) {
