@@ -1,0 +1,13 @@
+{
+  "name": "proctor-app",
+  "version": "0.0.1",
+  "description": "System of distant supervision",
+  "license": "GPLv3",
+  "main": "index.html",
+  "window": {
+    "toolbar": true,
+    "width": 1024,
+    "height": 768
+  },
+  "chromium-args": "--enable-usermedia-screen-capturing"
+}

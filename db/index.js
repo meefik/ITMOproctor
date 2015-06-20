@@ -345,7 +345,7 @@ var db = {
                     $lte: moment().add(1, 'day')
                 },
                 endDate: {
-                    $gte: moment()
+                    $gte: moment() //moment().add(moment().utcOffset(),'minutes')
                 }
             }).sort('beginDate').populate(opts).exec(callback);
         },
@@ -366,7 +366,7 @@ var db = {
                             _id: exam._id
                         }, {
                             $set: {
-                                startDate: moment().toJSON(),
+                                startDate: moment(),
                             }
                         }, function(err, data) {
                             if(err) console.log(err);

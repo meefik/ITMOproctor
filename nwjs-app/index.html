@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Проктор</title>
+    <link href="main.css" rel="stylesheet">
+</head>
+
+<body>
+    <iframe id="proctor-app" src="https://proctor-meefik.c9.io/"></iframe>
+    <script>
+        var frame = document.getElementById('proctor-app');
+        var gui = require('nw.gui');
+        gui.Screen.Init();
+
+        function getSourceId(callback) {
+            callback('test');
+        }
+        frame.onload = function() {
+            frame.contentWindow.getSourceId = getSourceId;
+        }
+
+        window.addEventListener("message", function(e) {
+            switch (e.data) {
+                case 'chooseDesktopMedia':
+                    gui.Screen.chooseDesktopMedia(["screen"], frame.contentWindow.setSourceId);
+                    break;
+            }
+        });
+    </script>
+</body>
+
+</html>

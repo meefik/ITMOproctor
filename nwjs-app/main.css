@@ -1,0 +1,11 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+iframe {
+    position: absolute;
+    border: none;
+    height: 100%;
+    width: 100%;
+}

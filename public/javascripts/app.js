@@ -1342,7 +1342,7 @@ var WebcamView = Backbone.View.extend({
                     maxWidth: 640,
                     maxHeight: 480,
                     maxFrameRate: 15,
-                    minFrameRate: 15
+                    minFrameRate: 5
                 }
             }
         };
@@ -1389,7 +1389,7 @@ var ScreenView = Backbone.View.extend({
                     maxWidth: 640,
                     maxHeight: 480,
                     maxFrameRate: 15,
-                    minFrameRate: 15
+                    minFrameRate: 5
                 }
             }
         };

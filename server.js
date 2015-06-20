@@ -9,6 +9,8 @@ var MongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var multer = require('multer');
 var config = require('nconf').file('./config.json');
+var moment = require('moment-timezone');
+moment.tz.setDefault(config.get('timezone'));
 var db = require('./db');
 var app = express();
 var server = require('http').Server(app);
