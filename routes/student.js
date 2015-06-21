@@ -8,7 +8,7 @@ router.get('/', function(req, res) {
     }
     db.student.list(args, function(err, data) {
         if(!err && data.length > 0) {
-            res.json(data[0]);
+            res.json(data);
         } else {
             res.status(400).end();
         }

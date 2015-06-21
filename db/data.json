@@ -7,8 +7,9 @@
         "lastname": "Пертов",
         "firstname": "Петр",
         "middlename": "Пертович",
-        "email": "inspector@example.com",
+        "gender": "Мужской",
         "birthday": "1982-03-11T00:00:00.000Z",
+        "email": "inspector@example.com",
         "role": 2,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
@@ -22,8 +23,9 @@
         "lastname": "Иванов",
         "firstname": "Иван",
         "middlename": "Иванович",
-        "email": "student@example.com",
+        "gender": "Мужской",
         "birthday": "1992-07-22T00:00:00.000Z",
+        "email": "student@example.com",
         "role": 1,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
@@ -64,10 +66,39 @@
         "title": "Иностранный язык",
         "speciality": "Экономика и управление народным хозяйством",
         "code": "08.00.05"
+    },{
+        "_id": "55633e000cf842a221a37b59",
+        "title": "Информатика",
+        "speciality": "Вычислительные машины, комплексы и компьютерные сети",
+        "code": "05.13.15"
     }],
     "exam": [{
         "examId": "100001",
         "subject": "55633e000cf842a221a37b19",
+        "student": "55633e000cf842a221a37ae3",
+        "curator": [],
+        "beginDate": "2015-06-19T18:00:00.000Z",
+        "endDate": "2015-06-20T21:00:00.000Z",
+        "startDate": null,
+        "stopDate": null,
+        "resolution": null,
+        "comment": null
+    },
+    {
+        "examId": "100002",
+        "subject": "55633e000cf842a221a37b47",
+        "student": "55633e000cf842a221a37ae3",
+        "curator": [],
+        "beginDate": "2015-06-19T18:00:00.000Z",
+        "endDate": "2015-06-20T21:00:00.000Z",
+        "startDate": null,
+        "stopDate": null,
+        "resolution": null,
+        "comment": null
+    },
+    {
+        "examId": "100003",
+        "subject": "55633e000cf842a221a37b59",
         "student": "55633e000cf842a221a37ae3",
         "curator": [],
         "beginDate": "2015-06-19T18:00:00.000Z",

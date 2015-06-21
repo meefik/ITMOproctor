@@ -5,5 +5,10 @@
     "ws": {
         "uri": "ws://de.ifmo.ru:8888/kurento"
     },
-    "timezone": "Europe/Moscow"
+    "exam": {
+        "offset": {
+            "before": 0.5,
+            "after": 24
+        }
+    }
 }

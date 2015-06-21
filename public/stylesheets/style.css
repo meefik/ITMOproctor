@@ -42,3 +42,11 @@ body {
     -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
+.text-item {
+    padding: 0 5px;
+    line-height: 26px;
+    color: #444;
+}
+.text-item>i {
+    padding-right: 10px;
+}

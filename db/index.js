@@ -12,15 +12,15 @@ var db = {
         User.findOne({
             username: username
         }).select("+hashedPassword +salt").exec(function(err, user) {
-            if(err) {
+            if (err) {
                 return done(err);
             }
-            if(!user) {
+            if (!user) {
                 return done(null, false, {
                     message: 'Incorrect username.'
                 });
             }
-            if(!user.validPassword(password)) {
+            if (!user.validPassword(password)) {
                 return done(null, false, {
                     message: 'Incorrect password.'
                 });
@@ -34,14 +34,14 @@ var db = {
                 var id = mongoose.Types.ObjectId();
                 var fullname = path.join('uploads', path.basename(file.uploadname));
                 fs.exists(fullname, function(exists) {
-                    if(!exists) return;
+                    if (!exists) return;
                     var writestream = db.gfs.createWriteStream({
                         _id: file.fileId,
                         filename: file.filename
                     });
                     fs.createReadStream(fullname).pipe(writestream);
                     writestream.on('close', function(data) {
-                        if(callback) callback(data);
+                        if (callback) callback(data);
                         fs.unlink(fullname);
                     });
                 });
@@ -51,18 +51,19 @@ var db = {
             db.gfs.findOne({
                 _id: fileId
             }, function(err, data) {
-                if(!err && data) {
+                if (!err && data) {
                     var readstream = db.gfs.createReadStream({
                         _id: fileId
                     });
                     readstream.pipe(callback(data));
-                } else {
+                }
+                else {
                     callback();
                 }
             });
         },
         remove: function(files, callback) {
-            if(!callback) callback = function(err) {};
+            if (!callback) callback = function(err) {};
             files.forEach(function(file, i, arr) {
                 db.gfs.remove({
                     _id: file.fileId
@@ -80,7 +81,7 @@ var db = {
             var merge = require('merge');
             var query = {};
             // Date
-            if(date) {
+            if (date) {
                 var q = {
                     beginDate: {
                         $gte: moment(date),
@@ -90,7 +91,7 @@ var db = {
                 query = merge.recursive(true, query, q);
             }
             // Status: all, process, away
-            switch(status) {
+            switch (status) {
                 case '1':
                     //console.log('Все');
                     break;
@@ -140,40 +141,41 @@ var db = {
             }];
             // Query
             var Exam = require('./models/exam');
-            if(text) {
+            if (text) {
                 // Full text search
                 Exam.find(query).sort('beginDate').populate(opts).exec(function(err, data) {
                     var out = [];
                     var dl = data.length;
-                    for(var i = 0; i < dl; i++) {
+                    for (var i = 0; i < dl; i++) {
                         var item = data[i];
                         var curator = {};
-                        if(item.curator.length > 0) curator = item.curator[0];
+                        if (item.curator.length > 0) curator = item.curator[0];
                         var arr = [item.examId,
                             item.student.lastname, item.student.firstname, item.student.middlename,
                             curator.lastname, curator.firstname, curator.middlename,
                             item.subject.title, item.subject.code
                         ];
                         var cond = true;
-                        for(var k = 0; k < text.length; k++) {
+                        for (var k = 0; k < text.length; k++) {
                             var match = false;
                             var re = new RegExp(text[k], 'i');
-                            for(var j = 0; j < arr.length; j++) {
-                                if(re.test(arr[j])) {
+                            for (var j = 0; j < arr.length; j++) {
+                                if (re.test(arr[j])) {
                                     match = true;
                                     break;
                                 }
                             }
                             cond = cond && match;
-                            if(!cond) break;
+                            if (!cond) break;
                         }
-                        if(cond) out.push(item);
+                        if (cond) out.push(item);
                     }
                     var begin = rows * page;
                     var end = begin + rows;
                     callback(err, out.slice(begin, end), out.length);
                 });
-            } else {
+            }
+            else {
                 Exam.find(query).count(function(err, count) {
                     Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
                         callback(err, data, count);
@@ -206,15 +208,16 @@ var db = {
             var Exam = require('./models/exam');
             var Passport = require('./models/passport');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                if(err || !exam) {
+                if (err || !exam) {
                     callback(err, exam);
-                } else {
+                }
+                else {
                     //console.log(exam);
                     var data = exam.toJSON();
                     Passport.findOne({
                         userId: data.student._id
                     }).exec(function(err, passport) {
-                        if(err) data.passport = null;
+                        if (err) data.passport = null;
                         else {
                             data.passport = passport;
                         }
@@ -230,7 +233,7 @@ var db = {
                             curator: args.userId
                         }
                     }, function(err, data) {
-                        if(err) console.log(err);
+                        if (err) console.log(err);
                     });
                 }
             });
@@ -254,14 +257,14 @@ var db = {
             Note.find(args).sort('time').exec(callback);
         },
         add: function(args, callback) {
-            for(var i = 0; i < args.attach.length; i++) {
+            for (var i = 0; i < args.attach.length; i++) {
                 args.attach[i].fileId = mongoose.Types.ObjectId();
             }
             var Note = require('./models/note');
             var note = new Note(args);
             note.save(function(err, data) {
                 callback(err, data);
-                if(args.attach.length > 0) {
+                if (args.attach.length > 0) {
                     db.storage.upload(args.attach);
                 }
             });
@@ -283,8 +286,8 @@ var db = {
                 _id: args._id
             }, function(err, data) {
                 callback(err, data);
-                if(!err && data) {
-                    if(data.attach.length > 0) {
+                if (!err && data) {
+                    if (data.attach.length > 0) {
                         db.storage.remove(data.attach);
                     }
                 };
@@ -302,20 +305,20 @@ var db = {
             Chat.find(args).populate(opts).sort('time').exec(callback);
         },
         add: function(args, callback) {
-            for(var i = 0; i < args.attach.length; i++) {
+            for (var i = 0; i < args.attach.length; i++) {
                 args.attach[i].fileId = mongoose.Types.ObjectId();
             }
             var Chat = require('./models/chat');
             var User = require('./models/user');
             var chat = new Chat(args);
             chat.save(function(err, data) {
-                if(err || !data) callback(err, data);
+                if (err || !data) callback(err, data);
                 else {
                     Chat.populate(data, {
                         path: 'author',
                         select: 'firstname lastname middlename'
                     }, callback);
-                    if(args.attach.length > 0) {
+                    if (args.attach.length > 0) {
                         db.storage.upload(args.attach);
                     }
                 }
@@ -330,6 +333,8 @@ var db = {
     },
     student: {
         list: function(args, callback) {
+            var beforeOffset = -1 * config.get('exam:offset:before');
+            var afterOffset = config.get('exam:offset:after');
             var opts = [{
                 path: 'subject'
             }, {
@@ -341,12 +346,15 @@ var db = {
             Exam.find({
                 student: args.userId,
                 resolution: null,
-                beginDate: {
-                    $lte: moment().add(1, 'day')
-                },
-                endDate: {
-                    $gte: moment() //moment().add(moment().utcOffset(),'minutes')
-                }
+                $and: [{
+                        beginDate: {
+                            $gte: moment().add(beforeOffset, 'hours')
+                        }
+                    }, {
+                        beginDate: {
+                            $lte: moment().add(afterOffset, 'hours')
+                        }
+                    }]
             }).sort('beginDate').populate(opts).exec(callback);
         },
         start: function(args, callback) {
@@ -359,9 +367,9 @@ var db = {
             }];
             var Exam = require('./models/exam');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                if(!err && exam) {
+                if (!err && exam) {
                     callback(err, exam);
-                    if(!exam.startDate) {
+                    if (!exam.startDate) {
                         Exam.update({
                             _id: exam._id
                         }, {
@@ -369,10 +377,11 @@ var db = {
                                 startDate: moment(),
                             }
                         }, function(err, data) {
-                            if(err) console.log(err);
+                            if (err) console.log(err);
                         });
                     }
-                } else {
+                }
+                else {
                     callback(err, null);
                 }
             });

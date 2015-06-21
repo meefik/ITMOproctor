@@ -42,13 +42,18 @@ var User = new Schema({
     middlename: {
         type: String,
     },
-    // Электронная почта
-    email: {
+    // Пол
+    gender: {
         type: String,
+        required: true
     },
     // День рождения
     birthday: {
         type: Date
+    },
+    // Электронная почта
+    email: {
+        type: String,
     },
     // Роль пользователя
     role: {

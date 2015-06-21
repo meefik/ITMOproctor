@@ -1450,46 +1450,88 @@ var ScreenView = Backbone.View.extend({
 // Countdown view
 //
 var CountdownView = Backbone.View.extend({
-    events: {
-        "click .app-logout": "doLogout",
-        "click .start-btn": "doStart"
-    },
     initialize: function() {
         var self = this;
-        // Vision model
+        // Student model
         var Student = Backbone.Model.extend({
             urlRoot: '/student'
         });
+        this._Menu = $('#main-menu');
+        this._Menu.menu({
+            onClick: function(item) {
+                switch (item.name) {
+                    case "profile":
+                        self.profile.doOpen();
+                        break;
+                    case "settings":
+                        self.settings.doOpen();
+                        break;
+                    case "logout":
+                        self.doLogout();
+                        break;
+                }
+            }
+        });
         this._TimeWidget = this.$('.time-widget');
-        this._StudentWidget = this.$('.student-widget');
-        this._ExamWidget = this.$('.exam-widget');
         this._CountdownWidget = this.$('.countdown-widget');
         this._StartBtn = this.$('.start-btn');
+        this._Grid = this.$('.exams-table');
         this.timer = moment(0);
         this.student = new Student();
+        this.settings = new SettingsView();
+        this.profile = new ProfileView();
         this.render();
     },
     render: function() {
         var self = this;
-        this.student.fetch({
-            success: function(model, response, options) {
-                var student = model.get("student");
-                var subject = model.get("subject");
-                var beginDate = moment(model.get("beginDate"));
-                self.examId = model.get("_id");
-                self._StudentWidget.text(student.lastname + " " + student.firstname.charAt(0) + "." + student.middlename.charAt(0) + ".");
-                self._ExamWidget.text(subject.title + " (" + subject.code + " - " + subject.speciality + ")");
-                var t = setInterval(function() {
-                    var diff = beginDate.diff();
-                    if (diff < 0) {
-                        diff = 0;
-                        self._StartBtn.attr({
-                            disabled: null
-                        });
-                    }
-                    self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
-                }, 1000);
-                self.timers.push(t);
+
+        this._Grid.datagrid({
+            columns: [
+                [{
+                    field: 'examId',
+                    title: 'ID',
+                    width: 60
+                }, {
+                    field: 'subject',
+                    title: 'Экзамен',
+                    width: 200,
+                    formatter: self.formatSubject
+                }, {
+                    field: 'beginDate',
+                    title: 'Время начала',
+                    width: 150,
+                    formatter: self.formatDate
+                }, {
+                    field: 'duration',
+                    title: 'Длительность',
+                    width: 100,
+                    formatter: self.formatDuration
+                }]
+            ],
+            url: '/student',
+            method: 'get',
+            onLoadSuccess: function(data) {
+                if (data.rows.length > 0) {
+                    var first = data.rows[0];
+                    var beginDate = moment(first.beginDate);
+                    self.examId = first._id;
+                    var t = setInterval(function() {
+                        var diff = beginDate.diff();
+                        if (diff < 0) {
+                            diff = 0;
+                            self._StartBtn.linkbutton('enable');
+                            self._StartBtn.css({
+                                color: 'green'
+                            });
+                            self._StartBtn.click(function() {
+                                self.doStart();
+                            });
+                            clearInterval(t);
+                        }
+                        self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
+                    }, 1000);
+                    self.timers.push(t);
+                }
             }
         });
         var t1 = setInterval(function() {
@@ -1512,6 +1554,24 @@ var CountdownView = Backbone.View.extend({
         app.router.navigate("student/" + this.examId, {
             trigger: true
         });
+    },
+    formatDuration: function(val, row) {
+        if (row.beginDate == null) return null;
+        var beginDate = moment(row.beginDate);
+        var endDate = moment(row.endDate);
+        var duration = endDate - beginDate;
+        return moment(duration).utc().format('HH:mm:ss');
+    },
+    formatDate: function(val, row) {
+        if (val == null) return null;
+        else {
+            var d = new Date(val);
+            return moment(d).format('DD.MM.YYYY HH:mm:ss');
+        }
+    },
+    formatSubject: function(val, row) {
+        if (val == null) return null;
+        return val.title + " (" + val.code + ")";
     }
 });
 //
@@ -1523,7 +1583,7 @@ var StudentView = Backbone.View.extend({
     },
     initialize: function() {
         var self = this;
-        // Vision model
+        // Student model
         var Student = Backbone.Model.extend({
             urlRoot: '/student'
         });
@@ -1689,6 +1749,7 @@ var SettingsView = Backbone.View.extend({
             parent.postMessage('chooseSreenId', '*');
         });
         var self = this;
+
         function loadForm() {
             self._SettingsForm.form('load', app.settings.load());
         }
@@ -1718,6 +1779,42 @@ var SettingsView = Backbone.View.extend({
     }
 });
 //
+// Profile view
+//
+var ProfileView = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function() {
+        var self = this;
+        var dialog = $(this.el).dialog({
+            title: 'Профиль пользователя',
+            width: 550,
+            height: 250,
+            closed: true,
+            modal: true,
+            href: '/templates/profile.tpl',
+            onLoad: function() {
+                self.render(this);
+            }
+        });
+        this._Dialog = $(dialog);
+    },
+    render: function(obj) {
+        this._ProfileTpl = $("#profile-tpl");
+        var tpl = _.template(this._ProfileTpl.html());
+        var profile = {
+            user: app.profile.toJSON()
+        };
+        var html = tpl(profile);
+        this.$('.profile-view').html(html);
+    },
+    doOpen: function() {
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
 // Application view
 //
 var AppView = Backbone.View.extend({
@@ -1731,14 +1828,12 @@ var AppView = Backbone.View.extend({
             call: io.connect(url + '/call'),
             screen: io.connect(url + '/screen')
         };
-        this.view = {
-            settings: new SettingsView()
-        };
         this.router = new Workspace();
         Backbone.history.start();
     },
     render: function(url, callback) {
-        this.$el.panel({
+        this.$el.html('<div id="content" class="easyui-panel" data-options="fit:true,border:false">');
+        this.$('#content').panel({
             href: url,
             onLoad: function() {
                 if (callback) callback();
@@ -1758,6 +1853,6 @@ var AppView = Backbone.View.extend({
 //
 $(document).ready(function() {
     new AppView({
-        el: $("#content")
+        el: $("body")
     });
 });
