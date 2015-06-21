@@ -2,6 +2,7 @@ var config = require('nconf').file('../config.json');
 var mongoose = require('mongoose');
 var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
+var moment = require('moment');
 var conn = mongoose.connection;
 conn.on('error', function(err) {
     console.error("MongoDB connection error:", err.message);
@@ -47,6 +48,8 @@ var db = {
         Exam.remove({}, function(err) {
             var items = data.exam;
             for(var k in items) {
+                items[k].beginDate = moment();
+                items[k].endDate = moment().add(5,'hours');
                 var obj = new Exam(items[k]);
                 self.save(obj);
             }

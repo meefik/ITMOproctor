@@ -6,6 +6,9 @@ var app;
 // Profile model
 //
 var Profile = Backbone.Model.extend({
+    initialize: function() {
+        this.update();
+    },
     update: function() {
         var self = this;
         var result = false;
@@ -16,25 +19,23 @@ var Profile = Backbone.Model.extend({
         }).done(function(user) {
             console.log('profile.update: success');
             self.clear().set(user);
-            app.profile = self;
             result = true;
         }).fail(function() {
             console.log('profile.update: error');
         });
         return result;
     },
-    login: function() {
+    login: function(user) {
         var self = this;
         var result = false;
         $.ajax({
             method: "POST",
             url: "/profile/login",
-            data: self.toJSON(),
+            data: user,
             async: false
         }).done(function(user) {
             console.log('profile.login: success');
             self.clear().set(user);
-            app.profile = self;
             result = true;
         }).fail(function() {
             console.log('profile.login: error');
@@ -52,7 +53,6 @@ var Profile = Backbone.Model.extend({
         }).done(function() {
             console.log('profile.logout: success');
             self.clear();
-            delete app.profile;
             result = true;
         }).fail(function() {
             console.log('profile.logout: error');
@@ -280,6 +280,34 @@ var Webcall = Backbone.Model.extend({
     }
 });
 //
+// Settings collection
+//
+var Settings = Backbone.Collection.extend({
+    localStorage: new Backbone.LocalStorage("settings"),
+    initialize: function() {
+        this.model = Backbone.Model.extend({
+            idAttribute: 'name'
+        });
+        this.fetch();
+    },
+    save: function(items) {
+        var self = this;
+        items.forEach(function(item, i, arr) {
+            var model = self.add(item, {
+                merge: true
+            });
+            model.save();
+        });
+    },
+    load: function() {
+        var items = {};
+        this.toJSON().forEach(function(item, i, arr) {
+            items[item.name] = item.value;
+        });
+        return items;
+    }
+});
+//
 // Application routing
 //
 var Workspace = Backbone.Router.extend({
@@ -425,12 +453,12 @@ var LoginView = Backbone.View.extend({
     submit: function() {
         var username = this._Username.textbox('getValue');
         var password = this._Password.textbox('getValue');
-        var user = new Profile({
+        var user = {
             username: username,
             password: password
-        });
-        if (user.login()) {
-            app.workspace.navigate("", {
+        };
+        if (app.profile.login(user)) {
+            app.router.navigate("", {
                 trigger: true
             });
         }
@@ -666,7 +694,7 @@ var MonitorView = Backbone.View.extend({
         });
     },
     doPlay: function(rowid) {
-        app.workspace.navigate("vision/" + rowid, {
+        app.router.navigate("vision/" + rowid, {
             trigger: true
         });
     },
@@ -927,7 +955,7 @@ var VisionView = Backbone.View.extend({
                         }, {
                             success: function() {
                                 self._DialogConfirm.dialog('close');
-                                app.workspace.navigate("monitor", {
+                                app.router.navigate("monitor", {
                                     trigger: true
                                 });
                             }
@@ -1058,7 +1086,7 @@ var NotesView = Backbone.View.extend({
         this.collection = new NotesList();
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
-        app.notify.on(this.id, function(data) {
+        app.io.notify.on(this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
@@ -1155,7 +1183,7 @@ var ChatView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.notify.on(this.id, function(data) {
+        app.io.notify.on(this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
@@ -1290,7 +1318,7 @@ var ProtocolView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.notify.on(this.id, function(data) {
+        app.io.notify.on(this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
@@ -1347,7 +1375,7 @@ var WebcamView = Backbone.View.extend({
             }
         };
         this.webcall = new Webcall({
-            socket: app.call,
+            socket: app.io.call,
             constraints: constraints,
             input: videoInput,
             output: videoOutput
@@ -1397,12 +1425,8 @@ var ScreenView = Backbone.View.extend({
             constraints.video.mandatory.chromeMediaSource = 'desktop';
             constraints.video.mandatory.chromeMediaSourceId = 'screen:0';
         }
-        //parent.postMessage("getSourceId","*");
-        //navigator.webkitGetUserMedia(constraints, function(stream){
-        //    $('#panel-webcam .video-output').get(0).src = URL.createObjectURL(stream);
-        //}, function(error){console.log(error);});
         this.webcall = new Webcall({
-            socket: app.screen,
+            socket: app.io.screen,
             constraints: constraints,
             input: videoInput,
             output: videoOutput
@@ -1416,7 +1440,6 @@ var ScreenView = Backbone.View.extend({
             var peer = prefix + app.content.vision.get('student')._id;
             this.webcall.call(name, peer);
         }
-
     },
     destroy: function() {
         if (this.webcall) this.webcall.destroy();
@@ -1486,7 +1509,7 @@ var CountdownView = Backbone.View.extend({
         app.logout();
     },
     doStart: function() {
-        app.workspace.navigate("student/" + this.examId, {
+        app.router.navigate("student/" + this.examId, {
             trigger: true
         });
     }
@@ -1609,18 +1632,109 @@ var StudentView = Backbone.View.extend({
     }
 });
 //
+// Settings view
+//
+var SettingsView = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function() {
+        var self = this;
+        var dialog = $(this.el).dialog({
+            title: 'Настройки',
+            width: 500,
+            height: 400,
+            closed: true,
+            modal: true,
+            href: '/templates/settings.tpl',
+            onLoad: function() {
+                self.render(this);
+            },
+            buttons: [{
+                text: 'Сохранить',
+                iconCls: 'fa fa-check',
+                handler: function() {
+                    self.doSave();
+                }
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }]
+        });
+        this._Dialog = $(dialog);
+    },
+    render: function(obj) {
+        function getMediaSources(kind, callback) {
+            MediaStreamTrack.getSources(function(sources) {
+                var mediaSources = [];
+                for (var i = 0, l = sources.length; i < l; i++) {
+                    var source = sources[i];
+                    if (source.kind == kind) {
+                        mediaSources.push({
+                            name: source.id,
+                            value: source.label || 'Неизвестный источник ' + (i + 1)
+                        });
+                    }
+                }
+                if (callback) callback(mediaSources);
+            });
+        };
+        this._ScreenBtn = $(obj).find('.screen-btn');
+        this._WebcameraAudio = $(obj).find('.webcamera-audio');
+        this._WebcameraVideo = $(obj).find('.webcamera-video');
+        this._SettingsForm = $(obj).find('.settings-form');
+        this._ScreenBtn.click(function() {
+            console.log('postMessage chooseSreenId');
+            parent.postMessage('chooseSreenId', '*');
+        });
+        var self = this;
+        function loadForm() {
+            self._SettingsForm.form('load', app.settings.load());
+        }
+        getMediaSources('audio', function(sources) {
+            self._WebcameraAudio.combobox({
+                data: sources
+            });
+            loadForm();
+        });
+        getMediaSources('video', function(sources) {
+            self._WebcameraVideo.combobox({
+                data: sources
+            });
+            loadForm();
+        });
+    },
+    doOpen: function() {
+        this._Dialog.dialog('open');
+    },
+    doSave: function() {
+        this.doClose();
+        var formData = this._SettingsForm.serializeArray();
+        app.settings.save(formData);
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
 // Application view
 //
 var AppView = Backbone.View.extend({
     initialize: function() {
         app = this;
         var url = window.location.host;
-        this.notify = io.connect(url + '/notify');
-        this.call = io.connect(url + '/call');
-        this.screen = io.connect(url + '/screen');
-        this.workspace = new Workspace();
         this.profile = new Profile();
-        this.profile.update();
+        this.settings = new Settings();
+        this.io = {
+            notify: io.connect(url + '/notify'),
+            call: io.connect(url + '/call'),
+            screen: io.connect(url + '/screen')
+        };
+        this.view = {
+            settings: new SettingsView()
+        };
+        this.router = new Workspace();
         Backbone.history.start();
     },
     render: function(url, callback) {
@@ -1632,9 +1746,8 @@ var AppView = Backbone.View.extend({
         });
     },
     logout: function() {
-        var workspace = this.workspace;
         if (this.profile.logout()) {
-            workspace.navigate("login", {
+            this.router.navigate("login", {
                 trigger: true
             });
         }

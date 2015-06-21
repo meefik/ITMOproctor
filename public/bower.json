@@ -14,6 +14,7 @@
     "jeasyui": "~1.4.2",
     "backbone": "~1.2.1",
     "adapter.js": "~0.1.1",
-    "kurento-utils": "~5.1.0"
+    "kurento-utils": "~5.1.0",
+    "Backbone.localStorage": "~1.1.16"
   }
 }
