@@ -76,16 +76,17 @@ var db = {
             var rows = args.rows ? parseInt(args.rows) : 100;
             var page = args.page ? parseInt(args.page) - 1 : 0;
             var status = args.status;
-            var date = args.date ? moment(args.date, 'DD.MM.YYYY') : null;
+            var fromDate = args.from ? moment(args.from) : null;
+            var toDate = args.to ? moment(args.to) : null;
             var text = args.text ? args.text.trim().split(' ') : null;
             var merge = require('merge');
             var query = {};
             // Date
-            if (date) {
+            if (fromDate && toDate) {
                 var q = {
                     beginDate: {
-                        $gte: moment(date),
-                        $lte: moment(date).add(1, 'days')
+                        $gte: fromDate,
+                        $lt: toDate
                     }
                 };
                 query = merge.recursive(true, query, q);
@@ -333,8 +334,6 @@ var db = {
     },
     student: {
         list: function(args, callback) {
-            var beforeOffset = -1 * config.get('exam:offset:before');
-            var afterOffset = config.get('exam:offset:after');
             var opts = [{
                 path: 'subject'
             }, {
@@ -343,19 +342,13 @@ var db = {
                 path: 'curator'
             }];
             var Exam = require('./models/exam');
-            Exam.find({
-                student: args.userId,
-                resolution: null,
-                $and: [{
-                        beginDate: {
-                            $gte: moment().add(beforeOffset, 'hours')
-                        }
-                    }, {
-                        beginDate: {
-                            $lte: moment().add(afterOffset, 'hours')
-                        }
-                    }]
-            }).sort('beginDate').populate(opts).exec(callback);
+            var query = {
+                student: args.userId
+            };
+            if (!args.history) query.endDate = {
+                $gte: moment()
+            };
+            Exam.find(query).sort('beginDate').populate(opts).exec(callback);
         },
         start: function(args, callback) {
             var opts = [{

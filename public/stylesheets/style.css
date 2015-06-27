@@ -50,3 +50,6 @@ body {
 .text-item>i {
     padding-right: 10px;
 }
+.panel-widget {
+    font-weight: bold;
+}

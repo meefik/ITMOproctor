@@ -6,16 +6,6 @@
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
-        <!--
-        <div>
-            Ближайший экзамен: <span class="exam-widget">...</span>
-        </div>
-        <div>
-            До начала осталось: <span class="countdown-widget">...</span>
-        </div>
-        <br>
-        <button class="start-btn" disabled="disabled">Начать</button>
-        -->
         <table class="easyui-datagrid exams-table" data-options="singleSelect:true,border:false,fitColumns:true,fit:true"></table>
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
@@ -28,6 +18,8 @@
     </div>
 </div>
 <div id="main-menu" style="width:150px;">
+    <div name="history" data-options="iconCls:'fa fa-circle-o'">Прошедшие</div>
+    <div class="menu-sep"></div>
     <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
     <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
     <div class="menu-sep"></div>

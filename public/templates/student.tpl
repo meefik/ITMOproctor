@@ -1,8 +1,13 @@
 <div id="student" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item" title="This is the tooltip message."><i class="fa fa-eye"></i><span class="curator-widget">...</span></span>
+            <a href="#"  class="easyui-tooltip">Hover me</a>
+            <!--
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'"><span class="student-widget">...</span></span>
             <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-eye'" style="float:right;"><span class="curator-widget">...</span></span>
+            -->
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
@@ -47,10 +52,10 @@
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'" title="Качество связи"><span class="network-widget">100%</span></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'" title="Текущее время"><span class="time-widget">00:00:00</span></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'" title="Продолжительность"><span class="duration-widget">00:00:00</span></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton app-logout" data-options="plain:true,iconCls:'fa fa-sign-out'" style="float:right;">Выход</a>
+            <span class="text-item" title="Качество связи"><i class="fa fa-exchange"></i><span class="panel-widget network-widget">100%</span></span>
+            <span class="text-item" title="Текущее время"><i class="fa fa-clock-o"></i><span class="panel-widget time-widget">00:00:00</span></span>
+            <span class="text-item" title="Продолжительность"><i class="fa fa-play"></i><span class="panel-widget duration-widget">00:00:00</span></span>
+            <!--<a href="javascript:void(0)" class="easyui-linkbutton app-logout" data-options="plain:true,iconCls:'fa fa-sign-out'" style="float:right;">Выход</a>-->
         </div>
     </div>
 </div>
@@ -59,6 +64,12 @@
     <video class="video-input" autoplay poster="images/webrtc.png"></video>
 </div>
 <!-- End: Screen -->
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
+</div>
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
     <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>

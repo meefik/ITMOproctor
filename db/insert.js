@@ -48,7 +48,7 @@ var db = {
         Exam.remove({}, function(err) {
             var items = data.exam;
             for(var k in items) {
-                var d = moment().add(k*5,'hours');
+                var d = moment().add((k-1)*5,'hours');
                 items[k].beginDate = moment(d).add(5,'minutes');
                 items[k].endDate = moment(d).add(4,'hours');
                 var obj = new Exam(items[k]);

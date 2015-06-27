@@ -511,7 +511,6 @@ var MonitorView = Backbone.View.extend({
     },
     render: function() {
         var self = this;
-        var currentDate = moment().format("DD.MM.YYYY");
         this._Grid.datagrid({
             columns: [
                 [{
@@ -558,11 +557,12 @@ var MonitorView = Backbone.View.extend({
             url: '/monitor',
             method: 'get',
             queryParams: {
-                date: currentDate
+                from: moment().startOf('day').toJSON(),
+                to: moment().startOf('day').add(1,'days').toJSON()
             }
         });
         this._DateSearch.datebox({
-            value: currentDate,
+            value: moment().format("DD.MM.YYYY"),
             onChange: function(date) {
                 var valid = moment(date, "DD.MM.YYYY", true).isValid();
                 if (!date || valid) self.doSearch();
@@ -667,11 +667,14 @@ var MonitorView = Backbone.View.extend({
                 status = 3;
                 break;
         }
-        var date = this._DateSearch.datebox('getValue');
         var text = this._TextSearch.textbox('getValue');
+        var date = this._DateSearch.datebox('getValue');
+        var fromDate = date ? moment(date,'DD.MM.YYYY').toJSON() : null;
+        var toDate = date ? moment(date,'DD.MM.YYYY').add(1,'days').toJSON() : null;
         this._Grid.datagrid('load', {
             status: status,
-            date: date,
+            from: fromDate,
+            to: toDate,
             text: text
         });
     },
@@ -1460,6 +1463,9 @@ var CountdownView = Backbone.View.extend({
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
+                    case "history":
+                        self.toggleHostory(item);
+                        break;
                     case "profile":
                         self.profile.doOpen();
                         break;
@@ -1480,11 +1486,33 @@ var CountdownView = Backbone.View.extend({
         this.student = new Student();
         this.settings = new SettingsView();
         this.profile = new ProfileView();
+        this.historyFlag = false;
+        // Current time timer
+        var t1 = setInterval(function() {
+            self._TimeWidget.text(moment().format('HH:mm:ss'));
+        }, 1000);
+        // Countdown timer
+        var t2 = setInterval(function() {
+            if (!self.beginDate) return;
+            var diff = self.beginDate.diff();
+            if (diff < 0) {
+                diff = 0;
+                self._StartBtn.linkbutton('enable');
+                self._StartBtn.css({
+                    color: 'green'
+                });
+                self._StartBtn.click(function() {
+                    self.doStart();
+                });
+                //clearInterval(t2);
+            }
+            self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
+        }, 1000);
+        this.timers = [t1, t2];
         this.render();
     },
     render: function() {
         var self = this;
-
         this._Grid.datagrid({
             columns: [
                 [{
@@ -1510,34 +1538,28 @@ var CountdownView = Backbone.View.extend({
             ],
             url: '/student',
             method: 'get',
+            queryParams: {
+                history: this.isHistory()
+            },
             onLoadSuccess: function(data) {
                 if (data.rows.length > 0) {
                     var first = data.rows[0];
-                    var beginDate = moment(first.beginDate);
-                    self.examId = first._id;
-                    var t = setInterval(function() {
-                        var diff = beginDate.diff();
-                        if (diff < 0) {
-                            diff = 0;
-                            self._StartBtn.linkbutton('enable');
-                            self._StartBtn.css({
-                                color: 'green'
-                            });
-                            self._StartBtn.click(function() {
-                                self.doStart();
-                            });
-                            clearInterval(t);
-                        }
-                        self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
-                    }, 1000);
-                    self.timers.push(t);
+                    if (moment(first.endDate).diff() > 0) {
+                        self.beginDate = moment(first.beginDate);
+                        self.examId = first._id;
+                    }
+                }
+            },
+            rowStyler: function(index, row) {
+                var endDate = moment(row.endDate);
+                if (endDate < moment()) {
+                    return 'background-color:#eee;color:black';
+                }
+                else {
+                    return 'background-color:white;color:black';
                 }
             }
         });
-        var t1 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
-        }, 1000);
-        this.timers = [t1];
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1546,6 +1568,27 @@ var CountdownView = Backbone.View.extend({
         if (this.chat) this.chat.destroy();
         if (this.video) this.video.destroy();
         this.remove();
+    },
+    isHistory: function() {
+        return this.historyFlag ? 1 : 0;
+    },
+    toggleHostory: function(item) {
+        this.historyFlag = !this.historyFlag;
+        if (this.historyFlag) {
+            this._Menu.menu('setIcon', {
+                target: item.target,
+                iconCls: 'fa fa-dot-circle-o'
+            });
+        }
+        else {
+            this._Menu.menu('setIcon', {
+                target: item.target,
+                iconCls: 'fa fa-circle-o'
+            });
+        }
+        this._Grid.datagrid('load', {
+            history: this.isHistory()
+        });
     },
     doLogout: function() {
         app.logout();

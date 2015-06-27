@@ -4,7 +4,8 @@ var moment = require('moment');
 var db = require('../db');
 router.get('/', function(req, res) {
     var args = {
-        userId: req.user._id
+        userId: req.user._id,
+        history: req.query.history == 1 ? true : false
     }
     db.student.list(args, function(err, data) {
         if(!err && data.length > 0) {
