@@ -10,6 +10,7 @@ router.get('/:examId', function(req, res) {
         if(!err && data) {
             req.user.examId = data._id;
             res.json(data);
+            req.notify('update');
         } else {
             res.status(400).end();
         }

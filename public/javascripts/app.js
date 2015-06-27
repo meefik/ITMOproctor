@@ -558,7 +558,7 @@ var MonitorView = Backbone.View.extend({
             method: 'get',
             queryParams: {
                 from: moment().startOf('day').toJSON(),
-                to: moment().startOf('day').add(1,'days').toJSON()
+                to: moment().startOf('day').add(1, 'days').toJSON()
             }
         });
         this._DateSearch.datebox({
@@ -573,13 +573,7 @@ var MonitorView = Backbone.View.extend({
                 self.doSearch();
             }
         });
-        var role = {
-            "1": "Студент",
-            "2": "Инспектор",
-            "3": "Наблюдатель",
-            "4": "Администратор"
-        };
-        this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + role[app.profile.get("role")] + ")");
+        this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
         var t1 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
         }, 1000);
@@ -616,10 +610,9 @@ var MonitorView = Backbone.View.extend({
     formatAction: function(val, row) {
         var html = $('#action-item-tpl').html();
         var tpl = _.template(html);
-        var d = new Date();
-        var startDate = row.startDate;
-        var beginDate = new Date(row.beginDate);
-        var endDate = new Date(row.endDate);
+        var d = moment();
+        var beginDate = moment(row.beginDate);
+        var endDate = moment(row.endDate);
         return tpl({
             rowId: row._id,
             openEnabled: (beginDate <= d && endDate > d)
@@ -669,8 +662,8 @@ var MonitorView = Backbone.View.extend({
         }
         var text = this._TextSearch.textbox('getValue');
         var date = this._DateSearch.datebox('getValue');
-        var fromDate = date ? moment(date,'DD.MM.YYYY').toJSON() : null;
-        var toDate = date ? moment(date,'DD.MM.YYYY').add(1,'days').toJSON() : null;
+        var fromDate = date ? moment(date, 'DD.MM.YYYY').toJSON() : null;
+        var toDate = date ? moment(date, 'DD.MM.YYYY').add(1, 'days').toJSON() : null;
         this._Grid.datagrid('load', {
             status: status,
             from: fromDate,
@@ -1454,11 +1447,10 @@ var ScreenView = Backbone.View.extend({
 //
 var ScheduleView = Backbone.View.extend({
     initialize: function() {
+        // Variables
         var self = this;
-        // Student model
-        var Student = Backbone.Model.extend({
-            urlRoot: '/student'
-        });
+        this.historyFlag = false;
+        // Menu
         this._Menu = $('#main-menu');
         this._Menu.menu({
             onClick: function(item) {
@@ -1470,10 +1462,10 @@ var ScheduleView = Backbone.View.extend({
                         self.toggleHostory(item);
                         break;
                     case "profile":
-                        self.profile.doOpen();
+                        self.view.profile.doOpen();
                         break;
                     case "settings":
-                        self.settings.doOpen();
+                        self.view.settings.doOpen();
                         break;
                     case "logout":
                         self.doLogout();
@@ -1481,15 +1473,18 @@ var ScheduleView = Backbone.View.extend({
                 }
             }
         });
+        // jQuery selectors
         this._TimeWidget = this.$('.time-widget');
         this._CountdownWidget = this.$('.countdown-widget');
         this._StartBtn = this.$('.start-btn');
         this._Grid = this.$('.exams-table');
+        // Sub views
+        this.view = {
+            settings: new SettingsView(),
+            profile: new ProfileView()
+        };
+        // Timers
         this.timer = moment(0);
-        this.student = new Student();
-        this.settings = new SettingsView();
-        this.profile = new ProfileView();
-        this.historyFlag = false;
         // Current time timer
         var t1 = setInterval(function() {
             self._TimeWidget.text(moment().format('HH:mm:ss'));
@@ -1512,6 +1507,7 @@ var ScheduleView = Backbone.View.extend({
             self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
+        // Rendering
         this.render();
     },
     render: function() {
@@ -1558,9 +1554,11 @@ var ScheduleView = Backbone.View.extend({
                 var endDate = moment(row.endDate);
                 if (beginDate <= moment() && endDate > moment()) {
                     return 'background-color:#ccffcc;color:black';
-                } else if (endDate < moment()) {
+                }
+                else if (endDate < moment()) {
                     return 'background-color:#eee;color:black';
-                } else {
+                }
+                else {
                     return 'background-color:white;color:black';
                 }
             }
@@ -1570,8 +1568,6 @@ var ScheduleView = Backbone.View.extend({
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if (this.chat) this.chat.destroy();
-        if (this.video) this.video.destroy();
         this.remove();
     },
     isHistory: function() {
@@ -1611,13 +1607,13 @@ var ScheduleView = Backbone.View.extend({
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
         var duration = endDate - beginDate;
-        return moment(duration).utc().format('HH:mm:ss');
+        return moment(duration).utc().format('HH:mm');
     },
     formatDate: function(val, row) {
         if (val == null) return null;
         else {
             var d = new Date(val);
-            return moment(d).format('DD.MM.YYYY HH:mm:ss');
+            return moment(d).format('DD.MM.YYYY HH:mm');
         }
     },
     formatSubject: function(val, row) {
@@ -1630,57 +1626,59 @@ var ScheduleView = Backbone.View.extend({
 //
 var StudentView = Backbone.View.extend({
     events: {
-        "click .app-logout": "doLogout"
+        "click .finish-btn": "doFinish"
     },
     initialize: function() {
+        // Variables
         var self = this;
-        // Student model
-        var Student = Backbone.Model.extend({
-            urlRoot: '/student'
+        // Menu
+        this._Menu = $('#main-menu');
+        this._Menu.menu({
+            onClick: function(item) {
+                switch (item.name) {
+                    case "info":
+                        self.showExamInfo();
+                        break;
+                    case "profile":
+                        self.view.profile.doOpen();
+                        break;
+                    case "settings":
+                        self.view.settings.doOpen();
+                        break;
+                    case "logout":
+                        self.doLogout();
+                        break;
+                }
+            }
         });
+        // jQuery selectors
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
         this._StudentWidget = this.$('.student-widget');
         this._CuratorWidget = this.$('.curator-widget');
-        this.timer = moment(0);
-        this.student = new Student({
-            id: this.id
-        });
-        this.render();
-    },
-    render: function() {
-        var self = this;
-        this.student.fetch({
-            success: function(model, response, options) {
-                var startDate = model.get("startDate");
-                var duration = moment() - moment(startDate);
-                if (duration > 0) self.timer = moment(duration);
-                var student = model.get("student");
-                var curator = model.get("curator");
-                self._StudentWidget.text(student.lastname + " " + student.firstname.charAt(0) + "." + student.middlename.charAt(0) + ".");
-                self._StudentWidget.attr({
-                    title: student.lastname + " " + student.firstname + " " + student.middlename
-                });
-                self._CuratorWidget.text(curator[0].lastname + " " + curator[0].firstname.charAt(0) + "." + curator[0].middlename.charAt(0) + ".");
-                self._CuratorWidget.attr({
-                    title: curator[0].lastname + " " + curator[0].firstname + " " + curator[0].middlename
-                });
-                // Sub views
-                self.chat = new ChatView({
-                    el: $("#panel-chat"),
-                    id: 'chat-' + self.id
-                });
-                self.webcam = new WebcamView({
-                    el: $("#panel-webcam"),
-                    id: 'webcam-' + self.id
-                });
-                self.screen = new ScreenView({
-                    el: $("#panel-screen"),
-                    id: 'screen-' + self.id
-                });
-            }
-        });
+        this._ObserversWidget = this.$('.observers-widget');
+        this._FinishBtn = this.$('.finish-btn');
+        this._DialogExam = $('#exam-info-dlg');
+        this._ExamInfoTpl = $("#exam-info-tpl");
+        // Sub views
+        this.view = {
+            settings: new SettingsView(),
+            profile: new ProfileView(),
+            chat: new ChatView({
+                el: $("#panel-chat"),
+                id: 'chat-' + self.id
+            }),
+            webcam: new WebcamView({
+                el: $("#panel-webcam"),
+                id: 'webcam-' + self.id
+            }),
+            screen: new ScreenView({
+                el: $("#panel-screen"),
+                id: 'screen-' + self.id
+            })
+        };
+        // Resize widgets
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
             p.detach().appendTo(container).css({
@@ -1716,6 +1714,8 @@ var StudentView = Backbone.View.extend({
                 }
             });
         });
+        // Set timers
+        this.timer = moment(0);
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
@@ -1728,15 +1728,66 @@ var StudentView = Backbone.View.extend({
             self._TimeWidget.text(moment().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
+        // Student model
+        var Student = Backbone.Model.extend({
+            urlRoot: '/student'
+        });
+        this.student = new Student({
+            id: this.id
+        });
+        this.listenTo(this.student, 'change', this.render);
+        this.student.fetch();
+        // Socket notification
+        app.io.notify.on('update-' + this.id, function(data) {
+            self.student.fetch();
+        });
+    },
+    render: function() {
+        var startDate = this.student.get("startDate");
+        var duration = moment() - moment(startDate);
+        if (duration > 0) this.timer = moment(duration);
+        var curator = this.student.get("curator");
+        if (curator[0]) {
+            var amount = curator.length - 1;
+            var observers = "Наблюдатели не подключены";
+            if (amount > 0) {
+                observers = '<div style="font-weight:bold">Наблюдатели:</div>';
+                for (var i = 1; i <= amount; i++) {
+                    observers += '<div><i class="fa fa-caret-right"></i> ' + curator[i].lastname + ' ' + curator[i].firstname + ' ' + curator[i].middlename + '</div>';
+                }
+            }
+            this._CuratorWidget.text(curator[0].lastname + " " + curator[0].firstname + " " + curator[0].middlename + " (" + amount + ")");
+            var delta = -1 * this._ObserversWidget.width() / 2 + 5;
+            this._ObserversWidget.tooltip({
+                deltaX: delta,
+                content: observers
+            });
+        }
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if (this.chat) this.chat.destroy();
-        if (this.webcam) this.webcam.destroy();
-        if (this.screen) this.screen.destroy();
+        if (this.view.chat) this.view.chat.destroy();
+        if (this.view.webcam) this.view.webcam.destroy();
+        if (this.view.screen) this.view.screen.destroy();
         this.remove();
+    },
+    showExamInfo: function() {
+        var tpl = _.template(this._ExamInfoTpl.html());
+        var student = this.student.toJSON();
+        var html = tpl(student);
+        this._DialogExam.html(html);
+        this._DialogExam.dialog('open');
+    },
+    doFinish: function() {
+        $.messager.confirm('Завершить экзамен', 'Завершить текущий экзамен?', function(r) {
+            if (r) {
+                app.router.navigate("schedule", {
+                    trigger: true
+                });
+            }
+        });
     },
     doLogout: function() {
         app.logout();

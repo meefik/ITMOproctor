@@ -2,7 +2,7 @@
     <div data-options="region:'center',border:false">
         <table class="easyui-datagrid" height="100%" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
         </table>
-        <div id="toolbar">
+        <div id="toolbar" style="padding:3px;">
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn3" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>

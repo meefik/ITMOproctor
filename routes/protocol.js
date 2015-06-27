@@ -24,8 +24,8 @@ router.get('/:userId', function(req, res) {
     };
     db.protocol.add(args, function(err, data) {
         if(!err && data) {
-            req.notify('protocol');
             res.json(data);
+            req.notify('protocol');
         } else {
             res.status(400).end();
         }

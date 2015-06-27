@@ -25,8 +25,8 @@ router.post('/', function(req, res) {
     };
     db.notes.add(args, function(err, data) {
         if(!err && data) {
-            req.notify('notes');
             res.json(data);
+            req.notify('notes');
         } else {
             res.status(400).end();
         }
@@ -42,8 +42,8 @@ router.put('/:noteId', function(req, res) {
     };
     db.notes.update(args, function(err, data) {
         if(!err && data) {
-            req.notify('notes');
             res.json(data);
+            req.notify('notes');
         } else {
             res.status(400).end();
         }
@@ -58,8 +58,8 @@ router.delete('/:noteId', function(req, res) {
     };
     db.notes.delete(args, function(err, data) {
         if(!err && data) {
-            req.notify('notes');
             res.json(data);
+            req.notify('notes');
         } else {
             res.status(400).end();
         }

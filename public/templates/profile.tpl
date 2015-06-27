@@ -23,6 +23,10 @@
             <td>Электронный адрес:</td>
             <td><%- user.email %></td>
         </tr>
+        <tr>
+            <td>Роль в системе:</td>
+            <td><%- user.roleName %></td>
+        </tr>
         </table>
     </div>
 </div>

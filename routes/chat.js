@@ -25,8 +25,8 @@ router.post('/', function(req, res) {
     };
     db.chat.add(args, function(err, data) {
         if(!err && data) {
-            req.notify('chat');
             res.json(data);
+            req.notify('chat');
         } else {
             res.status(400).end();
         }

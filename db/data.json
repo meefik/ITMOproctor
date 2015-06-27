@@ -1,8 +1,8 @@
 {
     "user": [{
         "_id": "55633e000cf842a221a37ad5",
-        "username": "inspector",
-        "password": "inspector",
+        "username": "inspector1",
+        "password": "inspector1",
         "salt": "secret",
         "lastname": "Пертов",
         "firstname": "Петр",
@@ -15,10 +15,26 @@
             "fileId": "557f2220a9d6add27206cb71",
             "filename": "scan1.png"
         }]
-    },{
+    }, {
+        "_id": "55633e000cf842a221a37ae1",
+        "username": "inspector2",
+        "password": "inspector2",
+        "salt": "secret",
+        "lastname": "Сидоров",
+        "firstname": "Анатолий",
+        "middlename": "Семенович",
+        "gender": "Мужской",
+        "birthday": "1981-07-02T00:00:00.000Z",
+        "email": "inspector@example.com",
+        "role": 2,
+        "photo": [{
+            "fileId": "557f2220a9d6add27206cb71",
+            "filename": "scan1.png"
+        }]
+    }, {
         "_id": "55633e000cf842a221a37ae3",
-        "username": "student",
-        "password": "student",
+        "username": "student1",
+        "password": "student1",
         "salt": "secret",
         "lastname": "Иванов",
         "firstname": "Иван",

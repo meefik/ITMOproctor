@@ -78,7 +78,17 @@ User.virtual('password').set(function(password) {
 User.methods.validPassword = function(password) {
     return this.encryptPassword(password) === this.hashedPassword;
 };
+User.virtual('roleName').get(function() {
+    var role = {
+        "1": "Студент",
+        "2": "Инспектор",
+        "3": "Наблюдатель",
+        "4": "Администратор"
+    };
+    return role[this.role];
+});
 User.set('toJSON', {
+    virtuals: true,
     transform: function(doc, ret, options) {
         delete ret.hashedPassword;
         delete ret.salt;
