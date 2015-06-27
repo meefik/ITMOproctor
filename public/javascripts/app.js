@@ -317,7 +317,7 @@ var Workspace = Backbone.Router.extend({
         "monitor": "monitor",
         "vision/:examid": "vision",
         "play/:examid": "play",
-        "countdown": "countdown",
+        "schedule": "schedule",
         "student/:examid": "student",
         "admin": "admin"
     },
@@ -327,7 +327,7 @@ var Workspace = Backbone.Router.extend({
             var navigate = "login";
             switch (role) {
                 case 1:
-                    navigate = "countdown";
+                    navigate = "schedule";
                     break;
                 case 2:
                 case 3:
@@ -380,13 +380,13 @@ var Workspace = Backbone.Router.extend({
             app.content = view;
         });
     },
-    countdown: function() {
-        console.log("route: #countdown");
+    schedule: function() {
+        console.log("route: #schedule");
         if (this.redirect()) return;
         this.destroy();
-        app.render("/templates/countdown.tpl", function() {
-            var view = new CountdownView({
-                el: $("#countdown")
+        app.render("/templates/schedule.tpl", function() {
+            var view = new ScheduleView({
+                el: $("#schedule")
             });
             app.content = view;
         });
@@ -1450,9 +1450,9 @@ var ScreenView = Backbone.View.extend({
     }
 });
 //
-// Countdown view
+// Schedule view
 //
-var CountdownView = Backbone.View.extend({
+var ScheduleView = Backbone.View.extend({
     initialize: function() {
         var self = this;
         // Student model
@@ -1463,6 +1463,9 @@ var CountdownView = Backbone.View.extend({
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
+                    case "refresh":
+                        self.refreshTable();
+                        break;
                     case "history":
                         self.toggleHostory(item);
                         break;
@@ -1551,11 +1554,13 @@ var CountdownView = Backbone.View.extend({
                 }
             },
             rowStyler: function(index, row) {
+                var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
-                if (endDate < moment()) {
+                if (beginDate <= moment() && endDate > moment()) {
+                    return 'background-color:#ccffcc;color:black';
+                } else if (endDate < moment()) {
                     return 'background-color:#eee;color:black';
-                }
-                else {
+                } else {
                     return 'background-color:white;color:black';
                 }
             }
@@ -1589,6 +1594,9 @@ var CountdownView = Backbone.View.extend({
         this._Grid.datagrid('load', {
             history: this.isHistory()
         });
+    },
+    refreshTable: function() {
+        this._Grid.datagrid('reload');
     },
     doLogout: function() {
         app.logout();
