@@ -72,9 +72,12 @@ var Profile = Backbone.Model.extend({
 var Webcall = Backbone.Model.extend({
     initialize: function() {
         var self = this;
+        this.mute = false;
+        this.setCallState('NO_CALL');
         this.constraints = this.get("constraints");
         this.videoInput = this.get("input");
         this.videoOutput = this.get("output");
+        this.userId = this.get("userid");
         this.socket = this.get("socket");
         this.socket.on('message', function(message) {
             var parsedMessage = JSON.parse(message);
@@ -100,9 +103,16 @@ var Webcall = Backbone.Model.extend({
                     console.error('Unrecognized message', parsedMessage);
             }
         });
+        this.register();
+        this.socket.on('connect', function() {
+            if (self.registerState != 'REGISTERING') {
+                self.register();
+            }
+        });
     },
     destroy: function() {
-        this.stop(true);
+        this.stop();
+        this.socket.removeListener('connect');
         this.socket.removeListener('message');
     },
     setRegisterState: function(nextState) {
@@ -116,7 +126,6 @@ var Webcall = Backbone.Model.extend({
                 break;
             case 'REGISTERED':
                 // ...
-                this.setCallState('NO_CALL');
                 break;
             default:
                 return;
@@ -176,9 +185,8 @@ var Webcall = Backbone.Model.extend({
             return this.sendMessage(response);
         }
         this.setCallState('PROCESSING_CALL');
-        //if (confirm('User ' + message.from + ' is calling you. Do you accept the call?')) {
-        self.showSpinner(self.videoInput, self.videoOutput);
-        self.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(self.videoInput, self.videoOutput, function(sdp, wp) {
+        this.showSpinner(this.videoInput, this.videoOutput);
+        this.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(this.videoInput, this.videoOutput, function(sdp, wp) {
             var response = {
                 id: 'incomingCallResponse',
                 from: message.from,
@@ -189,17 +197,6 @@ var Webcall = Backbone.Model.extend({
         }, function(error) {
             self.setCallState('NO_CALL');
         }, self.constraints);
-        /*}
-        else {
-            var response = {
-                id: 'incomingCallResponse',
-                from: message.from,
-                callResponse: 'reject',
-                message: 'user declined'
-            };
-            self.sendMessage(response);
-            self.stop(true);
-        }*/
     },
     startCommunication: function(message) {
         this.setCallState('IN_CALL');
@@ -210,28 +207,34 @@ var Webcall = Backbone.Model.extend({
         console.log('Senging message: ' + jsonMessage);
         this.socket.send(jsonMessage);
     },
-    register: function(name) {
+    register: function() {
         this.setRegisterState('REGISTERING');
         var message = {
             id: 'register',
-            name: name
+            name: this.userId
         };
         this.sendMessage(message);
     },
-    call: function(name, peer) {
+    call: function(peer) {
+        if (this.callState != 'NO_CALL') return;
         var self = this;
         this.setCallState('PROCESSING_CALL');
         this.showSpinner(this.videoInput, this.videoOutput);
         kurentoUtils.WebRtcPeer.startSendRecv(this.videoInput, this.videoOutput, function(offerSdp, wp) {
-            self.webRtcPeer = wp;
-            console.log('Invoking SDP offer callback function');
-            var message = {
-                id: 'call',
-                from: name,
-                to: peer,
-                sdpOffer: offerSdp
-            };
-            self.sendMessage(message);
+            if (self.callState == 'NO_CALL') {
+                wp.dispose();
+            }
+            else {
+                self.webRtcPeer = wp;
+                console.log('Invoking SDP offer callback function');
+                var message = {
+                    id: 'call',
+                    from: self.userId,
+                    to: peer,
+                    sdpOffer: offerSdp
+                };
+                self.sendMessage(message);
+            }
         }, function(error) {
             console.log(error);
             self.setCallState('NO_CALL');
@@ -242,12 +245,12 @@ var Webcall = Backbone.Model.extend({
         if (this.webRtcPeer) {
             this.webRtcPeer.dispose();
             this.webRtcPeer = null;
-            if (!message) {
-                var message = {
-                    id: 'stop'
-                }
-                this.sendMessage(message);
+        }
+        if (!message) {
+            var message = {
+                id: 'stop'
             }
+            this.sendMessage(message);
         }
         this.hideSpinner(this.videoInput, this.videoOutput);
     },
@@ -277,6 +280,21 @@ var Webcall = Backbone.Model.extend({
             }
             if (callback) callback(mediaSources);
         });
+    },
+    toggleMute: function(mute) {
+        if (typeof mute != 'undefined') {
+            this.mute = mute;
+            return this.mute;
+        }
+        if (!this.webRtcPeer) {
+            return false;
+        }
+        else {
+            var audioTracks = this.webRtcPeer.pc.getLocalStreams()[0].getAudioTracks();
+            audioTracks[0].enabled = this.mute;
+            this.mute = !this.mute;
+            return this.mute;
+        }
     }
 });
 //
@@ -484,13 +502,12 @@ var MonitorView = Backbone.View.extend({
         "click .status-btn2": "doSearch",
         "click .status-btn3": "doSearch",
         "click .grid-reload": "doReload",
-        "click .app-logout": "doLogout"
     },
     initialize: function() {
-        // Monitor model
-        this.Monitor = Backbone.Model.extend({
-            urlRoot: '/monitor'
-        });
+        // Variables
+        var self = this;
+        // jQuery selectors
+        this._Menu = $('#main-menu');
         this._Grid = this.$(".easyui-datagrid");
         this._DateSearch = this.$(".date-search");
         this._TextSearch = this.$(".text-search");
@@ -501,6 +518,50 @@ var MonitorView = Backbone.View.extend({
         this._LoguserWidget = this.$(".loguser-widget");
         this._DialogInfo = $("#exam-info-dlg");
         this._ExamInfoTpl = $("#exam-info-tpl");
+        // Event handlers
+        this._Menu.menu({
+            onClick: function(item) {
+                switch (item.name) {
+                    case "profile":
+                        self.view.profile.doOpen();
+                        break;
+                    case "settings":
+                        self.view.settings.doOpen();
+                        break;
+                    case "logout":
+                        app.logout();
+                        break;
+                }
+            }
+        });
+        this._DateSearch.datebox({
+            value: moment().format("DD.MM.YYYY"),
+            onChange: function(date) {
+                var valid = moment(date, "DD.MM.YYYY", true).isValid();
+                if (!date || valid) self.doSearch();
+            }
+        });
+        this._TextSearch.searchbox({
+            searcher: function(value, name) {
+                self.doSearch();
+            }
+        });
+        // Sub views
+        this.view = {
+            settings: new SettingsView(),
+            profile: new ProfileView()
+        };
+        // Timers
+        var t1 = setInterval(function() {
+            self._TimeWidget.text(moment().format('HH:mm:ss'));
+        }, 1000);
+        this.timers = [t1];
+        // Monitor model
+        var Monitor = Backbone.Model.extend({
+            urlRoot: '/monitor'
+        });
+        this.monitor = new Monitor();
+        // Rendering
         this.render();
     },
     destroy: function() {
@@ -561,23 +622,7 @@ var MonitorView = Backbone.View.extend({
                 to: moment().startOf('day').add(1, 'days').toJSON()
             }
         });
-        this._DateSearch.datebox({
-            value: moment().format("DD.MM.YYYY"),
-            onChange: function(date) {
-                var valid = moment(date, "DD.MM.YYYY", true).isValid();
-                if (!date || valid) self.doSearch();
-            }
-        });
-        this._TextSearch.searchbox({
-            searcher: function(value, name) {
-                self.doSearch();
-            }
-        });
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
-        var t1 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
-        }, 1000);
-        this.timers = [t1];
     },
     formatStatus: function(val, row) {
         var status = 0;
@@ -630,7 +675,7 @@ var MonitorView = Backbone.View.extend({
         if (val == null) return null;
         else {
             var d = new Date(val);
-            return moment(d).format('DD.MM.YYYY HH:mm:ss');
+            return moment(d).format('DD.MM.YYYY HH:mm');
         }
     },
     formatSubject: function(val, row) {
@@ -675,13 +720,10 @@ var MonitorView = Backbone.View.extend({
         this._Grid.datagrid('reload');
     },
     doInfo: function(rowid) {
-        console.log("info " + rowid);
         var self = this;
         var tpl = _.template(this._ExamInfoTpl.html());
-        var monitor = new this.Monitor({
-            id: rowid
-        });
-        monitor.fetch({
+        this.monitor.set('id', rowid);
+        this.monitor.fetch({
             success: function(model, response, options) {
                 var html = tpl(model.toJSON());
                 self._DialogInfo.html(html);
@@ -693,9 +735,6 @@ var MonitorView = Backbone.View.extend({
         app.router.navigate("vision/" + rowid, {
             trigger: true
         });
-    },
-    doLogout: function() {
-        app.logout();
     }
 });
 //
@@ -710,11 +749,11 @@ var VisionView = Backbone.View.extend({
         "click .exam-apply-btn": "applyExam"
     },
     initialize: function() {
+        // Variables
         var self = this;
-        // Vision model
-        var Vision = Backbone.Model.extend({
-            urlRoot: '/vision'
-        });
+        this.protectionCode = null;
+        // jQuery selectors
+        this._Menu = $('#main-menu');
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
@@ -733,6 +772,22 @@ var VisionView = Backbone.View.extend({
         this._RejectText = this._DialogConfirm.find('.reject-text');
         this._StudentInfoTpl = $("#student-info-tpl");
         this._ExamInfoTpl = $("#exam-info-tpl");
+        // Event handlers
+        this._Menu.menu({
+            onClick: function(item) {
+                switch (item.name) {
+                    case "profile":
+                        self.view.profile.doOpen();
+                        break;
+                    case "settings":
+                        self.view.settings.doOpen();
+                        break;
+                    case "logout":
+                        app.logout();
+                        break;
+                }
+            }
+        });
         // set validate method
         $.extend($.fn.validatebox.defaults.rules, {
             protectionCode: {
@@ -742,46 +797,12 @@ var VisionView = Backbone.View.extend({
                 message: 'Неверный код подтверждения'
             }
         });
-        this.timer = moment(0);
-        this.vision = new Vision({
-            id: this.id
+        // set protection code method
+        this._ProtectionCodeInput.validatebox({
+            required: true,
+            validType: 'protectionCode',
         });
-        this.render();
-    },
-    render: function() {
-        var self = this;
-        this.vision.fetch({
-            success: function(model, response, options) {
-                var student = model.get("student");
-                var subject = model.get("subject");
-                var startDate = model.get("startDate");
-                var duration = moment() - moment(startDate);
-                if (duration > 0) self.timer = moment(duration);
-                self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
-                self._ExamWidget.text(subject.title + " (" + subject.code + ")");
-                // Sub views
-                self.notes = new NotesView({
-                    el: $("#panel-notes"),
-                    id: 'notes-' + self.id
-                });
-                self.chat = new ChatView({
-                    el: $("#panel-chat"),
-                    id: 'chat-' + self.id
-                });
-                self.protocol = new ProtocolView({
-                    el: $("#panel-protocol"),
-                    id: 'protocol-' + self.id
-                });
-                self.webcam = new WebcamView({
-                    el: $("#panel-webcam"),
-                    id: 'webcam-' + self.id
-                });
-                self.screen = new ScreenView({
-                    el: $("#panel-screen"),
-                    id: 'screen-' + self.id
-                });
-            }
-        });
+        // Resize widgets
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
             p.detach().appendTo(container).css({
@@ -815,12 +836,42 @@ var VisionView = Backbone.View.extend({
                 }
             });
         });
-        this._ProtectionCodeInput.validatebox({
-            required: true,
-            validType: 'protectionCode',
+        // Vision model
+        var Vision = Backbone.Model.extend({
+            urlRoot: '/vision'
         });
-        this._StudentWidget.text();
-        this._ExamWidget.text();
+        this.vision = new Vision({
+            id: this.id
+        });
+        // Sub views
+        this.view = {
+            settings: new SettingsView(),
+            profile: new ProfileView(),
+            notes: new NotesView({
+                el: $("#panel-notes"),
+                id: 'notes-' + this.id
+            }),
+            chat: new ChatView({
+                el: $("#panel-chat"),
+                id: 'chat-' + this.id
+            }),
+            protocol: new ProtocolView({
+                el: $("#panel-protocol"),
+                id: 'protocol-' + this.id
+            }),
+            webcam: new WebcamView({
+                el: $("#panel-webcam"),
+                id: 'webcam-' + this.id
+            }),
+            screen: new ScreenView({
+                el: $("#panel-screen"),
+                id: 'screen-' + this.id
+            })
+        };
+        this.view.webcam.toolbar();
+        this.view.screen.toolbar();
+        // Timers
+        this.timer = moment(0);
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
@@ -833,16 +884,33 @@ var VisionView = Backbone.View.extend({
             self._TimeWidget.text(moment().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
+        // Rendering
+        this.render();
+    },
+    render: function() {
+        var self = this;
+        this.vision.fetch({
+            success: function(model, response, options) {
+                var student = model.get("student");
+                var subject = model.get("subject");
+                var startDate = model.get("startDate");
+                var duration = moment() - moment(startDate);
+                if (duration > 0) self.timer = moment(duration);
+                self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
+                self._ExamWidget.text(subject.title + " (" + subject.code + ")");
+
+            }
+        });
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
             clearInterval(element);
         });
-        if (this.notes) this.notes.destroy();
-        if (this.protocol) this.protocol.destroy();
-        if (this.chat) this.chat.destroy();
-        if (this.webcam) this.webcam.destroy();
-        if (this.screen) this.screen.destroy();
+        if (this.view.notes) this.view.notes.destroy();
+        if (this.view.protocol) this.view.protocol.destroy();
+        if (this.view.chat) this.view.chat.destroy();
+        if (this.view.webcam) this.view.webcam.destroy();
+        if (this.view.screen) this.view.screen.destroy();
         this.remove();
     },
     showStudentInfo: function() {
@@ -1089,6 +1157,7 @@ var NotesView = Backbone.View.extend({
         });
     },
     destroy: function() {
+        app.io.notify.removeListener(this.id);
         this.remove();
     },
     add: function() {
@@ -1186,6 +1255,7 @@ var ChatView = Backbone.View.extend({
         });
     },
     destroy: function() {
+        app.io.notify.removeListener(this.id);
         this.remove();
     },
     doSend: function() {
@@ -1321,6 +1391,7 @@ var ProtocolView = Backbone.View.extend({
         });
     },
     destroy: function() {
+        app.io.notify.removeListener(this.id);
         this.remove();
     },
     appendItem: function(model) {
@@ -1359,42 +1430,88 @@ var WebcamView = Backbone.View.extend({
         });
         var videoInput = this._VideoInput.get(0);
         var videoOutput = this._VideoOutput.get(0);
+        // Settings
+        var audioSource = app.settings.get('webcamera-audio');
+        audioSource = audioSource ? audioSource.get('value') : null;
+        var videoSource = app.settings.get('webcamera-video');
+        videoSource = videoSource ? videoSource.get('value') : null;
+        var resolution = app.settings.get('screen-resolution');
+        resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
+        var fps = app.settings.get('screen-fps');
+        fps = fps ? fps.get('value') : 15;
         var constraints = {
-            audio: true,
+            audio: {
+                optional: [{
+                    sourceId: audioSource
+                }]
+            },
             video: {
                 mandatory: {
-                    maxWidth: 640,
-                    maxHeight: 480,
-                    maxFrameRate: 15,
-                    minFrameRate: 5
-                }
+                    maxWidth: resolution[0],
+                    maxHeight: resolution[1],
+                    maxFrameRate: fps,
+                    minFrameRate: 1
+                },
+                optional: [{
+                    sourceId: videoSource
+                }]
             }
         };
         this.webcall = new Webcall({
             socket: app.io.call,
             constraints: constraints,
             input: videoInput,
-            output: videoOutput
+            output: videoOutput,
+            userid: "webcam-" + app.profile.get('_id')
         });
-        var self = this;
+        /*var self = this;
         this.webcall.getMediaSources('video', function(sources) {
             constraints.video.optional = [{
-                sourceId: sources[0].id
+                sourceId: sources[1].id
             }];
-            var prefix = "webcam-";
-            var name = prefix + app.profile.get('_id');
-            self.webcall.register(name);
-            // if student
-            if (app.profile.get("role") === 2) {
-                console.log("call");
-                var peer = prefix + app.content.vision.get('student')._id;
-                self.webcall.call(name, peer);
-            }
-        });
+        });*/
     },
     destroy: function() {
         if (this.webcall) this.webcall.destroy();
         this.remove();
+    },
+    toolbar: function() {
+        var self = this;
+        this.$el.panel({
+            tools: [{
+                iconCls: 'fa fa-play',
+                handler: function() {
+                    self.play();
+                    self.webcall.toggleMute(false);
+                    $(this).parent().find('.fa-microphone-slash').attr('class', 'fa fa-microphone');
+                }
+            }, {
+                iconCls: 'fa fa-pause',
+                handler: function() {
+                    self.stop();
+                    self.webcall.toggleMute(false);
+                    $(this).parent().find('.fa-microphone-slash').attr('class', 'fa fa-microphone');
+                }
+            }, {
+                iconCls: 'fa fa-microphone',
+                handler: function() {
+                    var mute = self.webcall.toggleMute();
+                    if (mute) {
+                        $(this).attr('class', 'fa fa-microphone-slash');
+                    }
+                    else {
+                        $(this).attr('class', 'fa fa-microphone');
+                    }
+                }
+            }]
+        });
+    },
+    play: function() {
+        var peer = "webcam-" + app.content.vision.get('student')._id;
+        this.webcall.call(peer);
+    },
+    stop: function() {
+        this.webcall.stop();
     }
 });
 //
@@ -1402,44 +1519,67 @@ var WebcamView = Backbone.View.extend({
 //
 var ScreenView = Backbone.View.extend({
     initialize: function() {
+        this.prefix = "screen-";
         this._VideoInput = this.$(".video-input");
         this._VideoOutput = this.$(".video-output");
         var videoInput = this._VideoInput.get(0);
         var videoOutput = this._VideoOutput.get(0);
+        // Settings
+        var resolution = app.settings.get('screen-resolution');
+        resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
+        var fps = app.settings.get('screen-fps');
+        fps = fps ? fps.get('value') : 15;
+        var sourceId = app.settings.get('screen-id');
+        sourceId = sourceId ? sourceId.get('value') : 'screen:0';
         var constraints = {
             audio: false,
             video: {
                 mandatory: {
-                    maxWidth: 640,
-                    maxHeight: 480,
-                    maxFrameRate: 15,
-                    minFrameRate: 5
+                    maxWidth: resolution[0],
+                    maxHeight: resolution[1],
+                    maxFrameRate: fps,
+                    minFrameRate: 1
                 }
             }
         };
         if (videoInput) {
             constraints.video.mandatory.chromeMediaSource = 'desktop';
-            constraints.video.mandatory.chromeMediaSourceId = 'screen:0';
+            constraints.video.mandatory.chromeMediaSourceId = sourceId;
         }
         this.webcall = new Webcall({
             socket: app.io.screen,
             constraints: constraints,
             input: videoInput,
-            output: videoOutput
+            output: videoOutput,
+            userid: "screen-" + app.profile.get('_id')
         });
-        var prefix = "screen-";
-        var name = prefix + app.profile.get('_id');
-        this.webcall.register(name);
-        // if student
-        if (app.profile.get("role") === 2) {
-            console.log("call");
-            var peer = prefix + app.content.vision.get('student')._id;
-            this.webcall.call(name, peer);
-        }
     },
     destroy: function() {
         if (this.webcall) this.webcall.destroy();
         this.remove();
+    },
+    toolbar: function() {
+        var self = this;
+        this.$el.panel({
+            tools: [{
+                iconCls: 'fa fa-play',
+                handler: function() {
+                    self.play();
+                }
+            }, {
+                iconCls: 'fa fa-pause',
+                handler: function() {
+                    self.stop();
+                }
+            }]
+        });
+    },
+    play: function() {
+        var peer = "screen-" + app.content.vision.get('student')._id;
+        this.webcall.call(peer);
+    },
+    stop: function() {
+        this.webcall.stop();
     }
 });
 //
@@ -1450,8 +1590,13 @@ var ScheduleView = Backbone.View.extend({
         // Variables
         var self = this;
         this.historyFlag = false;
-        // Menu
+        // jQuery selectors
         this._Menu = $('#main-menu');
+        this._TimeWidget = this.$('.time-widget');
+        this._CountdownWidget = this.$('.countdown-widget');
+        this._StartBtn = this.$('.start-btn');
+        this._Grid = this.$('.exams-table');
+        // Event handlers
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
@@ -1468,16 +1613,11 @@ var ScheduleView = Backbone.View.extend({
                         self.view.settings.doOpen();
                         break;
                     case "logout":
-                        self.doLogout();
+                        app.logout();
                         break;
                 }
             }
         });
-        // jQuery selectors
-        this._TimeWidget = this.$('.time-widget');
-        this._CountdownWidget = this.$('.countdown-widget');
-        this._StartBtn = this.$('.start-btn');
-        this._Grid = this.$('.exams-table');
         // Sub views
         this.view = {
             settings: new SettingsView(),
@@ -1594,9 +1734,6 @@ var ScheduleView = Backbone.View.extend({
     refreshTable: function() {
         this._Grid.datagrid('reload');
     },
-    doLogout: function() {
-        app.logout();
-    },
     doStart: function() {
         app.router.navigate("student/" + this.examId, {
             trigger: true
@@ -1631,8 +1768,18 @@ var StudentView = Backbone.View.extend({
     initialize: function() {
         // Variables
         var self = this;
-        // Menu
+        // jQuery selectors
         this._Menu = $('#main-menu');
+        this._NetworkWidget = this.$('.network-widget');
+        this._TimeWidget = this.$('.time-widget');
+        this._DurationWidget = this.$('.duration-widget');
+        this._StudentWidget = this.$('.student-widget');
+        this._CuratorWidget = this.$('.curator-widget');
+        this._ObserversWidget = this.$('.observers-widget');
+        this._FinishBtn = this.$('.finish-btn');
+        this._DialogExam = $('#exam-info-dlg');
+        this._ExamInfoTpl = $("#exam-info-tpl");
+        // Event handlers
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
@@ -1646,21 +1793,11 @@ var StudentView = Backbone.View.extend({
                         self.view.settings.doOpen();
                         break;
                     case "logout":
-                        self.doLogout();
+                        app.logout();
                         break;
                 }
             }
         });
-        // jQuery selectors
-        this._NetworkWidget = this.$('.network-widget');
-        this._TimeWidget = this.$('.time-widget');
-        this._DurationWidget = this.$('.duration-widget');
-        this._StudentWidget = this.$('.student-widget');
-        this._CuratorWidget = this.$('.curator-widget');
-        this._ObserversWidget = this.$('.observers-widget');
-        this._FinishBtn = this.$('.finish-btn');
-        this._DialogExam = $('#exam-info-dlg');
-        this._ExamInfoTpl = $("#exam-info-tpl");
         // Sub views
         this.view = {
             settings: new SettingsView(),
@@ -1714,7 +1851,7 @@ var StudentView = Backbone.View.extend({
                 }
             });
         });
-        // Set timers
+        // Timers
         this.timer = moment(0);
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
@@ -1771,6 +1908,7 @@ var StudentView = Backbone.View.extend({
         if (this.view.chat) this.view.chat.destroy();
         if (this.view.webcam) this.view.webcam.destroy();
         if (this.view.screen) this.view.screen.destroy();
+        app.io.notify.removeListener('update-' + this.id);
         this.remove();
     },
     showExamInfo: function() {
@@ -1788,9 +1926,6 @@ var StudentView = Backbone.View.extend({
                 });
             }
         });
-    },
-    doLogout: function() {
-        app.logout();
     }
 });
 //
@@ -1808,7 +1943,7 @@ var SettingsView = Backbone.View.extend({
             modal: true,
             href: '/templates/settings.tpl',
             onLoad: function() {
-                self.render(this);
+                self.render();
             },
             buttons: [{
                 text: 'Сохранить',
@@ -1826,7 +1961,7 @@ var SettingsView = Backbone.View.extend({
         });
         this._Dialog = $(dialog);
     },
-    render: function(obj) {
+    render: function() {
         function getMediaSources(kind, callback) {
             MediaStreamTrack.getSources(function(sources) {
                 var mediaSources = [];
@@ -1842,10 +1977,10 @@ var SettingsView = Backbone.View.extend({
                 if (callback) callback(mediaSources);
             });
         };
-        this._ScreenBtn = $(obj).find('.screen-btn');
-        this._WebcameraAudio = $(obj).find('.webcamera-audio');
-        this._WebcameraVideo = $(obj).find('.webcamera-video');
-        this._SettingsForm = $(obj).find('.settings-form');
+        this._ScreenBtn = this.$('.screen-btn');
+        this._WebcameraAudio = this.$('.webcamera-audio');
+        this._WebcameraVideo = this.$('.webcamera-video');
+        this._SettingsForm = this.$('.settings-form');
         this._ScreenBtn.click(function() {
             console.log('postMessage chooseSreenId');
             parent.postMessage('chooseSreenId', '*');
@@ -1869,6 +2004,7 @@ var SettingsView = Backbone.View.extend({
         });
     },
     doOpen: function() {
+        this.render();
         this._Dialog.dialog('open');
     },
     doSave: function() {

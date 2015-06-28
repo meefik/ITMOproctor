@@ -1,8 +1,14 @@
 <div id="monitor" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-calendar"></i>Расписание экзаменов</span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+        </div>
+    </div>
     <div data-options="region:'center',border:false">
         <table class="easyui-datagrid" height="100%" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
         </table>
-        <div id="toolbar" style="padding:3px;">
+        <div id="toolbar">
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn3" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>
@@ -13,13 +19,18 @@
     </div>
     <div data-options="region:'south',border:false">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong class="time-widget">00:00:00</strong></span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-user'"><span class="loguser-widget">...</span></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton app-logout" data-options="iconCls:'fa fa-sign-out'" style="float:right;">Выход</a>
+            <span class="text-item"><i class="fa fa-clock-o"></i>Текущее время: <strong class="time-widget">00:00:00</strong></span>
+            <span class="text-item" style="float:right"><i class="fa fa-user"></i><span class="loguser-widget">...</span></span>
         </div>
     </div>
 </div>
 <div id="exam-info-dlg" class="easyui-dialog" title="Информация об экзамене" style="width:600px;height:400px;" data-options="iconCls:'fa fa-info-circle',resizable:true,modal:true,closed:true">
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
 </div>
 <script type="text/template" id="exam-info-tpl">
 <table width="100%" height="100%" cellpadding="5">

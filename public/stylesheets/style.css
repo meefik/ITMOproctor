@@ -9,7 +9,14 @@ body {
     width: 100%;
 }
 .fa {
+    line-height: 1em;
     padding-top: 0.2em;
+    text-decoration: none;
+}
+.panel-tool a {
+    text-align: center;
+    text-decoration: none;
+    color: #333;
 }
 #panel-webcam,
 #panel-screen {

@@ -138,7 +138,7 @@ module.exports = function(io, targets) {
                 console.log('Connection ' + sessionId + ' received message ', message);
                 switch (message.id) {
                     case 'register':
-                        register(sessionId, message.name, ws);
+                        sessionId = register(sessionId, message.name, ws);
                         break;
                     case 'call':
                         call(sessionId, message.to, message.from, message.sdpOffer);
@@ -283,13 +283,6 @@ module.exports = function(io, targets) {
         if (!name) {
             return onError("empty user name");
         }
-        var user = userRegistry.getByName(name);
-        if (user) {
-            //return onError("already registered");
-            stop(user.id);
-            userRegistry.unregister(user.id);
-        }
-        userRegistry.register(new UserSession(id, name, ws));
         try {
             ws.send(JSON.stringify({
                 id: 'registerResponse',
@@ -298,6 +291,18 @@ module.exports = function(io, targets) {
         }
         catch (exception) {
             onError(exception);
+        }
+        var user = userRegistry.getByName(name);
+        if (user) {
+            //return onError("already registered");
+            //stop(user.id);
+            //userRegistry.unregister(user.id);
+            user.ws = ws;
+            return user.id;
+        }
+        else {
+            userRegistry.register(new UserSession(id, name, ws));
+            return id;
         }
     }
 
@@ -317,7 +322,7 @@ module.exports = function(io, targets) {
             callback(null, kurentoClient);
         });
     }
-    
+
     //Bind sockets
     for (var i in targets) {
         var socket = io.of(targets[i]);

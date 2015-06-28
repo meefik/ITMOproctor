@@ -18,13 +18,18 @@
                     <tr>
                         <td>Разрешение:</td>
                         <td>
-                            <input class="easyui-combobox webcamera-resolution" name="webcamera-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
+                            <select class="easyui-combobox webcamera-resolution" name="webcamera-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
+                                <option value="1280x720">1280 x 720</option>
+                                <option value="960x720">960 x 720</option>
+                                <option value="854x480">854 x 480</option>
+                                <option value="640x480">640 x 480</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
                         <td>Частота кадров:</td>
                         <td>
-                            <input class="easyui-numberspinner webcamera-fps" name="webcamera-fps" data-options="width:120">
+                            <input class="easyui-numberspinner webcamera-fps" name="webcamera-fps" data-options="width:120" value="15">
                         </td>
                     </tr>
                 </table>
@@ -41,13 +46,18 @@
                     <tr>
                         <td>Разрешение:</td>
                         <td>
-                            <input class="easyui-combobox screen-resolution" name="screen-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
+                            <select class="easyui-combobox screen-resolution" name="screen-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
+                                <option value="1280x720">1280 x 720</option>
+                                <option value="960x720">960 x 720</option>
+                                <option value="854x480">854 x 480</option>
+                                <option value="640x480">640 x 480</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
                         <td>Частота кадров:</td>
                         <td>
-                            <input class="easyui-numberspinner screen-fps" name="screen-fps" data-options="width:120">
+                            <input class="easyui-numberspinner screen-fps" name="screen-fps" data-options="width:120" value="5">
                         </td>
                     </tr>
                 </table>

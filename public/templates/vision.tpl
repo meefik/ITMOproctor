@@ -2,6 +2,7 @@
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</a>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
             <a href="javascript:void(0)" class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></a>
         </div>
@@ -97,19 +98,19 @@
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-exchange'">Качество связи: <strong><span class="network-widget">100%</span>
-            </strong>
-            </span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-clock-o'">Текущее время: <strong><span class="time-widget">00:00:00</span>
-            </strong>
-            </span>
-            <span class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-history'">Продолжительность: <strong><span class="duration-widget">00:00:00</span>
-            </strong>
-            </span>
+            <span class="text-item"><i class="fa fa-exchange"></i>Качество связи: <span class="network-widget" style="font-weight:bold">100%</span></span>
+            <span class="text-item"><i class="fa fa-clock-o"></i>Текущее время: <span class="time-widget" style="font-weight:bold">00:00:00</span></span>
+            <span class="text-item"><i class="fa fa-play"></i>Продолжительность: <span class="duration-widget" style="font-weight:bold">00:00:00</span></span>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</a>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</a>
         </div>
     </div>
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
 </div>
 <!-- Dialogs -->
 <div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,closed:true"></div>
