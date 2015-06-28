@@ -818,7 +818,7 @@ var VisionView = Backbone.View.extend({
                 if (element.src != '') {
                     element.play();
                 }
-                if (element.className == 'videoInput') {
+                if (element.className == 'video-input') {
                     element.style.left = '';
                     element.style.bottom = '';
                     element.style.top = '5px';
@@ -1828,7 +1828,7 @@ var StudentView = Backbone.View.extend({
                 if (element.src != '') {
                     element.play();
                 }
-                if (element.className == 'videoInput') {
+                if (element.className == 'video-input') {
                     element.style.left = '';
                     element.style.bottom = '';
                     element.style.top = '5px';
