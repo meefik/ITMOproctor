@@ -807,10 +807,13 @@ var VisionView = Backbone.View.extend({
             var p = pobj.panel('panel');
             p.detach().appendTo(container).css({
                 position: 'absolute',
+                top: 0,
+                left: 0
+            });
+            pobj.panel('resize', {
                 width: container.width(),
                 height: container.height()
             });
-            pobj.panel('resize');
             pobj.find('video').each(function(index, element) {
                 if (element.src != '') {
                     element.play();
@@ -824,15 +827,15 @@ var VisionView = Backbone.View.extend({
             });
         }
         this.$(".ws-widget").each(function(index, element) {
-            var ws = self.$(".ws-content");
-            var container = $(element);
-            var widget = container.find(".ws-panel");
-            widget.panel({
+            var wsWidget = $(element);
+            var wsContent = self.$(".ws-content");
+            var wsPanel = wsWidget.find(".ws-panel");
+            wsPanel.panel({
                 onMaximize: function() {
-                    resizeWidget(ws, widget);
+                    resizeWidget(wsContent, wsPanel);
                 },
                 onRestore: function() {
-                    resizeWidget(container, widget);
+                    resizeWidget(wsWidget, wsPanel);
                 }
             });
         });
@@ -1464,12 +1467,6 @@ var WebcamView = Backbone.View.extend({
             output: videoOutput,
             userid: "webcam-" + app.profile.get('_id')
         });
-        /*var self = this;
-        this.webcall.getMediaSources('video', function(sources) {
-            constraints.video.optional = [{
-                sourceId: sources[1].id
-            }];
-        });*/
     },
     destroy: function() {
         if (this.webcall) this.webcall.destroy();
@@ -1819,13 +1816,14 @@ var StudentView = Backbone.View.extend({
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
             p.detach().appendTo(container).css({
-                top: 0,
-                left: 0,
                 position: 'absolute',
+                top: 0,
+                left: 0
+            });
+            pobj.panel('resize', {
                 width: container.width(),
                 height: container.height()
             });
-            pobj.panel('resize');
             pobj.find('video').each(function(index, element) {
                 if (element.src != '') {
                     element.play();
@@ -1839,15 +1837,15 @@ var StudentView = Backbone.View.extend({
             });
         }
         this.$(".ws-widget").each(function(index, element) {
-            var ws = self.$(".ws-content");
-            var container = $(element);
-            var widget = container.find(".ws-panel");
-            widget.panel({
+            var wsWidget = $(element);
+            var wsContent = self.$(".ws-content");
+            var wsPanel = wsWidget.find(".ws-panel");
+            wsPanel.panel({
                 onMaximize: function() {
-                    resizeWidget(ws, widget);
+                    resizeWidget(wsContent, wsPanel);
                 },
                 onRestore: function() {
-                    resizeWidget(container, widget);
+                    resizeWidget(wsWidget, wsPanel);
                 }
             });
         });
