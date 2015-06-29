@@ -962,7 +962,7 @@ var VisionView = Backbone.View.extend({
                     filename: respond.originalname,
                     uploadname: respond.name
                 });
-                self.notes.collection.create({
+                self.view.notes.collection.create({
                     time: new Date(),
                     text: comment,
                     attach: attach
