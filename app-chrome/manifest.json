@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "Proctor",
+  "version": "1",
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "permissions": ["webview","audioCapture","videoCapture","desktopCapture"],
+  "app": {
+    "background": {
+      "scripts": ["main.js"]
+    }
+  },
+  "minimum_chrome_version": "43"
+}
