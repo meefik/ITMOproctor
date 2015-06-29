@@ -3,9 +3,9 @@ var router = express.Router();
 var moment = require('moment');
 var db = require('../db');
 // List all events
-router.get('/', function(req, res) {
+router.get('/:examId', function(req, res) {
     var args = {
-        examId: req.user.examId
+        examId: req.params.examId
     };
     db.protocol.list(args, function(err, data) {
         if(!err && data) {

@@ -3,9 +3,9 @@ var router = express.Router();
 var moment = require('moment');
 var db = require('../db');
 // List all notes
-router.get('/', function(req, res) {
+router.get('/:examId', function(req, res) {
     var args = {
-        examId: req.user.examId
+        examId: req.params.examId
     };
     db.notes.list(args, function(err, data) {
         if(!err && data) {
@@ -16,10 +16,10 @@ router.get('/', function(req, res) {
     });
 });
 // Create new note
-router.post('/', function(req, res) {
+router.post('/:examId', function(req, res) {
     var args = {
         author: req.user._id,
-        examId: req.user.examId,
+        examId: req.params.examId,
         text: req.body.text,
         attach: req.body.attach
     };
@@ -33,11 +33,11 @@ router.post('/', function(req, res) {
     });
 });
 // Update note
-router.put('/:noteId', function(req, res) {
+router.put('/:examId/:noteId', function(req, res) {
     var args = {
         _id: req.params.noteId,
         author: req.user._id,
-        examId: req.user.examId,
+        examId: req.params.examId,
         text: req.body.text
     };
     db.notes.update(args, function(err, data) {
@@ -50,11 +50,11 @@ router.put('/:noteId', function(req, res) {
     });
 });
 // Delete note
-router.delete('/:noteId', function(req, res) {
+router.delete('/:examId/:noteId', function(req, res) {
     var args = {
         _id: req.params.noteId,
         author: req.user._id,
-        examId: req.user.examId
+        examId: req.params.examId
     };
     db.notes.delete(args, function(err, data) {
         if(!err && data) {

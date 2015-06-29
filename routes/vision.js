@@ -8,7 +8,7 @@ router.get('/:examId', function(req, res) {
     }
     db.vision.start(args, function(err, data) {
         if(!err && data) {
-            req.user.examId = data._id;
+            //req.user.examId = data._id;
             res.json(data);
             req.notify('update');
         } else {
@@ -18,13 +18,13 @@ router.get('/:examId', function(req, res) {
 });
 router.put('/:examId', function(req, res) {
     var args = {
-        examId: req.user.examId,
+        examId: req.params.examId,
         resolution: req.body.resolution,
         comment: req.body.comment
     }
     db.vision.finish(args, function(err, data) {
         if(!err && data) {
-            delete req.user.examId;
+            //delete req.user.examId;
             res.json(data);
         } else {
             res.status(400).end();

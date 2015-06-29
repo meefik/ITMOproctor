@@ -50,7 +50,7 @@
             <span class="easyui-tooltip text-item" title="Качество связи"><i class="fa fa-exchange"></i><span class="panel-widget network-widget">100%</span></span>
             <span class="easyui-tooltip text-item" title="Текущее время"><i class="fa fa-clock-o"></i><span class="panel-widget time-widget">00:00:00</span></span>
             <span class="easyui-tooltip text-item" title="Длительность экзамена"><i class="fa fa-play"></i><span class="panel-widget duration-widget">00:00:00</span></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton finish-btn" data-options="iconCls:'fa fa-flag-checkered'" style="float:right">Завершить экзамен</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton finish-btn" data-options="iconCls:'fa fa-flag-checkered'" style="float:right">Завершить</a>
         </div>
     </div>
 </div>

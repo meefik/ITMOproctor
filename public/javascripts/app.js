@@ -852,23 +852,23 @@ var VisionView = Backbone.View.extend({
             profile: new ProfileView(),
             notes: new NotesView({
                 el: $("#panel-notes"),
-                id: 'notes-' + this.id
+                id: this.id
             }),
             chat: new ChatView({
                 el: $("#panel-chat"),
-                id: 'chat-' + this.id
+                id: this.id
             }),
             protocol: new ProtocolView({
                 el: $("#panel-protocol"),
-                id: 'protocol-' + this.id
+                id: this.id
             }),
             webcam: new WebcamView({
                 el: $("#panel-webcam"),
-                id: 'webcam-' + this.id
+                id: this.id
             }),
             screen: new ScreenView({
                 el: $("#panel-screen"),
-                id: 'screen-' + this.id
+                id: this.id
             })
         };
         this.view.webcam.toolbar();
@@ -901,7 +901,6 @@ var VisionView = Backbone.View.extend({
                 if (duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
                 self._ExamWidget.text(subject.title + " (" + subject.code + ")");
-
             }
         });
     },
@@ -1071,7 +1070,7 @@ var NotesView = Backbone.View.extend({
         });
         // Notes collection
         var NotesList = Backbone.Collection.extend({
-            url: '/notes',
+            url: '/notes/' + this.id,
             model: Note,
             comparator: 'time'
         });
@@ -1153,14 +1152,14 @@ var NotesView = Backbone.View.extend({
         this.collection = new NotesList();
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
-        app.io.notify.on(this.id, function(data) {
+        app.io.notify.on('notes-' + this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener(this.id);
+        app.io.notify.removeListener('notes-' + this.id);
         this.remove();
     },
     add: function() {
@@ -1199,7 +1198,7 @@ var ChatView = Backbone.View.extend({
         });
         // Chat collection
         var ChatList = Backbone.Collection.extend({
-            url: '/chat',
+            url: '/chat/' + this.id,
             model: Chat,
             comparator: 'time'
         });
@@ -1251,14 +1250,14 @@ var ChatView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.io.notify.on(this.id, function(data) {
+        app.io.notify.on('chat-' + this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener(this.id);
+        app.io.notify.removeListener('chat-' + this.id);
         this.remove();
     },
     doSend: function() {
@@ -1364,7 +1363,7 @@ var ProtocolView = Backbone.View.extend({
         });
         // Protocol collection
         var ProtocolList = Backbone.Collection.extend({
-            url: '/protocol',
+            url: '/protocol/' + this.id,
             model: Protocol,
             comparator: 'time'
         });
@@ -1387,14 +1386,14 @@ var ProtocolView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.io.notify.on(this.id, function(data) {
+        app.io.notify.on('protocol-' + this.id, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener(this.id);
+        app.io.notify.removeListener('protocol-' + this.id);
         this.remove();
     },
     appendItem: function(model) {
@@ -1465,7 +1464,7 @@ var WebcamView = Backbone.View.extend({
             constraints: constraints,
             input: videoInput,
             output: videoOutput,
-            userid: "webcam-" + app.profile.get('_id')
+            userid: "webcam-" + this.id + "-" + app.profile.get('_id')
         });
     },
     destroy: function() {
@@ -1504,7 +1503,7 @@ var WebcamView = Backbone.View.extend({
         });
     },
     play: function() {
-        var peer = "webcam-" + app.content.vision.get('student')._id;
+        var peer = "webcam-" + this.id + "-" + app.content.vision.get('student')._id;
         this.webcall.call(peer);
     },
     stop: function() {
@@ -1548,7 +1547,7 @@ var ScreenView = Backbone.View.extend({
             constraints: constraints,
             input: videoInput,
             output: videoOutput,
-            userid: "screen-" + app.profile.get('_id')
+            userid: "screen-" + this.id + "-" + app.profile.get('_id')
         });
     },
     destroy: function() {
@@ -1572,7 +1571,7 @@ var ScreenView = Backbone.View.extend({
         });
     },
     play: function() {
-        var peer = "screen-" + app.content.vision.get('student')._id;
+        var peer = "screen-" + this.id + "-" + app.content.vision.get('student')._id;
         this.webcall.call(peer);
     },
     stop: function() {
@@ -1801,15 +1800,15 @@ var StudentView = Backbone.View.extend({
             profile: new ProfileView(),
             chat: new ChatView({
                 el: $("#panel-chat"),
-                id: 'chat-' + self.id
+                id: this.id
             }),
             webcam: new WebcamView({
                 el: $("#panel-webcam"),
-                id: 'webcam-' + self.id
+                id: this.id
             }),
             screen: new ScreenView({
                 el: $("#panel-screen"),
-                id: 'screen-' + self.id
+                id: this.id
             })
         };
         // Resize widgets
@@ -1963,12 +1962,14 @@ var SettingsView = Backbone.View.extend({
         function getMediaSources(kind, callback) {
             MediaStreamTrack.getSources(function(sources) {
                 var mediaSources = [];
+                var k = 0;
                 for (var i = 0, l = sources.length; i < l; i++) {
                     var source = sources[i];
                     if (source.kind == kind) {
+                        k++;
                         mediaSources.push({
                             name: source.id,
-                            value: source.label || 'Неизвестный источник ' + (i + 1)
+                            value: source.label || 'Неизвестный источник ' + k
                         });
                     }
                 }
