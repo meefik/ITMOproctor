@@ -10,14 +10,14 @@ router.post('/', function(req, res, next) {
     var extension = file.extension ? '.' + file.extension : '';
     var filename = path.basename(file.originalname, extension);
     file.originalname = urlify(filename) + extension;
-    if(!file) return res.status(404).end();
+    if (!file) return res.status(404).end();
     res.json(file);
 });
 // Download file
 router.get('/:fileId', function(req, res, next) {
     var fileId = req.params.fileId;
     db.storage.download(fileId, function(data) {
-        if(!data) return res.status(400).end();
+        if (!data) return res.status(400).end();
         res.header('Content-Disposition', 'attachment; filename="' + data.filename + '"');
         return res;
     });

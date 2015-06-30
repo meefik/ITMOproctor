@@ -9,5 +9,5 @@
     "width": 1024,
     "height": 768
   },
-  "chromium-args": "--enable-usermedia-screen-capturing --ignore-gpu-blacklist"
+  "chromium-args": "--enable-usermedia-screen-capturing"
 }

@@ -7,11 +7,11 @@ router.get('/:examId', function(req, res) {
         userId: req.user._id
     }
     db.vision.start(args, function(err, data) {
-        if(!err && data) {
-            //req.user.examId = data._id;
+        if (!err && data) {
             res.json(data);
-            req.notify('update');
-        } else {
+            req.notify('connect-' + args.examId);
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -23,10 +23,10 @@ router.put('/:examId', function(req, res) {
         comment: req.body.comment
     }
     db.vision.finish(args, function(err, data) {
-        if(!err && data) {
-            //delete req.user.examId;
+        if (!err && data) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });

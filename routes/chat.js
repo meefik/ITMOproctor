@@ -8,9 +8,10 @@ router.get('/:examId', function(req, res) {
         examId: req.params.examId
     };
     db.chat.list(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -24,10 +25,11 @@ router.post('/:examId', function(req, res) {
         attach: req.body.attach
     };
     db.chat.add(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-            req.notify('chat');
-        } else {
+            req.notify('chat-' + args.examId);
+        }
+        else {
             res.status(400).end();
         }
     });

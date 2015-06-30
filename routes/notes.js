@@ -8,9 +8,10 @@ router.get('/:examId', function(req, res) {
         examId: req.params.examId
     };
     db.notes.list(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -24,10 +25,11 @@ router.post('/:examId', function(req, res) {
         attach: req.body.attach
     };
     db.notes.add(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
             req.notify('notes');
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -41,10 +43,11 @@ router.put('/:examId/:noteId', function(req, res) {
         text: req.body.text
     };
     db.notes.update(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
             req.notify('notes');
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -57,10 +60,11 @@ router.delete('/:examId/:noteId', function(req, res) {
         examId: req.params.examId
     };
     db.notes.delete(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-            req.notify('notes');
-        } else {
+            req.notify('notes-' + args.examId);
+        }
+        else {
             res.status(400).end();
         }
     });

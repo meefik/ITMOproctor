@@ -51,13 +51,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // notifications
 app.use(function(req, res, next) {
     req.notify = function(target) {
-        var examId = req.user.examId;
         var userId = req.user._id;
         var out = {
-            examId: examId,
             userId: userId
         };
-        notify.emit(target + '-' + examId, out);
+        notify.emit(target, out);
     }
     next();
 });

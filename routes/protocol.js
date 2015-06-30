@@ -8,9 +8,10 @@ router.get('/:examId', function(req, res) {
         examId: req.params.examId
     };
     db.protocol.list(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -23,10 +24,11 @@ router.get('/:userId', function(req, res) {
         text: req.query.text
     };
     db.protocol.add(args, function(err, data) {
-        if(!err && data) {
+        if (!err && data) {
             res.json(data);
-            req.notify('protocol');
-        } else {
+            req.notify('protocol-' + args.examId);
+        }
+        else {
             res.status(400).end();
         }
     });

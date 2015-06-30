@@ -6,7 +6,7 @@
         </div>
     </div>
     <div data-options="region:'center',border:false">
-        <table class="easyui-datagrid" height="100%" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true">
+        <table class="easyui-datagrid" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true,fit:true">
         </table>
         <div id="toolbar">
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |

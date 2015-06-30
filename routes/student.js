@@ -8,9 +8,10 @@ router.get('/', function(req, res) {
         history: req.query.history == 1 ? true : false
     }
     db.student.list(args, function(err, data) {
-        if(!err && data.length > 0) {
+        if (!err && data.length > 0) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
@@ -21,10 +22,10 @@ router.get('/:examId', function(req, res) {
         userId: req.user._id
     }
     db.student.start(args, function(err, data) {
-        if(!err && data) {
-            req.user.examId = data._id;
+        if (!err && data) {
             res.json(data);
-        } else {
+        }
+        else {
             res.status(400).end();
         }
     });
