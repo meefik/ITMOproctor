@@ -802,6 +802,15 @@ var VisionView = Backbone.View.extend({
             required: true,
             validType: 'protectionCode',
         });
+        // screenshot event
+        window.addEventListener('message', function(event) {
+            var message = event.data;
+            switch (message.id) {
+                case 'screenshot':
+                    self.screenshotDlg(message.data);
+                    break;
+            }
+        });
         // Resize widgets
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
@@ -913,6 +922,7 @@ var VisionView = Backbone.View.extend({
         if (this.view.chat) this.view.chat.destroy();
         if (this.view.webcam) this.view.webcam.destroy();
         if (this.view.screen) this.view.screen.destroy();
+        window.removeEventListener('message');
         this.remove();
     },
     showStudentInfo: function() {
@@ -930,8 +940,10 @@ var VisionView = Backbone.View.extend({
         this._DialogExam.dialog('open');
     },
     doScreenshot: function() {
+        parent.postMessage('takeScreenshot', '*');
+    },
+    screenshotDlg: function(dataUrl) {
         var self = this;
-        var dataUrl;
         var closeBtn = function() {
             self._DialogScreenshot.dialog('close');
             self._ScreenshotComment.textbox('setValue', '');
@@ -970,26 +982,20 @@ var VisionView = Backbone.View.extend({
                 closeBtn();
             });
         };
-        html2canvas(document.body, {
-            onrendered: function(canvas) {
-                dataUrl = canvas.toDataURL('image/png');
-                $(canvas).remove();
-                self._ScreenshotPreview.attr({
-                    src: dataUrl
-                });
-                self._DialogScreenshot.dialog({
-                    closed: false,
-                    buttons: [{
-                        text: 'Сохранить',
-                        iconCls: 'fa fa-check',
-                        handler: saveBtn
-                    }, {
-                        text: 'Отменить',
-                        iconCls: 'fa fa-times',
-                        handler: closeBtn
-                    }]
-                });
-            }
+        self._ScreenshotPreview.attr({
+            src: dataUrl
+        });
+        self._DialogScreenshot.dialog({
+            closed: false,
+            buttons: [{
+                text: 'Сохранить',
+                iconCls: 'fa fa-check',
+                handler: saveBtn
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: closeBtn
+            }]
         });
     },
     confirmDlg: function(resolution) {
@@ -1957,6 +1963,19 @@ var SettingsView = Backbone.View.extend({
             }]
         });
         this._Dialog = $(dialog);
+        // Events
+        window.addEventListener('message', function(event) {
+            var message = event.data;
+            switch (message.id) {
+                case 'sourceId':
+                    console.log(message.data);
+                    self._ScreenId.textbox('setValue', message.data);
+                    break;
+            }
+        });
+    },
+    destroy: function() {
+        window.removeEventListener('message');
     },
     render: function() {
         function getMediaSources(kind, callback) {
@@ -1980,9 +1999,9 @@ var SettingsView = Backbone.View.extend({
         this._WebcameraAudio = this.$('.webcamera-audio');
         this._WebcameraVideo = this.$('.webcamera-video');
         this._SettingsForm = this.$('.settings-form');
+        this._ScreenId = this.$('.screen-id');
         this._ScreenBtn.click(function() {
-            console.log('postMessage chooseSreenId');
-            parent.postMessage('chooseSreenId', '*');
+            parent.postMessage('chooseSourceId', '*');
         });
         var self = this;
 
