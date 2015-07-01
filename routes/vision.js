@@ -9,7 +9,7 @@ router.get('/:examId', function(req, res) {
     db.vision.start(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('connect-' + args.examId);
+            req.notify('change-' + args.examId);
         }
         else {
             res.status(400).end();
@@ -25,6 +25,7 @@ router.put('/:examId', function(req, res) {
     db.vision.finish(args, function(err, data) {
         if (!err && data) {
             res.json(data);
+            req.notify('change-' + args.examId);
         }
         else {
             res.status(400).end();

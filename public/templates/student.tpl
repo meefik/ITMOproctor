@@ -50,7 +50,6 @@
             <span class="easyui-tooltip text-item" title="Качество связи"><i class="fa fa-exchange"></i><span class="panel-widget network-widget">100%</span></span>
             <span class="easyui-tooltip text-item" title="Текущее время"><i class="fa fa-clock-o"></i><span class="panel-widget time-widget">00:00:00</span></span>
             <span class="easyui-tooltip text-item" title="Длительность экзамена"><i class="fa fa-play"></i><span class="panel-widget duration-widget">00:00:00</span></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton finish-btn" data-options="iconCls:'fa fa-flag-checkered'" style="float:right">Завершить</a>
         </div>
     </div>
 </div>
@@ -75,7 +74,7 @@
     <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>.<%- author.middlename.charAt(0) %>.:</span><span><%= text %>
         <% if(attach.length > 0) { %>
             <% _.each(attach, function(element, index, list){ %>
-                <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
             <% }); %>
         <% } %>
     </span>

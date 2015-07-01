@@ -1,6 +1,7 @@
 var frame = document.getElementById('proctor-app');
 var gui = require('nw.gui');
 gui.Screen.Init();
+var win = gui.Window.get();
 
 window.addEventListener("message", function(event) {
     switch (event.data) {
@@ -14,7 +15,6 @@ window.addEventListener("message", function(event) {
             });
             break;
         case 'takeScreenshot':
-            var win = gui.Window.get();
             win.capturePage(function(img) {
                 var message = {
                     id: 'screenshot',
@@ -28,3 +28,7 @@ window.addEventListener("message", function(event) {
             break;
     }
 });
+
+frame.onload = function() {
+    win.title = this.contentDocument.title;
+}

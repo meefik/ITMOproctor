@@ -658,7 +658,7 @@ var MonitorView = Backbone.View.extend({
         var endDate = moment(row.endDate);
         var isAllow = function() {
             var allow = false;
-            if (beginDate <= d && endDate > d && row.startDate != null && row.resolution == null) {
+            if (beginDate <= d && row.startDate != null && row.resolution == null) {
                 allow = true;
             }
             return allow;
@@ -970,7 +970,6 @@ var VisionView = Backbone.View.extend({
                 processData: false,
                 contentType: false,
             }).done(function(respond) {
-                console.log(respond);
                 var comment = self._ScreenshotComment.textbox('getValue');
                 var attach = [];
                 attach.push({
@@ -1075,7 +1074,6 @@ var NotesView = Backbone.View.extend({
     initialize: function() {
         // Note model
         var Note = Backbone.Model.extend({
-            //urlRoot: '/notes'
             idAttribute: "_id"
         });
         // Notes collection
@@ -1646,7 +1644,6 @@ var ScheduleView = Backbone.View.extend({
             if (!self.beginDate) return;
             var diff = self.beginDate.diff();
             if (diff < 0) {
-                diff = 0;
                 if (self.resolution == null) {
                     self._StartBtn.linkbutton('enable');
                     self._StartBtn.css({
@@ -1655,8 +1652,10 @@ var ScheduleView = Backbone.View.extend({
                     self._StartBtn.click(function() {
                         self.doStart();
                     });
-                    //clearInterval(t2);
+                    if (diff > -1000) self._Grid.datagrid('reload');
+                    clearInterval(t2);
                 }
+                diff = 0;
             }
             self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
         }, 1000);
@@ -1780,9 +1779,6 @@ var ScheduleView = Backbone.View.extend({
 // Student view
 //
 var StudentView = Backbone.View.extend({
-    events: {
-        "click .finish-btn": "doFinish"
-    },
     initialize: function() {
         // Variables
         var self = this;
@@ -1894,11 +1890,33 @@ var StudentView = Backbone.View.extend({
         this.listenTo(this.student, 'change', this.render);
         this.student.fetch();
         // Socket notification
-        app.io.notify.on('connect-' + this.id, function(data) {
+        app.io.notify.on('change-' + this.id, function(data) {
             self.student.fetch();
         });
     },
     render: function() {
+        var resolution = this.student.get("resolution");
+        if (resolution != null) {
+            var comment = this.student.get("comment");
+            var message = "";
+            if (resolution === true) {
+                message += 'Инспектор <strong style="color:green">подписал</strong> экзамен:';
+            }
+            else {
+                message += 'Инспектор <strong style="color:red">прервал</strong> экзамен:';
+            }
+            if (comment) {
+                message += '<p>' + comment + '</p>';
+            } else {
+                message += '<p>Без комментария.</p>';
+            }
+            $.messager.alert('Экзамен завершен', message, null, function() {
+                app.router.navigate("schedule", {
+                    trigger: true
+                });
+            });
+            return;
+        }
         var startDate = this.student.get("startDate");
         var duration = moment() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
@@ -1927,7 +1945,7 @@ var StudentView = Backbone.View.extend({
         for (var v in this.view) {
             if (this.view[v]) this.view[v].destroy();
         }
-        app.io.notify.removeListener('connect-' + this.id);
+        app.io.notify.removeListener('change-' + this.id);
         this.remove();
     },
     showExamInfo: function() {
@@ -1936,15 +1954,6 @@ var StudentView = Backbone.View.extend({
         var html = tpl(student);
         this._DialogExam.html(html);
         this._DialogExam.dialog('open');
-    },
-    doFinish: function() {
-        $.messager.confirm('Завершить экзамен', 'Завершить текущий экзамен?', function(r) {
-            if (r) {
-                app.router.navigate("schedule", {
-                    trigger: true
-                });
-            }
-        });
     }
 });
 //

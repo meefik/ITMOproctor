@@ -255,7 +255,7 @@
         <td>
             <% if(passport.attach.length > 0) { %>
                 <% _.each(passport.attach, function(element, index, list){ %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
                 <% }); %>
             <% } %>
         </td>
@@ -271,7 +271,7 @@
             <span style="white-space:pre-wrap;"><%= text %></span>        
             <% if(attach.length > 0) { %>
                 <% _.each(attach, function(element, index, list){ %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
                 <% }); %>
             <% } %>
     </div>
@@ -287,7 +287,7 @@
     <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>.<%- author.middlename.charAt(0) %>.:</span><span><%= text %>
         <% if(attach.length > 0) { %>
             <% _.each(attach, function(element, index, list){ %>
-                <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" target="_blank"><%- element.filename %></a>
+                <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
             <% }); %>
         <% } %>
     </span>
