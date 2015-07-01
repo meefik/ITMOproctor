@@ -679,7 +679,7 @@ var MonitorView = Backbone.View.extend({
     formatDate: function(val, row) {
         if (val == null) return null;
         else {
-            var d = new Date(val);
+            var d = moment(val);
             return moment(d).format('DD.MM.YYYY HH:mm');
         }
     },
@@ -978,7 +978,7 @@ var VisionView = Backbone.View.extend({
                     uploadname: respond.name
                 });
                 self.view.notes.collection.create({
-                    time: new Date(),
+                    time: moment(),
                     text: comment,
                     attach: attach
                 });
@@ -1174,7 +1174,7 @@ var NotesView = Backbone.View.extend({
         var noteText = this._Input.textbox('getValue');
         if (!noteText) return;
         this.collection.create({
-            time: new Date(),
+            time: moment(),
             text: noteText,
             attach: []
         });
@@ -1278,7 +1278,7 @@ var ChatView = Backbone.View.extend({
                 middlename: app.profile.get('middlename')
             };
             this.collection.create({
-                time: new Date(),
+                time: moment(),
                 author: author,
                 text: text,
                 attach: this.attach
@@ -1766,7 +1766,7 @@ var ScheduleView = Backbone.View.extend({
     formatDate: function(val, row) {
         if (val == null) return null;
         else {
-            var d = new Date(val);
+            var d = moment(val);
             return moment(d).format('DD.MM.YYYY HH:mm');
         }
     },
@@ -1993,7 +1993,6 @@ var SettingsView = Backbone.View.extend({
             var message = event.data;
             switch (message.id) {
                 case 'sourceId':
-                    console.log(message);
                     self._ScreenId.textbox('setValue', message.data);
                     break;
             }

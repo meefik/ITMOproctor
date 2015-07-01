@@ -1,4 +1,4 @@
-<div id="login" style="width:300px;margin:100px auto;">
+<div id="login" style="width:300px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);">
     <div class="easyui-panel" data-options="fit:true" title="Авторизация" style="padding:20px 40px 20px 40px;">
         <form>
             <div style="margin-bottom:10px">

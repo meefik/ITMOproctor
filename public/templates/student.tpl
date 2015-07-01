@@ -7,7 +7,7 @@
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
         <div class="easyui-layout" data-options="fit:true">
-            <div data-options="region:'north',border:false" class="ws-widget" style="height:40%">
+            <div data-options="region:'north',border:false" class="ws-widget" style="height:50%">
                 <div id="panel-webcam" class="easyui-panel ws-panel" title="Видеокамера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
                     <!-- Begin: Webcam -->
                     <video class="video-output" autoplay poster="images/webrtc.png"></video>
