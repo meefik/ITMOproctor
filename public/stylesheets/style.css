@@ -60,3 +60,10 @@ body {
 .panel-widget {
     font-weight: bold;
 }
+.chat-input[placeholder]:empty:before {
+    content: attr(placeholder);
+    color: #555; 
+}
+.chat-input[placeholder]:empty:focus:before {
+    content: "";
+}

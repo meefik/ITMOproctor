@@ -41,7 +41,7 @@
                                                 </form>
                                             </div>
                                         </div>
-                                        <div class="chat-input" data-options="region:'center',border:false" contenteditable="true" style="height:100px;overflow-x:hidden;"></div>
+                                        <div class="chat-input" data-options="region:'center',border:false" placeholder="Текст сообщения..." contenteditable="true" style="height:100px;overflow-x:hidden;padding:.3em"></div>
                                     </div>
                                 </div>
                             </div>
