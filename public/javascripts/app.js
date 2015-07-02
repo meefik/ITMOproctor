@@ -1995,6 +1995,9 @@ var SettingsView = Backbone.View.extend({
                 case 'sourceId':
                     self._ScreenId.textbox('setValue', message.data);
                     break;
+                case 'version':
+                    self._Version.text(message.data);
+                    break;
             }
         }
         window.addEventListener('message', this.eventHandler);
@@ -2025,6 +2028,7 @@ var SettingsView = Backbone.View.extend({
         this._WebcameraVideo = this.$('.webcamera-video');
         this._SettingsForm = this.$('.settings-form');
         this._ScreenId = this.$('.screen-id');
+        this._Version = this.$('.version-info');
         this._ScreenBtn.click(function() {
             parent.postMessage('chooseSourceId', '*');
         });

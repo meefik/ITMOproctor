@@ -159,9 +159,10 @@ var db = {
                         var cond = true;
                         for (var k = 0; k < text.length; k++) {
                             var match = false;
-                            var re = new RegExp(text[k], 'i');
                             for (var j = 0; j < arr.length; j++) {
-                                if (re.test(arr[j])) {
+                                var str = new String(arr[j]).toLowerCase();
+                                var sub = new String(text[k]).toLowerCase();
+                                if (str.indexOf(sub) > -1) {
                                     match = true;
                                     break;
                                 }

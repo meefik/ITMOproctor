@@ -62,6 +62,11 @@
                     </tr>
                 </table>
             </div>
+            <div title="Cистема" style="padding:10px">
+                <p><strong>ITMOproctor</strong></p>
+                <p>Система дистанционного надзора</p>
+                <p>Версия: <span class="version-info">0.0.0</span></p>
+            </div>
         </div>
     </form>
 </div>

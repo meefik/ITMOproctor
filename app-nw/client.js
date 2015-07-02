@@ -26,6 +26,14 @@ window.addEventListener("message", function(event) {
                 datatype: 'datauri'
             });
             break;
+        case 'getVersion':
+            var appVersion = gui.App.manifest.version;
+            var message = {
+                id: 'version',
+                data: appVersion
+            };
+            event.source.postMessage(message, '*');
+            break;
     }
 });
 

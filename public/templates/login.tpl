@@ -1,5 +1,5 @@
 <div id="login" style="width:300px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);">
-    <div class="easyui-panel" data-options="fit:true" title="Авторизация" style="padding:20px 40px 20px 40px;">
+    <div class="easyui-panel" data-options="fit:true" title="Вход в систему" style="padding:20px 40px 20px 40px;">
         <form>
             <div style="margin-bottom:10px">
                 <input class="easyui-textbox username" type="text" style="width:100%;height:24px;padding:4px" data-options="prompt:'Логин',iconCls:'fa fa-user fa-lg'">
