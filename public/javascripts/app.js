@@ -1657,7 +1657,9 @@ var ScheduleView = Backbone.View.extend({
                 }
                 diff = 0;
             }
-            self._CountdownWidget.text(moment(diff).utc().format('HH:mm:ss'));
+            var days = moment.duration(diff, 'ms').days();
+            var times = moment(diff).utc().format('HH:mm:ss');
+            self._CountdownWidget.text(days + '.' + times);
         }, 1000);
         this.timers = [t1, t2];
         // Rendering
@@ -1907,7 +1909,8 @@ var StudentView = Backbone.View.extend({
             }
             if (comment) {
                 message += '<p>' + comment + '</p>';
-            } else {
+            }
+            else {
                 message += '<p>Без комментария.</p>';
             }
             $.messager.alert('Экзамен завершен', message, null, function() {
@@ -2029,6 +2032,7 @@ var SettingsView = Backbone.View.extend({
         this._SettingsForm = this.$('.settings-form');
         this._ScreenId = this.$('.screen-id');
         this._Version = this.$('.version-info');
+        parent.postMessage('getVersion', '*');
         this._ScreenBtn.click(function() {
             parent.postMessage('chooseSourceId', '*');
         });

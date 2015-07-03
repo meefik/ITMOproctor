@@ -49,7 +49,7 @@ var db = {
             var items = data.exam;
             for(var k in items) {
                 var d = moment().add((k-1)*5,'hours');
-                items[k].beginDate = moment(d).add(1,'minutes');
+                items[k].beginDate = moment(d).add(1441,'minutes');
                 items[k].endDate = moment(d).add(4,'hours');
                 var obj = new Exam(items[k]);
                 self.save(obj);

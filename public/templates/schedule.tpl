@@ -21,7 +21,7 @@
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="easyui-tooltip text-item" title="Текущее время"><i class="fa fa-clock-o"></i><span class="time-widget" style="font-weight:bold">00:00:00</span></span>
-            <span class="easyui-tooltip text-item" title="Время до начала экзамена"><i class="fa fa-history"></i><span class="countdown-widget" style="font-weight:bold">00:00:00</span></span>
+            <span class="easyui-tooltip text-item" title="Время до начала экзамена"><i class="fa fa-history"></i><span class="countdown-widget" style="font-weight:bold">0.00:00:00</span></span>
             <a href="javascript:void(0)" class="easyui-linkbutton start-btn" data-options="disabled:true,iconCls:'fa fa-play'" style="float:right">Начать экзамен</a>
         </div>
     </div>
