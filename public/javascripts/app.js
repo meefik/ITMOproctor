@@ -819,6 +819,17 @@ var VisionView = Backbone.View.extend({
             }
         }
         window.addEventListener('message', this.eventHandler);
+        // Socket events
+        this.connectHandler = function(data) {
+            self._NetworkWidget.html('В сети');
+            self._NetworkWidget.css('color', 'green');
+        }
+        this.disconnectHandler = function(data) {
+            self._NetworkWidget.html('Не в сети');
+            self._NetworkWidget.css('color', 'red');
+        }
+        app.io.notify.on('connect', this.connectHandler);
+        app.io.notify.on('disconnect', this.disconnectHandler);
         // Resize widgets
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
@@ -937,6 +948,8 @@ var VisionView = Backbone.View.extend({
             if (this.view[v]) this.view[v].destroy();
         }
         window.removeEventListener('message', this.eventHandler);
+        app.io.notify.removeListener('connect', this.connectHandler);
+        app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
     },
     showPassport: function() {
@@ -1842,6 +1855,17 @@ var ExamView = Backbone.View.extend({
                 }
             }
         });
+        // Socket events
+        this.connectHandler = function(data) {
+            self._NetworkWidget.html('В сети');
+            self._NetworkWidget.css('color', 'green');
+        }
+        this.disconnectHandler = function(data) {
+            self._NetworkWidget.html('Не в сети');
+            self._NetworkWidget.css('color', 'red');
+        }
+        app.io.notify.on('connect', this.connectHandler);
+        app.io.notify.on('disconnect', this.disconnectHandler);
         // Sub views
         this.view = {
             settings: new SettingsView(),
@@ -1980,6 +2004,8 @@ var ExamView = Backbone.View.extend({
             if (this.view[v]) this.view[v].destroy();
         }
         app.io.notify.removeListener('change-' + this.id);
+        app.io.notify.removeListener('connect', this.connectHandler);
+        app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
     },
     showExamInfo: function() {

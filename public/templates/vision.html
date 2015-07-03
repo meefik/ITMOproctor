@@ -98,9 +98,9 @@
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="text-item"><i class="fa fa-exchange"></i>Качество связи: <span class="network-widget" style="font-weight:bold">100%</span></span>
-            <span class="text-item"><i class="fa fa-clock-o"></i>Текущее время: <span class="time-widget" style="font-weight:bold">00:00:00</span></span>
-            <span class="text-item"><i class="fa fa-play"></i>Продолжительность: <span class="duration-widget" style="font-weight:bold">00:00:00</span></span>
+            <span class="easyui-tooltip text-item" title="Статус соединения"><i class="fa fa-exchange"></i><span class="panel-widget network-widget" style="color:green">В сети</span></span>
+            <span class="easyui-tooltip text-item" title="Текущее время"><i class="fa fa-clock-o"></i><span class="panel-widget time-widget">00:00:00</span></span>
+            <span class="easyui-tooltip text-item" title="Продолжительность экзамена"><i class="fa fa-play"></i><span class="panel-widget duration-widget">00:00:00</span></span>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;">Прервать</a>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;">Подписать</a>
         </div>
