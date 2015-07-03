@@ -72,7 +72,8 @@ var Profile = Backbone.Model.extend({
 var Webcall = Backbone.Model.extend({
     initialize: function() {
         var self = this;
-        this.mute = false;
+        this.audio = true;
+        this.video = true;
         this.setCallState('NO_CALL');
         this.get("socket").on('message', function(message) {
             var parsedMessage = JSON.parse(message);
@@ -276,18 +277,31 @@ var Webcall = Backbone.Model.extend({
             if (callback) callback(mediaSources);
         });
     },
-    toggleMute: function(mute) {
-        if (typeof mute != 'undefined') {
-            this.mute = mute;
+    toggleAudio: function(audio) {
+        if (typeof audio != 'undefined') {
+            this.audio = audio;
         }
         else {
-            this.mute = !this.mute;
+            this.audio = !this.audio;
         }
         if (this.webRtcPeer) {
             var audioTracks = this.webRtcPeer.pc.getLocalStreams()[0].getAudioTracks();
-            audioTracks[0].enabled = this.mute === false;
+            audioTracks[0].enabled = this.audio;
         }
-        return this.mute;
+        return this.audio;
+    },
+    toggleVideo: function(video) {
+        if (typeof video != 'undefined') {
+            this.video = video;
+        }
+        else {
+            this.video = !this.video;
+        }
+        if (this.webRtcPeer) {
+            var videoTracks = this.webRtcPeer.pc.getLocalStreams()[0].getVideoTracks();
+            videoTracks[0].enabled = this.video;
+        }
+        return this.video;
     }
 });
 //
@@ -1459,25 +1473,34 @@ var WebcamView = Backbone.View.extend({
                 iconCls: 'fa fa-play',
                 handler: function() {
                     self.play();
-                    self.webcall.toggleMute(false);
                     $(this).parent().find('.fa-microphone-slash').attr('class', 'fa fa-microphone');
+                    $(this).parent().find('.fa-eye-slash').attr('class', 'fa fa-eye');
                 }
             }, {
                 iconCls: 'fa fa-pause',
                 handler: function() {
                     self.stop();
-                    self.webcall.toggleMute(false);
-                    $(this).parent().find('.fa-microphone-slash').attr('class', 'fa fa-microphone');
                 }
             }, {
                 iconCls: 'fa fa-microphone',
                 handler: function() {
-                    var mute = self.webcall.toggleMute();
-                    if (mute) {
-                        $(this).attr('class', 'fa fa-microphone-slash');
+                    var audio = self.webcall.toggleAudio();
+                    if (audio) {
+                        $(this).attr('class', 'fa fa-microphone');
                     }
                     else {
-                        $(this).attr('class', 'fa fa-microphone');
+                        $(this).attr('class', 'fa fa-microphone-slash');
+                    }
+                }
+            }, {
+                iconCls: 'fa fa-eye',
+                handler: function() {
+                    var video = self.webcall.toggleVideo();
+                    if (video) {
+                        $(this).attr('class', 'fa fa-eye');
+                    }
+                    else {
+                        $(this).attr('class', 'fa fa-eye-slash');
                     }
                 }
             }]
@@ -1515,6 +1538,8 @@ var WebcamView = Backbone.View.extend({
     play: function() {
         var peer = "webcam-" + this.id + "-" + app.content.vision.get('student')._id;
         this.webcall.set('constraints', this.constraints());
+        this.webcall.toggleAudio(true);
+        this.webcall.toggleVideo(true);
         this.webcall.call(peer);
     },
     stop: function() {
