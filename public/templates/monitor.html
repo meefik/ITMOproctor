@@ -1,0 +1,43 @@
+<div id="monitor-view" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-calendar"></i>Расписание экзаменов</span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+        </div>
+    </div>
+    <div data-options="region:'center',border:false">
+        <table class="easyui-datagrid" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true,fit:true">
+        </table>
+        <div id="toolbar">
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn3" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>
+            <input name="date-search" class="easyui-datebox date-search" style="width:110px;" data-options="prompt:'Показать на...'">
+            <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt:'Введите текст...'">
+            <button class="easyui-linkbutton grid-reload" data-options="iconCls:'pagination-load',plain:true"></button>
+        </div>
+    </div>
+    <div data-options="region:'south',border:false">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-clock-o"></i>Текущее время: <strong class="time-widget">00:00:00</strong></span>
+            <span class="text-item" style="float:right"><i class="fa fa-user"></i><span class="loguser-widget">...</span></span>
+        </div>
+    </div>
+</div>
+<div id="exam-info-dlg" class="easyui-dialog" title="Информация об экзамене" style="width:600px;height:400px;" data-options="iconCls:'fa fa-info-circle',resizable:true,modal:true,closed:true">
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
+</div>
+<!-- Templates -->
+<script type="text/template" id="action-item-tpl">
+<div class="action-item" style="clear:both">
+    <a href="javascript:void(0);" style="padding-left:10px;float:left" onclick="app.content.doInfo('<%- examId %>');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>
+    <% if(openEnabled) { %>
+        <a href="javascript:void(0);" style="padding-right:10px;float:right" onclick="app.content.doPlay('<%- examId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
+    <% } %>
+</div>
+</script>

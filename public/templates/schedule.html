@@ -1,4 +1,4 @@
-<div id="schedule" class="easyui-layout" data-options="fit:true">
+<div id="schedule-view" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="text-item"><i class="fa fa-calendar"></i>Расписание экзаменов</span>
@@ -35,3 +35,9 @@
     <div class="menu-sep"></div>
     <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
 </div>
+<!-- Templates -->
+<script type="text/template" id="action-item-tpl">
+<div class="action-item" style="clear:both">
+    <a href="javascript:void(0);" style="padding:0 10px" onclick="app.content.doInfo('<%- examId %>');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>
+</div>
+</script>

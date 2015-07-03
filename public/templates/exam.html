@@ -1,4 +1,4 @@
-<div id="student" class="easyui-layout" data-options="fit:true">
+<div id="exam-view" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <span class="easyui-tooltip text-item observers-widget" title="Наблюдатели не подключены"><i class="fa fa-eye"></i><span class="curator-widget">Ожидайте инспектора...</span></span>
@@ -79,69 +79,4 @@
         <% } %>
     </span>
 </div>
-</script>
-<script type="text/template" id="exam-info-tpl">
-<table width="100%" cellpadding="5">
-    <tr>
-        <td><strong>ID:</strong></td>
-        <td>
-            <%= examId %><br>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Экзамен:</strong></td>
-        <td>
-            <%= subject.title %><br>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Направление:</strong></td>
-        <td>
-            <%= subject.speciality %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Код:</strong></td>
-        <td>
-            <%= subject.code %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Начало:</strong></td>
-        <td>
-            <%= moment(beginDate).format("DD.MM.YYYY HH:mm") %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Окончание:</strong></td>
-        <td>
-            <%= moment(endDate).format("DD.MM.YYYY HH:mm") %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Студент:</strong></td>
-        <td>
-            <% if(student) { %>
-                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= moment(student.birthday).format('DD.MM.YYYY') %>)
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Инспектор:</strong></td>
-        <td>
-            <% if(curator[0]) { %>
-                <%= curator[0].lastname %> <%= curator[0].firstname %> <%= curator[0].middlename %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Наблюдатели:</strong></td>
-        <td>
-            <% curator.shift(); %>
-            <% _.each(curator, function(item) { %>
-                <%= item.lastname %> <%= item.firstname %> <%= item.middlename %><br>
-            <% }); %>
-        </td>
-    </tr>
-</table>
 </script>

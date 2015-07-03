@@ -1,9 +1,9 @@
-<div id="vision" class="easyui-layout" data-options="fit:true">
+<div id="vision-view" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
             <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</a>
             <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton student-info-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton passport-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
             <a href="javascript:void(0)" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></a>
         </div>
     </div>
@@ -113,8 +113,6 @@
     <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
 </div>
 <!-- Dialogs -->
-<div id="student-info-dlg" class="easyui-dialog" title="Карточка студента" style="width:800px;height:410px;" data-options="resizable:true,closed:true"></div>
-<div id="exam-info-dlg" class="easyui-dialog" title="Карточка экзамена" style="width:500px;height:350px;" data-options="resizable:true,closed:true"></div>
 <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
     <form>
         <p>Заметка на <strong class="note-time"></strong></p>
@@ -133,137 +131,6 @@
     <input class="easyui-textbox exam-comment" data-options="multiline:true,prompt:'Введите комментарий...'" style="width:100%;height:50px;">
 </div>
 <!-- Templates -->
-<script type="text/template" id="exam-info-tpl">
-<table width="100%" cellpadding="5">
-    <tr>
-        <td><strong>ID:</strong></td>
-        <td>
-            <%= examId %><br>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Экзамен:</strong></td>
-        <td>
-            <%= subject.title %><br>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Направление:</strong></td>
-        <td>
-            <%= subject.speciality %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Код:</strong></td>
-        <td>
-            <%= subject.code %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Начало:</strong></td>
-        <td>
-            <%= moment(beginDate).format("DD.MM.YYYY HH:mm") %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Окончание:</strong></td>
-        <td>
-            <%= moment(endDate).format("DD.MM.YYYY HH:mm") %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Студент:</strong></td>
-        <td>
-            <% if(student) { %>
-                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= moment(student.birthday).format('DD.MM.YYYY') %>)
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Инспектор:</strong></td>
-        <td>
-            <% if(curator[0]) { %>
-                <%= curator[0].lastname %> <%= curator[0].firstname %> <%= curator[0].middlename %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Наблюдатели:</strong></td>
-        <td>
-            <% curator.shift(); %>
-            <% _.each(curator, function(item) { %>
-                <%= item.lastname %> <%= item.firstname %> <%= item.middlename %><br>
-            <% }); %>
-        </td>
-    </tr>
-</table>
-</script>
-<script type="text/template" id="student-info-tpl">
-<div style="padding:15px">
-    <% var photo = student.photo.length > 0 ? '/storage/'+student.photo[0].fileId : null; %>
-    <div style="width:240px;height:320px;float:left;margin-right:15px;">
-        <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
-    </div>
-    <div style="float:clear">
-    <table cellpadding="5">
-    <tr>
-        <td>ФИО:</td>
-        <td><%- passport.lastname %> <%- passport.firstname %> <%- passport.middlename %></td>
-    </tr>
-    <tr>
-        <td>Пол:</td>
-        <td><%- passport.gender %></td>
-    </tr>
-    <tr>
-        <td>Дата рождения:</td>
-        <td><%- moment(passport.birthday).format("DD.MM.YYYY") %></td>
-    </tr>
-    <tr>
-        <td>Гражданство:</td>
-        <td><%- passport.citizenship %></td>
-    </tr>
-    <tr>
-        <td>Место рождения:</td>
-        <td><%- passport.birthplace %></td>
-    </tr>
-    <tr>
-        <td>Паспорт:</td>
-        <td><%- passport.series %> <%= passport.number %></td>
-    </tr>
-    <tr>
-        <td>Кем выдан:</td>
-        <td><%- passport.department %></td>
-    </tr>
-    <tr>
-        <td>Дата выдачи:</td>
-        <td><%- moment(passport.issuedate).format("DD.MM.YYYY") %></td>
-    </tr>
-    <tr>
-        <td>Код подразделения:</td>
-        <td><%- passport.departmentcode %></td>
-    </tr>
-    <tr>
-        <td>Место регистрации:</td>
-        <td><%- passport.registration %></td>
-    </tr>
-    <tr>
-        <td>Дополнительная информация:</td>
-        <td><%- passport.description %></td>
-    </tr>
-    <tr>
-        <td>Копии страниц паспорта:</td>
-        <td>
-            <% if(passport.attach.length > 0) { %>
-                <% _.each(passport.attach, function(element, index, list){ %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
-                <% }); %>
-            <% } %>
-        </td>
-    </tr>
-    </table>
-    </div>
-</div>
-</script>
 <script type="text/template" id="note-item-tpl">
 <div class="note-view" style="border-bottom:1px solid #efefef;width:100%;position:relative;" onmouseover="javascript:$(this).find('.edit-buttons').show();" onmouseout="javascript:$(this).find('.edit-buttons').hide();">
     <div style="padding:5px;">

@@ -7,26 +7,47 @@ var moment = require('moment');
 var fs = require('fs');
 var path = require('path');
 var db = {
-    auth: function(username, password, done) {
-        var User = require('./models/user');
-        User.findOne({
-            username: username
-        }).select("+hashedPassword +salt").exec(function(err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false, {
-                    message: 'Incorrect username.'
-                });
-            }
-            if (!user.validPassword(password)) {
-                return done(null, false, {
-                    message: 'Incorrect password.'
-                });
-            }
-            return done(null, user);
-        });
+    profile: {
+        auth: function(username, password, done) {
+            var User = require('./models/user');
+            User.findOne({
+                username: username
+            }).select("+hashedPassword +salt").exec(function(err, user) {
+                if (err) {
+                    return done(err);
+                }
+                if (!user) {
+                    return done(null, false, {
+                        message: 'Incorrect username.'
+                    });
+                }
+                if (!user.validPassword(password)) {
+                    return done(null, false, {
+                        message: 'Incorrect password.'
+                    });
+                }
+                return done(null, user);
+            });
+        },
+        passport: function(args, callback) {
+            var User = require('./models/user');
+            var Passport = require('./models/passport');
+            User.findById(args.userId).exec(function(err, user) {
+                if (err || !user) {
+                    callback(err, user);
+                }
+                else {
+                    var data = user.toJSON();
+                    Passport.findOne({
+                        userId: user._id
+                    }).exec(function(err, passport) {
+                        if (err) data.passport = null;
+                        else data.passport = passport;
+                        callback(err, data);
+                    });
+                }
+            });
+        }
     },
     storage: {
         upload: function(files, callback) {
@@ -71,8 +92,25 @@ var db = {
             });
         }
     },
-    monitor: {
+    exam: {
         list: function(args, callback) {
+            var opts = [{
+                path: 'subject'
+            }, {
+                path: 'student'
+            }, {
+                path: 'curator'
+            }];
+            var Exam = require('./models/exam');
+            var query = {
+                student: args.userId
+            };
+            if (!args.history) query.endDate = {
+                $gte: moment()
+            };
+            Exam.find(query).sort('beginDate').populate(opts).exec(callback);
+        },
+        search: function(args, callback) {
             var rows = args.rows ? parseInt(args.rows) : 100;
             var page = args.page ? parseInt(args.page) - 1 : 0;
             var status = args.status;
@@ -208,35 +246,33 @@ var db = {
                 path: 'curator'
             }];
             var Exam = require('./models/exam');
-            var Passport = require('./models/passport');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                if (err || !exam) {
-                    callback(err, exam);
-                }
-                else {
-                    //console.log(exam);
-                    var data = exam.toJSON();
-                    Passport.findOne({
-                        userId: data.student._id
-                    }).exec(function(err, passport) {
-                        if (err) data.passport = null;
-                        else {
-                            data.passport = passport;
-                        }
-                        callback(err, data);
-                    });
-                    Exam.update({
-                        _id: args.examId
-                    }, {
-                        $set: {
-                            startDate: exam.startDate || moment().toJSON(),
-                        },
-                        $addToSet: {
-                            curator: args.userId
-                        }
-                    }, function(err, data) {
-                        if (err) console.log(err);
-                    });
+                callback(err, exam);
+                if (!err && exam) {
+                    // update startDate
+                    if (!exam.startDate) {
+                        Exam.update({
+                            _id: args.examId
+                        }, {
+                            $set: {
+                                startDate: moment(),
+                            }
+                        }, function(err, data) {
+                            if (err) console.log(err);
+                        });
+                    }
+                    // add curator
+                    if (args.userId) {
+                        Exam.update({
+                            _id: args.examId
+                        }, {
+                            $addToSet: {
+                                curator: args.userId
+                            }
+                        }, function(err, data) {
+                            if (err) console.log(err);
+                        });
+                    }
                 }
             });
         },
@@ -331,54 +367,6 @@ var db = {
         list: function(args, callback) {
             var Protocol = require('./models/protocol');
             Protocol.find(args).sort('time').exec(callback);
-        }
-    },
-    student: {
-        list: function(args, callback) {
-            var opts = [{
-                path: 'subject'
-            }, {
-                path: 'student'
-            }, {
-                path: 'curator'
-            }];
-            var Exam = require('./models/exam');
-            var query = {
-                student: args.userId
-            };
-            if (!args.history) query.endDate = {
-                $gte: moment()
-            };
-            Exam.find(query).sort('beginDate').populate(opts).exec(callback);
-        },
-        start: function(args, callback) {
-            var opts = [{
-                path: 'subject'
-            }, {
-                path: 'student'
-            }, {
-                path: 'curator'
-            }];
-            var Exam = require('./models/exam');
-            Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                if (!err && exam) {
-                    callback(err, exam);
-                    if (!exam.startDate) {
-                        Exam.update({
-                            _id: exam._id
-                        }, {
-                            $set: {
-                                startDate: moment(),
-                            }
-                        }, function(err, data) {
-                            if (err) console.log(err);
-                        });
-                    }
-                }
-                else {
-                    callback(err, null);
-                }
-            });
         }
     }
 }

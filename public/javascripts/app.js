@@ -343,7 +343,7 @@ var Workspace = Backbone.Router.extend({
         "vision/:examid": "vision",
         "play/:examid": "play",
         "schedule": "schedule",
-        "student/:examid": "student",
+        "exam/:examid": "exam",
         "admin": "admin"
     },
     main: function() {
@@ -375,9 +375,9 @@ var Workspace = Backbone.Router.extend({
     login: function() {
         console.log("route: #login");
         this.destroy();
-        app.render("/templates/login.tpl", function() {
+        app.render("/templates/login.html", function() {
             var view = new LoginView({
-                el: $("#login")
+                el: $("#login-view")
             });
             app.content = view;
         });
@@ -386,9 +386,9 @@ var Workspace = Backbone.Router.extend({
         console.log("route: #monitor");
         if (this.redirect()) return;
         this.destroy();
-        app.render("/templates/monitor.tpl", function() {
+        app.render("/templates/monitor.html", function() {
             var view = new MonitorView({
-                el: $("#monitor")
+                el: $("#monitor-view")
             });
             app.content = view;
         });
@@ -397,9 +397,9 @@ var Workspace = Backbone.Router.extend({
         console.log("route: #vision");
         if (this.redirect()) return;
         this.destroy();
-        app.render("/templates/vision.tpl", function() {
+        app.render("/templates/vision.html", function() {
             var view = new VisionView({
-                el: $("#vision"),
+                el: $("#vision-view"),
                 id: examid
             });
             app.content = view;
@@ -409,20 +409,20 @@ var Workspace = Backbone.Router.extend({
         console.log("route: #schedule");
         if (this.redirect()) return;
         this.destroy();
-        app.render("/templates/schedule.tpl", function() {
+        app.render("/templates/schedule.html", function() {
             var view = new ScheduleView({
-                el: $("#schedule")
+                el: $("#schedule-view")
             });
             app.content = view;
         });
     },
-    student: function(examid) {
-        console.log("route: #student");
+    exam: function(examid) {
+        console.log("route: #exam");
         if (this.redirect()) return;
         this.destroy();
-        app.render("/templates/student.tpl", function() {
-            var view = new StudentView({
-                el: $("#student"),
+        app.render("/templates/exam.html", function() {
+            var view = new ExamView({
+                el: $("#exam-view"),
                 id: examid
             });
             app.content = view;
@@ -523,8 +523,6 @@ var MonitorView = Backbone.View.extend({
         this._StatusBtn3 = this.$(".status-btn3");
         this._TimeWidget = this.$(".time-widget");
         this._LoguserWidget = this.$(".loguser-widget");
-        this._DialogInfo = $("#exam-info-dlg");
-        this._ExamInfoTpl = $("#exam-info-tpl");
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
@@ -556,7 +554,8 @@ var MonitorView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            profile: new ProfileView()
+            profile: new ProfileView(),
+            examinfo: new ExamInfoView()
         };
         // Timers
         var t1 = setInterval(function() {
@@ -565,7 +564,7 @@ var MonitorView = Backbone.View.extend({
         this.timers = [t1];
         // Monitor model
         var Monitor = Backbone.Model.extend({
-            urlRoot: '/monitor'
+            urlRoot: '/inspector'
         });
         this.monitor = new Monitor();
         // Rendering
@@ -625,7 +624,7 @@ var MonitorView = Backbone.View.extend({
                     formatter: self.formatAction
                 }]
             ],
-            url: '/monitor',
+            url: '/inspector',
             method: 'get',
             queryParams: {
                 from: moment().startOf('day').toJSON(),
@@ -678,7 +677,7 @@ var MonitorView = Backbone.View.extend({
             return allow;
         }
         return tpl({
-            rowId: row._id,
+            examId: row._id,
             openEnabled: isAllow()
         });
     },
@@ -738,20 +737,11 @@ var MonitorView = Backbone.View.extend({
     doReload: function() {
         this._Grid.datagrid('reload');
     },
-    doInfo: function(rowid) {
-        var self = this;
-        var tpl = _.template(this._ExamInfoTpl.html());
-        this.monitor.set('id', rowid);
-        this.monitor.fetch({
-            success: function(model, response, options) {
-                var html = tpl(model.toJSON());
-                self._DialogInfo.html(html);
-                self._DialogInfo.dialog('open');
-            }
-        });
+    doInfo: function(examId) {
+        this.view.examinfo.doOpen(examId);
     },
-    doPlay: function(rowid) {
-        app.router.navigate("vision/" + rowid, {
+    doPlay: function(examId) {
+        app.router.navigate("vision/" + examId, {
             trigger: true
         });
     }
@@ -762,7 +752,7 @@ var MonitorView = Backbone.View.extend({
 var VisionView = Backbone.View.extend({
     events: {
         "click .screenshot-btn": "doScreenshot",
-        "click .student-info-btn": "showStudentInfo",
+        "click .passport-btn": "showPassport",
         "click .exam-info-btn": "showExamInfo",
         "click .exam-stop-btn": "rejectExam",
         "click .exam-apply-btn": "applyExam"
@@ -789,8 +779,6 @@ var VisionView = Backbone.View.extend({
         this._ExamComment = this._DialogConfirm.find('.exam-comment');
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
-        this._StudentInfoTpl = $("#student-info-tpl");
-        this._ExamInfoTpl = $("#exam-info-tpl");
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
@@ -870,7 +858,7 @@ var VisionView = Backbone.View.extend({
         });
         // Vision model
         var Vision = Backbone.Model.extend({
-            urlRoot: '/vision'
+            urlRoot: '/inspector'
         });
         this.vision = new Vision({
             id: this.id
@@ -879,6 +867,10 @@ var VisionView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
+            examinfo: new ExamInfoView({
+                examId: this.id,
+                modal: false
+            }),
             notes: new NotesView({
                 el: $("#panel-notes"),
                 id: this.id
@@ -930,6 +922,10 @@ var VisionView = Backbone.View.extend({
                 if (duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
                 self._ExamWidget.text(subject.title + " (" + subject.code + ")");
+                self.view.passport = new PassportView({
+                    userId: student._id,
+                    modal: false
+                });
             }
         });
     },
@@ -943,19 +939,11 @@ var VisionView = Backbone.View.extend({
         window.removeEventListener('message', this.eventHandler);
         this.remove();
     },
-    showStudentInfo: function() {
-        var tpl = _.template(this._StudentInfoTpl.html());
-        var vision = this.vision.toJSON();
-        var html = tpl(vision);
-        this._DialogStudent.html(html);
-        this._DialogStudent.dialog('open');
+    showPassport: function() {
+        this.view.passport.doOpen();
     },
     showExamInfo: function() {
-        var tpl = _.template(this._ExamInfoTpl.html());
-        var vision = this.vision.toJSON();
-        var html = tpl(vision);
-        this._DialogExam.html(html);
-        this._DialogExam.dialog('open');
+        this.view.examinfo.doOpen();
     },
     doScreenshot: function() {
         parent.postMessage('takeScreenshot', '*');
@@ -1656,7 +1644,8 @@ var ScheduleView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            profile: new ProfileView()
+            profile: new ProfileView(),
+            examinfo: new ExamInfoView()
         };
         // Timers
         this.timer = moment(0);
@@ -1713,6 +1702,9 @@ var ScheduleView = Backbone.View.extend({
                     title: 'Длительность',
                     width: 100,
                     formatter: self.formatDuration
+                }, {
+                    field: 'action',
+                    formatter: self.formatAction
                 }]
             ],
             url: '/student',
@@ -1779,7 +1771,7 @@ var ScheduleView = Backbone.View.extend({
         this._Grid.datagrid('reload');
     },
     doStart: function() {
-        app.router.navigate("student/" + this.examId, {
+        app.router.navigate("exam/" + this.examId, {
             trigger: true
         });
     },
@@ -1800,12 +1792,23 @@ var ScheduleView = Backbone.View.extend({
     formatSubject: function(val, row) {
         if (val == null) return null;
         return val.title + " (" + val.code + ")";
+    },
+    formatAction: function(val, row) {
+        if (row._id == null) return null;
+        var html = $('#action-item-tpl').html();
+        var tpl = _.template(html);
+        return tpl({
+            examId: row._id
+        });
+    },
+    doInfo: function(examId) {
+        this.view.examinfo.doOpen(examId);
     }
 });
 //
-// Student view
+// Exam view
 //
-var StudentView = Backbone.View.extend({
+var ExamView = Backbone.View.extend({
     initialize: function() {
         // Variables
         var self = this;
@@ -1825,7 +1828,7 @@ var StudentView = Backbone.View.extend({
             onClick: function(item) {
                 switch (item.name) {
                     case "info":
-                        self.showExamInfo();
+                        self.view.examinfo.doOpen();
                         break;
                     case "profile":
                         self.view.profile.doOpen();
@@ -1843,6 +1846,9 @@ var StudentView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
+            examinfo: new ExamInfoView({
+                examId: this.id
+            }),
             chat: new ChatView({
                 el: $("#panel-chat"),
                 id: this.id
@@ -1985,6 +1991,109 @@ var StudentView = Backbone.View.extend({
     }
 });
 //
+// ExamInfo view
+//
+var ExamInfoView = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function(options) {
+        var self = this;
+        this.options = options || {};
+        var dialog = $(this.el).dialog({
+            title: 'Карточка экзамена',
+            width: 600,
+            height: 400,
+            closed: true,
+            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            cache: false,
+            href: '/templates/examinfo.html',
+            onLoad: function() {
+                self.render();
+            },
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+        // Dialog model
+        var DialogModel = Backbone.Model.extend({
+            urlRoot: '/exam'
+        });
+        this.model = new DialogModel();
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
+        var view = this.$('.examinfo-view');
+        var tpl = _.template($("#examinfo-tpl").html());
+        this.model.set('id', this.options.examId);
+        this.model.fetch({
+            success: function(model, response, options) {
+                var html = tpl(model.toJSON());
+                view.html(html);
+            }
+        });
+    },
+    doOpen: function(examId) {
+        if (examId) {
+            this.options.examId = examId;
+        }
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
+// Passport view
+//
+var PassportView = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function(options) {
+        var self = this;
+        this.options = options || {};
+        var dialog = $(this.el).dialog({
+            title: 'Карточка студента',
+            width: 800,
+            height: 410,
+            closed: true,
+            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            href: '/templates/passport.html',
+            onLoad: function() {
+                self.render();
+            },
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+        // Dialog model
+        var DialogModel = Backbone.Model.extend({
+            urlRoot: '/passport'
+        });
+        this.model = new DialogModel();
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
+        var view = this.$('.passport-view');
+        var tpl = _.template($("#passport-tpl").html());
+        this.model.set('id', this.options.userId);
+        this.model.fetch({
+            success: function(model, response, options) {
+                var html = tpl(model.toJSON());
+                view.html(html);
+            }
+        });
+    },
+    doOpen: function(userId) {
+        if (userId) {
+            this.options.userId = userId;
+        }
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
 // Settings view
 //
 var SettingsView = Backbone.View.extend({
@@ -1997,7 +2106,7 @@ var SettingsView = Backbone.View.extend({
             height: 400,
             closed: true,
             modal: true,
-            href: '/templates/settings.tpl',
+            href: '/templates/settings.html',
             onLoad: function() {
                 self.render();
             },
@@ -2013,7 +2122,8 @@ var SettingsView = Backbone.View.extend({
                 handler: function() {
                     self.doClose();
                 }
-            }]
+            }],
+            loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
         // Events
@@ -2032,6 +2142,7 @@ var SettingsView = Backbone.View.extend({
     },
     destroy: function() {
         window.removeEventListener('message', this.eventHandler);
+        this.remove();
     },
     render: function() {
         function getMediaSources(kind, callback) {
@@ -2105,17 +2216,18 @@ var ProfileView = Backbone.View.extend({
             height: 250,
             closed: true,
             modal: true,
-            href: '/templates/profile.tpl',
+            href: '/templates/profile.html',
             onLoad: function() {
-                self.render(this);
-            }
+                self.render();
+            },
+            loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
     },
     destroy: function() {
-        // ...
+        this.remove();
     },
-    render: function(obj) {
+    render: function() {
         this._ProfileTpl = $("#profile-tpl");
         var tpl = _.template(this._ProfileTpl.html());
         var profile = {

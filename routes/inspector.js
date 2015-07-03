@@ -1,6 +1,28 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+router.get('/', function(req, res) {
+    var args = {
+        rows: req.query.rows,
+        page: req.query.page,
+        status: req.query.status,
+        from: req.query.from,
+        to: req.query.to,
+        text: req.query.text
+    }
+    db.exam.search(args, function(err, data, count) {
+        if (!err && data) {
+            var rows = {
+                "total": count,
+                "rows": data
+            }
+            res.json(rows);
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+});
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId,
