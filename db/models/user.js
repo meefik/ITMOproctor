@@ -82,8 +82,7 @@ User.virtual('roleName').get(function() {
     var role = {
         "1": "Студент",
         "2": "Инспектор",
-        "3": "Наблюдатель",
-        "4": "Администратор"
+        "3": "Администратор"
     };
     return role[this.role];
 });

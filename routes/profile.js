@@ -46,4 +46,7 @@ router.isStudent = function(req, res, next) {
 router.isInspector = function(req, res, next) {
     checkAccess(req, res, next, 2);
 };
+router.isAdministrator = function(req, res, next) {
+    checkAccess(req, res, next, 3);
+};
 module.exports = router;

@@ -9,12 +9,12 @@ var chat = require('./chat');
 var protocol = require('./protocol');
 module.exports = function(app) {
     app.use('/profile', profile);
-    app.use('/passport', profile.isAuth, passport);
+    app.use('/passport', profile.isInspector, passport);
     app.use('/storage', profile.isAuth, storage);
-    app.use('/exam', profile.isAuth, exam);
-    app.use('/student', profile.isAuth, student);
-    app.use('/inspector', profile.isAuth, inspector);
-    app.use('/notes', profile.isAuth, notes);
-    app.use('/chat', profile.isAuth, chat);
-    app.use('/protocol', profile.isAuth, protocol);
+    app.use('/exam', profile.isStudent, exam);
+    app.use('/student', profile.isStudent, student);
+    app.use('/inspector', profile.isInspector, inspector);
+    app.use('/notes', profile.isInspector, notes);
+    app.use('/chat', profile.isStudent, chat);
+    app.use('/protocol', profile.isInspector, protocol);
 }
