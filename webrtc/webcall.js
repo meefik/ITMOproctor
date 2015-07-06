@@ -60,7 +60,8 @@ module.exports = function(io, targets) {
     }
 
     //Represents a B2B active call
-    function CallMediaPipeline() {
+    function CallMediaPipeline(loopback) {
+        this._loopback = loopback;
         this._pipeline = null;
         this._callerWebRtcEndpoint = null;
         this._calleeWebRtcEndpoint = null;
@@ -80,28 +81,41 @@ module.exports = function(io, targets) {
                         pipeline.release();
                         return callback(error);
                     }
-                    pipeline.create('WebRtcEndpoint', function(error, calleeWebRtcEndpoint) {
-                        if (error) {
-                            pipeline.release();
-                            return callback(error);
-                        }
-                        callerWebRtcEndpoint.connect(calleeWebRtcEndpoint, function(error) {
+                    if (self._loopback) {
+                        callerWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
                             if (error) {
                                 pipeline.release();
                                 return callback(error);
                             }
-                            calleeWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
+                            self._pipeline = pipeline;
+                            self._callerWebRtcEndpoint = callerWebRtcEndpoint;
+                            callback(null);
+                        });
+                    }
+                    else {
+                        pipeline.create('WebRtcEndpoint', function(error, calleeWebRtcEndpoint) {
+                            if (error) {
+                                pipeline.release();
+                                return callback(error);
+                            }
+                            callerWebRtcEndpoint.connect(calleeWebRtcEndpoint, function(error) {
                                 if (error) {
                                     pipeline.release();
                                     return callback(error);
                                 }
+                                calleeWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
+                                    if (error) {
+                                        pipeline.release();
+                                        return callback(error);
+                                    }
+                                });
+                                self._pipeline = pipeline;
+                                self._callerWebRtcEndpoint = callerWebRtcEndpoint;
+                                self._calleeWebRtcEndpoint = calleeWebRtcEndpoint;
+                                callback(null);
                             });
-                            self._pipeline = pipeline;
-                            self._callerWebRtcEndpoint = callerWebRtcEndpoint;
-                            self._calleeWebRtcEndpoint = calleeWebRtcEndpoint;
-                            callback(null);
                         });
-                    });
+                    }
                 });
             });
         })
@@ -243,9 +257,46 @@ module.exports = function(io, targets) {
             caller.sendMessage(decline);
         }
     }
+    
+    function loopbackCallResponce(callerId, sdpOffer) {
+            function onError(callerReason) {
+                if (pipeline) pipeline.release();
+                if (caller) {
+                    var callerMessage = {
+                        id: 'callResponse',
+                        response: 'rejected'
+                    };
+                    if (callerReason) callerMessage.message = callerReason;
+                    caller.sendMessage(callerMessage);
+                }
+            }
+            var caller = userRegistry.getById(callerId);
+            var pipeline = new CallMediaPipeline(true);
+            pipeline.createPipeline(function(error) {
+                if (error) {
+                    return onError(error, error);
+                }
+                pipeline.generateSdpAnswerForCaller(sdpOffer, function(error, callerSdpAnswer) {
+                    if (error) {
+                        return onError(error, error);
+                    }
+                    pipelines[caller.id] = pipeline;
+                    var message = {
+                        id: 'callResponse',
+                        response: 'accepted',
+                        sdpAnswer: callerSdpAnswer
+                    };
+                    caller.sendMessage(message);
+                });
+            });        
+    }
 
     function call(callerId, to, from, sdpOffer) {
         var caller = userRegistry.getById(callerId);
+        if (to == from) {
+            loopbackCallResponce(callerId, sdpOffer);
+            return;
+        }
         var rejectCause = 'user ' + to + ' is not registered';
         if (userRegistry.getByName(to)) {
             var callee = userRegistry.getByName(to);

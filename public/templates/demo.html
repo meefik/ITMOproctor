@@ -1,0 +1,28 @@
+<div id="demo-view">
+    <div class="easyui-tabs" data-options="border:false">
+        <div class="webcamera" title="Вебкамера" style="padding:10px">
+            <div id="panel-webcam" style="height:360px">
+                <!-- Begin: Webcam -->
+                <video class="video-output" autoplay poster="images/webrtc.png"></video>
+                <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                <!-- End: Webcam -->
+            </div>
+            <div style="text-align:right;padding-top:5px">
+                <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'">Запустить</button>
+                <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'">Остановить</button>
+            </div>
+        </div>
+        <div class="screen" title="Рабочий стол" style="padding:10px">
+            <div id="panel-screen" style="height:360px">
+                <!-- Begin: Screen -->
+                <video class="video-output" autoplay poster="images/webrtc.png"></video>
+                <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                <!-- End: Screen -->
+            </div>
+            <div style="text-align:right;padding-top:5px">
+                <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'">Запустить</button>
+                <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'">Остановить</button>
+            </div>
+        </div>
+    </div>
+</div>

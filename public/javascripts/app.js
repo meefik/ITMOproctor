@@ -400,7 +400,7 @@ var Workspace = Backbone.Router.extend({
         app.render("/templates/vision.html", function() {
             var view = new VisionView({
                 el: $("#vision-view"),
-                id: examid
+                examId: examid
             });
             app.content = view;
         });
@@ -423,7 +423,7 @@ var Workspace = Backbone.Router.extend({
         app.render("/templates/exam.html", function() {
             var view = new ExamView({
                 el: $("#exam-view"),
-                id: examid
+                examId: examid
             });
             app.content = view;
         });
@@ -555,7 +555,7 @@ var MonitorView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            examinfo: new ExamInfoView()
+            info: new InfoView()
         };
         // Timers
         var t1 = setInterval(function() {
@@ -738,7 +738,7 @@ var MonitorView = Backbone.View.extend({
         this._Grid.datagrid('reload');
     },
     doInfo: function(examId) {
-        this.view.examinfo.doOpen(examId);
+        this.view.info.doOpen(examId);
     },
     doPlay: function(examId) {
         app.router.navigate("vision/" + examId, {
@@ -753,13 +753,14 @@ var VisionView = Backbone.View.extend({
     events: {
         "click .screenshot-btn": "doScreenshot",
         "click .passport-btn": "showPassport",
-        "click .exam-info-btn": "showExamInfo",
+        "click .exam-info-btn": "showInfo",
         "click .exam-stop-btn": "rejectExam",
         "click .exam-apply-btn": "applyExam"
     },
-    initialize: function() {
+    initialize: function(options) {
         // Variables
         var self = this;
+        this.options = options || {};
         this.protectionCode = null;
         // jQuery selectors
         this._Menu = $('#main-menu');
@@ -768,8 +769,6 @@ var VisionView = Backbone.View.extend({
         this._DurationWidget = this.$('.duration-widget');
         this._StudentWidget = this.$('.student-widget');
         this._ExamWidget = this.$('.exam-widget');
-        this._DialogStudent = $('#student-info-dlg');
-        this._DialogExam = $('#exam-info-dlg');
         this._DialogScreenshot = $("#screenshot-dlg");
         this._ScreenshotPreview = this._DialogScreenshot.find('img');
         this._ScreenshotComment = this._DialogScreenshot.find('.screenshot-comment');
@@ -872,35 +871,37 @@ var VisionView = Backbone.View.extend({
             urlRoot: '/inspector'
         });
         this.vision = new Vision({
-            id: this.id
+            id: this.options.examId
         });
         // Sub views
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            examinfo: new ExamInfoView({
-                examId: this.id,
+            info: new InfoView({
+                examId: this.options.examId,
                 modal: false
             }),
             notes: new NotesView({
                 el: $("#panel-notes"),
-                id: this.id
+                examId: this.options.examId
             }),
             chat: new ChatView({
                 el: $("#panel-chat"),
-                id: this.id
+                examId: this.options.examId
             }),
             protocol: new ProtocolView({
                 el: $("#panel-protocol"),
-                id: this.id
+                examId: this.options.examId
             }),
             webcam: new WebcamView({
                 el: $("#panel-webcam"),
-                id: this.id
+                examId: this.options.examId,
+                userId: app.profile.get('_id')
             }),
             screen: new ScreenView({
                 el: $("#panel-screen"),
-                id: this.id
+                examId: this.options.examId,
+                userId: app.profile.get('_id')
             })
         };
         this.view.webcam.toolbar();
@@ -955,8 +956,8 @@ var VisionView = Backbone.View.extend({
     showPassport: function() {
         this.view.passport.doOpen();
     },
-    showExamInfo: function() {
-        this.view.examinfo.doOpen();
+    showInfo: function() {
+        this.view.info.doOpen();
     },
     doScreenshot: function() {
         parent.postMessage('takeScreenshot', '*');
@@ -1039,7 +1040,7 @@ var VisionView = Backbone.View.extend({
                 handler: function() {
                     if (self._ProtectionCodeInput.validatebox('isValid')) {
                         self.vision.save({
-                            _id: self.id,
+                            _id: self.options.examId,
                             resolution: resolution,
                             comment: self._ExamComment.textbox('getValue')
                         }, {
@@ -1086,14 +1087,16 @@ var NotesView = Backbone.View.extend({
     events: {
         "click .note-add-btn": "add"
     },
-    initialize: function() {
+    initialize: function(options) {
+        // Varialbes
+        this.options = options || {};
         // Note model
         var Note = Backbone.Model.extend({
             idAttribute: "_id"
         });
         // Notes collection
         var NotesList = Backbone.Collection.extend({
-            url: '/notes/' + this.id,
+            url: '/notes/' + this.options.examId,
             model: Note,
             comparator: 'time'
         });
@@ -1175,14 +1178,14 @@ var NotesView = Backbone.View.extend({
         this.collection = new NotesList();
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
-        app.io.notify.on('notes-' + this.id, function(data) {
+        app.io.notify.on('notes-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener('notes-' + this.id);
+        app.io.notify.removeListener('notes-' + this.options.examId);
         this.remove();
     },
     add: function() {
@@ -1214,14 +1217,16 @@ var ChatView = Backbone.View.extend({
         "keyup .chat-input": "doInputKeyup",
         "change .chat-attach-input": "doFileChange"
     },
-    initialize: function() {
+    initialize: function(options) {
+        // Variables
+        this.options = options || {};
         // Chat model
         var Chat = Backbone.Model.extend({
             idAttribute: "_id"
         });
         // Chat collection
         var ChatList = Backbone.Collection.extend({
-            url: '/chat/' + this.id,
+            url: '/chat/' + this.options.examId,
             model: Chat,
             comparator: 'time'
         });
@@ -1273,14 +1278,14 @@ var ChatView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.io.notify.on('chat-' + this.id, function(data) {
+        app.io.notify.on('chat-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener('chat-' + this.id);
+        app.io.notify.removeListener('chat-' + this.options.examId);
         this.remove();
     },
     doSend: function() {
@@ -1379,14 +1384,16 @@ var ChatView = Backbone.View.extend({
 // Protocol view
 //
 var ProtocolView = Backbone.View.extend({
-    initialize: function() {
+    initialize: function(options) {
+        // Variables
+        this.options = options || {};
         // Protocol model
         var Protocol = Backbone.Model.extend({
             idAttribute: "_id"
         });
         // Protocol collection
         var ProtocolList = Backbone.Collection.extend({
-            url: '/protocol/' + this.id,
+            url: '/protocol/' + this.options.examId,
             model: Protocol,
             comparator: 'time'
         });
@@ -1409,14 +1416,14 @@ var ProtocolView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.appendItem);
         this.collection.fetch();
         var self = this;
-        app.io.notify.on('protocol-' + this.id, function(data) {
+        app.io.notify.on('protocol-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
                 self.collection.fetch();
             }
         });
     },
     destroy: function() {
-        app.io.notify.removeListener('protocol-' + this.id);
+        app.io.notify.removeListener('protocol-' + this.options.examId);
         this.remove();
     },
     appendItem: function(model) {
@@ -1431,7 +1438,8 @@ var ProtocolView = Backbone.View.extend({
 // Webcam view
 //
 var WebcamView = Backbone.View.extend({
-    initialize: function() {
+    initialize: function(options) {
+        this.options = options || {};
         this._VideoInput = this.$(".video-input");
         this._VideoOutput = this.$(".video-output");
         this.videoInput = this._VideoInput.get(0);
@@ -1460,7 +1468,7 @@ var WebcamView = Backbone.View.extend({
             constraints: this.constraints(),
             input: this.videoInput,
             output: this.videoOutput,
-            userid: "webcam-" + this.id + "-" + app.profile.get('_id')
+            userid: "webcam-" + this.options.examId + "-" + this.options.userId
         });
     },
     destroy: function() {
@@ -1473,7 +1481,7 @@ var WebcamView = Backbone.View.extend({
             tools: [{
                 iconCls: 'fa fa-play',
                 handler: function() {
-                    self.play();
+                    self.play(app.content.vision.get('student')._id);
                     $(this).parent().find('.fa-microphone-slash').attr('class', 'fa fa-microphone');
                     $(this).parent().find('.fa-eye-slash').attr('class', 'fa fa-eye');
                 }
@@ -1536,8 +1544,8 @@ var WebcamView = Backbone.View.extend({
         };
         return constraints;
     },
-    play: function() {
-        var peer = "webcam-" + this.id + "-" + app.content.vision.get('student')._id;
+    play: function(userId) {
+        var peer = "webcam-" + this.options.examId + "-" + userId;
         this.webcall.set('constraints', this.constraints());
         this.webcall.toggleAudio(true);
         this.webcall.toggleVideo(true);
@@ -1551,18 +1559,38 @@ var WebcamView = Backbone.View.extend({
 // Screen view
 //
 var ScreenView = Backbone.View.extend({
-    initialize: function() {
+    initialize: function(options) {
+        this.options = options || {};
         this.prefix = "screen-";
         this._VideoInput = this.$(".video-input");
         this._VideoOutput = this.$(".video-output");
         this.videoInput = this._VideoInput.get(0);
         this.videoOutput = this._VideoOutput.get(0);
+        this._VideoInput.draggable({
+            onDrag: function(e) {
+                var d = e.data;
+                var parent = $(d.parent);
+                var target = $(d.target);
+                if (d.left < 0) {
+                    d.left = 0
+                }
+                if (d.top < 0) {
+                    d.top = 0
+                }
+                if (d.left + target.outerWidth() > parent.width()) {
+                    d.left = parent.width() - target.outerWidth();
+                }
+                if (d.top + target.outerHeight() > parent.height()) {
+                    d.top = parent.height() - target.outerHeight();
+                }
+            }
+        });
         this.webcall = new Webcall({
             socket: app.io.screen,
             constraints: this.constraints(),
             input: this.videoInput,
             output: this.videoOutput,
-            userid: "screen-" + this.id + "-" + app.profile.get('_id')
+            userid: "screen-" + this.options.examId + "-" + app.profile.get('_id')
         });
     },
     destroy: function() {
@@ -1575,7 +1603,7 @@ var ScreenView = Backbone.View.extend({
             tools: [{
                 iconCls: 'fa fa-play',
                 handler: function() {
-                    self.play();
+                    self.play(app.content.vision.get('student')._id);
                 }
             }, {
                 iconCls: 'fa fa-pause',
@@ -1609,8 +1637,8 @@ var ScreenView = Backbone.View.extend({
         }
         return constraints;
     },
-    play: function() {
-        var peer = "screen-" + this.id + "-" + app.content.vision.get('student')._id;
+    play: function(userId) {
+        var peer = "screen-" + this.options.examId + "-" + userId;
         this.webcall.set('constraints', this.constraints());
         this.webcall.call(peer);
     },
@@ -1642,6 +1670,9 @@ var ScheduleView = Backbone.View.extend({
                     case "history":
                         self.toggleHostory(item);
                         break;
+                    case "demo":
+                        self.view.demo.doOpen();
+                        break;
                     case "profile":
                         self.view.profile.doOpen();
                         break;
@@ -1658,7 +1689,8 @@ var ScheduleView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            examinfo: new ExamInfoView()
+            info: new InfoView(),
+            demo: new DemoView()
         };
         // Timers
         this.timer = moment(0);
@@ -1815,16 +1847,17 @@ var ScheduleView = Backbone.View.extend({
         });
     },
     doInfo: function(examId) {
-        this.view.examinfo.doOpen(examId);
+        this.view.info.doOpen(examId);
     }
 });
 //
 // Exam view
 //
 var ExamView = Backbone.View.extend({
-    initialize: function() {
+    initialize: function(options) {
         // Variables
         var self = this;
+        this.options = options || {};
         // jQuery selectors
         this._Menu = $('#main-menu');
         this._NetworkWidget = this.$('.network-widget');
@@ -1834,14 +1867,12 @@ var ExamView = Backbone.View.extend({
         this._CuratorWidget = this.$('.curator-widget');
         this._ObserversWidget = this.$('.observers-widget');
         this._FinishBtn = this.$('.finish-btn');
-        this._DialogExam = $('#exam-info-dlg');
-        this._ExamInfoTpl = $("#exam-info-tpl");
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
                     case "info":
-                        self.view.examinfo.doOpen();
+                        self.view.info.doOpen();
                         break;
                     case "profile":
                         self.view.profile.doOpen();
@@ -1870,20 +1901,22 @@ var ExamView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            examinfo: new ExamInfoView({
-                examId: this.id
+            info: new InfoView({
+                examId: this.options.examId
             }),
             chat: new ChatView({
                 el: $("#panel-chat"),
-                id: this.id
+                examId: this.options.examId
             }),
             webcam: new WebcamView({
                 el: $("#panel-webcam"),
-                id: this.id
+                examId: this.options.examId,
+                userId: app.profile.get('_id')
             }),
             screen: new ScreenView({
                 el: $("#panel-screen"),
-                id: this.id
+                examId: this.options.examId,
+                userId: app.profile.get('_id')
             })
         };
         // Resize widgets
@@ -1942,12 +1975,12 @@ var ExamView = Backbone.View.extend({
             urlRoot: '/student'
         });
         this.student = new Student({
-            id: this.id
+            id: this.options.examId
         });
         this.listenTo(this.student, 'change', this.render);
         this.student.fetch();
         // Socket notification
-        app.io.notify.on('change-' + this.id, function(data) {
+        app.io.notify.on('change-' + this.options.examId, function(data) {
             self.student.fetch();
         });
     },
@@ -2003,23 +2036,16 @@ var ExamView = Backbone.View.extend({
         for (var v in this.view) {
             if (this.view[v]) this.view[v].destroy();
         }
-        app.io.notify.removeListener('change-' + this.id);
+        app.io.notify.removeListener('change-' + this.options.examId);
         app.io.notify.removeListener('connect', this.connectHandler);
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
-    },
-    showExamInfo: function() {
-        var tpl = _.template(this._ExamInfoTpl.html());
-        var student = this.student.toJSON();
-        var html = tpl(student);
-        this._DialogExam.html(html);
-        this._DialogExam.dialog('open');
     }
 });
 //
-// ExamInfo view
+// Info view
 //
-var ExamInfoView = Backbone.View.extend({
+var InfoView = Backbone.View.extend({
     tagName: 'div',
     initialize: function(options) {
         var self = this;
@@ -2031,7 +2057,7 @@ var ExamInfoView = Backbone.View.extend({
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
             cache: false,
-            href: '/templates/examinfo.html',
+            href: '/templates/info.html',
             onLoad: function() {
                 self.render();
             },
@@ -2048,8 +2074,8 @@ var ExamInfoView = Backbone.View.extend({
         this.remove();
     },
     render: function() {
-        var view = this.$('.examinfo-view');
-        var tpl = _.template($("#examinfo-tpl").html());
+        var view = this.$('.info-view');
+        var tpl = _.template($("#info-tpl").html());
         this.model.set('id', this.options.examId);
         this.model.fetch({
             success: function(model, response, options) {
@@ -2238,7 +2264,7 @@ var ProfileView = Backbone.View.extend({
         var self = this;
         var dialog = $(this.el).dialog({
             title: 'Профиль пользователя',
-            width: 550,
+            width: 500,
             height: 250,
             closed: true,
             modal: true,
@@ -2254,19 +2280,98 @@ var ProfileView = Backbone.View.extend({
         this.remove();
     },
     render: function() {
-        this._ProfileTpl = $("#profile-tpl");
-        var tpl = _.template(this._ProfileTpl.html());
-        var profile = {
-            user: app.profile.toJSON()
-        };
-        var html = tpl(profile);
-        this.$('.profile-view').html(html);
+        var view = this.$('.profile-view');
+        var tpl = _.template($("#profile-tpl").html());
+        var html = tpl(app.profile.toJSON());
+        view.html(html);
     },
     doOpen: function() {
         this._Dialog.dialog('open');
     },
     doClose: function() {
         this._Dialog.dialog('close');
+    }
+});
+//
+// Demo view
+//
+var DemoView = Backbone.View.extend({
+    tagName: 'div',
+    events: {
+        "click .play-btn": "doPlay",
+        "click .stop-btn": "doStop"
+    },
+    initialize: function() {
+        var self = this;
+        var dialog = $(this.el).dialog({
+            title: 'Проверка связи',
+            width: 500,
+            height: 480,
+            closed: true,
+            modal: true,
+            href: '/templates/demo.html',
+            onLoad: function() {
+                self.render();
+            },
+            onClose: function() {
+                self.view.webcam.stop();
+                self.view.screen.stop();
+            },
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
+        this._Tabs = this.$('.easyui-tabs');
+        // Sub views
+        this.view = {
+            webcam: new WebcamView({
+                el: $("#panel-webcam"),
+                examId: 'demo',
+                userId: app.profile.get('_id')
+            }),
+            screen: new ScreenView({
+                el: $("#panel-screen"),
+                examId: 'demo',
+                userId: app.profile.get('_id')
+            })
+        };
+    },
+    doOpen: function() {
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    },
+    getCurrentTab: function() {
+        var tab = this._Tabs.tabs('getSelected');
+        var index = this._Tabs.tabs('getTabIndex', tab);
+        return index;
+    },
+    doPlay: function() {
+        switch (this.getCurrentTab()) {
+            case 0:
+                console.log('play webcam');
+                this.view.webcam.play(app.profile.get('_id'));
+                break;
+            case 1:
+                this.view.screen.play(app.profile.get('_id'));
+                break;
+        }
+    },
+    doStop: function() {
+        switch (this.getCurrentTab()) {
+            case 0:
+                console.log('stop webcam');
+                this.view.webcam.stop();
+                break;
+            case 1:
+                this.view.screen.stop();
+                break;
+        }
     }
 });
 //

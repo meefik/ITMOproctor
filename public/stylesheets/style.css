@@ -25,13 +25,12 @@ body {
     position: relative;
     /*background-color:black;*/
 }
-#panel-webcam .video-output,
-#panel-screen .video-output {
+.video-output {
     height: 100%;
     width: auto;
     max-width: 100%;
 }
-#panel-webcam .video-input {
+.video-input {
     position: absolute;
     width: auto;
     height: auto;
