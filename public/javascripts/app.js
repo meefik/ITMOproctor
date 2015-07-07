@@ -132,10 +132,10 @@ var Webcall = Backbone.Model.extend({
         console.log('setCallState:' + nextState);
         switch (nextState) {
             case 'NO_CALL':
-                // ...
+                this.hideSpinner(this.get("input"), this.get("output"));
                 break;
             case 'PROCESSING_CALL':
-                // ...
+                this.showSpinner(this.get("input"), this.get("output"));
                 break;
             case 'IN_CALL':
                 // ...
@@ -181,7 +181,6 @@ var Webcall = Backbone.Model.extend({
             return this.sendMessage(response);
         }
         this.setCallState('PROCESSING_CALL');
-        this.showSpinner(this.get("input"), this.get("output"));
         this.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), function(sdp, wp) {
             var response = {
                 id: 'incomingCallResponse',
@@ -215,7 +214,6 @@ var Webcall = Backbone.Model.extend({
         if (this.callState != 'NO_CALL') return;
         var self = this;
         this.setCallState('PROCESSING_CALL');
-        this.showSpinner(this.get("input"), this.get("output"));
         kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), function(offerSdp, wp) {
             if (self.callState == 'NO_CALL') {
                 wp.dispose();
@@ -248,7 +246,6 @@ var Webcall = Backbone.Model.extend({
             }
             this.sendMessage(message);
         }
-        this.hideSpinner(this.get("input"), this.get("output"));
     },
     showSpinner: function() {
         for (var i = 0; i < arguments.length; i++) {
@@ -2322,6 +2319,9 @@ var DemoView = Backbone.View.extend({
         this._Dialog = $(dialog);
     },
     destroy: function() {
+        for (var v in this.view) {
+            if (this.view[v]) this.view[v].destroy();
+        }
         this.remove();
     },
     render: function() {

@@ -175,16 +175,20 @@ module.exports = function(io, targets) {
     }
 
     function stop(sessionId) {
-        if (!pipelines[sessionId]) {
-            return;
-        }
         var pipeline = pipelines[sessionId];
-        delete pipelines[sessionId];
-        pipeline.release();
+        if (pipeline) {
+            console.log('pipeline');
+            delete pipelines[sessionId];
+            pipeline.release();
+        }
         var stopperUser = userRegistry.getById(sessionId);
+        if (stopperUser) {
+            console.log('stopperUser');
+            stopperUser.peer = null;
+        }
         var stoppedUser = userRegistry.getByName(stopperUser.peer);
-        stopperUser.peer = null;
         if (stoppedUser) {
+            console.log('stoppedUser');
             stoppedUser.peer = null;
             delete pipelines[stoppedUser.id];
             var message = {
@@ -268,17 +272,18 @@ module.exports = function(io, targets) {
                     };
                     if (callerReason) callerMessage.message = callerReason;
                     caller.sendMessage(callerMessage);
+                    console.log(callerMessage);
                 }
             }
             var caller = userRegistry.getById(callerId);
             var pipeline = new CallMediaPipeline(true);
             pipeline.createPipeline(function(error) {
                 if (error) {
-                    return onError(error, error);
+                    return onError(error);
                 }
                 pipeline.generateSdpAnswerForCaller(sdpOffer, function(error, callerSdpAnswer) {
                     if (error) {
-                        return onError(error, error);
+                        return onError(error);
                     }
                     pipelines[caller.id] = pipeline;
                     var message = {
@@ -365,7 +370,7 @@ module.exports = function(io, targets) {
         var ws_uri = config.get('ws:uri');
         kurento(ws_uri, function(error, _kurentoClient) {
             if (error) {
-                var message = 'Coult not find media server at address ' + argv.ws_uri;
+                var message = 'Coult not find media server at address ' + ws_uri;
                 console.log(message);
                 return callback(message + ". Exiting with error " + error);
             }
