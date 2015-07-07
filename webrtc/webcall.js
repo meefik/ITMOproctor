@@ -3,7 +3,7 @@ module.exports = function(io, targets) {
     var kurento = require('kurento-client');
 
     /*
-     * Definition of global variables.
+     * Definition of global variables
      */
 
     var kurentoClient = null;
@@ -20,7 +20,7 @@ module.exports = function(io, targets) {
      * Definition of helper classes
      */
 
-    //Represents caller and callee sessions
+    // Represents caller and callee sessions
     function UserSession(id, name, ws) {
         this.id = id;
         this.name = name;
@@ -29,10 +29,15 @@ module.exports = function(io, targets) {
         this.sdpOffer = null;
     }
     UserSession.prototype.sendMessage = function(message) {
-        this.ws.send(JSON.stringify(message));
+        try {
+            this.ws.send(JSON.stringify(message));
+        }
+        catch (exception) {
+            return exception;
+        }
     }
 
-    //Represents registrar of users
+    // Represents registrar of users
     function UserRegistry() {
         this.usersById = {};
         this.usersByName = {};
@@ -59,7 +64,7 @@ module.exports = function(io, targets) {
         delete this.usersByName[userSession.name];
     }
 
-    //Represents a B2B active call
+    // Represents a B2B active call
     function CallMediaPipeline(loopback) {
         this._loopback = loopback;
         this._pipeline = null;
@@ -132,8 +137,10 @@ module.exports = function(io, targets) {
     }
 
     /*
-     * Websockets
+     * Definition of functions
      */
+
+    // Bind socket
     function bind(socket) {
         socket.on('connection', function(ws) {
             var sessionId = nextUniqueId();
@@ -162,6 +169,7 @@ module.exports = function(io, targets) {
                         break;
                     case 'stop':
                         stop(sessionId);
+                        if (message.unregister) userRegistry.unregister(sessionId);
                         break;
                     default:
                         ws.send(JSON.stringify({
@@ -174,51 +182,147 @@ module.exports = function(io, targets) {
         });
     }
 
+    // Register the username
+    function register(id, name, ws, callback) {
+        function onError(error) {
+            console.log("Error processing register: " + error);
+            ws.send(JSON.stringify({
+                id: 'registerResponse',
+                response: 'rejected',
+                message: error
+            }));
+        }
+        if (!name) {
+            return onError("empty user name");
+        }
+        var user = userRegistry.getByName(name);
+        if (user) {
+            user.ws = ws;
+        }
+        else {
+            user = new UserSession(id, name, ws);
+            userRegistry.register(user);
+        }
+        var message = {
+            id: 'registerResponse',
+            response: 'accepted'
+        }
+        user.sendMessage(message);
+        return user.id;
+    }
+
+    // Make a call
+    function call(callerId, to, from, sdpOffer) {
+        function onError(error) {
+            var message = {
+                id: 'callResponse',
+                response: 'rejected',
+                message: error
+            };
+            caller.sendMessage(message);
+        }
+        if (to == from) {
+            return loopbackCallResponce(callerId, sdpOffer);
+        }
+        var caller = userRegistry.getById(callerId);
+        if (userRegistry.getByName(to)) {
+            var callee = userRegistry.getByName(to);
+            caller.sdpOffer = sdpOffer
+            callee.peer = from;
+            caller.peer = to;
+            var message = {
+                id: 'incomingCall',
+                from: from
+            };
+            var error = callee.sendMessage(message);
+            if (error) return onError(error);
+        }
+        else {
+            var error = 'User ' + to + ' is not registered';
+            return onError(error);
+        }
+    }
+
+    // Stop communication
     function stop(sessionId) {
         var pipeline = pipelines[sessionId];
         if (pipeline) {
-            console.log('pipeline');
             delete pipelines[sessionId];
             pipeline.release();
         }
         var stopperUser = userRegistry.getById(sessionId);
         if (stopperUser) {
-            console.log('stopperUser');
+            var stoppedUser = userRegistry.getByName(stopperUser.peer);
             stopperUser.peer = null;
-        }
-        var stoppedUser = userRegistry.getByName(stopperUser.peer);
-        if (stoppedUser) {
-            console.log('stoppedUser');
-            stoppedUser.peer = null;
-            delete pipelines[stoppedUser.id];
-            var message = {
-                id: 'stopCommunication',
-                message: 'remote user hanged out'
+            if (stoppedUser) {
+                stoppedUser.peer = null;
+                delete pipelines[stoppedUser.id];
+                var message = {
+                    id: 'stopCommunication',
+                    message: 'remote user hanged out'
+                }
+                stoppedUser.sendMessage(message)
             }
-            stoppedUser.sendMessage(message)
         }
     }
 
+    // Loopback call responce
+    function loopbackCallResponce(callerId, sdpOffer) {
+        function onError(error) {
+            if (pipeline) pipeline.release();
+            if (caller) {
+                var callerMessage = {
+                    id: 'callResponse',
+                    response: 'rejected',
+                    message: error
+                };
+                caller.sendMessage(callerMessage);
+            }
+        }
+        var caller = userRegistry.getById(callerId);
+        var pipeline = new CallMediaPipeline(true);
+        pipeline.createPipeline(function(error) {
+            if (error) {
+                return onError(error);
+            }
+            pipeline.generateSdpAnswerForCaller(sdpOffer, function(error, callerSdpAnswer) {
+                if (error) {
+                    return onError(error);
+                }
+                pipelines[caller.id] = pipeline;
+                var message = {
+                    id: 'callResponse',
+                    response: 'accepted',
+                    sdpAnswer: callerSdpAnswer
+                };
+                caller.sendMessage(message);
+            });
+        });
+    }
+
+    // Incoming call response
     function incomingCallResponse(calleeId, from, callResponse, calleeSdp) {
         function onError(callerReason, calleeReason) {
             if (pipeline) pipeline.release();
             if (caller) {
                 var callerMessage = {
                     id: 'callResponse',
-                    response: 'rejected'
+                    response: 'rejected',
+                    message: callerReason
                 };
-                if (callerReason) callerMessage.message = callerReason;
                 caller.sendMessage(callerMessage);
             }
-            var calleeMessage = {
-                id: 'stopCommunication'
-            };
-            if (calleeReason) calleeMessage.message = calleeReason;
-            callee.sendMessage(calleeMessage);
+            if (callee) {
+                var calleeMessage = {
+                    id: 'stopCommunication',
+                    message: calleeReason
+                };
+                callee.sendMessage(calleeMessage);
+            }
         }
         var callee = userRegistry.getById(calleeId);
         if (!from || !userRegistry.getByName(from)) {
-            return onError(null, 'unknown from = ' + from);
+            return onError(null, 'Unknown from = ' + from);
         }
         var caller = userRegistry.getByName(from);
         if (callResponse === 'accept') {
@@ -253,116 +357,12 @@ module.exports = function(io, targets) {
             });
         }
         else {
-            var decline = {
-                id: 'callResponse',
-                response: 'rejected',
-                message: 'user declined'
-            };
-            caller.sendMessage(decline);
-        }
-    }
-    
-    function loopbackCallResponce(callerId, sdpOffer) {
-            function onError(callerReason) {
-                if (pipeline) pipeline.release();
-                if (caller) {
-                    var callerMessage = {
-                        id: 'callResponse',
-                        response: 'rejected'
-                    };
-                    if (callerReason) callerMessage.message = callerReason;
-                    caller.sendMessage(callerMessage);
-                    console.log(callerMessage);
-                }
-            }
-            var caller = userRegistry.getById(callerId);
-            var pipeline = new CallMediaPipeline(true);
-            pipeline.createPipeline(function(error) {
-                if (error) {
-                    return onError(error);
-                }
-                pipeline.generateSdpAnswerForCaller(sdpOffer, function(error, callerSdpAnswer) {
-                    if (error) {
-                        return onError(error);
-                    }
-                    pipelines[caller.id] = pipeline;
-                    var message = {
-                        id: 'callResponse',
-                        response: 'accepted',
-                        sdpAnswer: callerSdpAnswer
-                    };
-                    caller.sendMessage(message);
-                });
-            });        
-    }
-
-    function call(callerId, to, from, sdpOffer) {
-        var caller = userRegistry.getById(callerId);
-        if (to == from) {
-            loopbackCallResponce(callerId, sdpOffer);
-            return;
-        }
-        var rejectCause = 'user ' + to + ' is not registered';
-        if (userRegistry.getByName(to)) {
-            var callee = userRegistry.getByName(to);
-            caller.sdpOffer = sdpOffer
-            callee.peer = from;
-            caller.peer = to;
-            var message = {
-                id: 'incomingCall',
-                from: from
-            };
-            try {
-                return callee.sendMessage(message);
-            }
-            catch (exception) {
-                rejectCause = "Error " + exception;
-            }
-        }
-        var message = {
-            id: 'callResponse',
-            response: 'rejected: ',
-            message: rejectCause
-        };
-        caller.sendMessage(message);
-    }
-
-    function register(id, name, ws, callback) {
-        function onError(error) {
-            console.log("Error processing register: " + error);
-            ws.send(JSON.stringify({
-                id: 'registerResponse',
-                response: 'rejected ',
-                message: error
-            }));
-        }
-        if (!name) {
-            return onError("empty user name");
-        }
-        try {
-            ws.send(JSON.stringify({
-                id: 'registerResponse',
-                response: 'accepted'
-            }));
-        }
-        catch (exception) {
-            onError(exception);
-        }
-        var user = userRegistry.getByName(name);
-        if (user) {
-            //return onError("already registered");
-            //stop(user.id);
-            //userRegistry.unregister(user.id);
-            user.ws = ws;
-            return user.id;
-        }
-        else {
-            userRegistry.register(new UserSession(id, name, ws));
-            return id;
+            var error = 'user declined';
+            return onError(error, null);
         }
     }
 
-    //Recover kurentoClient for the first time.
+    // Recover kurentoClient for the first time.
     function getKurentoClient(callback) {
         if (kurentoClient !== null) {
             return callback(null, kurentoClient);
@@ -379,7 +379,9 @@ module.exports = function(io, targets) {
         });
     }
 
-    //Bind sockets
+    /*
+     * Bind sockets
+     */
     for (var i in targets) {
         var socket = io.of(targets[i]);
         bind(socket);

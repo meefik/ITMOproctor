@@ -93,7 +93,7 @@ var Webcall = Backbone.Model.extend({
                     break;
                 case 'stopCommunication':
                     console.info("Communication ended by remote peer");
-                    self.stop(true);
+                    self.stop(false);
                     break;
                 default:
                     console.error('Unrecognized message', parsedMessage);
@@ -107,7 +107,7 @@ var Webcall = Backbone.Model.extend({
         });
     },
     destroy: function() {
-        this.stop();
+        this.stop(true);
         this.get("socket").removeListener('connect');
         this.get("socket").removeListener('message');
     },
@@ -161,7 +161,7 @@ var Webcall = Backbone.Model.extend({
             console.info('Call not accepted by peer. Closing call');
             var errorMessage = message.message ? message.message : 'Unknown reason for call rejection.';
             console.log(errorMessage);
-            this.stop(true);
+            this.stop(false);
         }
         else {
             this.setCallState('IN_CALL');
@@ -234,16 +234,17 @@ var Webcall = Backbone.Model.extend({
             self.setCallState('NO_CALL');
         }, self.get("constraints"));
     },
-    stop: function(message) {
+    stop: function(flag) {
         this.setCallState('NO_CALL');
         if (this.webRtcPeer) {
             this.webRtcPeer.dispose();
             this.webRtcPeer = null;
         }
-        if (!message) {
+        if (flag !== false) {
             var message = {
                 id: 'stop'
             }
+            if (flag === true) message.unregister = true;
             this.sendMessage(message);
         }
     },
@@ -2354,7 +2355,6 @@ var DemoView = Backbone.View.extend({
     doPlay: function() {
         switch (this.getCurrentTab()) {
             case 0:
-                console.log('play webcam');
                 this.view.webcam.play(app.profile.get('_id'));
                 break;
             case 1:
@@ -2365,7 +2365,6 @@ var DemoView = Backbone.View.extend({
     doStop: function() {
         switch (this.getCurrentTab()) {
             case 0:
-                console.log('stop webcam');
                 this.view.webcam.stop();
                 break;
             case 1:

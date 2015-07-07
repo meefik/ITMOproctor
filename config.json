@@ -1,6 +1,6 @@
 {
     "mongoose": {
-        "uri": "mongodb://demo:demo@ds047622.mongolab.com:47622/proctor"
+        "uri": "mongodb://demo:demo@ds047772.mongolab.com:47772/proctor1"
     },
     "ws": {
         "uri": "ws://de.ifmo.ru:8888/kurento"

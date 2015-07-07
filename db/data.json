@@ -6,7 +6,7 @@
         "salt": "secret",
         "lastname": "Петров",
         "firstname": "Петр",
-        "middlename": "Пертович",
+        "middlename": "Петрович",
         "gender": "Мужской",
         "birthday": "1982-03-11T00:00:00.000Z",
         "email": "inspector@example.com",
