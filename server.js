@@ -5,14 +5,19 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var multer = require('multer');
 var config = require('nconf').file('./config.json');
 var db = require('./db');
+var MongoStore = require('connect-mongo')(session);
+var mongoStore = new MongoStore({
+    mongooseConnection: db.mongoose.connection,
+    ttl: 14 * 24 * 60 * 60 // = 14 days. Default 
+});
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var passportSocketIo = require("passport.socketio");
 var notify = io.of('/notify');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -35,12 +40,9 @@ app.use(multer({
 }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'cookie_secret',
     name: 'proctor',
-    store: new MongoStore({
-        mongooseConnection: db.mongoose.connection,
-        ttl: 14 * 24 * 60 * 60 // = 14 days. Default 
-    }),
+    secret: 'cookie_secret',
+    store: mongoStore,
     proxy: true,
     resave: true,
     saveUninitialized: true
@@ -59,6 +61,19 @@ app.use(function(req, res, next) {
     }
     next();
 });
+// socket.io authorization
+io.use(passportSocketIo.authorize({
+    cookieParser: cookieParser,
+    key: 'proctor',
+    secret: 'cookie_secret',
+    store: mongoStore,
+    success: function(data, accept) {
+        accept();
+    },
+    fail: function(data, message, error, accept) {
+        if (error) accept(new Error(message));
+    }
+}));
 // routing
 require('./routes')(app);
 // catch 404 and forward to error handler
@@ -70,7 +85,7 @@ app.use(function(req, res, next) {
 // error handlers
 // development error handler
 // will print stacktrace
-if(app.get('env') === 'development') {
+if (app.get('env') === 'development') {
     db.mongoose.set('debug', true);
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);

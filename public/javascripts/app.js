@@ -346,6 +346,9 @@ var Workspace = Backbone.Router.extend({
     },
     main: function() {
         if (app.profile.isAuth()) {
+            app.connect({
+                'forceNew': true
+            });
             var role = app.profile.get("role");
             var navigate = "login";
             switch (role) {
@@ -353,10 +356,9 @@ var Workspace = Backbone.Router.extend({
                     navigate = "schedule";
                     break;
                 case 2:
-                case 3:
                     navigate = "monitor";
                     break;
-                case 4:
+                case 3:
                     navigate = "admin";
                     break;
             }
@@ -2379,15 +2381,10 @@ var DemoView = Backbone.View.extend({
 var AppView = Backbone.View.extend({
     initialize: function() {
         app = this;
-        var url = window.location.host;
         this.profile = new Profile();
         this.settings = new Settings();
-        this.io = {
-            notify: io.connect(url + '/notify'),
-            call: io.connect(url + '/call'),
-            screen: io.connect(url + '/screen')
-        };
         this.router = new Workspace();
+        this.connect();
         Backbone.history.start();
     },
     render: function(url, callback) {
@@ -2398,6 +2395,14 @@ var AppView = Backbone.View.extend({
                 if (callback) callback();
             }
         });
+    },
+    connect: function(options) {
+        var url = window.location.host;
+        this.io = {
+            notify: io.connect(url + '/notify', options),
+            call: io.connect(url + '/call', options),
+            screen: io.connect(url + '/screen', options)
+        };
     },
     logout: function() {
         if (this.profile.logout()) {
