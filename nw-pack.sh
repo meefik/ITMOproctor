@@ -2,7 +2,7 @@
 
 NW_VERSION="0.12.2"
 NW_PLATFORM="linux-ia32 linux-x64 win-ia32 win-x64" # linux-ia32 linux-x64 osx-ia32 osx-x64 win-ia32 win-x64
-APP_NAME="itmo-proctor"
+APP_NAME="itmoproctor"
 APP_DIR="${PWD}/app-nw"
 CACHE_DIR="${PWD}/cache"
 DIST_DIR="${PWD}/dist"
@@ -15,7 +15,7 @@ download()
    if [ ! -e "$filename" ]
    then
       [ ! -e "${CACHE_DIR}" ] && mkdir -p ${CACHE_DIR}
-      wget -O $filename $url > /dev/null
+      wget -O $filename $url 1>/dev/null 2>&1
    fi
    echo "done"
 }
