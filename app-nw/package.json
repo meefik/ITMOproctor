@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "System of distant supervision",
   "main": "index.html",
+  "homepage": "https://proctor-meefik.c9.io",
   "window": {
     "toolbar": false,
     "width": 1280,

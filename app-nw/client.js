@@ -1,4 +1,3 @@
-var frame = document.getElementById('proctor-app');
 var gui = require('nw.gui');
 gui.Screen.Init();
 var win = gui.Window.get();
@@ -40,6 +39,8 @@ window.addEventListener("message", function(event) {
     }
 });
 
+var frame = document.getElementById('app-frame');
 frame.onload = function() {
     win.title = this.contentDocument.title;
 }
+frame.src = gui.App.manifest.homepage;
