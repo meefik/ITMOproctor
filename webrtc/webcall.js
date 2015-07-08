@@ -362,8 +362,10 @@ module.exports = function(io, targets) {
         }
     }
 
-    // Recover kurentoClient for the first time.
+    // Recover kurentoClient for the first time
     function getKurentoClient(callback) {
+        console.log(userRegistry.usersById);
+        console.log(userRegistry.usersByName);
         if (kurentoClient !== null) {
             return callback(null, kurentoClient);
         }

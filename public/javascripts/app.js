@@ -1150,6 +1150,7 @@ var NotesView = Backbone.View.extend({
                         moment.locale('ru');
                         var timeStr = moment(self.model.get('time')).format('LLL');
                         self._DialogTime.text(timeStr);
+                        $(this).dialog('center');
                     }
                 });
                 self._DialogForm.form('load', this.model.toJSON());
@@ -2061,6 +2062,32 @@ var InfoView = Backbone.View.extend({
             onLoad: function() {
                 self.render();
             },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
+            onMove: function(left, top) {
+                var obj = $(this);
+                var leftMax = window.innerWidth-obj.dialog('options').width;
+                var topMax = window.innerHeight-obj.dialog('options').height;
+                var change = false;
+                if (left < 0) {
+                    left = 0;
+                    change = true;
+                }
+                if (top < 0) {
+                    top = 0;
+                    change = true;
+                }
+                if (left > leftMax) {
+                    left = leftMax;
+                    change = true;
+                }
+                if (top > topMax) {
+                    top = topMax;
+                    change = true;
+                }
+                if (change) $(this).dialog('move',{left: left, top:top});
+            },
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2112,6 +2139,9 @@ var PassportView = Backbone.View.extend({
             onLoad: function() {
                 self.render();
             },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2161,6 +2191,9 @@ var SettingsView = Backbone.View.extend({
             href: '/templates/settings.html',
             onLoad: function() {
                 self.render();
+            },
+            onOpen: function() {
+                $(this).dialog('center');
             },
             buttons: [{
                 text: 'Сохранить',
@@ -2272,6 +2305,9 @@ var ProfileView = Backbone.View.extend({
             onLoad: function() {
                 self.render();
             },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2312,6 +2348,9 @@ var DemoView = Backbone.View.extend({
             href: '/templates/demo.html',
             onLoad: function() {
                 self.render();
+            },
+            onOpen: function() {
+                $(this).dialog('center');
             },
             onClose: function() {
                 self.view.webcam.stop();
