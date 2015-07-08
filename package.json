@@ -32,7 +32,6 @@
     "urlify": "~0.3.6"
   },
   "devDependencies": {
-    "bower": "^1.4.1",
-    "node-webkit-builder": "^1.0.12"
+    "bower": "^1.4.1"
   }
 }
