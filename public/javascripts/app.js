@@ -2065,29 +2065,6 @@ var InfoView = Backbone.View.extend({
             onOpen: function() {
                 $(this).dialog('center');
             },
-            onMove: function(left, top) {
-                var obj = $(this);
-                var leftMax = window.innerWidth-obj.dialog('options').width;
-                var topMax = window.innerHeight-obj.dialog('options').height;
-                var change = false;
-                if (left < 0) {
-                    left = 0;
-                    change = true;
-                }
-                if (top < 0) {
-                    top = 0;
-                    change = true;
-                }
-                if (left > leftMax) {
-                    left = leftMax;
-                    change = true;
-                }
-                if (top > topMax) {
-                    top = topMax;
-                    change = true;
-                }
-                if (change) $(this).dialog('move',{left: left, top:top});
-            },
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2219,7 +2196,7 @@ var SettingsView = Backbone.View.extend({
                     self._ScreenId.textbox('setValue', message.data);
                     break;
                 case 'version':
-                    self._Version.text(message.data);
+                    self._Version.text(message.data.app + ' [nw.js ' + message.data.nw + ']');
                     break;
             }
         }

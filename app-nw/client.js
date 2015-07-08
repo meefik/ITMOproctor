@@ -27,10 +27,13 @@ window.addEventListener("message", function(event) {
             });
             break;
         case 'getVersion':
-            var appVersion = gui.App.manifest.version;
+            var version = {
+                app: gui.App.manifest.version,
+                nw: process.versions['node-webkit']
+            }
             var message = {
                 id: 'version',
-                data: appVersion
+                data: version
             };
             event.source.postMessage(message, '*');
             break;
