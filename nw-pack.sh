@@ -61,12 +61,12 @@ pack_app()
    echo -n "Combining nw.js and ${APP_NAME} app... "
    if [ -e "$target_dir/nw" ]
    then
-      cat $target_dir/nw ${DIST_DIR}/app.nw > $target_dir/${APP_NAME} && chmod +x $target_dir/${APP_NAME}
+      cat $target_dir/nw ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME} && chmod +x $target_dir/${APP_NAME}
       rm $target_dir/nw
    fi
    if [ -e "$target_dir/nw.exe" ]
    then
-      cat $target_dir/nw.exe ${DIST_DIR}/app.nw > $target_dir/${APP_NAME}.exe && chmod +x $target_dir/${APP_NAME}.exe
+      cat $target_dir/nw.exe ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME}.exe && chmod +x $target_dir/${APP_NAME}.exe
       rm $target_dir/nw.exe
    fi
    echo "done"
@@ -112,18 +112,36 @@ clean_dir()
    if [ -e "$target_dir" ]
    then
       rm -rf $target_dir
-      mkdir -p $target_dir
    fi
+   mkdir -p $target_dir
+   echo "done"
+}
+
+metadata()
+{
+   local app_version=$(node -pe 'JSON.parse(process.argv[1]).version' "$(cat ${APP_DIR}/package.json)")
+   local json="{ \"version\": \"${app_version}\", \"date\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"md5\": { "
+   echo -n "Generating metadata... "
+   for file in $(ls ${DIST_DIR} | grep -v "metadata.json")
+   do
+      local md5=$(md5sum ${DIST_DIR}/${file} | cut -f1 -d' ')
+      [ -n "${first}" ] && json="${json}, "
+      local first=1
+      json="${json} \"${file}\": \"${md5}\""
+   done
+   json="${json} } }"
+   echo ${json} > ${DIST_DIR}/metadata.json
    echo "done"
 }
 
 clean_dir ${DIST_DIR}
-pack_zip ${APP_DIR} ${DIST_DIR}/app.nw
+pack_zip ${APP_DIR} ${CACHE_DIR}/app.nw
 
 for platform in ${NW_PLATFORM}
 do
    echo ">>> Processing: ${platform}"
-   platform_dir=${DIST_DIR}/${platform}
+   platform_dir=${CACHE_DIR}/${platform}
+   [ -e "${platform_dir}" ] && rm -rf ${platform_dir}
    case "${platform}" in
    linux-*)
       build_app "http://dl.nwjs.io/v${NW_VERSION}/nwjs-v${NW_VERSION}-${platform}.tar.gz" ${platform_dir}
@@ -137,5 +155,6 @@ do
       
    ;;
    esac
-   [ -e "${platform_dir}" ] && rm -rf ${platform_dir}
 done
+
+metadata

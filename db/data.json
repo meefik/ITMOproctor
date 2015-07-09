@@ -13,7 +13,7 @@
         "role": 2,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
-            "filename": "scan1.png"
+            "filename": "avatar.png"
         }]
     }, {
         "_id": "55633e000cf842a221a37ae1",
@@ -29,7 +29,7 @@
         "role": 2,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
-            "filename": "scan1.png"
+            "filename": "avatar.png"
         }]
     }, {
         "_id": "55633e000cf842a221a37ae3",
@@ -45,7 +45,7 @@
         "role": 1,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
-            "filename": "scan1.png"
+            "filename": "avatar.png"
         }]
     }, {
         "_id": "55633e000cf842a221a37af2",
@@ -61,7 +61,7 @@
         "role": 1,
         "photo": [{
             "fileId": "557f2220a9d6add27206cb71",
-            "filename": "scan1.png"
+            "filename": "avatar.png"
         }]
     }],
     "passport": [{

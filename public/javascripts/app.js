@@ -2157,6 +2157,9 @@ var PassportView = Backbone.View.extend({
 //
 var SettingsView = Backbone.View.extend({
     tagName: 'div',
+    events: {
+        "click .check-update-btn": "doUpdate"
+    },
     initialize: function() {
         var self = this;
         var dialog = $(this.el).dialog({
@@ -2197,6 +2200,7 @@ var SettingsView = Backbone.View.extend({
                     break;
                 case 'version':
                     self._Version.text(message.data.app + ' [nw.js ' + message.data.nw + ']');
+                    self.doUpdate(message.data.app);
                     break;
             }
         }
@@ -2229,7 +2233,9 @@ var SettingsView = Backbone.View.extend({
         this._WebcameraVideo = this.$('.webcamera-video');
         this._SettingsForm = this.$('.settings-form');
         this._ScreenId = this.$('.screen-id');
-        this._Version = this.$('.version-info');
+        this._Version = this.$('.app-version');
+        this._Update = this.$('.app-update');
+        this._Dist = this.$('.app-dist');
         parent.postMessage('getVersion', '*');
         this._ScreenBtn.click(function() {
             parent.postMessage('chooseSourceId', '*');
@@ -2263,6 +2269,19 @@ var SettingsView = Backbone.View.extend({
     },
     doClose: function() {
         this._Dialog.dialog('close');
+    },
+    doUpdate: function(version) {
+        var self = this;
+        $.getJSON("dist/metadata.json", function(data) {
+            if (data && data.version != version) {
+                self._Update.html(data.version + " (" + moment(data.date).format('YYYY.MM.DD HH:mm:ss') + ")");
+                self._Dist.html('');
+                for (var k in data.md5) {
+                    self._Dist.append('<li><a href="dist/' + k + '">' + k + '</a></li>');
+                    self._Dist.append('<li>[MD5: ' + data.md5[k] + ']</li>');
+                }
+            }
+        });
     }
 });
 //

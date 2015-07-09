@@ -6,7 +6,7 @@
   "homepage": "https://proctor-meefik.c9.io",
   "window": {
     "toolbar": false,
-    "width": 1280,
+    "width": 640,
     "height": 960
   },
   "chromium-args": "--enable-usermedia-screen-capturing"

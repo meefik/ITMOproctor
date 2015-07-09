@@ -66,3 +66,8 @@ body {
 .chat-input[placeholder]:empty:focus:before {
     content: "";
 }
+.app-dist {
+    font-family: monospace;
+    list-style-type: none;
+    padding-left: 0;
+}
