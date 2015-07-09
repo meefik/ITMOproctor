@@ -5,7 +5,7 @@ NW_PLATFORM="linux-ia32 linux-x64 win-ia32 win-x64" # linux-ia32 linux-x64 osx-i
 APP_NAME="itmoproctor"
 APP_DIR="${PWD}/app-nw"
 CACHE_DIR="${PWD}/cache"
-DIST_DIR="${PWD}/dist"
+DIST_DIR="${PWD}/public/dist"
 
 download()
 {

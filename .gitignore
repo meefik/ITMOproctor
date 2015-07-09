@@ -34,4 +34,4 @@ uploads/
 
 # For nw-pack.sh
 cache/
-dist/
+public/dist/
