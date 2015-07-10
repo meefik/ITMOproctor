@@ -52,7 +52,6 @@ var db = {
     storage: {
         upload: function(files, callback) {
             files.forEach(function(file, i, arr) {
-                var id = mongoose.Types.ObjectId();
                 var fullname = path.join('uploads', path.basename(file.uploadname));
                 fs.exists(fullname, function(exists) {
                     if (!exists) return;
