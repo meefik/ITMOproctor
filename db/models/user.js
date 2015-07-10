@@ -4,7 +4,6 @@
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var Schema = mongoose.Schema;
-var Passport = require('./passport').schema;
 var Attach = require('./attach').schema;
 var User = new Schema({
     // Логин
@@ -32,35 +31,34 @@ var User = new Schema({
     },
     // Имя
     firstname: {
-        type: String,
+        type: String
     },
     // Фамилия
     lastname: {
-        type: String,
+        type: String
     },
     // Отчество
     middlename: {
-        type: String,
+        type: String
     },
     // Пол
     gender: {
-        type: String,
-        required: true
+        type: String
     },
     // День рождения
     birthday: {
-        type: Date
+        type: String
     },
     // Электронная почта
     email: {
-        type: String,
+        type: String
     },
     // Роль пользователя
     role: {
         type: Number,
-        default: 0
+        default: 1
     },
-    // Cсылка на файл с фотографией пользователя
+    // Ссылка на файл с фотографией пользователя
     photo: [Attach]
 });
 User.methods.encryptPassword = function(password) {

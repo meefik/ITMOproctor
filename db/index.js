@@ -121,8 +121,8 @@ var db = {
             if (fromDate && toDate) {
                 var q = {
                     beginDate: {
-                        $gte: fromDate,
-                        $lt: toDate
+                        "$gte": fromDate,
+                        "$lt": toDate
                     }
                 };
                 query = merge.recursive(true, query, q);
@@ -136,14 +136,14 @@ var db = {
                     //console.log('Идет экзамен');
                     var q = {
                         startDate: {
-                            $ne: null
+                            "$ne": null
                         },
                         stopDate: {
-                            $eq: null
+                            "$eq": null
                         },
                         curator: {
-                            $not: {
-                                $size: 0
+                            "$not": {
+                                "$size": 0
                             }
                         }
                     };
@@ -153,13 +153,13 @@ var db = {
                     //console.log('Ожидают');
                     var q = {
                         beginDate: {
-                            $lte: moment()
+                            "$lte": moment()
                         },
                         endDate: {
-                            $gt: moment()
+                            "$gt": moment()
                         },
                         curator: {
-                            $size: 0
+                            "$size": 0
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -184,11 +184,9 @@ var db = {
                         var item = data[i];
                         var curator = {};
                         if (item.curator.length > 0) curator = item.curator[0];
-                        var arr = [item.examId,
+                        var arr = [item.examId, item.subject, 
                             item.student.lastname, item.student.firstname, item.student.middlename,
-                            curator.lastname, curator.firstname, curator.middlename,
-                            item.subject
-                        ];
+                            curator.lastname, curator.firstname, curator.middlename];
                         var cond = true;
                         for (var k = 0; k < text.length; k++) {
                             var match = false;

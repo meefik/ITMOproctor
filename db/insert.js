@@ -49,7 +49,6 @@ var db = {
             Passport.remove({}, function(err) {
                 var items = data.passport;
                 for (var k in items) {
-                    items[k]['birthday'] = moment(items[k]['birthday'], 'DD.MM.YYYY');
                     var obj = new Passport(items[k]);
                     self.save(obj);
                 }

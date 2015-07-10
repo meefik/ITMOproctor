@@ -14,12 +14,12 @@ var Passport = new Schema({
     },
     // Серия
     series: {
-        type: Number,
+        type: String,
         required: true
     },
     // Номер
     number: {
-        type: Number,
+        type: String,
         required: true
     },
     // Имя
@@ -44,7 +44,7 @@ var Passport = new Schema({
     },
     // День рождения
     birthday: {
-        type: Date,
+        type: String,
         required: true
     },
     // Гражданство
@@ -64,7 +64,7 @@ var Passport = new Schema({
     },
     // Дата выдачи
     issuedate: {
-        type: Date,
+        type: String,
         required: true
     },
     // Код подразделения
