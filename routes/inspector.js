@@ -11,15 +11,17 @@ router.get('/', function(req, res) {
         text: req.query.text
     }
     db.exam.search(args, function(err, data, count) {
-        if (!err) {
-            var rows = {
+        if (!err && data) {
+            res.json({
                 "total": count,
                 "rows": data
-            }
-            res.json(rows);
+            });
         }
         else {
-            res.status(400).end();
+            res.json({
+                "total": 0,
+                "rows": []
+            });
         }
     });
 });
