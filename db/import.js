@@ -55,7 +55,10 @@ var db = {
         files.forEach(function(file, i, arr) {
             var fullname = path.join(__dirname, 'files', file.filename);
             fs.exists(fullname, function(exists) {
-                if (!exists) return;
+                if (!exists) {
+                    if (callback) callback();
+                    return;
+                }
                 var writestream = db.gfs.createWriteStream({
                     _id: file.fileId,
                     filename: file.filename
