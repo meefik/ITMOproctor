@@ -34,7 +34,7 @@ var db = {
             var Passport = require('./models/passport');
             User.findById(args.userId).exec(function(err, user) {
                 if (err || !user) {
-                    callback(err, user);
+                    callback(err, null);
                 }
                 else {
                     var data = user.toJSON();
@@ -177,6 +177,7 @@ var db = {
             if (text) {
                 // Full text search
                 Exam.find(query).sort('beginDate').populate(opts).exec(function(err, data) {
+                    if (err || !data) return callback(err, null);
                     var out = [];
                     var dl = data.length;
                     for (var i = 0; i < dl; i++) {

@@ -11,7 +11,7 @@ router.get('/', function(req, res) {
         text: req.query.text
     }
     db.exam.search(args, function(err, data, count) {
-        if (!err && data) {
+        if (!err) {
             var rows = {
                 "total": count,
                 "rows": data
