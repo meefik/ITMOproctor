@@ -95,8 +95,6 @@ var db = {
     exam: {
         list: function(args, callback) {
             var opts = [{
-                path: 'subject'
-            }, {
                 path: 'student'
             }, {
                 path: 'curator'
@@ -169,9 +167,6 @@ var db = {
             }
             // Populate options
             var opts = [{
-                path: 'subject',
-                select: 'title code'
-            }, {
                 path: 'student',
                 select: 'firstname lastname middlename'
             }, {
@@ -192,7 +187,7 @@ var db = {
                         var arr = [item.examId,
                             item.student.lastname, item.student.firstname, item.student.middlename,
                             curator.lastname, curator.firstname, curator.middlename,
-                            item.subject.title, item.subject.code
+                            item.subject
                         ];
                         var cond = true;
                         for (var k = 0; k < text.length; k++) {
@@ -227,8 +222,6 @@ var db = {
             var Exam = require('./models/exam');
             // get data
             var opts = [{
-                path: 'subject'
-            }, {
                 path: 'student'
             }, {
                 path: 'curator'
@@ -239,8 +232,6 @@ var db = {
     vision: {
         start: function(args, callback) {
             var opts = [{
-                path: 'subject'
-            }, {
                 path: 'student'
             }, {
                 path: 'curator'

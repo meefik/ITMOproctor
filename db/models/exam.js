@@ -3,7 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Subject = require('./subject').schema;
 var User = require('./user').schema;
 var Exam = new Schema({
     // Идентификатор экзамена (отображаемый)
@@ -12,11 +11,10 @@ var Exam = new Schema({
         unique: true,
         required: true
     },
-    // Предмет, который сдает студент
+    // Дисциплина, которую сдает студент
     subject: {
-        type: Schema.Types.ObjectId,
-        ref: 'Subject',
-        required: true        
+        type: String,
+        required: true
     },
     // Студент
     student: {

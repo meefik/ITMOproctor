@@ -595,8 +595,7 @@ var MonitorView = Backbone.View.extend({
                 }, {
                     field: 'subject',
                     title: 'Экзамен',
-                    width: 200,
-                    formatter: self.formatSubject
+                    width: 200
                 }, {
                     field: 'beginDate',
                     title: 'Дата',
@@ -695,10 +694,6 @@ var MonitorView = Backbone.View.extend({
             var d = moment(val);
             return moment(d).format('DD.MM.YYYY HH:mm');
         }
-    },
-    formatSubject: function(val, row) {
-        if (val == null) return null;
-        return val.title + " (" + val.code + ")";
     },
     formatStudent: function(val, row) {
         if (val == null) return null;
@@ -933,7 +928,7 @@ var VisionView = Backbone.View.extend({
                 var duration = moment() - moment(startDate);
                 if (duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
-                self._ExamWidget.text(subject.title + " (" + subject.code + ")");
+                self._ExamWidget.text(subject);
                 self.view.passport = new PassportView({
                     userId: student._id,
                     modal: false
@@ -1736,8 +1731,7 @@ var ScheduleView = Backbone.View.extend({
                 }, {
                     field: 'subject',
                     title: 'Экзамен',
-                    width: 200,
-                    formatter: self.formatSubject
+                    width: 200
                 }, {
                     field: 'beginDate',
                     title: 'Время начала',
@@ -1834,10 +1828,6 @@ var ScheduleView = Backbone.View.extend({
             var d = moment(val);
             return moment(d).format('DD.MM.YYYY HH:mm');
         }
-    },
-    formatSubject: function(val, row) {
-        if (val == null) return null;
-        return val.title + " (" + val.code + ")";
     },
     formatAction: function(val, row) {
         if (row._id == null) return null;

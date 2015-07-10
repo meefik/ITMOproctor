@@ -1,7 +1,7 @@
 <div class="passport-view"></div>
 <script type="text/template" id="passport-tpl">
 <div style="padding:15px">
-    <% var photoSrc = photo.length > 0 ? '/storage/'+photo[0].fileId : null; %>
+    <% var photoSrc = photo.length > 0 ? '/storage/'+photo[0].fileId : '/images/avatar.png'; %>
     <div style="width:240px;height:320px;float:left;margin-right:15px;">
         <img src="<%- photoSrc %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
     </div>
