@@ -12,12 +12,7 @@ var Passport = new Schema({
         unique: true,
         required: true
     },
-    // Серия
-    series: {
-        type: String,
-        required: true
-    },
-    // Номер
+    // Серия и номер
     number: {
         type: String,
         required: true

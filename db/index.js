@@ -41,8 +41,8 @@ var db = {
                     Passport.findOne({
                         userId: user._id
                     }).exec(function(err, passport) {
-                        if (err) data.passport = null;
-                        else data.passport = passport;
+                        if (passport) data.passport = passport;
+                        else data.passport = {};
                         callback(err, data);
                     });
                 }

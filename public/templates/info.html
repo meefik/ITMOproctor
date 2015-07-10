@@ -46,7 +46,7 @@
         <td><strong>Студент:</strong></td>
         <td>
             <% if(student) { %>
-                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= moment(student.birthday).format('DD.MM.YYYY') %>)
+                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= student.birthday %>)
             <% } %>
         </td>
     </tr>
