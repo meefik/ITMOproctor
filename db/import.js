@@ -7,7 +7,7 @@ var path = require('path');
 var moment = require('moment');
 
 if (process.argv.length !== 3) {
-    console.error('Usage: node insert.js <data.json>');
+    console.error('Usage: node import.js <data.json>');
     process.exit(1);
 }
 
