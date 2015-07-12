@@ -533,6 +533,9 @@ var MonitorView = Backbone.View.extend({
                     case "settings":
                         self.view.settings.doOpen();
                         break;
+                    case "demo":
+                        self.view.demo.doOpen();
+                        break;
                     case "logout":
                         app.logout();
                         break;
@@ -555,7 +558,8 @@ var MonitorView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            info: new InfoView()
+            info: new InfoView(),
+            demo: new DemoView()
         };
         // Timers
         var t1 = setInterval(function() {
@@ -2046,7 +2050,7 @@ var InfoView = Backbone.View.extend({
         this.options = options || {};
         var dialog = $(this.el).dialog({
             title: 'Карточка экзамена',
-            width: 600,
+            width: 500,
             height: 400,
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
