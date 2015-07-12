@@ -593,6 +593,11 @@ var MonitorView = Backbone.View.extend({
                     width: 150,
                     formatter: self.formatStudent
                 }, {
+                    field: 'curator',
+                    title: 'Инспектор',
+                    width: 150,
+                    formatter: self.formatCurator
+                }, {
                     field: 'subject',
                     title: 'Экзамен',
                     width: 200
@@ -606,11 +611,6 @@ var MonitorView = Backbone.View.extend({
                     title: 'Длительность',
                     width: 100,
                     formatter: self.formatDuration
-                }, {
-                    field: 'curator',
-                    title: 'Инспектор',
-                    width: 150,
-                    formatter: self.formatCurator
                 }, {
                     field: 'status',
                     title: 'Статус',
@@ -684,7 +684,7 @@ var MonitorView = Backbone.View.extend({
     formatDuration: function(val, row) {
         if (row.beginDate == null) return null;
         var plan = moment(row.endDate).diff(row.beginDate);
-        var actual = moment(row.stopDate||undefined).diff(row.startDate);
+        var actual = moment(row.stopDate || undefined).diff(row.startDate);
         var duration = moment(plan).utc().format('HH:mm');
         if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
         return duration;
@@ -692,8 +692,7 @@ var MonitorView = Backbone.View.extend({
     formatDate: function(val, row) {
         if (val == null) return null;
         else {
-            var d = moment(val);
-            return moment(d).format('DD.MM.YYYY HH:mm');
+            return moment(val).format('DD.MM.YYYY HH:mm');
         }
     },
     formatStudent: function(val, row) {
@@ -1824,7 +1823,7 @@ var ScheduleView = Backbone.View.extend({
     formatDuration: function(val, row) {
         if (row.beginDate == null) return null;
         var plan = moment(row.endDate).diff(row.beginDate);
-        var actual = moment(row.stopDate||undefined).diff(row.startDate);
+        var actual = moment(row.stopDate || undefined).diff(row.startDate);
         var duration = moment(plan).utc().format('HH:mm');
         if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
         return duration;

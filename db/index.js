@@ -12,7 +12,7 @@ var db = {
             var User = require('./models/user');
             User.findOne({
                 username: username
-            }).select("+hashedPassword +salt").exec(function(err, user) {
+            }).select("+hashedPassword +salt -passport").exec(function(err, user) {
                 if (err) {
                     return done(err);
                 }
