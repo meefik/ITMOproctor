@@ -2162,6 +2162,7 @@ var PassportView = Backbone.View.extend({
         this.model.set('id', this.options.userId);
         this.model.fetch({
             success: function(model, response, options) {
+                if (!model.passport) model.set("passport", {});
                 var html = tpl(model.toJSON());
                 view.html(html);
             }
