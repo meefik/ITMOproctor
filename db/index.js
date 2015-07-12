@@ -31,22 +31,7 @@ var db = {
         },
         passport: function(args, callback) {
             var User = require('./models/user');
-            var Passport = require('./models/passport');
-            User.findById(args.userId).exec(function(err, user) {
-                if (err || !user) {
-                    callback(err, null);
-                }
-                else {
-                    var data = user.toJSON();
-                    Passport.findOne({
-                        userId: user._id
-                    }).exec(function(err, passport) {
-                        if (passport) data.passport = passport;
-                        else data.passport = {};
-                        callback(err, data);
-                    });
-                }
-            });
+            User.findById(args.userId).exec(callback);
         }
     },
     storage: {
@@ -101,9 +86,6 @@ var db = {
             var Exam = require('./models/exam');
             var query = {
                 student: args.userId
-            };
-            if (!args.history) query.endDate = {
-                $gte: moment()
             };
             Exam.find(query).sort('beginDate').populate(opts).exec(callback);
         },

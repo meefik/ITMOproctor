@@ -58,8 +58,28 @@ var User = new Schema({
         type: Number,
         default: 1
     },
-    // Ссылка на файл с фотографией пользователя
-    photo: [Attach]
+    // Паспортные данные
+    passport: {
+        // Тип документа: паспорт, водительское удостоверение и т.п.
+        doctype: {
+            type: String
+        },
+        // Серия и номер
+        number: {
+            type: String
+        },
+        // Дата выдачи
+        issueDate: {
+            type: String
+        },
+        // Дополнительная информация
+        description: {
+            type: String
+        }
+    },
+    // Связанные с пользователем файлы
+    // Первый элемент массива - фотография пользователя
+    attach: [Attach]
 });
 User.methods.encryptPassword = function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');

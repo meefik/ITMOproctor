@@ -27,10 +27,6 @@ conn.once('open', function() {
     });
 });
 
-var User = require('./models/user');
-var Exam = require('./models/exam');
-var Passport = require('./models/passport');
-
 var db = {
     next: function(callback) {
         if (!this.iterator) this.iterator = 0;
@@ -73,6 +69,7 @@ var db = {
     go: function(data, callback) {
         var self = this;
         if (data.user) {
+            var User = require('./models/user');
             User.remove({}, function(err) {
                 var items = data.user;
                 for (var k in items) {
@@ -82,25 +79,14 @@ var db = {
                         self.next(callback);
                     });
                     self.next();
-                    self.store(items[k].photo, function() {
-                        self.next(callback);
-                    });
-                }
-            });
-        }
-        if (data.passport) {
-            Passport.remove({}, function(err) {
-                var items = data.passport;
-                for (var k in items) {
-                    var obj = new Passport(items[k]);
-                    self.next();
-                    self.save(obj, function() {
+                    self.store(items[k].attach, function() {
                         self.next(callback);
                     });
                 }
             });
         }
         if (data.exam) {
+            var Exam = require('./models/exam');
             Exam.remove({}, function(err) {
                 var items = data.exam;
                 for (var k in items) {

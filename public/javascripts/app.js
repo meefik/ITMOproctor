@@ -1696,16 +1696,16 @@ var ScheduleView = Backbone.View.extend({
         }, 1000);
         // Countdown timer
         var t2 = setInterval(function() {
-            if (!self.beginDate) return;
-            var diff = self.beginDate.diff();
+            if (!self.nextExam) return;
+            var diff = moment(self.nextExam.beginDate).diff();
             if (diff < 0) {
-                if (self.resolution == null) {
+                if (self.nextExam.resolution == null) {
                     self._StartBtn.linkbutton('enable');
                     self._StartBtn.css({
                         color: 'green'
                     });
                     self._StartBtn.click(function() {
-                        self.doStart();
+                        self.doStart(self.nextExam._id);
                     });
                     if (diff > -1000) self._Grid.datagrid('reload');
                     clearInterval(t2);
@@ -1749,31 +1749,39 @@ var ScheduleView = Backbone.View.extend({
             ],
             url: '/student',
             method: 'get',
-            queryParams: {
-                history: this.isHistory()
-            },
-            onLoadSuccess: function(data) {
-                if (data.rows.length > 0) {
-                    var first = data.rows[0];
-                    if (moment(first.endDate).diff() > 0) {
-                        self.beginDate = moment(first.beginDate);
-                        self.resolution = first.resolution;
-                        self.examId = first._id;
-                    }
-                }
-            },
             rowStyler: function(index, row) {
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
-                if (beginDate <= moment() && endDate > moment()) {
+                var d = moment();
+                if (beginDate <= d && endDate > d) {
                     return 'background-color:#ccffcc;color:black';
                 }
-                else if (endDate < moment()) {
+                else if (endDate <= d) {
                     return 'background-color:#eee;color:black';
                 }
                 else {
                     return 'background-color:white;color:black';
                 }
+            },
+            loadFilter: function(data) {
+                var exams = {
+                    "total": 0,
+                    "rows": []
+                }
+                var self = app.content;
+                self.nextExam = null;
+                var d = moment();
+                for (var k in data) {
+                    var endDate = moment(data[k].endDate);
+                    if (endDate > d || self.historyFlag) {
+                        exams.rows.push(data[k]);
+                    }
+                    if (!self.nextExam && endDate > d) {
+                        self.nextExam = data[k];
+                    }
+                }
+                exams.total = exams.rows.length;
+                return exams;
             }
         });
     },
@@ -1785,9 +1793,6 @@ var ScheduleView = Backbone.View.extend({
             if (this.view[v]) this.view[v].destroy();
         }
         this.remove();
-    },
-    isHistory: function() {
-        return this.historyFlag ? 1 : 0;
     },
     toggleHostory: function(item) {
         this.historyFlag = !this.historyFlag;
@@ -1803,15 +1808,13 @@ var ScheduleView = Backbone.View.extend({
                 iconCls: 'fa fa-circle-o'
             });
         }
-        this._Grid.datagrid('load', {
-            history: this.isHistory()
-        });
+        this.refreshTable();
     },
     refreshTable: function() {
         this._Grid.datagrid('reload');
     },
-    doStart: function() {
-        app.router.navigate("exam/" + this.examId, {
+    doStart: function(examId) {
+        app.router.navigate("exam/" + examId, {
             trigger: true
         });
     },
@@ -2099,9 +2102,9 @@ var PassportView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Карточка студента',
             width: 800,
-            height: 410,
+            height: 380,
             closed: true,
-            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            modal: false,
             href: '/templates/passport.html',
             onLoad: function() {
                 self.render();
@@ -2136,6 +2139,46 @@ var PassportView = Backbone.View.extend({
         if (userId) {
             this.options.userId = userId;
         }
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
+// Profile view
+//
+var ProfileView = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function() {
+        var self = this;
+        var dialog = $(this.el).dialog({
+            title: 'Профиль пользователя',
+            width: 500,
+            height: 250,
+            closed: true,
+            modal: true,
+            href: '/templates/profile.html',
+            onLoad: function() {
+                self.render();
+            },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
+        var view = this.$('.profile-view');
+        var tpl = _.template($("#profile-tpl").html());
+        var html = tpl(app.profile.toJSON());
+        view.html(html);
+    },
+    doOpen: function() {
         this._Dialog.dialog('open');
     },
     doClose: function() {
@@ -2272,46 +2315,6 @@ var SettingsView = Backbone.View.extend({
                 }
             }
         });
-    }
-});
-//
-// Profile view
-//
-var ProfileView = Backbone.View.extend({
-    tagName: 'div',
-    initialize: function() {
-        var self = this;
-        var dialog = $(this.el).dialog({
-            title: 'Профиль пользователя',
-            width: 500,
-            height: 250,
-            closed: true,
-            modal: true,
-            href: '/templates/profile.html',
-            onLoad: function() {
-                self.render();
-            },
-            onOpen: function() {
-                $(this).dialog('center');
-            },
-            loadingMessage: 'Загрузка...'
-        });
-        this._Dialog = $(dialog);
-    },
-    destroy: function() {
-        this.remove();
-    },
-    render: function() {
-        var view = this.$('.profile-view');
-        var tpl = _.template($("#profile-tpl").html());
-        var html = tpl(app.profile.toJSON());
-        view.html(html);
-    },
-    doOpen: function() {
-        this._Dialog.dialog('open');
-    },
-    doClose: function() {
-        this._Dialog.dialog('close');
     }
 });
 //

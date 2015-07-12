@@ -3,8 +3,7 @@ var router = express.Router();
 var db = require('../db');
 router.get('/', function(req, res) {
     var args = {
-        userId: req.user._id,
-        history: req.query.history == 1 ? true : false
+        userId: req.user._id
     }
     db.exam.list(args, function(err, data) {
         if (!err && data.length > 0) {

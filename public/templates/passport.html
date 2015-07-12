@@ -1,62 +1,50 @@
 <div class="passport-view"></div>
 <script type="text/template" id="passport-tpl">
 <div style="padding:15px">
-    <% var photoSrc = photo.length > 0 ? '/storage/'+photo[0].fileId : '/images/avatar.png'; %>
+    <% var photo = attach.length > 0 ? '/storage/' + attach[0].fileId : '/images/avatar.png'; %>
     <div style="width:240px;height:320px;float:left;margin-right:15px;">
-        <img src="<%- photoSrc %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
+        <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
     </div>
     <div style="float:clear">
     <table cellpadding="5">
     <tr>
         <td>ФИО:</td>
-        <td><%- passport.lastname || lastname  %> <%- passport.firstname || firstname %> <%- passport.middlename || middlename %></td>
+        <td><%- lastname %> <%- firstname %> <%- middlename %></td>
     </tr>
     <tr>
         <td>Пол:</td>
-        <td><%- passport.gender || gender %></td>
+        <td><%- gender %></td>
     </tr>
     <tr>
         <td>Дата рождения:</td>
-        <td><%- passport.birthday || birthday %></td>
+        <td><%- birthday %></td>
     </tr>
     <tr>
-        <td>Гражданство:</td>
-        <td><%- passport.citizenship || "-" %></td>
+        <td>Электронный адрес:</td>
+        <td style="word-break:break-all;"><%- email %></td>
     </tr>
     <tr>
-        <td>Место рождения:</td>
-        <td><%- passport.birthplace || "-" %></td>
+        <td>Тип документа:</td>
+        <td><% if (passport.doctype) { %><%- passport.doctype %><% } else { %> - <% } %></td>
     </tr>
     <tr>
-        <td>Паспорт:</td>
-        <td><%- passport.number || "-" %></td>
+        <td>Номер документа:</td>
+        <td><% if (passport.number) { %><%- passport.number %><% } else { %> - <% } %></td>
     </tr>
     <tr>
-        <td>Кем выдан:</td>
-        <td><%- passport.department || "-" %></td>
-    </tr>
-    <tr>
-        <td>Дата выдачи:</td>
-        <td><%- passport.issuedate || "-" %></td>
-    </tr>
-    <tr>
-        <td>Код подразделения:</td>
-        <td><%- passport.departmentcode || "-" %></td>
-    </tr>
-    <tr>
-        <td>Место регистрации:</td>
-        <td><%- passport.registration || "-" %></td>
+        <td>Дата выдачи документа:</td>
+        <td><% if (passport.issueDate) { %><%- passport.issueDate %><% } else { %> - <% } %></td>
     </tr>
     <tr>
         <td>Дополнительная информация:</td>
-        <td><%- passport.description || "-" %></td>
+        <td><% if (passport.description) { %><%- passport.description %><% } else { %> - <% } %></td>
     </tr>
     <tr>
-        <td>Копии страниц паспорта:</td>
+        <td>Приложенные файлы:</td>
         <td>
-            <% if(passport.attach && passport.attach.length > 0) { %>
-                <% _.each(passport.attach, function(element, index, list){ %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
+            <% if(attach.length > 0) { %>
+                <% _.each(attach, function(element, index, list){ %>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- element.filename %></a>
                 <% }); %>
             <% } else { %>
                 -
