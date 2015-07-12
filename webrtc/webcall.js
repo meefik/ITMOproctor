@@ -65,8 +65,12 @@ module.exports = function(io, targets) {
     }
 
     // Represents a B2B active call
-    function CallMediaPipeline(loopback) {
-        this._loopback = loopback;
+    function CallMediaPipeline(callerName, calleeName) {
+        var recorderUri = config.get('recorder:uri');
+        var timestamp = Date.now();
+        this._loopback = arguments.length > 0 ? false : true;
+        this._callerRecorderUri = recorderUri + timestamp + '_' + callerName + '.webm';
+        this._calleeRecorderUri = recorderUri + timestamp + '_' + calleeName + '.webm';
         this._pipeline = null;
         this._callerWebRtcEndpoint = null;
         this._calleeWebRtcEndpoint = null;
@@ -98,26 +102,69 @@ module.exports = function(io, targets) {
                         });
                     }
                     else {
-                        pipeline.create('WebRtcEndpoint', function(error, calleeWebRtcEndpoint) {
+                        pipeline.create('RecorderEndpoint', {
+                            uri: self._callerRecorderUri
+                        }, function(error, callerRecorder) {
                             if (error) {
                                 pipeline.release();
                                 return callback(error);
                             }
-                            callerWebRtcEndpoint.connect(calleeWebRtcEndpoint, function(error) {
+                            pipeline.create('WebRtcEndpoint', function(error, calleeWebRtcEndpoint) {
                                 if (error) {
                                     pipeline.release();
                                     return callback(error);
                                 }
-                                calleeWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
+                                pipeline.create('RecorderEndpoint', {
+                                    uri: self._calleeRecorderUri
+                                }, function(error, calleeRecorder) {
                                     if (error) {
                                         pipeline.release();
                                         return callback(error);
                                     }
+                                    callerWebRtcEndpoint.connect(callerRecorder, function(error) {
+                                        if (error) {
+                                            pipeline.release();
+                                            return callback(error);
+                                        }
+                                        calleeWebRtcEndpoint.connect(calleeRecorder, function(error) {
+                                            if (error) {
+                                                pipeline.release();
+                                                return callback(error);
+                                            }
+                                            callerWebRtcEndpoint.connect(calleeWebRtcEndpoint, function(error) {
+                                                if (error) {
+                                                    pipeline.release();
+                                                    return callback(error);
+                                                }
+                                                calleeWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
+                                                    if (error) {
+                                                        pipeline.release();
+                                                        return callback(error);
+                                                    }
+                                                    callerRecorder.record(function(error) {
+                                                        if (error) {
+                                                            pipeline.release();
+                                                            return callback(error);
+                                                        }
+                                                        calleeRecorder.record(function(error) {
+                                                            if (error) {
+                                                                callerRecorder.stop();
+                                                                pipeline.release();
+                                                                return callback(error);
+                                                            }
+                                                            self._pipeline = pipeline;
+                                                            self._callerRecorder = callerRecorder;
+                                                            self._calleeRecorder = calleeRecorder;
+                                                            self._callerWebRtcEndpoint = callerWebRtcEndpoint;
+                                                            self._calleeWebRtcEndpoint = calleeWebRtcEndpoint;
+                                                            callback(null);
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
                                 });
-                                self._pipeline = pipeline;
-                                self._callerWebRtcEndpoint = callerWebRtcEndpoint;
-                                self._calleeWebRtcEndpoint = calleeWebRtcEndpoint;
-                                callback(null);
                             });
                         });
                     }
@@ -132,6 +179,8 @@ module.exports = function(io, targets) {
         this._calleeWebRtcEndpoint.processOffer(sdpOffer, callback);
     }
     CallMediaPipeline.prototype.release = function() {
+        if (this._callerRecorder) this._callerRecorder.stop();
+        if (this._calleeRecorder) this._calleeRecorder.stop();
         if (this._pipeline) this._pipeline.release();
         this._pipeline = null;
     }
@@ -280,7 +329,7 @@ module.exports = function(io, targets) {
             }
         }
         var caller = userRegistry.getById(callerId);
-        var pipeline = new CallMediaPipeline(true);
+        var pipeline = new CallMediaPipeline();
         pipeline.createPipeline(function(error) {
             if (error) {
                 return onError(error);
@@ -326,7 +375,7 @@ module.exports = function(io, targets) {
         }
         var caller = userRegistry.getByName(from);
         if (callResponse === 'accept') {
-            var pipeline = new CallMediaPipeline();
+            var pipeline = new CallMediaPipeline(caller.name, callee.name);
             pipeline.createPipeline(function(error) {
                 if (error) {
                     return onError(error, error);

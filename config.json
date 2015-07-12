@@ -4,5 +4,8 @@
     },
     "ws": {
         "uri": "ws://de.ifmo.ru:8888/kurento"
+    },
+    "recorder": {
+        "uri": "file:///tmp/"
     }
 }
