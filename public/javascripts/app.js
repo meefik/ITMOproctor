@@ -588,10 +588,6 @@ var MonitorView = Backbone.View.extend({
         this._Grid.datagrid({
             columns: [
                 [{
-                    field: 'examId',
-                    title: 'ID',
-                    width: 60
-                }, {
                     field: 'student',
                     title: 'Студент',
                     width: 150,
@@ -602,12 +598,12 @@ var MonitorView = Backbone.View.extend({
                     width: 200
                 }, {
                     field: 'beginDate',
-                    title: 'Дата',
+                    title: 'Начало',
                     width: 150,
                     formatter: self.formatDate
                 }, {
                     field: 'duration',
-                    title: 'Продолжительность',
+                    title: 'Длительность',
                     width: 100,
                     formatter: self.formatDuration
                 }, {
@@ -627,6 +623,7 @@ var MonitorView = Backbone.View.extend({
                     formatter: self.formatAction
                 }]
             ],
+            rownumbers: true,
             url: '/inspector',
             method: 'get',
             queryParams: {
@@ -685,12 +682,12 @@ var MonitorView = Backbone.View.extend({
         });
     },
     formatDuration: function(val, row) {
-        if (row.startDate == null) return null;
-        var startDate = moment(row.startDate);
-        var stopDate = moment();
-        if (row.stopDate != null) stopDate = moment(row.stopDate);
-        var duration = stopDate - startDate;
-        return moment(duration).utc().format('HH:mm:ss');
+        if (row.beginDate == null) return null;
+        var plan = moment(row.endDate).diff(row.beginDate);
+        var actual = moment(row.stopDate||undefined).diff(row.startDate);
+        var duration = moment(plan).utc().format('HH:mm');
+        if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
+        return duration;
     },
     formatDate: function(val, row) {
         if (val == null) return null;
@@ -1729,16 +1726,12 @@ var ScheduleView = Backbone.View.extend({
         this._Grid.datagrid({
             columns: [
                 [{
-                    field: 'examId',
-                    title: 'ID',
-                    width: 60
-                }, {
                     field: 'subject',
                     title: 'Экзамен',
                     width: 200
                 }, {
                     field: 'beginDate',
-                    title: 'Время начала',
+                    title: 'Начало',
                     width: 150,
                     formatter: self.formatDate
                 }, {
@@ -1747,10 +1740,16 @@ var ScheduleView = Backbone.View.extend({
                     width: 100,
                     formatter: self.formatDuration
                 }, {
+                    field: 'status',
+                    title: 'Статус',
+                    width: 100,
+                    formatter: self.formatStatus
+                }, {
                     field: 'action',
                     formatter: self.formatAction
                 }]
             ],
+            rownumbers: true,
             url: '/student',
             method: 'get',
             rowStyler: function(index, row) {
@@ -1824,10 +1823,11 @@ var ScheduleView = Backbone.View.extend({
     },
     formatDuration: function(val, row) {
         if (row.beginDate == null) return null;
-        var beginDate = moment(row.beginDate);
-        var endDate = moment(row.endDate);
-        var duration = endDate - beginDate;
-        return moment(duration).utc().format('HH:mm');
+        var plan = moment(row.endDate).diff(row.beginDate);
+        var actual = moment(row.stopDate||undefined).diff(row.startDate);
+        var duration = moment(plan).utc().format('HH:mm');
+        if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
+        return duration;
     },
     formatDate: function(val, row) {
         if (val == null) return null;
@@ -1843,6 +1843,35 @@ var ScheduleView = Backbone.View.extend({
         return tpl({
             examId: row._id
         });
+    },
+    formatStatus: function(val, row) {
+        if (row.beginDate == null) return;
+        var status = 0;
+        var d = moment();
+        var beginDate = moment(row.beginDate);
+        var endDate = moment(row.endDate);
+        if (beginDate > d) status = 1;
+        if (endDate <= d) status = 6;
+        if (beginDate <= d && endDate > d) status = 2;
+        if (row.startDate != null) status = 3;
+        if (row.resolution === true) status = 4;
+        if (row.resolution === false) status = 5;
+        switch (status) {
+            case 1:
+                return '<span style="color:blue;">Запланирован</span>';
+            case 2:
+                return '<span style="color:orange;">Ожидает</span>';
+            case 3:
+                return '<span style="color:red;">Идет</span>';
+            case 4:
+                return '<span style="color:green;">Сдан</span>';
+            case 5:
+                return '<span style="color:purple;">Прерван</span>';
+            case 6:
+                return '<span style="color:gray;">Пропущен</span>';
+            default:
+                return null;
+        }
     },
     doInfo: function(examId) {
         this.view.info.doOpen(examId);
@@ -2051,7 +2080,7 @@ var InfoView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Карточка экзамена',
             width: 500,
-            height: 400,
+            height: 350,
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
             cache: false,

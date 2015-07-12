@@ -2,15 +2,9 @@
 <script type="text/template" id="info-tpl">
 <table width="100%" height="100%" cellpadding="5">
     <tr>
-        <td><strong>Идентификатор:</strong></td>
-        <td>
-            <%= examId %>
-        </td>
-    </tr>
-    <tr>
         <td><strong>Экзамен:</strong></td>
         <td>
-            <%= subject %>
+            <%- subject %>
         </td>
     </tr>
     <tr>
@@ -18,7 +12,7 @@
         <td>
             <%= moment(beginDate).format('DD.MM.YYYY HH:mm') %>
             <% if(startDate != null) { %>
-                (<%= moment(startDate).format('HH:mm') %>)
+                (<%- moment(startDate).format('HH:mm') %>)
             <% } %>
         </td>
     </tr>
@@ -27,26 +21,25 @@
         <td>
             <%= moment(endDate).format('DD.MM.YYYY HH:mm') %> 
             <% if(stopDate != null) { %>
-                (<%= moment(stopDate).format('HH:mm') %>)
+                (<%- moment(stopDate).format('HH:mm') %>)
             <% } %>
         </td>
     </tr>
     <tr>
-        <td><strong>Продолжительность:</strong></td>
+        <td><strong>Длительность:</strong></td>
         <td>
-            <% if(startDate != null) {
-                startDate = moment(startDate);
-                if (stopDate != null) stopDate = moment(stopDate);
-                else stopDate = moment(); %>
-                <%= moment(stopDate.diff(startDate)).utc().format('HH:mm:ss') %>
-            <% } %>
+            <% var plan = moment(endDate).diff(beginDate);
+            var actual = moment(stopDate||undefined).diff(startDate);
+            var duration = moment(plan).utc().format('HH:mm');
+            if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
+            <%- duration %>
         </td>
     </tr>
     <tr>
         <td><strong>Студент:</strong></td>
         <td>
             <% if(student) { %>
-                <%= student.lastname %> <%= student.firstname %> <%= student.middlename %> (<%= student.birthday %>)
+                <%- student.lastname %> <%- student.firstname %> <%- student.middlename %> (<%- student.birthday %>)
             <% } %>
         </td>
     </tr>
@@ -54,7 +47,7 @@
         <td><strong>Инспектор:</strong></td>
         <td>
             <% if(curator[0]) { %>
-                <%= curator[0].lastname %> <%= curator[0].firstname %> <%= curator[0].middlename %>
+                <%- curator[0].lastname %> <%- curator[0].firstname %> <%- curator[0].middlename %>
             <% } %>
         </td>
     </tr>
@@ -63,7 +56,7 @@
         <td>
             <% curator.shift(); %>
             <% _.each(curator, function(item) { %>
-                <%= item.lastname %> <%= item.firstname %> <%= item.middlename %><br>
+                <%- item.lastname %> <%- item.firstname %> <%- item.middlename %><br>
             <% }); %>
         </td>
     </tr>
@@ -76,7 +69,7 @@
     </tr>
     <tr>
         <td><strong>Комментарий:</strong></td>
-        <td><%= comment %></td>
+        <td><%- comment %></td>
     </tr>
 </table>
 </script>

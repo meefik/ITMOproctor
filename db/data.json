@@ -64,7 +64,6 @@
         }]
     }],
     "exam": [{
-        "examId": "100001",
         "subject": "Специальность (05.13.15)",
         "student": "55633e000cf842a221a37ae3",
         "curator": [],
@@ -74,26 +73,22 @@
         "stopDate": null,
         "resolution": null,
         "comment": null
-    },
-    {
-        "examId": "100002",
+    }, {
         "subject": "Иностранный язык (05.13.15)",
         "student": "55633e000cf842a221a37ae3",
         "curator": [],
-        "beginDate": "2015-07-11T10:00:00.000Z",
-        "endDate": "2015-07-11T13:00:00.000Z",
+        "beginDate": "2015-07-12T10:00:00.000Z",
+        "endDate": "2015-07-12T21:00:00.000Z",
         "startDate": null,
         "stopDate": null,
         "resolution": null,
         "comment": null
-    },
-    {
-        "examId": "100003",
+    }, {
         "subject": "Философия (05.13.15)",
         "student": "55633e000cf842a221a37ae3",
         "curator": [],
-        "beginDate": "2015-07-12T10:08:00.000Z",
-        "endDate": "2015-07-12T21:00:00.000Z",
+        "beginDate": "2015-07-13T10:08:00.000Z",
+        "endDate": "2015-07-13T21:00:00.000Z",
         "startDate": null,
         "stopDate": null,
         "resolution": null,

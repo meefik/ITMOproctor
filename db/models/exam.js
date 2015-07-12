@@ -5,13 +5,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var User = require('./user').schema;
 var Exam = new Schema({
-    // Идентификатор экзамена (отображаемый)
-    examId: {
-        type: Number,
-        unique: true,
-        required: true
-    },
-    // Дисциплина, которую сдает студент
+    // Название экзамена
     subject: {
         type: String,
         required: true
