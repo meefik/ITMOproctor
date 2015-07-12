@@ -212,9 +212,10 @@ var Webcall = Backbone.Model.extend({
     },
     call: function(peer) {
         if (this.callState != 'NO_CALL') return;
-        var self = this;
+        if (!this.get("input") && !this.get("output")) return;
         this.setCallState('PROCESSING_CALL');
-        kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), function(offerSdp, wp) {
+        var self = this;
+        function onSdp(offerSdp, wp) {
             if (self.callState == 'NO_CALL') {
                 wp.dispose();
             }
@@ -229,10 +230,20 @@ var Webcall = Backbone.Model.extend({
                 };
                 self.sendMessage(message);
             }
-        }, function(error) {
+        }
+        function onError(error) {
             console.log(error);
             self.setCallState('NO_CALL');
-        }, self.get("constraints"));
+        }
+        if (this.get("input") && this.get("output")) {
+            kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), onSdp, onError, self.get("constraints"));
+        }
+        if (this.get("input") && !this.get("output")) {
+            kurentoUtils.WebRtcPeer.startSendOnly(this.get("input"), onSdp, onError, self.get("constraints"));
+        }
+        if (!this.get("input") && this.get("output")) {
+            kurentoUtils.WebRtcPeer.startRecvOnly(this.get("output"), onSdp, onError, self.get("constraints"));
+        }
     },
     stop: function(flag) {
         this.setCallState('NO_CALL');
@@ -1610,26 +1621,32 @@ var ScreenView = Backbone.View.extend({
         });
     },
     constraints: function() {
-        var resolution = app.settings.get('screen-resolution');
-        resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
-        var fps = app.settings.get('screen-fps');
-        fps = fps ? fps.get('value') : 15;
-        var sourceId = app.settings.get('screen-id');
-        sourceId = sourceId ? sourceId.get('value') : 'screen:0';
-        var constraints = {
-            audio: false,
-            video: {
-                mandatory: {
-                    maxWidth: resolution[0],
-                    maxHeight: resolution[1],
-                    maxFrameRate: fps,
-                    minFrameRate: 1
+        if (this.videoInput) {
+            var resolution = app.settings.get('screen-resolution');
+            resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
+            var fps = app.settings.get('screen-fps');
+            fps = fps ? fps.get('value') : 15;
+            var sourceId = app.settings.get('screen-id');
+            sourceId = sourceId ? sourceId.get('value') : 'screen:0';
+            var constraints = {
+                audio: false,
+                video: {
+                    mandatory: {
+                        maxWidth: resolution[0],
+                        maxHeight: resolution[1],
+                        maxFrameRate: fps,
+                        minFrameRate: 1,
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: sourceId
+                    }
                 }
             }
-        };
-        if (this.videoInput) {
-            constraints.video.mandatory.chromeMediaSource = 'desktop';
-            constraints.video.mandatory.chromeMediaSourceId = sourceId;
+        }
+        else {
+            var constraints = {
+                audio: false,
+                video: true
+            }
         }
         return constraints;
     },
