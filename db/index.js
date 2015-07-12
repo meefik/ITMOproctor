@@ -338,6 +338,11 @@ var db = {
         list: function(args, callback) {
             var Protocol = require('./models/protocol');
             Protocol.find(args).sort('time').exec(callback);
+        },
+        add: function(args, callback) {
+            var Protocol = require('./models/protocol');
+            var protocol = new Protocol(args);
+            protocol.save(callback);
         }
     }
 }

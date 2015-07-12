@@ -17,11 +17,10 @@ router.get('/:examId', function(req, res) {
     });
 });
 // Create new event
-router.get('/:userId', function(req, res) {
+router.post('/:examId', function(req, res) {
     var args = {
-        userId: req.params.userId,
-        examId: req.query.examId,
-        text: req.query.text
+        examId: req.params.examId,
+        text: req.body.text
     };
     db.protocol.add(args, function(err, data) {
         if (!err && data) {

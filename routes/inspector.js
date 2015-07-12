@@ -34,6 +34,15 @@ router.get('/:examId', function(req, res) {
         if (!err && data) {
             res.json(data);
             req.notify('change-' + args.examId);
+            // Log to protocol
+            var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            var user = req.user.lastname + ' ' + req.user.firstname + ' ' + req.user.middlename;
+            var role = req.user.roleName;
+            var text = user + " (" + role + "): " + ip;
+            db.protocol.add({examId: args.examId, text: text}, function(err, data) {
+                if (err) console.log(err);
+                else req.notify('protocol-' + args.examId);
+            });
         }
         else {
             res.status(400).end();
