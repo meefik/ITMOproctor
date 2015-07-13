@@ -70,36 +70,32 @@ var db = {
         var self = this;
         if (data.user) {
             var User = require('./models/user');
-            User.remove({}, function(err) {
-                var items = data.user;
-                for (var k in items) {
-                    var obj = new User(items[k]);
-                    self.next();
-                    self.save(obj, function() {
-                        self.next(callback);
-                    });
-                    self.next();
-                    self.store(items[k].attach, function() {
-                        self.next(callback);
-                    });
-                }
-            });
+            var items = data.user;
+            for (var k in items) {
+                var obj = new User(items[k]);
+                self.next();
+                self.save(obj, function() {
+                    self.next(callback);
+                });
+                self.next();
+                self.store(items[k].attach, function() {
+                    self.next(callback);
+                });
+            }
         }
         if (data.exam) {
             var Exam = require('./models/exam');
-            Exam.remove({}, function(err) {
-                var items = data.exam;
-                for (var k in items) {
-                    //var d = moment().add((k-1)*5,'hours');
-                    //items[k].beginDate = moment(d).add(1,'minutes');
-                    //items[k].endDate = moment(d).add(4,'hours');
-                    var obj = new Exam(items[k]);
-                    self.next();
-                    self.save(obj, function() {
-                        self.next(callback);
-                    });
-                }
-            });
+            var items = data.exam;
+            for (var k in items) {
+                //var d = moment().add((k-1)*5,'hours');
+                //items[k].beginDate = moment(d).add(1,'minutes');
+                //items[k].endDate = moment(d).add(4,'hours');
+                var obj = new Exam(items[k]);
+                self.next();
+                self.save(obj, function() {
+                    self.next(callback);
+                });
+            }
         }
     }
 };
