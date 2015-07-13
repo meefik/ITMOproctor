@@ -102,8 +102,10 @@ var db = {
             if (fromDate && toDate) {
                 var q = {
                     beginDate: {
-                        "$gte": fromDate,
                         "$lt": toDate
+                    },
+                    endDate: {
+                        "$gt": fromDate
                     }
                 };
                 query = merge.recursive(true, query, q);
