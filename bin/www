@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-var debug = require('debug')('server');
+
 var server = require('../server');
+var logger = require('../logger');
 
 var port = process.env.PORT || 3000;
 
 server.listen(port, function() {
-    debug('listening on port %d', server.address().port);
+    logger.info('Server listening on port ' + server.address().port);
 });

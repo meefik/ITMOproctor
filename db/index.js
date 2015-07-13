@@ -1,4 +1,4 @@
-var debug = require('debug')('mongodb');
+var logger = require('../logger');
 var mongoose = require('mongoose');
 var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
@@ -355,10 +355,10 @@ var db = {
     }
 }
 conn.on('error', function(err) {
-    debug("connection error: %s", err.message);
+    logger.error("MongoDB connection error: " + err.message);
 });
 conn.once('open', function() {
-    debug("connected");
+    logger.info("MongoDb is connected");
     db.gfs = Grid(conn.db, mongoose.mongo);
 });
 db.mongoose = mongoose;
