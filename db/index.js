@@ -1,3 +1,4 @@
+var debug = require('debug')('mongodb');
 var mongoose = require('mongoose');
 var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
@@ -19,6 +20,11 @@ var db = {
                 if (!user) {
                     return done(null, false, {
                         message: 'Incorrect username.'
+                    });
+                }
+                if (!user.isActive()) {
+                    return done(null, false, {
+                        message: 'User is inactive.'
                     });
                 }
                 if (!user.validPassword(password)) {
@@ -349,10 +355,10 @@ var db = {
     }
 }
 conn.on('error', function(err) {
-    console.error("MongoDB connection error:", err.message);
+    debug("connection error: %s", err.message);
 });
 conn.once('open', function() {
-    console.info("MongoDB is connected.");
+    debug("connected");
     db.gfs = Grid(conn.db, mongoose.mongo);
 });
 db.mongoose = mongoose;

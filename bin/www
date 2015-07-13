@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-var debug = require('debug')('proctor');
+var debug = require('debug')('proctor-server');
 var server = require('../server');
 
 var port = process.env.PORT || 3000;
 
 server.listen(port, function() {
-    debug('Express server listening on port ' + server.address().port);
+    debug('listening on port %d', server.address().port);
 });

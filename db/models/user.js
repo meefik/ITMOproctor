@@ -58,6 +58,11 @@ var User = new Schema({
         type: Number,
         default: 1
     },
+    // Разрешен вход или нет
+    active: {
+        type: Boolean,
+        default: true
+    },
     // Паспортные данные
     passport: {
         // Тип документа: паспорт, водительское удостоверение и т.п.
@@ -95,6 +100,9 @@ User.virtual('password').set(function(password) {
 });
 User.methods.validPassword = function(password) {
     return this.encryptPassword(password) === this.hashedPassword;
+};
+User.methods.isActive = function() {
+    return this.active === true;
 };
 User.virtual('roleName').get(function() {
     var role = {
