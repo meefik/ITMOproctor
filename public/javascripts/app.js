@@ -16,8 +16,8 @@ var Profile = Backbone.Model.extend({
             method: "GET",
             url: "/profile",
             async: false
-        }).done(function(user) {
-            console.log('profile.update: success');
+        }).done(function(user, status, xhr) {
+            user.timestamp = new Date(xhr.getResponseHeader('date')).getTime();
             self.clear().set(user);
             result = true;
         }).fail(function() {
@@ -33,8 +33,8 @@ var Profile = Backbone.Model.extend({
             url: "/profile/login",
             data: user,
             async: false
-        }).done(function(user) {
-            console.log('profile.login: success');
+        }).done(function(user, status, xhr) {
+            user.timestamp = new Date(xhr.getResponseHeader('date')).getTime();
             self.clear().set(user);
             result = true;
         }).fail(function() {
@@ -64,6 +64,43 @@ var Profile = Backbone.Model.extend({
     },
     isMe: function(id) {
         return this.get('_id') === id;
+    }
+});
+//
+// ServerTime model
+//
+var ServerTime = Backbone.Model.extend({
+    urlRoot: '/time',
+    initialize: function(options) {
+        var self = this;
+        this.options = options || {};
+        this._ticker = 0;
+        if (this.options.time) this._lastSyncTime = this.options.time;
+        else this.syncTime();
+        this._timer = setInterval(function() {
+            self.onTick();
+        }, 1000);
+    },
+    destroy: function() {
+        if (this._timer) clearInterval(this._timer);
+    },
+    syncTime: function() {
+        var self = this;
+        var t = Date.now();
+        this.fetch({
+            success: function(model, response, options) {
+                self._lastSyncTime = (new Date(model.get("time"))).getTime();
+                var delay = Math.floor((Date.now() - t) / 2);
+                self._ticker = delay;
+            }
+        });
+    },
+    onTick: function() {
+        this._ticker += 1000;
+    },
+    now: function() {
+        if (!this._lastSyncTime) return moment();
+        else return moment(this._lastSyncTime + this._ticker);
     }
 });
 //
@@ -215,6 +252,7 @@ var Webcall = Backbone.Model.extend({
         if (!this.get("input") && !this.get("output")) return;
         this.setCallState('PROCESSING_CALL');
         var self = this;
+
         function onSdp(offerSdp, wp) {
             if (self.callState == 'NO_CALL') {
                 wp.dispose();
@@ -231,6 +269,7 @@ var Webcall = Backbone.Model.extend({
                 self.sendMessage(message);
             }
         }
+
         function onError(error) {
             console.log(error);
             self.setCallState('NO_CALL');
@@ -554,7 +593,7 @@ var MonitorView = Backbone.View.extend({
             }
         });
         this._DateSearch.datebox({
-            value: moment().format("DD.MM.YYYY"),
+            value: app.now().format("DD.MM.YYYY"),
             onChange: function(date) {
                 var valid = moment(date, "DD.MM.YYYY", true).isValid();
                 if (!date || valid) self.doSearch();
@@ -574,7 +613,7 @@ var MonitorView = Backbone.View.extend({
         };
         // Timers
         var t1 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
+            self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1];
         // Monitor model
@@ -638,8 +677,8 @@ var MonitorView = Backbone.View.extend({
             url: '/inspector',
             method: 'get',
             queryParams: {
-                from: moment().startOf('day').toJSON(),
-                to: moment().startOf('day').add(1, 'days').toJSON()
+                from: app.now().startOf('day').toJSON(),
+                to: app.now().startOf('day').add(1, 'days').toJSON()
             }
         });
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
@@ -647,7 +686,7 @@ var MonitorView = Backbone.View.extend({
     formatStatus: function(val, row) {
         if (row.beginDate == null) return;
         var status = 0;
-        var d = moment();
+        var d = app.now();
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
         if (beginDate <= d && endDate > d && row.curator.length == 0) status = 1;
@@ -677,7 +716,7 @@ var MonitorView = Backbone.View.extend({
         if (row.beginDate == null) return null;
         var html = $('#action-item-tpl').html();
         var tpl = _.template(html);
-        var d = moment();
+        var d = app.now();
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
         var isAllow = function() {
@@ -917,13 +956,13 @@ var VisionView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
-            var nowDate = moment();
+            var nowDate = app.now();
             var endDate = moment(self.vision.get("endDate"));
             if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
             else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
+            self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
         // Rendering
@@ -936,7 +975,7 @@ var VisionView = Backbone.View.extend({
                 var student = model.get("student");
                 var subject = model.get("subject");
                 var startDate = model.get("startDate");
-                var duration = moment() - moment(startDate);
+                var duration = app.now() - moment(startDate);
                 if (duration > 0) self.timer = moment(duration);
                 self._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
                 self._ExamWidget.text(subject);
@@ -1000,7 +1039,7 @@ var VisionView = Backbone.View.extend({
                     uploadname: respond.name
                 });
                 self.view.notes.collection.create({
-                    time: moment(),
+                    time: app.now(),
                     text: comment,
                     attach: attach
                 });
@@ -1199,7 +1238,7 @@ var NotesView = Backbone.View.extend({
         var noteText = this._Input.textbox('getValue');
         if (!noteText) return;
         this.collection.create({
-            time: moment(),
+            time: app.now(),
             text: noteText,
             attach: []
         });
@@ -1305,7 +1344,7 @@ var ChatView = Backbone.View.extend({
                 middlename: app.profile.get('middlename')
             };
             this.collection.create({
-                time: moment(),
+                time: app.now(),
                 author: author,
                 text: text,
                 attach: this.attach
@@ -1709,7 +1748,7 @@ var ScheduleView = Backbone.View.extend({
         this.timer = moment(0);
         // Current time timer
         var t1 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
+            self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
         // Countdown timer
         var t2 = setInterval(function() {
@@ -1771,7 +1810,7 @@ var ScheduleView = Backbone.View.extend({
             rowStyler: function(index, row) {
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
-                var d = moment();
+                var d = app.now();
                 if (beginDate <= d && endDate > d) {
                     return 'background-color:#ccffcc;color:black';
                 }
@@ -1789,7 +1828,7 @@ var ScheduleView = Backbone.View.extend({
                 }
                 var self = app.content;
                 self.nextExam = null;
-                var d = moment();
+                var d = app.now();
                 for (var k in data) {
                     var endDate = moment(data[k].endDate);
                     if (endDate > d || self.historyFlag) {
@@ -1863,7 +1902,7 @@ var ScheduleView = Backbone.View.extend({
     formatStatus: function(val, row) {
         if (row.beginDate == null) return;
         var status = 0;
-        var d = moment();
+        var d = app.now();
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
         if (beginDate > d) status = 1;
@@ -2004,13 +2043,13 @@ var ExamView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
-            var nowDate = moment();
+            var nowDate = app.now();
             var endDate = moment(self.student.get("endDate"));
             if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
             else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
-            self._TimeWidget.text(moment().format('HH:mm:ss'));
+            self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
         // Student model
@@ -2052,7 +2091,7 @@ var ExamView = Backbone.View.extend({
             return;
         }
         var startDate = this.student.get("startDate");
-        var duration = moment() - moment(startDate);
+        var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
         var curator = this.student.get("curator");
         if (curator[0]) {
@@ -2460,6 +2499,9 @@ var AppView = Backbone.View.extend({
     initialize: function() {
         app = this;
         this.profile = new Profile();
+        this.serverTime = new ServerTime({
+            time: this.profile.get('timestamp')
+        });
         this.settings = new Settings();
         this.router = new Workspace();
         this.connect();
@@ -2481,6 +2523,9 @@ var AppView = Backbone.View.extend({
             call: io.connect(url + '/call', options),
             screen: io.connect(url + '/screen', options)
         };
+    },
+    now: function() {
+        return this.serverTime.now();
     },
     logout: function() {
         if (this.profile.logout()) {
