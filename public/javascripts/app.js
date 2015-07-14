@@ -70,7 +70,7 @@ var Profile = Backbone.Model.extend({
 // ServerTime model
 //
 var ServerTime = Backbone.Model.extend({
-    urlRoot: '/time',
+    urlRoot: '/tools/time',
     initialize: function(options) {
         var self = this;
         this.options = options || {};
@@ -812,6 +812,11 @@ var VisionView = Backbone.View.extend({
         this.protectionCode = null;
         // jQuery selectors
         this._Menu = $('#main-menu');
+        this._Webcam = this.$('.panel-webcam');
+        this._Screen = this.$('.panel-screen');
+        this._Chat = this.$('.panel-chat');
+        this._Notes = this.$('.panel-notes');
+        this._Protocol = this.$('.panel-protocol');
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
@@ -930,24 +935,24 @@ var VisionView = Backbone.View.extend({
                 modal: false
             }),
             notes: new NotesView({
-                el: $("#panel-notes"),
+                el: this._Notes.get(0),
                 examId: this.options.examId
             }),
             chat: new ChatView({
-                el: $("#panel-chat"),
+                el: this._Chat.get(0),
                 examId: this.options.examId
             }),
             protocol: new ProtocolView({
-                el: $("#panel-protocol"),
+                el: this._Protocol.get(0),
                 examId: this.options.examId
             }),
             webcam: new WebcamView({
-                el: $("#panel-webcam"),
+                el: this._Webcam.get(0),
                 examId: this.options.examId,
                 userId: app.profile.get('_id')
             }),
             screen: new ScreenView({
-                el: $("#panel-screen"),
+                el: this._Screen.get(0),
                 examId: this.options.examId,
                 userId: app.profile.get('_id')
             })
@@ -1945,6 +1950,9 @@ var ExamView = Backbone.View.extend({
         this.options = options || {};
         // jQuery selectors
         this._Menu = $('#main-menu');
+        this._Webcam = this.$('.panel-webcam');
+        this._Screen = this.$('.panel-screen');
+        this._Chat = this.$('.panel-chat');
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
@@ -1990,16 +1998,16 @@ var ExamView = Backbone.View.extend({
                 examId: this.options.examId
             }),
             chat: new ChatView({
-                el: $("#panel-chat"),
+                el: this._Chat.get(0),
                 examId: this.options.examId
             }),
             webcam: new WebcamView({
-                el: $("#panel-webcam"),
+                el: this._Webcam.get(0),
                 examId: this.options.examId,
                 userId: app.profile.get('_id')
             }),
             screen: new ScreenView({
-                el: $("#panel-screen"),
+                el: this._Screen.get(0),
                 examId: this.options.examId,
                 userId: app.profile.get('_id')
             })
@@ -2416,7 +2424,8 @@ var DemoView = Backbone.View.extend({
     tagName: 'div',
     events: {
         "click .play-btn": "doPlay",
-        "click .stop-btn": "doStop"
+        "click .stop-btn": "doStop",
+        "click .networkcheck-btn": "doNetworkCheck"
     },
     initialize: function() {
         var self = this;
@@ -2440,6 +2449,7 @@ var DemoView = Backbone.View.extend({
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
+        this.buffer = this.generateBuffer();
     },
     destroy: function() {
         for (var v in this.view) {
@@ -2449,16 +2459,20 @@ var DemoView = Backbone.View.extend({
     },
     render: function() {
         this._Tabs = this.$('.easyui-tabs');
+        this._Webcam = this.$('.panel-webcam');
+        this._Screen = this.$('.panel-screen');
+        this._Network = this.$('.panel-network');
+        this._NetworkTpl = $('#network-tpl');
         // Sub views
         this.view = {
             webcam: new WebcamView({
-                el: $("#panel-webcam"),
-                examId: 'demo',
+                el: this._Webcam.get(0),
+                examId: 'loopback',
                 userId: app.profile.get('_id')
             }),
             screen: new ScreenView({
-                el: $("#panel-screen"),
-                examId: 'demo',
+                el: this._Screen.get(0),
+                examId: 'loopback',
                 userId: app.profile.get('_id')
             })
         };
@@ -2493,6 +2507,100 @@ var DemoView = Backbone.View.extend({
                 this.view.screen.stop();
                 break;
         }
+    },
+    generateBuffer: function() {
+        // Generate 1 MB buffer
+        var buffer = 'x';
+        for (var i = 0; i < 20; i++) {
+            buffer += buffer;
+        }
+        return buffer;
+    },
+    doNetworkCheck: function() {
+        var self = this;
+        var report = {
+            ip: "-",
+            country: "-",
+            city: "-",
+            ping: "-",
+            tx: "-",
+            rx: "-",
+            init: function() {
+                self._Network.html('Загрузка...');
+                report.doIP();
+                report.doPing(function() {
+                    report.doRX();
+                    report.doTX();
+                });
+            },
+            render: function() {
+                var tpl = _.template(self._NetworkTpl.html());
+                var html = tpl(report);
+                self._Network.html(html);
+            },
+            doIP: function() {
+                $.ajax({
+                    url: '/tools/ip'
+                }).done(function(data) {
+                    report.ip = data.ip;
+                    report.country = data.country;
+                    report.city = data.city;
+                    report.render();
+                });
+            },
+            doPing: function(callback) {
+                var timestamp;
+                $.ajax({
+                    url: '/tools/ping',
+                    cache: false,
+                    beforeSend: function() {
+                        timestamp = Date.now();
+                    }
+                }).done(function() {
+                    var diff = Date.now() - timestamp;
+                    report.ping = parseInt(diff);
+                    report.render();
+                    if (callback) callback();
+                });
+            },
+            doRX: function() {
+                var timestamp;
+                $.ajax({
+                    type: 'post',
+                    url: '/tools/rx',
+                    beforeSend: function(xhr) {
+                        timestamp = Date.now();
+                    }
+                }).done(function() {
+                    var diff = Date.now() - timestamp;
+                    console.log(diff - report.ping);
+                    var mbps = 1000 * 8 / (diff - report.ping);
+                    report.rx = mbps.toFixed(2);
+                    report.render();
+                });
+            },
+            doTX: function() {
+                var timestamp;
+                $.ajax({
+                    type: 'post',
+                    url: '/tools/tx',
+                    data: self.buffer,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+                        timestamp = Date.now();
+                    }
+                }).done(function() {
+                    var diff = Date.now() - timestamp;
+                    console.log(diff - report.ping);
+                    var mbps = 1000 * 8 / (diff - report.ping);
+                    report.tx = mbps.toFixed(2);
+                    report.render();
+                });
+            }
+        };
+        report.init();
     }
 });
 //

@@ -8,15 +8,20 @@
     <div class="ws-content" data-options="region:'center',border:false">
         <div class="easyui-layout" data-options="fit:true">
             <div data-options="region:'north',border:false" class="ws-widget" style="height:50%">
-                <div id="panel-webcam" class="easyui-panel ws-panel" title="Веб-камера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
+                <div class="easyui-panel ws-panel panel-webcam" title="Веб-камера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
                     <!-- Begin: Webcam -->
                     <video class="video-output" autoplay poster="images/webrtc.png"></video>
                     <video class="video-input" autoplay poster="images/webrtc.png"></video>
                     <!-- End: Webcam -->
                 </div>
+                <div class="panel-screen" style="display:none">
+                    <!-- Begin: Screen -->
+                    <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                    <!-- End: Screen -->
+                </div>
             </div>
             <div data-options="region:'center',border:false" class="ws-widget">
-                <div id="panel-chat" class="easyui-panel ws-panel" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
+                <div class="easyui-panel ws-panel panel-chat" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
                     <!-- Begin: Chat -->
                     <div class="easyui-layout" data-options="fit:true">
                         <div class="chat-panel" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;">
@@ -53,11 +58,6 @@
         </div>
     </div>
 </div>
-<!-- Begin: Screen -->
-<div id="panel-screen" style="display:none">
-    <video class="video-input" autoplay poster="images/webrtc.png"></video>
-</div>
-<!-- End: Screen -->
 <div id="main-menu" style="width:150px;">
     <div name="info" data-options="iconCls:'fa fa-tags'">Об экзамене</div>
     <div class="menu-sep"></div>

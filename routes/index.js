@@ -7,7 +7,7 @@ var inspector = require('./inspector');
 var notes = require('./notes');
 var chat = require('./chat');
 var protocol = require('./protocol');
-var time = require('./time');
+var tools = require('./tools');
 module.exports = function(app) {
     app.use('/profile', profile);
     app.use('/passport', profile.isInspector, passport);
@@ -18,5 +18,5 @@ module.exports = function(app) {
     app.use('/notes', profile.isInspector, notes);
     app.use('/chat', profile.isStudent, chat);
     app.use('/protocol', profile.isInspector, protocol);
-    app.use('/time', profile.isStudent, time);
+    app.use('/tools', profile.isStudent, tools);
 }

@@ -18,8 +18,8 @@ body {
     text-decoration: none;
     color: #333;
 }
-#panel-webcam,
-#panel-screen {
+.panel-webcam,
+.panel-screen {
     overflow: hidden;
     text-align: center;
     position: relative;

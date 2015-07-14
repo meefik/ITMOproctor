@@ -15,6 +15,7 @@
     "ejs": "~0.8.5",
     "express": "~4.9.0",
     "express-session": "~1.11.1",
+    "geoip-lite": "^1.1.6",
     "gridfs-stream": "~1.1.1",
     "kurento-client": "~5.1.0",
     "merge": "~1.2.0",
