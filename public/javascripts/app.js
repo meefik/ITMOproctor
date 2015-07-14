@@ -86,11 +86,14 @@ var ServerTime = Backbone.Model.extend({
     },
     syncTime: function() {
         var self = this;
-        var t = Date.now();
+        var clientTime = Date.now();
         this.fetch({
+            data: {
+                client: clientTime
+            },
             success: function(model, response, options) {
-                self._lastSyncTime = (new Date(model.get("time"))).getTime();
-                var delay = Math.floor((Date.now() - t) / 2);
+                self._lastSyncTime = model.get("serverTime");
+                var delay = Math.floor((Date.now() - clientTime) / 2);
                 self._ticker = delay;
             }
         });
