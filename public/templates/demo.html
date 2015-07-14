@@ -51,11 +51,11 @@
     </tr>
     <tr>
         <td>Скорость передачи:</td>
-        <td><%- tx %> Мбит/с</td>
+        <td style="color: <% if(tx < 2) { %>red<% } %><% if(tx >= 2) { %>green<% } %>"><%- tx %> Мбит/с</td>
     </tr>
     <tr>
         <td>Скорость получения:</td>
-        <td><%- rx %> Мбит/с</td>
+        <td style="color: <% if(rx < 2) { %>red<% } %><% if(rx >= 2) { %>green<% } %>"><%- rx %> Мбит/с</td>
     </tr>
 </table>
 </script>

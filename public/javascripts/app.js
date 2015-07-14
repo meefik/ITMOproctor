@@ -2573,7 +2573,6 @@ var DemoView = Backbone.View.extend({
                     }
                 }).done(function() {
                     var diff = Date.now() - timestamp;
-                    console.log(diff - report.ping);
                     var mbps = 1000 * 8 / (diff - report.ping);
                     report.rx = mbps.toFixed(2);
                     report.render();
@@ -2593,7 +2592,6 @@ var DemoView = Backbone.View.extend({
                     }
                 }).done(function() {
                     var diff = Date.now() - timestamp;
-                    console.log(diff - report.ping);
                     var mbps = 1000 * 8 / (diff - report.ping);
                     report.tx = mbps.toFixed(2);
                     report.render();
