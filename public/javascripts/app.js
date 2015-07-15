@@ -2230,7 +2230,8 @@ var PassportView = Backbone.View.extend({
             width: 800,
             height: 380,
             closed: true,
-            modal: false,
+            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            cache: false,
             href: '/templates/passport.html',
             onLoad: function() {
                 self.render();
@@ -2256,7 +2257,7 @@ var PassportView = Backbone.View.extend({
         this.model.set('id', this.options.userId);
         this.model.fetch({
             success: function(model, response, options) {
-                if (!model.passport) model.set("passport", {});
+                if (!model.get("passport")) model.set("passport", {});
                 var html = tpl(model.toJSON());
                 view.html(html);
             }

@@ -2,32 +2,28 @@
 <script type="text/template" id="profile-tpl">
 <div style="padding:15px">
     <% var photo = attach.length > 0 ? '/storage/' + attach[0].fileId : '/images/avatar.png'; %>
-    <div style="width:120px;height:160px;float:left;margin-right:15px;">
-        <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;height:auto;width:auto;max-width:100%;max-height:100%;">
-    </div>
-    <div style="float:clear">
-        <table cellpadding="5">
-        <tr>
-            <td>ФИО:</td>
-            <td><%- lastname %> <%- firstname %> <%- middlename %></td>
-        </tr>
-        <tr>
-            <td>Пол:</td>
-            <td><%- gender %></td>
-        </tr>
-        <tr>
-            <td>Дата рождения:</td>
-            <td><%- birthday %></td>
-        </tr>
-        <tr>
-            <td>Электронный адрес:</td>
-            <td style="word-break:break-all;"><%- email %></td>
-        </tr>
-        <tr>
-            <td>Роль в системе:</td>
-            <td><%- roleName %></td>
-        </tr>
-        </table>
-    </div>
+    <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;width:120px;height:160px;object-position:center;object-fit:cover;float:left;margin-right:10px;">
+    <table cellpadding="5" style="float:clear">
+    <tr>
+        <td>ФИО:</td>
+        <td><%- lastname %> <%- firstname %> <%- middlename %></td>
+    </tr>
+    <tr>
+        <td>Пол:</td>
+        <td><%- gender %></td>
+    </tr>
+    <tr>
+        <td>Дата рождения:</td>
+        <td><%- birthday %></td>
+    </tr>
+    <tr>
+        <td>Электронный адрес:</td>
+        <td style="word-break:break-all;"><%- email %></td>
+    </tr>
+    <tr>
+        <td>Роль в системе:</td>
+        <td><%- roleName %></td>
+    </tr>
+    </table>
 </div>
 </script>
