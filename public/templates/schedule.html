@@ -37,8 +37,6 @@
     <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
 </div>
 <!-- Templates -->
-<script type="text/template" id="action-item-tpl">
-<div class="action-item" style="clear:both">
-    <a href="javascript:void(0);" style="padding:0 10px" onclick="app.content.doInfo('<%- examId %>');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>
-</div>
+<script type="text/template" id="subject-item-tpl">
+<a href="javascript:void(0);" onclick="app.content.doInfo('<%- examId %>');" title="Карточка экзамена"><%- subject %></a>
 </script>

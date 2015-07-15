@@ -35,10 +35,11 @@
 </div>
 <!-- Templates -->
 <script type="text/template" id="action-item-tpl">
-<div class="action-item" style="clear:both">
-    <a href="javascript:void(0);" style="padding-left:10px;float:left" onclick="app.content.doInfo('<%- examId %>');" title="Информация"><i class="fa fa-info-circle fa-lg"></i></a>
-    <% if(openEnabled) { %>
-        <a href="javascript:void(0);" style="padding-right:10px;float:right" onclick="app.content.doPlay('<%- examId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
-    <% } %>
-</div>
+<a href="javascript:void(0);" onclick="app.content.doPlay('<%- examId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
+</script>
+<script type="text/template" id="student-item-tpl">
+<a href="javascript:void(0);" onclick="app.content.doPassport('<%- userId %>');" title="Карточка студента"><%- lastname %> <%- firstname %> <%- middlename %></a>
+</script>
+<script type="text/template" id="subject-item-tpl">
+<a href="javascript:void(0);" onclick="app.content.doInfo('<%- examId %>');" title="Карточка экзамена"><%- subject %></a>
 </script>

@@ -51,7 +51,6 @@ var Profile = Backbone.Model.extend({
             url: "/profile/logout",
             async: false
         }).done(function() {
-            console.log('profile.logout: success');
             self.clear();
             result = true;
         }).fail(function() {
@@ -612,7 +611,8 @@ var MonitorView = Backbone.View.extend({
             settings: new SettingsView(),
             profile: new ProfileView(),
             info: new InfoView(),
-            demo: new DemoView()
+            demo: new DemoView(),
+            passport: new PassportView()
         };
         // Timers
         var t1 = setInterval(function() {
@@ -653,7 +653,8 @@ var MonitorView = Backbone.View.extend({
                 }, {
                     field: 'subject',
                     title: 'Экзамен',
-                    width: 200
+                    width: 200,
+                    formatter: self.formatSubject
                 }, {
                     field: 'beginDate',
                     title: 'Начало',
@@ -671,7 +672,7 @@ var MonitorView = Backbone.View.extend({
                     formatter: self.formatStatus
                 }, {
                     field: 'action',
-                    title: 'Действие',
+                    title: '&nbsp;&nbsp;&nbsp;&nbsp;',
                     align: 'center',
                     formatter: self.formatAction
                 }]
@@ -692,25 +693,28 @@ var MonitorView = Backbone.View.extend({
         var d = app.now();
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
-        if (beginDate <= d && endDate > d && row.curator.length == 0) status = 1;
-        if (row.startDate != null && row.stopDate == null && row.curator.length != 0) status = 2;
-        if (row.resolution === true) status = 3;
-        if (row.resolution === false) status = 4;
-        if (endDate <= d && row.curator.length == 0) status = 5;
-        if (beginDate > d) status = 6;
+        if (beginDate > d) status = 1;
+        if (endDate <= d) status = 7;
+        if (beginDate <= d && endDate > d) status = 2;
+        if (row.startDate != null) status = 3;
+        if (row.curator.length) status = 4;
+        if (row.resolution === true) status = 5;
+        if (row.resolution === false) status = 6;
         switch (status) {
             case 1:
-                return '<span style="color:orange;">Ожидает</span>';
+                return '<span style="color:teal;">Запланирован</span>';
             case 2:
-                return '<span style="color:red;">Идет</span>';
+                return '<span style="color:orange;">Ожидает</span>';
             case 3:
-                return '<span style="color:green;">Сдан</span>';
+                return '<span style="color:olive;">Начат</span>';
             case 4:
-                return '<span style="color:purple;">Прерван</span>';
+                return '<span style="color:red;">Идет</span>';
             case 5:
-                return '<span style="color:gray;">Пропущен</span>';
+                return '<span style="color:green;">Сдан</span>';
             case 6:
-                return '<span style="color:blue;">Запланирован</span>';
+                return '<span style="color:purple;">Прерван</span>';
+            case 7:
+                return '<span style="color:gray;">Пропущен</span>';
             default:
                 return null;
         }
@@ -729,10 +733,10 @@ var MonitorView = Backbone.View.extend({
             }
             return allow;
         }
-        return tpl({
-            examId: row._id,
-            openEnabled: isAllow()
-        });
+        var data = {
+            examId: row._id
+        };
+        return isAllow() ? tpl(data) : null;
     },
     formatDuration: function(val, row) {
         if (row.beginDate == null) return null;
@@ -750,13 +754,30 @@ var MonitorView = Backbone.View.extend({
     },
     formatStudent: function(val, row) {
         if (val == null) return null;
-        var user = val;
-        return user.lastname + " " + user.firstname + " " + user.middlename;
+        var data = {
+            userId: val._id,
+            lastname: val.lastname,
+            firstname: val.firstname,
+            middlename: val.middlename
+        };
+        var html = $('#student-item-tpl').html();
+        var tpl = _.template(html);
+        return tpl(data);
     },
     formatCurator: function(val, row) {
         if (val == null || val.length === 0) return null;
         var user = val[0];
         return user.lastname + " " + user.firstname + " " + user.middlename;
+    },
+    formatSubject: function(val, row) {
+        if (val == null) return null;
+        var data = {
+            examId: row._id,
+            subject: val
+        };
+        var html = $('#subject-item-tpl').html();
+        var tpl = _.template(html);
+        return tpl(data);
     },
     doSearch: function() {
         var status = 0;
@@ -787,6 +808,9 @@ var MonitorView = Backbone.View.extend({
     },
     doInfo: function(examId) {
         this.view.info.doOpen(examId);
+    },
+    doPassport: function(userId) {
+        this.view.passport.doOpen(userId);
     },
     doPlay: function(examId) {
         app.router.navigate("vision/" + examId, {
@@ -1791,7 +1815,8 @@ var ScheduleView = Backbone.View.extend({
                 [{
                     field: 'subject',
                     title: 'Экзамен',
-                    width: 200
+                    width: 200,
+                    formatter: self.formatSubject
                 }, {
                     field: 'beginDate',
                     title: 'Начало',
@@ -1807,9 +1832,6 @@ var ScheduleView = Backbone.View.extend({
                     title: 'Статус',
                     width: 100,
                     formatter: self.formatStatus
-                }, {
-                    field: 'action',
-                    formatter: self.formatAction
                 }]
             ],
             rownumbers: true,
@@ -1819,6 +1841,7 @@ var ScheduleView = Backbone.View.extend({
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
                 var d = app.now();
+                console.log('ok');
                 if (beginDate <= d && endDate > d) {
                     return 'background-color:#ccffcc;color:black';
                 }
@@ -1899,12 +1922,13 @@ var ScheduleView = Backbone.View.extend({
             return moment(d).format('DD.MM.YYYY HH:mm');
         }
     },
-    formatAction: function(val, row) {
-        if (row._id == null) return null;
-        var html = $('#action-item-tpl').html();
+    formatSubject: function(val, row) {
+        if (val == null) return null;
+        var html = $('#subject-item-tpl').html();
         var tpl = _.template(html);
         return tpl({
-            examId: row._id
+            examId: row._id,
+            subject: val
         });
     },
     formatStatus: function(val, row) {
@@ -1914,23 +1938,26 @@ var ScheduleView = Backbone.View.extend({
         var beginDate = moment(row.beginDate);
         var endDate = moment(row.endDate);
         if (beginDate > d) status = 1;
-        if (endDate <= d) status = 6;
+        if (endDate <= d) status = 7;
         if (beginDate <= d && endDate > d) status = 2;
         if (row.startDate != null) status = 3;
-        if (row.resolution === true) status = 4;
-        if (row.resolution === false) status = 5;
+        if (row.curator.length) status = 4;
+        if (row.resolution === true) status = 5;
+        if (row.resolution === false) status = 6;
         switch (status) {
             case 1:
-                return '<span style="color:blue;">Запланирован</span>';
+                return '<span style="color:teal;">Запланирован</span>';
             case 2:
                 return '<span style="color:orange;">Ожидает</span>';
             case 3:
-                return '<span style="color:red;">Идет</span>';
+                return '<span style="color:olive;">Начат</span>';
             case 4:
-                return '<span style="color:green;">Сдан</span>';
+                return '<span style="color:red;">Идет</span>';
             case 5:
-                return '<span style="color:purple;">Прерван</span>';
+                return '<span style="color:green;">Сдан</span>';
             case 6:
+                return '<span style="color:purple;">Прерван</span>';
+            case 7:
                 return '<span style="color:gray;">Пропущен</span>';
             default:
                 return null;
@@ -2543,8 +2570,8 @@ var DemoView = Backbone.View.extend({
                     url: '/tools/ip'
                 }).done(function(data) {
                     report.ip = data.ip;
-                    report.country = data.country;
-                    report.city = data.city;
+                    if (data.country) report.country = data.country;
+                    if (report.city) report.city = data.city;
                     report.render();
                 });
             },
