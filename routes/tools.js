@@ -20,7 +20,7 @@ router.get('/time', function(req, res) {
 // Get ip info
 router.get('/ip', function(req, res) {
     var ip = req.query.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    var geo = geoip.lookup(ip);
+    var geo = geoip.lookup(ip) || {};
     var data = {
         ip: ip,
         country: geo.country,
