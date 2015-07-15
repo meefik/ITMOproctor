@@ -654,11 +654,13 @@ var MonitorView = Backbone.View.extend({
                     field: 'subject',
                     title: 'Экзамен',
                     width: 200,
+                    sortable: true,
                     formatter: self.formatSubject
                 }, {
                     field: 'beginDate',
                     title: 'Начало',
                     width: 150,
+                    sortable: true,
                     formatter: self.formatDate
                 }, {
                     field: 'duration',
@@ -678,6 +680,7 @@ var MonitorView = Backbone.View.extend({
                 }]
             ],
             rownumbers: true,
+            remoteSort: false,
             url: '/inspector',
             method: 'get',
             queryParams: {
