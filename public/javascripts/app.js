@@ -1781,6 +1781,7 @@ var ScheduleView = Backbone.View.extend({
         };
         // Timers
         this.timer = moment(0);
+        this.countdown = null;
         // Current time timer
         var t1 = setInterval(function() {
             self._TimeWidget.text(app.now().format('HH:mm:ss'));
@@ -1788,8 +1789,8 @@ var ScheduleView = Backbone.View.extend({
         // Countdown timer
         var t2 = setInterval(function() {
             if (!self.nextExam) return;
-            var diff = moment(self.nextExam.beginDate).diff();
-            if (diff < 0) {
+            // decrement
+            if (self.nextExam.countdown <= 0) {
                 if (self.nextExam.resolution == null) {
                     self._StartBtn.linkbutton('enable');
                     self._StartBtn.css({
@@ -1798,13 +1799,16 @@ var ScheduleView = Backbone.View.extend({
                     self._StartBtn.click(function() {
                         self.doStart(self.nextExam._id);
                     });
-                    if (diff > -1000) self._Grid.datagrid('reload');
+                    if (self.nextExam.countdown >= -1000) self._Grid.datagrid('reload');
                     clearInterval(t2);
                 }
-                diff = 0;
+                self.nextExam.countdown = 0;
+            } else {
+                self.nextExam.countdown -= 1000;
             }
-            var days = moment.duration(diff, 'ms').days();
-            var times = moment(diff).utc().format('HH:mm:ss');
+            // display countdown
+            var days = moment.duration(self.nextExam.countdown, 'ms').days();
+            var times = moment(self.nextExam.countdown).utc().format('HH:mm:ss');
             self._CountdownWidget.text(days + '.' + times);
         }, 1000);
         this.timers = [t1, t2];
@@ -1841,10 +1845,10 @@ var ScheduleView = Backbone.View.extend({
             url: '/student',
             method: 'get',
             rowStyler: function(index, row) {
+                if (row.beginDate == null) return null;
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
                 var d = app.now();
-                console.log('ok');
                 if (beginDate <= d && endDate > d) {
                     return 'background-color:#ccffcc;color:black';
                 }
@@ -1870,6 +1874,7 @@ var ScheduleView = Backbone.View.extend({
                     }
                     if (!self.nextExam && endDate > d) {
                         self.nextExam = data[k];
+                        self.nextExam.countdown = moment(data[k].beginDate).diff(app.now());
                     }
                 }
                 exams.total = exams.rows.length;
