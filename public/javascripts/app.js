@@ -109,11 +109,35 @@ var ServerTime = Backbone.Model.extend({
 // Webcall model
 //
 var Webcall = Backbone.Model.extend({
+    defaults: {
+        iceServers: [{
+            url: 'stun:stun.l.google.com:19302'
+        }, {
+            url: 'stun:stun1.l.google.com:19302'
+        }, {
+            url: 'stun:stun2.l.google.com:19302'
+        }, {
+            url: 'stun:stun3.l.google.com:19302'
+        }, {
+            url: 'stun:stun4.l.google.com:19302'
+        }, {
+            url: 'stun:stun.anyfirewall.com:3478'
+        }, {
+            url: 'turn:numb.viagenie.ca:3478?transport=udp',
+            credential: 'proctor',
+            username: 'proctor'
+        }, {
+            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+            credential: 'webrtc',
+            username: 'webrtc'
+        }]
+    },
     initialize: function() {
         var self = this;
         this.audio = true;
         this.video = true;
         this.setCallState('NO_CALL');
+        kurentoUtils.WebRtcPeer.prototype.server.iceServers = this.get("iceServers");
         this.get("socket").on('message', function(message) {
             var parsedMessage = JSON.parse(message);
             console.info('Received message: ' + message);
