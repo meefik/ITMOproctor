@@ -12,7 +12,7 @@ var db = require('./db');
 var MongoStore = require('connect-mongo')(session);
 var mongoStore = new MongoStore({
     mongooseConnection: db.mongoose.connection,
-    ttl: 14 * 24 * 60 * 60 // = 14 days. Default 
+    ttl: config.get("cookie:ttl") * 24 * 60 * 60 // days
 });
 var app = express();
 var server = require('http').Server(app);
@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({
 app.use(multer({
     dest: './uploads/',
     limits: {
-        fileSize: 10 * 1024 * 1024, // at most 10MB
+        fileSize: config.get("upload:limit") * 1024 * 1024, // MB
     },
     onFileSizeLimit: function(file) {
         fs.unlink('./' + file.path); // delete the partially written file
@@ -41,7 +41,7 @@ app.use(multer({
 app.use(cookieParser());
 app.use(session({
     name: 'proctor',
-    secret: 'cookie_secret',
+    secret: config.get("cookie:secret"),
     store: mongoStore,
     proxy: true,
     resave: true,
@@ -65,7 +65,7 @@ app.use(function(req, res, next) {
 io.use(passportSocketIo.authorize({
     cookieParser: cookieParser,
     key: 'proctor',
-    secret: 'cookie_secret',
+    secret: config.get("cookie:secret"),
     store: mongoStore,
     success: function(data, accept) {
         accept();
@@ -83,7 +83,7 @@ app.use(function(req, res, next) {
     next(err);
 });
 // error handlers
-if (app.get('env') === 'development') {
+if (config.get("logger:level") === 'debug') {
     // development error handler
     // will print stacktrace
     db.mongoose.set('debug', true);

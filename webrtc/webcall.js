@@ -1,6 +1,7 @@
 module.exports = function(io, targets) {
     var config = require('nconf');
     var kurento = require('kurento-client');
+    var logger = require('../logger');
 
     /*
      * Definition of global variables
@@ -30,6 +31,7 @@ module.exports = function(io, targets) {
     }
     UserSession.prototype.sendMessage = function(message) {
         try {
+            logger.debug('Connection ' + this.id + ' send message: ' + JSON.stringify(message));
             this.ws.send(JSON.stringify(message));
         }
         catch (exception) {
@@ -193,19 +195,19 @@ module.exports = function(io, targets) {
     function bind(socket) {
         socket.on('connection', function(ws) {
             var sessionId = nextUniqueId();
-            console.log('Connection received with sessionId ' + sessionId);
+            logger.debug('Connection received with sessionId ' + sessionId);
             ws.on('error', function(error) {
-                console.log('Connection ' + sessionId + ' error');
+                logger.debug('Connection ' + sessionId + ' error');
                 stop(sessionId);
             });
             ws.on('close', function() {
-                console.log('Connection ' + sessionId + ' closed');
+                logger.debug('Connection ' + sessionId + ' closed');
                 stop(sessionId);
                 userRegistry.unregister(sessionId);
             });
             ws.on('message', function(_message) {
                 var message = JSON.parse(_message);
-                console.log('Connection ' + sessionId + ' received message ', message);
+                logger.debug('Connection ' + sessionId + ' received message: ' + JSON.stringify(message));
                 switch (message.id) {
                     case 'register':
                         sessionId = register(sessionId, message.name, ws);
@@ -234,7 +236,7 @@ module.exports = function(io, targets) {
     // Register the username
     function register(id, name, ws, callback) {
         function onError(error) {
-            console.log("Error processing register: " + error);
+            logger.error("Error processing register: " + error);
             ws.send(JSON.stringify({
                 id: 'registerResponse',
                 response: 'rejected',
@@ -327,6 +329,7 @@ module.exports = function(io, targets) {
                 };
                 caller.sendMessage(callerMessage);
             }
+            if (error) logger.error('Pipeline error: ' + error);
         }
         var caller = userRegistry.getById(callerId);
         var pipeline = new CallMediaPipeline();
@@ -368,6 +371,8 @@ module.exports = function(io, targets) {
                 };
                 callee.sendMessage(calleeMessage);
             }
+            if (callerReason) logger.error('Pipeline error: ' + callerReason);
+            if (calleeReason) logger.error('Pipeline error: ' + calleeReason);
         }
         var callee = userRegistry.getById(calleeId);
         if (!from || !userRegistry.getByName(from)) {
@@ -419,9 +424,8 @@ module.exports = function(io, targets) {
         var ws_uri = config.get('ws:uri');
         kurento(ws_uri, function(error, _kurentoClient) {
             if (error) {
-                var message = 'Coult not find media server at address ' + ws_uri;
-                console.log(message);
-                return callback(message + ". Exiting with error " + error);
+                logger.error('Coult not find media server at address ' + ws_uri);
+                return callback('Kurento client error: ' + error);
             }
             kurentoClient = _kurentoClient;
             callback(null, kurentoClient);

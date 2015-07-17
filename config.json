@@ -1,4 +1,14 @@
 {
+    "logger": {
+        "level": "debug"
+    },
+    "cookie": {
+        "secret": "cookie_secret",
+        "ttl": 14
+    },
+    "upload": {
+        "limit": 10
+    },
     "mongoose": {
         "uri": "mongodb://demo:demo@ds047622.mongolab.com:47622/proctor"
     },
