@@ -1803,7 +1803,8 @@ var ScheduleView = Backbone.View.extend({
                     clearInterval(t2);
                 }
                 self.nextExam.countdown = 0;
-            } else {
+            }
+            else {
                 self.nextExam.countdown -= 1000;
             }
             // display countdown
@@ -2365,7 +2366,9 @@ var SettingsView = Backbone.View.extend({
             var message = event.data;
             switch (message.id) {
                 case 'sourceId':
-                    self._ScreenId.textbox('setValue', message.data);
+                    if (message.data) {
+                        self._ScreenId.textbox('setValue', message.data);
+                    }
                     break;
                 case 'version':
                     self._Version.text(message.data.app + ' [nw.js ' + message.data.nw + ']');
