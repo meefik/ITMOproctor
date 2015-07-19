@@ -37,9 +37,9 @@ router.post('/:examId', function(req, res) {
 // Update note
 router.put('/:examId/:noteId', function(req, res) {
     var args = {
-        _id: req.params.noteId,
-        author: req.user._id,
+        noteId: req.params.noteId,
         examId: req.params.examId,
+        author: req.user._id,
         text: req.body.text
     };
     db.notes.update(args, function(err, data) {
@@ -55,9 +55,9 @@ router.put('/:examId/:noteId', function(req, res) {
 // Delete note
 router.delete('/:examId/:noteId', function(req, res) {
     var args = {
-        _id: req.params.noteId,
-        author: req.user._id,
-        examId: req.params.examId
+        noteId: req.params.noteId,
+        examId: req.params.examId,
+        author: req.user._id
     };
     db.notes.delete(args, function(err, data) {
         if (!err && data) {

@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 var Exam = require('./exam').schema;
 var Protocol = new Schema({
     // Идентификатор экзамена (связь N:1)
-    examId: {
+    exam: {
         type: Schema.Types.ObjectId,
         ref: 'Exam',
         required: true

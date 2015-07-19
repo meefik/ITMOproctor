@@ -8,7 +8,7 @@ var User = require('./user').schema;
 var Attach = require('./attach').schema;
 var Note = new Schema({
     // Идентификатор экзамена (связь N:1)
-    examId: {
+    exam: {
         type: Schema.Types.ObjectId,
         ref: 'Exam',
         required: true

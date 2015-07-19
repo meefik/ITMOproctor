@@ -46,18 +46,9 @@
     <tr>
         <td><strong>Инспектор:</strong></td>
         <td>
-            <% if(curator[0]) { %>
-                <%- curator[0].lastname %> <%- curator[0].firstname %> <%- curator[0].middlename %>
+            <% if(inspector) { %>
+                <%- inspector.lastname %> <%- inspector.firstname %> <%- inspector.middlename %>
             <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Наблюдатели:</strong></td>
-        <td>
-            <% curator.shift(); %>
-            <% _.each(curator, function(item) { %>
-                <%- item.lastname %> <%- item.firstname %> <%- item.middlename %><br>
-            <% }); %>
         </td>
     </tr>
     <tr>

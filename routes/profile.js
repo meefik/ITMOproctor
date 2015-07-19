@@ -19,6 +19,10 @@ router.post('/login', function(req, res, next) {
         if (!user) return res.status(401).end();
         req.logIn(user, function(err) {
             if (err) return next(err);
+            db.profile.addLog({
+                userId: user._id,
+                ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            });
             return res.json(user);
         });
     })(req, res, next);

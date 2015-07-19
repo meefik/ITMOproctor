@@ -8,6 +8,11 @@ var moment = require('moment');
 var fs = require('fs');
 var path = require('path');
 var db = {
+    geoip: function(ip) {
+        var geoip = require('geoip-lite');
+        var geo = geoip.lookup(ip) || {};
+        return geo;
+    },
     profile: {
         auth: function(username, password, done) {
             var User = require('./models/user');
@@ -34,6 +39,17 @@ var db = {
                 }
                 return done(null, user);
             });
+        },
+        addLog: function(args, callback) {
+            var geo = db.geoip(args.ip);
+            var Logger = require('./models/logger');
+            var log = new Logger({
+                user: args.userId,
+                ip: args.ip,
+                country: geo.country,
+                city: geo.city
+            });
+            log.save(callback);
         },
         passport: function(args, callback) {
             var User = require('./models/user');
@@ -87,7 +103,7 @@ var db = {
             var opts = [{
                 path: 'student'
             }, {
-                path: 'curator'
+                path: 'inspector'
             }];
             var Exam = require('./models/exam');
             var query = {
@@ -130,10 +146,8 @@ var db = {
                         stopDate: {
                             "$eq": null
                         },
-                        curator: {
-                            "$not": {
-                                "$size": 0
-                            }
+                        inspector: {
+                            "$ne": null
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -147,8 +161,8 @@ var db = {
                         endDate: {
                             "$gt": moment()
                         },
-                        curator: {
-                            "$size": 0
+                        inspector: {
+                            "$eq": null
                         }
                     };
                     query = merge.recursive(true, query, q);
@@ -159,7 +173,7 @@ var db = {
                 path: 'student',
                 select: 'firstname lastname middlename'
             }, {
-                path: 'curator',
+                path: 'inspector',
                 select: 'firstname lastname middlename'
             }];
             // Query
@@ -172,11 +186,11 @@ var db = {
                     var dl = data.length;
                     for (var i = 0; i < dl; i++) {
                         var item = data[i];
-                        var curator = {};
-                        if (item.curator.length > 0) curator = item.curator[0];
-                        var arr = [item.examId, item.subject, 
+                        if (!item.inspector) item.inspector = {};
+                        var arr = [item.subject,
                             item.student.lastname, item.student.firstname, item.student.middlename,
-                            curator.lastname, curator.firstname, curator.middlename];
+                            item.inspector.lastname, item.inspector.firstname, item.inspector.middlename
+                        ];
                         var cond = true;
                         for (var k = 0; k < text.length; k++) {
                             var match = false;
@@ -212,7 +226,7 @@ var db = {
             var opts = [{
                 path: 'student'
             }, {
-                path: 'curator'
+                path: 'inspector'
             }];
             Exam.findById(args.examId).populate(opts).exec(callback);
         }
@@ -222,36 +236,79 @@ var db = {
             var opts = [{
                 path: 'student'
             }, {
-                path: 'curator'
+                path: 'inspector'
             }];
             var Exam = require('./models/exam');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
                 callback(err, exam);
                 if (!err && exam) {
-                    // update startDate
+                    // set startDate
                     if (!exam.startDate) {
                         Exam.update({
                             _id: args.examId
                         }, {
-                            $set: {
+                            "$set": {
                                 startDate: moment(),
                             }
                         }, function(err, data) {
                             if (err) console.log(err);
                         });
                     }
-                    // add curator
-                    if (args.userId) {
+                    // set inspector
+                    if (args.userId != exam.student._id) {
+                        console.log(args.userId + ' ' + exam.student);
                         Exam.update({
                             _id: args.examId
                         }, {
-                            $addToSet: {
-                                curator: args.userId
+                            "$set": {
+                                inspector: args.userId
                             }
                         }, function(err, data) {
                             if (err) console.log(err);
                         });
                     }
+                    // add or update member
+                    var geo = db.geoip(args.ip);
+                    var Member = require('./models/member');
+                    Member.findOneAndUpdate({
+                        exam: args.examId,
+                        user: args.userId
+                    }, {
+                        exam: args.examId,
+                        user: args.userId,
+                        time: Date.now(),
+                        ip: args.ip,
+                        country: geo.country,
+                        city: geo.city
+                    }, {
+                        upsert: true
+                    }, function(err, member) {
+                        if (err) console.log(err);
+                    });
+                    /*Exam.update({
+                        _id: args.examId,
+                        "members.user": {
+                            "$ne": args.userId
+                        }
+                    }, {
+                        "$push": {
+                            members: member
+                        }
+                    }, function(err, result) {
+                        if (err) console.log(err);
+                        if (result.nModified === 0) {
+                            Exam.update({
+                                _id: args.examId,
+                                "members.user": args.userId
+                            }, {
+                                "$set": {
+                                    "members.$": member
+                                }
+                            }, function(err, result) {
+                                if (err) console.log(err);
+                            });
+                        }
+                    });*/
                 }
             });
         },
@@ -271,14 +328,21 @@ var db = {
     notes: {
         list: function(args, callback) {
             var Note = require('./models/note');
-            Note.find(args).sort('time').exec(callback);
+            Note.find({
+                exam: args.examId
+            }).sort('time').exec(callback);
         },
         add: function(args, callback) {
             for (var i = 0; i < args.attach.length; i++) {
                 args.attach[i].fileId = mongoose.Types.ObjectId();
             }
             var Note = require('./models/note');
-            var note = new Note(args);
+            var note = new Note({
+                exam: args.examId,
+                author: args.author,
+                text: args.text,
+                attach: args.attach
+            });
             note.save(function(err, data) {
                 callback(err, data);
                 if (args.attach.length > 0) {
@@ -289,7 +353,7 @@ var db = {
         update: function(args, callback) {
             var Note = require('./models/note');
             Note.update({
-                _id: args._id
+                _id: args.noteId
             }, {
                 $set: {
                     author: args.author,
@@ -300,7 +364,7 @@ var db = {
         delete: function(args, callback) {
             var Note = require('./models/note');
             Note.findOneAndRemove({
-                _id: args._id
+                _id: args.noteId
             }, function(err, data) {
                 callback(err, data);
                 if (!err && data) {
@@ -319,15 +383,21 @@ var db = {
                 path: 'author',
                 select: 'firstname lastname middlename',
             }];
-            Chat.find(args).populate(opts).sort('time').exec(callback);
+            Chat.find({
+                exam: args.examId
+            }).populate(opts).sort('time').exec(callback);
         },
         add: function(args, callback) {
             for (var i = 0; i < args.attach.length; i++) {
                 args.attach[i].fileId = mongoose.Types.ObjectId();
             }
             var Chat = require('./models/chat');
-            var User = require('./models/user');
-            var chat = new Chat(args);
+            var chat = new Chat({
+                exam: args.examId,
+                author: args.author,
+                text: args.text,
+                attach: args.attach
+            });
             chat.save(function(err, data) {
                 if (err || !data) callback(err, data);
                 else {
@@ -345,12 +415,25 @@ var db = {
     protocol: {
         list: function(args, callback) {
             var Protocol = require('./models/protocol');
-            Protocol.find(args).sort('time').exec(callback);
+            Protocol.find({
+                exam: args.examId
+            }).sort('time').exec(callback);
         },
         add: function(args, callback) {
             var Protocol = require('./models/protocol');
-            var protocol = new Protocol(args);
+            var protocol = new Protocol({
+                exam: args.examId,
+                text: args.text
+            });
             protocol.save(callback);
+        }
+    },
+    members: {
+        list: function(args, callback) {
+            var Member = require('./models/member');
+            Member.find({
+                exam: args.examId
+            }).sort('time').exec(callback);
         }
     }
 }

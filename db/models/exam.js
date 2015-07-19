@@ -4,6 +4,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var User = require('./user').schema;
+var Member = require('./member').schema;
 var Exam = new Schema({
     // Название экзамена
     subject: {
@@ -16,11 +17,11 @@ var Exam = new Schema({
         ref: 'User',
         required: true
     },
-    // Список кураторов (первый в списке считается инспектором, остальные - наблюдатели)
-    curator: [{
+    // Инспектор
+    inspector: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-    }],
+        ref: 'User'
+    },
     // Плановое время начала экзамена
     beginDate: {
         type: Date,
@@ -46,6 +47,8 @@ var Exam = new Schema({
     // Комментарий
     comment: {
         type: String
-    }
+    },
+    // Список участников
+    members: [Member]
 });
 module.exports = mongoose.model('Exam', Exam);

@@ -19,8 +19,8 @@ router.get('/:examId', function(req, res) {
 // Create new message
 router.post('/:examId', function(req, res) {
     var args = {
-        author: req.user._id,
         examId: req.params.examId,
+        author: req.user._id,
         text: req.body.text,
         attach: req.body.attach
     };

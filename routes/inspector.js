@@ -28,7 +28,8 @@ router.get('/', function(req, res) {
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId,
-        userId: req.user._id
+        userId: req.user._id,
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
     }
     db.vision.start(args, function(err, data) {
         if (!err && data) {

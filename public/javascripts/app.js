@@ -670,10 +670,10 @@ var MonitorView = Backbone.View.extend({
                     width: 150,
                     formatter: self.formatStudent
                 }, {
-                    field: 'curator',
+                    field: 'inspector',
                     title: 'Инспектор',
                     width: 150,
-                    formatter: self.formatCurator
+                    formatter: self.formatInspector
                 }, {
                     field: 'subject',
                     title: 'Экзамен',
@@ -724,7 +724,7 @@ var MonitorView = Backbone.View.extend({
         if (endDate <= d) status = 7;
         if (beginDate <= d && endDate > d) status = 2;
         if (row.startDate != null) status = 3;
-        if (row.curator.length) status = 4;
+        if (row.inspector) status = 4;
         if (row.resolution === true) status = 5;
         if (row.resolution === false) status = 6;
         switch (status) {
@@ -791,10 +791,9 @@ var MonitorView = Backbone.View.extend({
         var tpl = _.template(html);
         return tpl(data);
     },
-    formatCurator: function(val, row) {
-        if (val == null || val.length === 0) return null;
-        var user = val[0];
-        return user.lastname + " " + user.firstname + " " + user.middlename;
+    formatInspector: function(val, row) {
+        if (val == null) return null;
+        return val.lastname + " " + val.firstname + " " + val.middlename;
     },
     formatSubject: function(val, row) {
         if (val == null) return null;
@@ -1540,6 +1539,59 @@ var ProtocolView = Backbone.View.extend({
     }
 });
 //
+// Online view
+//
+var OnlineView = Backbone.View.extend({
+    initialize: function(options) {
+        // Variables
+        this.options = options || {};
+        // Online model
+        var Online = Backbone.Model.extend({
+            idAttribute: "_id"
+        });
+        // Online collection
+        var OnlineList = Backbone.Collection.extend({
+            url: '/online/' + this.options.examId,
+            model: Online
+        });
+        // Single item view
+        this.ItemView = Backbone.View.extend({
+            tagName: "li",
+            initialize: function() {
+                this.template = _.template($('#online-item-tpl').html());
+                this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'destroy', this.remove);
+            },
+            render: function() {
+                this.$el.html(this.template(this.model.toJSON()));
+                return this;
+            }
+        });
+        this._Panel = this.$(".online-panel");
+        this._Output = this.$(".online-output");
+        this.collection = new OnlineList();
+        this.listenTo(this.collection, 'add', this.appendItem);
+        this.collection.fetch();
+        var self = this;
+        app.io.notify.on('online-' + this.options.examId, function(data) {
+            if (!app.profile.isMe(data.userId)) {
+                self.collection.fetch();
+            }
+        });
+    },
+    destroy: function() {
+        app.io.notify.removeListener('online-' + this.options.examId);
+        this.remove();
+    },
+    appendItem: function(model) {
+        var view = new this.ItemView({
+            model: model
+        });
+        this._Output.append(view.render().el);
+        //this._Panel.scrollTop(this._Panel[0].scrollHeight);
+    }
+});
+//
 // Webcam view
 //
 var WebcamView = Backbone.View.extend({
@@ -1974,7 +2026,7 @@ var ScheduleView = Backbone.View.extend({
         if (endDate <= d) status = 7;
         if (beginDate <= d && endDate > d) status = 2;
         if (row.startDate != null) status = 3;
-        if (row.curator.length) status = 4;
+        if (row.inspector) status = 4;
         if (row.resolution === true) status = 5;
         if (row.resolution === false) status = 6;
         switch (status) {
@@ -2017,7 +2069,7 @@ var ExamView = Backbone.View.extend({
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
         this._StudentWidget = this.$('.student-widget');
-        this._CuratorWidget = this.$('.curator-widget');
+        this._InspectorWidget = this.$('.inspector-widget');
         this._ObserversWidget = this.$('.observers-widget');
         this._FinishBtn = this.$('.finish-btn');
         // Event handlers
@@ -2161,20 +2213,21 @@ var ExamView = Backbone.View.extend({
             });
             return;
         }
-        var startDate = this.student.get("startDate");
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
-        var curator = this.student.get("curator");
-        if (curator[0]) {
-            var amount = curator.length - 1;
+        var startDate = this.student.get("startDate");
+        var inspector = this.student.get("inspector");
+        var members = this.student.get("members");
+        if (members) {
+            var amount = members.length;
             var observers = "Наблюдатели не подключены";
             if (amount > 0) {
                 observers = '<div style="font-weight:bold">Наблюдатели:</div>';
-                for (var i = 1; i <= amount; i++) {
-                    observers += '<div><i class="fa fa-caret-right"></i> ' + curator[i].lastname + ' ' + curator[i].firstname + ' ' + curator[i].middlename + '</div>';
+                for (var i = 0; i < amount; i++) {
+                    observers += '<div><i class="fa fa-caret-right"></i> ' + members[i].lastname + ' ' + members[i].firstname + ' ' + members[i].middlename + '</div>';
                 }
             }
-            this._CuratorWidget.text(curator[0].lastname + " " + curator[0].firstname + " " + curator[0].middlename + " (" + amount + ")");
+            this._InspectorWidget.text(inspector.lastname + " " + inspector.firstname + " " + inspector.middlename + " (" + amount + ")");
             var delta = -1 * this._ObserversWidget.width() / 2 + 5;
             this._ObserversWidget.tooltip({
                 deltaX: delta,
