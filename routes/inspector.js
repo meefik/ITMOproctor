@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+var protocol = require('./protocol');
 router.get('/', function(req, res) {
     var args = {
         rows: req.query.rows,
@@ -56,6 +57,18 @@ router.put('/:examId', function(req, res) {
                 req.notify('exam-' + args.examId, {
                     userId: args.userId
                 });
+                // add to protocol
+                db.protocol.add({
+                    examId: args.examId,
+                    text: '[' + args.ip + '] ' + req.user.lastname + ' ' +
+                        req.user.firstname + ' ' + req.user.middlename +
+                        ' (' + req.user.roleName + ') завершил экзамен.'
+                }, function(err, data) {
+                    if (err) console.log(err);
+                    if (!err && data) {
+                        req.notify('protocol-' + args.examId);
+                    }
+                });
             }
             else {
                 res.status(400).end();
@@ -73,6 +86,18 @@ router.put('/:examId', function(req, res) {
                 db.members.update(args, function(err, member) {
                     if (err) console.log(err);
                     req.notify('members-' + args.examId);
+                });
+                // add to protocol
+                db.protocol.add({
+                    examId: args.examId,
+                    text: '[' + args.ip + '] ' + req.user.lastname + ' ' +
+                        req.user.firstname + ' ' + req.user.middlename +
+                        ' (' + req.user.roleName + ') подключился к экзамену.'
+                }, function(err, data) {
+                    if (err) console.log(err);
+                    if (!err && data) {
+                        req.notify('protocol-' + args.examId);
+                    }
                 });
             }
             else {

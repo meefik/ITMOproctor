@@ -19,7 +19,7 @@ router.post('/login', function(req, res, next) {
         if (!user) return res.status(401).end();
         req.logIn(user, function(err) {
             if (err) return next(err);
-            db.profile.addLog({
+            db.profile.log({
                 userId: user._id,
                 ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
             });

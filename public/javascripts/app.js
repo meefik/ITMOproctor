@@ -1534,9 +1534,7 @@ var ProtocolView = Backbone.View.extend({
         this.collection.fetch();
         // Socket notification
         app.io.notify.on('protocol-' + this.options.examId, function(data) {
-            if (!app.profile.isMe(data.userId)) {
-                self.collection.fetch();
-            }
+            self.collection.fetch();
         });
     },
     destroy: function() {
@@ -1589,9 +1587,7 @@ var MembersView = Backbone.View.extend({
         this.collection.fetch();
         // Socket notification
         app.io.notify.on('members-' + this.options.examId, function(data) {
-            if (!app.profile.isMe(data.userId)) {
-                self.collection.fetch();
-            }
+            self.collection.fetch();
         });
     },
     destroy: function() {
@@ -2228,10 +2224,10 @@ var ExamView = Backbone.View.extend({
             });
             return;
         }
-        var duration = app.now() - moment(startDate);
-        if (duration > 0) this.timer = moment(duration);
         var startDate = this.model.get("startDate");
         var inspector = this.model.get("inspector");
+        var duration = app.now() - moment(startDate);
+        if (duration > 0) this.timer = moment(duration);
         if (inspector) {
             this._InspectorWidget.text(inspector.lastname + " " + inspector.firstname + " " + inspector.middlename);
         }
@@ -2661,7 +2657,7 @@ var DemoView = Backbone.View.extend({
                 }).done(function(data) {
                     report.ip = data.ip;
                     if (data.country) report.country = data.country;
-                    if (report.city) report.city = data.city;
+                    if (data.city) report.city = data.city;
                     report.render();
                 });
             },

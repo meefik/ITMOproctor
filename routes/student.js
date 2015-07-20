@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+
 router.get('/', function(req, res) {
     var args = {
         userId: req.user._id
@@ -43,6 +44,18 @@ router.put('/:examId', function(req, res) {
             db.members.update(args, function(err, member) {
                 if (err) console.log(err);
                 req.notify('members-' + args.examId);
+            });
+            // add to protocol
+            db.protocol.add({
+                examId: args.examId,
+                text: '[' + args.ip + '] ' + req.user.lastname + ' ' +
+                    req.user.firstname + ' ' + req.user.middlename +
+                    ' (' + req.user.roleName + ') подключился к экзамену.'
+            }, function(err, data) {
+                if (err) console.log(err);
+                if (!err && data) {
+                    req.notify('protocol-' + args.examId);
+                }
             });
         }
         else {

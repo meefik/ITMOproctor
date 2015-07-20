@@ -40,14 +40,11 @@ var db = {
                 return done(null, user);
             });
         },
-        addLog: function(args, callback) {
-            var geo = db.geoip(args.ip);
+        log: function(args, callback) {
             var Logger = require('./models/logger');
             var log = new Logger({
                 user: args.userId,
-                ip: args.ip,
-                country: geo.country,
-                city: geo.city
+                ip: args.ip
             });
             log.save(callback);
         },
