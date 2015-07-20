@@ -233,6 +233,7 @@ var db = {
     },
     vision: {
         start: function(args, callback) {
+            var self = this;
             var opts = [{
                 path: 'student'
             }, {
@@ -256,7 +257,6 @@ var db = {
                     }
                     // set inspector
                     if (args.userId != exam.student._id) {
-                        console.log(args.userId + ' ' + exam.student);
                         Exam.update({
                             _id: args.examId
                         }, {
@@ -267,54 +267,12 @@ var db = {
                             if (err) console.log(err);
                         });
                     }
-                    // add or update member
-                    var geo = db.geoip(args.ip);
-                    var Member = require('./models/member');
-                    Member.findOneAndUpdate({
-                        exam: args.examId,
-                        user: args.userId
-                    }, {
-                        exam: args.examId,
-                        user: args.userId,
-                        time: Date.now(),
-                        ip: args.ip,
-                        country: geo.country,
-                        city: geo.city
-                    }, {
-                        upsert: true
-                    }, function(err, member) {
-                        if (err) console.log(err);
-                    });
-                    /*Exam.update({
-                        _id: args.examId,
-                        "members.user": {
-                            "$ne": args.userId
-                        }
-                    }, {
-                        "$push": {
-                            members: member
-                        }
-                    }, function(err, result) {
-                        if (err) console.log(err);
-                        if (result.nModified === 0) {
-                            Exam.update({
-                                _id: args.examId,
-                                "members.user": args.userId
-                            }, {
-                                "$set": {
-                                    "members.$": member
-                                }
-                            }, function(err, result) {
-                                if (err) console.log(err);
-                            });
-                        }
-                    });*/
                 }
             });
         },
         finish: function(args, callback) {
             var Exam = require('./models/exam');
-            Exam.update({
+            Exam.findOneAndUpdate({
                 _id: args.examId
             }, {
                 $set: {
@@ -431,9 +389,34 @@ var db = {
     members: {
         list: function(args, callback) {
             var Member = require('./models/member');
+            // Populate options
+            var opts = [{
+                path: 'user',
+                select: 'firstname lastname middlename role roleName'
+            }, {
+                path: 'exam',
+                select: 'student inspector'
+            }];
             Member.find({
                 exam: args.examId
-            }).sort('time').exec(callback);
+            }).sort('time').populate(opts).exec(callback);
+        },
+        update: function(args, callback) {
+            var geo = db.geoip(args.ip);
+            var Member = require('./models/member');
+            Member.findOneAndUpdate({
+                exam: args.examId,
+                user: args.userId
+            }, {
+                exam: args.examId,
+                user: args.userId,
+                time: Date.now(),
+                ip: args.ip,
+                country: geo.country,
+                city: geo.city
+            }, {
+                upsert: true
+            }, callback);
         }
     }
 }

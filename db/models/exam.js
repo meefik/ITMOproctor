@@ -47,8 +47,6 @@ var Exam = new Schema({
     // Комментарий
     comment: {
         type: String
-    },
-    // Список участников
-    members: [Member]
+    }
 });
 module.exports = mongoose.model('Exam', Exam);

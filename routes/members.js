@@ -1,13 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var moment = require('moment');
 var db = require('../db');
-// List all events
+// List members
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId
     };
-    db.online.list(args, function(err, data) {
+    db.members.list(args, function(err, data) {
         if (!err && data) {
             res.json(data);
         }
