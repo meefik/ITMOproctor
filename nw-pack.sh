@@ -1,14 +1,14 @@
 #!/bin/bash
 
 NW_VERSION="0.12.2"
-# win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64
-NW_PLATFORM="osx-ia32 osx-x64"
+# Supported platforms: win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64
+NW_PLATFORM="win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64"
 APP_NAME="itmoproctor"
 APP_DIR="${PWD}/app-nw"
 CACHE_DIR="${PWD}/cache"
 DIST_DIR="${PWD}/public/dist"
 
-download()
+download_nw()
 {
    local url=$1
    local filename=$2
@@ -21,7 +21,7 @@ download()
    echo "done"
 }
 
-unpack()
+unpack_nw()
 {
    local filename=$1
    local target_dir=$2
@@ -30,7 +30,7 @@ unpack()
    if [ "${filename##*.}" = "zip" ]
    then
       unzip -q $filename -d $target_dir
-      local unpacked_dir=$(find $target_dir -mindepth 1 -maxdepth 1)
+      local unpacked_dir=$(find $target_dir -mindepth 1 -maxdepth 1 type d)
       mv $unpacked_dir/* $target_dir
       rmdir $unpacked_dir
    else
@@ -39,7 +39,7 @@ unpack()
    echo "done"
 }
 
-clean()
+clean_nw()
 {
    echo -n "Cleaning nw.js... "
    local target_dir=$1
@@ -53,28 +53,6 @@ pack_upx()
    echo -n "Packaging nw.js using UPX... "
    local files=$(find $target_dir -type f -name "nw" -o -name "nw.exe" | tr '\n' ' ')
    [ -n "${files}" ] && upx ${files} > /dev/null
-   echo "done"
-}
-
-pack_app()
-{
-   local target_dir=$1
-   echo -n "Building ${APP_NAME} app... "
-   if [ -e "$target_dir/nw" ]
-   then
-      cat $target_dir/nw ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME} && chmod +x $target_dir/${APP_NAME}
-      rm $target_dir/nw
-   fi
-   if [ -e "$target_dir/nw.exe" ]
-   then
-      cat $target_dir/nw.exe ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME}.exe && chmod +x $target_dir/${APP_NAME}.exe
-      rm $target_dir/nw.exe
-   fi
-   if [ -d "$target_dir/nwjs.app" ]
-   then
-      cp ${CACHE_DIR}/app.nw $target_dir/nwjs.app/Contents/Resources/app.nw
-      mv $target_dir/nwjs.app $target_dir/${APP_NAME}.app
-   fi
    echo "done"
 }
 
@@ -98,14 +76,36 @@ pack_tgz()
    echo "done"
 }
 
+pack_app()
+{
+   local target_dir=$1
+   echo -n "Packaging ${APP_NAME} app... "
+   if [ -e "$target_dir/nw" ]
+   then
+      cat $target_dir/nw ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME} && chmod +x $target_dir/${APP_NAME}
+      rm $target_dir/nw
+   fi
+   if [ -e "$target_dir/nw.exe" ]
+   then
+      cat $target_dir/nw.exe ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME}.exe && chmod +x $target_dir/${APP_NAME}.exe
+      rm $target_dir/nw.exe
+   fi
+   if [ -d "$target_dir/nwjs.app" ]
+   then
+      cp ${CACHE_DIR}/app.nw $target_dir/nwjs.app/Contents/Resources/app.nw
+      mv $target_dir/nwjs.app $target_dir/${APP_NAME}.app
+   fi
+   echo "done"
+}
+
 build_app()
 {
    local url=$1
    local target_dir=$2
    local filename=${CACHE_DIR}/${url##*/}
-   download $url $filename
-   unpack $filename $target_dir
-   clean $target_dir
+   download_nw $url $filename
+   unpack_nw $filename $target_dir
+   clean_nw $target_dir
    pack_upx $target_dir
    pack_app $target_dir
 }
@@ -113,7 +113,6 @@ build_app()
 clean_dir()
 {
    local target_dir=$1
-   local recreate=$2
    echo -n "Clearing ${target_dir##*/} directory... "
    if [ -e "$target_dir" ]
    then
@@ -123,7 +122,13 @@ clean_dir()
    echo "done"
 }
 
-metadata()
+mk_dir()
+{
+   local target_dir=$1
+   [ ! -e "$target_dir" ] && mkdir -p $target_dir
+}
+
+mk_meta()
 {
    local app_version=$(node -pe 'JSON.parse(process.argv[1]).version' "$(cat ${APP_DIR}/package.json)")
    local json="{ \"version\": \"${app_version}\", \"date\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"md5\": { "
@@ -140,6 +145,11 @@ metadata()
    echo "done"
 }
 
+#
+# Exec
+#
+
+mk_dir ${CACHE_DIR}
 clean_dir ${DIST_DIR}
 pack_zip ${APP_DIR} ${CACHE_DIR}/app.nw
 
@@ -164,4 +174,4 @@ do
    esac
 done
 
-metadata
+mk_meta
