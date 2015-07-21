@@ -3,7 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Exam = require('./exam').schema;
 var Attach = new Schema({
     _id: false,
     // Идентификатор файла в GridFS
@@ -14,6 +13,11 @@ var Attach = new Schema({
     // Оригинальное имя файла
     filename: {
         type: String
+    },
+    // Время загрузки
+    timestamp: {
+        type: Date,
+        default: Date.now
     },
     // Описание вложения
     description: {

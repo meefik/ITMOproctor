@@ -4,7 +4,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var User = require('./user').schema;
-var Member = require('./member').schema;
+var Attach = require('./attach').schema;
 var Exam = new Schema({
     // Название экзамена
     subject: {
@@ -47,6 +47,8 @@ var Exam = new Schema({
     // Комментарий
     comment: {
         type: String
-    }
+    },
+    // Ссылки на видеозаписи
+    attach: [Attach]
 });
 module.exports = mongoose.model('Exam', Exam);

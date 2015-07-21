@@ -1,7 +1,8 @@
 #!/bin/bash
 
 NW_VERSION="0.12.2"
-NW_PLATFORM="linux-ia32 linux-x64 win-ia32 win-x64" # linux-ia32 linux-x64 osx-ia32 osx-x64 win-ia32 win-x64
+# win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64
+NW_PLATFORM="osx-ia32 osx-x64"
 APP_NAME="itmoproctor"
 APP_DIR="${PWD}/app-nw"
 CACHE_DIR="${PWD}/cache"
@@ -58,7 +59,7 @@ pack_upx()
 pack_app()
 {
    local target_dir=$1
-   echo -n "Combining nw.js and ${APP_NAME} app... "
+   echo -n "Building ${APP_NAME} app... "
    if [ -e "$target_dir/nw" ]
    then
       cat $target_dir/nw ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME} && chmod +x $target_dir/${APP_NAME}
@@ -68,6 +69,11 @@ pack_app()
    then
       cat $target_dir/nw.exe ${CACHE_DIR}/app.nw > $target_dir/${APP_NAME}.exe && chmod +x $target_dir/${APP_NAME}.exe
       rm $target_dir/nw.exe
+   fi
+   if [ -d "$target_dir/nwjs.app" ]
+   then
+      cp ${CACHE_DIR}/app.nw $target_dir/nwjs.app/Contents/Resources/app.nw
+      mv $target_dir/nwjs.app $target_dir/${APP_NAME}.app
    fi
    echo "done"
 }
@@ -152,7 +158,8 @@ do
       pack_zip ${platform_dir} ${DIST_DIR}/${APP_NAME}-${platform}.zip
    ;;
    osx-*)
-      
+      build_app "http://dl.nwjs.io/v${NW_VERSION}/nwjs-v${NW_VERSION}-${platform}.zip" ${platform_dir}
+      pack_zip ${platform_dir} ${DIST_DIR}/${APP_NAME}-${platform}.zip
    ;;
    esac
 done

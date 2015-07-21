@@ -27,6 +27,7 @@ module.exports = function(io, targets) {
         this.name = name;
         this.ws = ws;
         this.peer = null;
+        this.room = null;
         this.sdpOffer = null;
     }
     UserSession.prototype.sendMessage = function(message) {
@@ -213,7 +214,7 @@ module.exports = function(io, targets) {
                         sessionId = register(sessionId, message.name, ws);
                         break;
                     case 'call':
-                        call(sessionId, message.to, message.from, message.sdpOffer);
+                        call(sessionId, message.room, message.to, message.from, message.sdpOffer);
                         break;
                     case 'incomingCallResponse':
                         incomingCallResponse(sessionId, message.from, message.callResponse, message.sdpOffer);
@@ -234,7 +235,7 @@ module.exports = function(io, targets) {
     }
 
     // Register the username
-    function register(id, name, ws, callback) {
+    function register(id, name, ws) {
         function onError(error) {
             logger.error("Error processing register: " + error);
             ws.send(JSON.stringify({
@@ -263,7 +264,7 @@ module.exports = function(io, targets) {
     }
 
     // Make a call
-    function call(callerId, to, from, sdpOffer) {
+    function call(callerId, room, to, from, sdpOffer) {
         function onError(error) {
             var message = {
                 id: 'callResponse',

@@ -97,16 +97,11 @@ var db = {
     },
     exam: {
         list: function(args, callback) {
-            var opts = [{
-                path: 'student'
-            }, {
-                path: 'inspector'
-            }];
             var Exam = require('./models/exam');
             var query = {
                 student: args.userId
             };
-            Exam.find(query).sort('beginDate').populate(opts).exec(callback);
+            Exam.find(query).sort('beginDate').exec(callback);
         },
         search: function(args, callback) {
             var rows = args.rows ? parseInt(args.rows) : 100;
@@ -221,20 +216,23 @@ var db = {
             var Exam = require('./models/exam');
             // get data
             var opts = [{
-                path: 'student'
+                path: 'student',
+                select: 'firstname lastname middlename birthday'
             }, {
-                path: 'inspector'
+                path: 'inspector',
+                select: 'firstname lastname middlename'
             }];
             Exam.findById(args.examId).populate(opts).exec(callback);
         }
     },
     vision: {
         start: function(args, callback) {
-            var self = this;
             var opts = [{
-                path: 'student'
+                path: 'student',
+                select: 'firstname lastname middlename'
             }, {
-                path: 'inspector'
+                path: 'inspector',
+                select: 'firstname lastname middlename'
             }];
             var Exam = require('./models/exam');
             Exam.findById(args.examId).populate(opts).exec(function(err, exam) {

@@ -17,7 +17,7 @@ router.post('/', function(req, res, next) {
 router.get('/:fileId', function(req, res, next) {
     var fileId = req.params.fileId;
     db.storage.download(fileId, function(data) {
-        if (!data) return res.status(400).end();
+        if (!data) return res.status(404).end();
         res.header('Content-Disposition', 'attachment; filename="' + data.filename + '"');
         return res;
     });
