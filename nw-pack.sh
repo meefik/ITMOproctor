@@ -30,7 +30,7 @@ unpack_nw()
    if [ "${filename##*.}" = "zip" ]
    then
       unzip -q $filename -d $target_dir
-      local unpacked_dir=$(find $target_dir -mindepth 1 -maxdepth 1 type d)
+      local unpacked_dir=$(find $target_dir -mindepth 1 -maxdepth 1 -type d)
       mv $unpacked_dir/* $target_dir
       rmdir $unpacked_dir
    else

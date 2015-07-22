@@ -1,13 +1,14 @@
 {
   "name": "proctor-client",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "System of distant supervision",
   "main": "index.html",
   "homepage": "https://proctor-meefik.c9.io",
   "window": {
+    "frame": true,
     "toolbar": false,
-    "width": 640,
-    "height": 960
+    "width": 520,
+    "height": 700
   },
   "chromium-args": "--enable-usermedia-screen-capturing"
 }

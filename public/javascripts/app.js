@@ -17,9 +17,9 @@ var Profile = Backbone.Model.extend({
             url: "/profile",
             async: false
         }).done(function(user, status, xhr) {
-            user.timestamp = new Date(xhr.getResponseHeader('date')).getTime();
             self.clear().set(user);
             result = true;
+            app.serverTime.syncTime();
         }).fail(function() {
             console.log('profile.update: error');
         });
@@ -34,9 +34,9 @@ var Profile = Backbone.Model.extend({
             data: user,
             async: false
         }).done(function(user, status, xhr) {
-            user.timestamp = new Date(xhr.getResponseHeader('date')).getTime();
             self.clear().set(user);
             result = true;
+            app.serverTime.syncTime();
         }).fail(function() {
             console.log('profile.login: error');
             self.clear();
@@ -73,9 +73,8 @@ var ServerTime = Backbone.Model.extend({
     initialize: function(options) {
         var self = this;
         this.options = options || {};
-        this._ticker = 0;
-        if (this.options.time) this._lastSyncTime = this.options.time;
-        else this.syncTime();
+        if (this.options.time) this._ticker = this.options.time;
+        else this._ticker = Date.now();
         this._timer = setInterval(function() {
             self.onTick();
         }, 1000);
@@ -87,13 +86,14 @@ var ServerTime = Backbone.Model.extend({
         var self = this;
         var clientTime = Date.now();
         this.fetch({
+            async: false,
             data: {
                 client: clientTime
             },
             success: function(model, response, options) {
-                self._lastSyncTime = model.get("serverTime");
+                self._ticker = model.get("serverTime");
                 var delay = Math.floor((Date.now() - clientTime) / 2);
-                self._ticker = delay;
+                self._ticker += delay;
             }
         });
     },
@@ -101,8 +101,7 @@ var ServerTime = Backbone.Model.extend({
         this._ticker += 1000;
     },
     now: function() {
-        if (!this._lastSyncTime) return moment();
-        else return moment(this._lastSyncTime + this._ticker);
+        return moment(this._ticker);
     }
 });
 //
@@ -1822,6 +1821,9 @@ var ScreenView = Backbone.View.extend({
 // Schedule view
 //
 var ScheduleView = Backbone.View.extend({
+    events: {
+        "click .start-btn": "doStart"
+    },
     initialize: function() {
         // Variables
         var self = this;
@@ -1866,7 +1868,6 @@ var ScheduleView = Backbone.View.extend({
         };
         // Timers
         this.timer = moment(0);
-        this.countdown = null;
         // Current time timer
         var t1 = setInterval(function() {
             self._TimeWidget.text(app.now().format('HH:mm:ss'));
@@ -1874,25 +1875,19 @@ var ScheduleView = Backbone.View.extend({
         // Countdown timer
         var t2 = setInterval(function() {
             if (!self.nextExam) return;
+            if (self.nextExam.ready) return;
             // decrement
-            if (self.nextExam.countdown <= 0) {
-                if (self.nextExam.resolution == null) {
-                    self._StartBtn.linkbutton('enable');
-                    self._StartBtn.css({
-                        color: 'green'
-                    });
-                    self._StartBtn.click(function() {
-                        self.doStart(self.nextExam._id);
-                    });
-                    if (self.nextExam.countdown >= -1000) self._Grid.datagrid('reload');
-                    clearInterval(t2);
-                }
-                self.nextExam.countdown = 0;
-            }
-            else {
-                self.nextExam.countdown -= 1000;
+            self.nextExam.countdown -= 1000;
+            if (self.nextExam.countdown <= 0 && self.nextExam.resolution == null) {
+                self._StartBtn.linkbutton('enable');
+                self._StartBtn.css({
+                    color: 'green'
+                });
+                if (self.nextExam.countdown > -1000) self._Grid.datagrid('reload');
+                self.nextExam.ready = true;
             }
             // display countdown
+            if (self.nextExam.countdown < 0) self.nextExam.countdown = 0;
             var days = moment.duration(self.nextExam.countdown, 'ms').days();
             var times = moment(self.nextExam.countdown).utc().format('HH:mm:ss');
             self._CountdownWidget.text(days + '.' + times);
@@ -1961,6 +1956,10 @@ var ScheduleView = Backbone.View.extend({
                     if (!self.nextExam && endDate > d) {
                         self.nextExam = data[k];
                         self.nextExam.countdown = moment(data[k].beginDate).diff(app.now());
+                        self._StartBtn.linkbutton('disable');
+                        self._StartBtn.css({
+                            color: ''
+                        });
                     }
                 }
                 exams.total = exams.rows.length;
@@ -1996,10 +1995,13 @@ var ScheduleView = Backbone.View.extend({
     refreshTable: function() {
         this._Grid.datagrid('reload');
     },
-    doStart: function(examId) {
-        app.router.navigate("exam/" + examId, {
-            trigger: true
-        });
+    doStart: function() {
+        if (this.nextExam && this.nextExam.ready) {
+            var examId = this.nextExam._id;
+            app.router.navigate("exam/" + examId, {
+                trigger: true
+            });
+        }
     },
     formatDuration: function(val, row) {
         if (row.beginDate == null) return null;
@@ -2720,10 +2722,8 @@ var DemoView = Backbone.View.extend({
 var AppView = Backbone.View.extend({
     initialize: function() {
         app = this;
+        this.serverTime = new ServerTime();
         this.profile = new Profile();
-        this.serverTime = new ServerTime({
-            time: this.profile.get('timestamp')
-        });
         this.settings = new Settings();
         this.router = new Workspace();
         this.connect();
