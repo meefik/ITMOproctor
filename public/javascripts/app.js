@@ -1940,6 +1940,13 @@ var ScheduleView = Backbone.View.extend({
                     return 'background-color:white;color:black';
                 }
             },
+            onLoadSuccess: function(data) {
+                var self = app.content;
+                self._StartBtn.linkbutton('disable');
+                self._StartBtn.css({
+                    color: ''
+                });
+            },
             loadFilter: function(data) {
                 var exams = {
                     "total": 0,
@@ -1956,10 +1963,6 @@ var ScheduleView = Backbone.View.extend({
                     if (!self.nextExam && endDate > d) {
                         self.nextExam = data[k];
                         self.nextExam.countdown = moment(data[k].beginDate).diff(app.now());
-                        self._StartBtn.linkbutton('disable');
-                        self._StartBtn.css({
-                            color: ''
-                        });
                     }
                 }
                 exams.total = exams.rows.length;
