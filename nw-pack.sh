@@ -31,8 +31,11 @@ unpack_nw()
    then
       unzip -q $filename -d $target_dir
       local unpacked_dir=$(find $target_dir -mindepth 1 -maxdepth 1 -type d)
-      mv $unpacked_dir/* $target_dir
-      rmdir $unpacked_dir
+      if [ -n "$unpacked_dir" ]
+      then
+         mv $unpacked_dir/* $target_dir
+         rmdir $unpacked_dir
+      fi
    else
       tar xzf $filename --strip 1 -C $target_dir
    fi
