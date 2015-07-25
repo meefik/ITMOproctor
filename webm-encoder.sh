@@ -36,7 +36,7 @@ encoder()
             ffmpeg -i ${STORAGE_DIR}/${filename} -threads ${NCPU} -r ${frame_rate} -c:v vp8 -c:a copy -vf scale=${output_resolution} ${temp_dir}/${filename} </dev/null
         done
         ffmpeg -f concat -i <(find ${temp_dir} -name '*.webm' -printf "file '%p'\n" | sort) -c copy ${STORAGE_DIR}/${webm_file} </dev/null
-        md5sum ${STORAGE_DIR}/${webm_file} > ${STORAGE_DIR}/${webm_file}.md5
+        (cd ${STORAGE_DIR} && md5sum ${webm_file}) > ${STORAGE_DIR}/${webm_file}.md5
         [ -d "${temp_dir}" ] && rm -rf ${temp_dir}
     done
 }
