@@ -22,7 +22,8 @@
 **Серверная часть**
 
 * [Debian GNU/Linux](http://www.debian.org)
-* [node.js](http://www.nodejs.org)
+* [node.js](http://www.nodejs.org) и [nw.js](http://nwjs.io)
+* [MongoDB](http://mongodb.org)
 * [Kurento Media Server](http://kurento.com)
 
 
