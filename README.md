@@ -19,6 +19,8 @@
 | Оперативная память           | 1 ГБ                            |
 | Процессор                    | Intel i3 1.2 ГГц или эквивалент |
 
+[Инструкция по использованию системы ITMOproctor](https://drive.google.com/file/d/0B7YdZbqVWxzeZnU4WmlvWXJubnc/view?usp=sharing)
+
 **Серверная часть**
 
 * [Debian GNU/Linux](http://www.debian.org)
@@ -26,7 +28,4 @@
 * [MongoDB](http://mongodb.org)
 * [Kurento Media Server](http://kurento.com)
 
-
-
-
-
+[Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
