@@ -30,12 +30,14 @@
 
 [Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
 
-**Устновка сервера с помощью vagrant**
+**Запуск серверной части через Vagrant**
 
-Необходимо установить VirtualBox: https://www.virtualbox.org/
+Необходимо установить:
 
-Vagrant: https://www.vagrantup.com/downloads.html
+* [VirtualBox](https://www.virtualbox.org/)
+* [Vagrant](https://www.vagrantup.com/downloads.html)
 
+Выполнить команды для запуска бокса:
 ```
 mkdir ~/itmoproctor
 cd ~/itmoproctor
@@ -43,4 +45,4 @@ vagrant init itmo/itmoproctor
 vagrant up
 vagrant ssh
 ```
-Веб-интерфейс - [localhost:3001](http://localhost:3001) на хост-машине. На гостевой [localhost:3000](http://localhost:3000).
+Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)<br>На гостевой машине: [localhost:3000](http://localhost:3000)
