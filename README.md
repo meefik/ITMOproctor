@@ -39,7 +39,7 @@ Vagrant: https://www.vagrantup.com/downloads.html
 ```
 mkdir ~/itmoproctor
 cd ~/itmoproctor
-vagrant init itmoproctor/itmoproctor
+vagrant init itmo/itmoproctor
 vagrant up
 vagrant ssh
 ```
