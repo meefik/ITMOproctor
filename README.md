@@ -29,3 +29,18 @@
 * [Kurento Media Server](http://kurento.com)
 
 [Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
+
+**Устновка сервера с помощью vagrant**
+
+Необходимо установить VirtualBox: https://www.virtualbox.org/
+
+Vagrant: https://www.vagrantup.com/downloads.html
+
+```
+mkdir ~/itmoproctor
+cd ~/itmoproctor
+vagrant init itmo/itmoproctor
+vagrant up
+vagrant ssh
+```
+Веб-интерфейс - [localhost:3001](http://localhost:3001) на хост-машине. На гостевой [localhost:3000](http://localhost:3000).
