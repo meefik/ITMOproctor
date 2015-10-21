@@ -43,4 +43,4 @@ vagrant init itmoproctor/itmoproctor
 vagrant up
 vagrant ssh
 ```
-Заходить в веб-интерфейс по адресу localhost:3001 на хост-машине. На гостевой localhost:3000.
+Веб-интерфейс - [localhost:3001](http://localhost:3001) на хост-машине. На гостевой [localhost:3000](http://localhost:3000).
