@@ -34,11 +34,11 @@
 Необходимо установить VirtualBox: https://www.virtualbox.org/
 Vagrant: https://www.vagrantup.com/downloads.html
 
-'''
+```
 mkdir ~/itmoproctor
 cd ~/itmoproctor
 vagrant init itmoproctor/itmoproctor
 vagrant up
 vagrant ssh
-'''
+```
 Заходить в веб-интерфейс по адресу localhost:3001 на хост-машине. На гостевой localhost:3000.
