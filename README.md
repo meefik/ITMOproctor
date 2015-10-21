@@ -31,7 +31,9 @@
 [Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
 
 **Устновка сервера с помощью vagrant**
+
 Необходимо установить VirtualBox: https://www.virtualbox.org/
+
 Vagrant: https://www.vagrantup.com/downloads.html
 
 ```
