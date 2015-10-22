@@ -10,10 +10,10 @@
         "limit": 10
     },
     "mongoose": {
-        "uri": "mongodb://demo:demo@ds047622.mongolab.com:47622/proctor"
+        "uri": "mongodb://127.0.0.1:47622/proctor"
     },
     "ws": {
-        "uri": "ws://de.ifmo.ru:8888/kurento"
+        "uri": "ws://127.0.0.1:8888/kurento"
     },
     "recorder": {
         "uri": "file:///tmp/"
