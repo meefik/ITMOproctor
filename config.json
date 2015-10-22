@@ -17,5 +17,14 @@
     },
     "recorder": {
         "uri": "file:///tmp/"
+    },
+    "auth": {
+        "openedu": {
+            "authorizationURL": "https://www.provider.com/oauth2/authorize",
+            "tokenURL": "https://www.provider.com/oauth2/toke",
+            "clientID": "123-456-789",
+            "clientSecret": "shhh-its-a-secret",
+            "callbackURL": "https://www.example.com/auth/provider/callback"
+        }
     }
 }

@@ -14,31 +14,38 @@ var db = {
         return geo;
     },
     profile: {
-        auth: function(username, password, done) {
-            var User = require('./models/user');
-            User.findOne({
-                username: username
-            }).select("+hashedPassword +salt -passport").exec(function(err, user) {
-                if (err) {
-                    return done(err);
-                }
-                if (!user) {
-                    return done(null, false, {
-                        message: 'Incorrect username.'
-                    });
-                }
-                if (!user.isActive()) {
-                    return done(null, false, {
-                        message: 'User is inactive.'
-                    });
-                }
-                if (!user.validPassword(password)) {
-                    return done(null, false, {
-                        message: 'Incorrect password.'
-                    });
-                }
-                return done(null, user);
-            });
+        auth: {
+            local: function(username, password, done) {
+                var User = require('./models/user');
+                User.findOne({
+                    username: username
+                }).select("+hashedPassword +salt -passport").exec(function(err, user) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (!user) {
+                        return done(null, false, {
+                            message: 'Incorrect username.'
+                        });
+                    }
+                    if (!user.isActive()) {
+                        return done(null, false, {
+                            message: 'User is inactive.'
+                        });
+                    }
+                    if (!user.validPassword(password)) {
+                        return done(null, false, {
+                            message: 'Incorrect password.'
+                        });
+                    }
+                    return done(null, user);
+                });
+            },
+            oauth2: function(accessToken, refreshToken, profile, done) {
+                //User.findOrCreate(..., function(err, user) {
+                //  done(err, user);
+                //});
+            }
         },
         log: function(args, callback) {
             var Logger = require('./models/logger');

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NW_VERSION="0.12.2"
+NW_VERSION="0.12.3"
 # Supported platforms: win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64
 NW_PLATFORM="win-ia32 win-x64 linux-ia32 linux-x64 osx-ia32 osx-x64"
 APP_NAME="itmoproctor"

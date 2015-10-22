@@ -1,6 +1,6 @@
 {
   "name": "proctor-client",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "System of distant supervision",
   "main": "index.html",
   "homepage": "https://proctor-meefik.c9.io",

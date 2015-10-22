@@ -59,6 +59,19 @@
         "email": "student@example.com",
         "role": 1,
         "attach": []
+    }, {
+        "_id": "55bb84d81a48ed0f0b1ef5c2",
+        "username": "admin",
+        "password": "admin",
+        "salt": "secret",
+        "lastname": "Админов",
+        "firstname": "Админ",
+        "middlename": "Админович",
+        "gender": "Мужской",
+        "birthday": "19.11.1986",
+        "email": "admin@example.com",
+        "role": 3,
+        "attach": []
     }],
     "exam": [{
         "_id": "55a2dd7a41fae8c2752964b0",
