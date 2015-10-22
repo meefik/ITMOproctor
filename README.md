@@ -44,3 +44,42 @@ vagrant up
 vagrant ssh
 ```
 Веб-интерфейс - [localhost:3001](http://localhost:3001) на хост-машине. На гостевой [localhost:3000](http://localhost:3000).
+
+**Развертывание системы на Ubuntu 14.04**
+
+Установить MongoDB:
+```
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+Установить Node.js:
+```
+curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash -
+sudo apt-get install --yes nodejs
+```
+
+Установить Kurento Media Server:
+```
+echo "deb http://ubuntu.kurento.org trusty main" | sudo tee /etc/apt/sources.list.d/kurento.list
+wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install kurento-server
+```
+
+Клонирование репозитория itmoproctor и инициализация:
+```
+mkdir ~/itmoproctor
+cd ~/itmoproctor
+git clone https://github.com/meefik/ITMOproctor.git ./
+npm install
+npm start
+```
+
+Добавление пользователей
+```
+cd ~/imoproctor/db
+node import.js data.json
+```
