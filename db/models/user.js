@@ -65,6 +65,7 @@ var User = new Schema({
     },
     // Паспортные данные
     passport: {
+        select: false,
         // Тип документа: паспорт, водительское удостоверение и т.п.
         doctype: {
             type: String
@@ -91,6 +92,7 @@ User.methods.encryptPassword = function(password) {
     //more secure - return crypto.pbkdf2Sync(password, this.salt, 10000, 512);
 };
 User.virtual('password').set(function(password) {
+    if (!password) password =  crypto.randomBytes(8).toString('base64');
     this._plainPassword = password;
     this.salt = crypto.randomBytes(32).toString('base64');
     //more secure - this.salt = crypto.randomBytes(128).toString('base64');
@@ -104,6 +106,13 @@ User.methods.validPassword = function(password) {
 User.methods.isActive = function() {
     return this.active === true;
 };
+User.virtual('genderName').get(function() {
+    var gender = {
+        "m": "Мужской",
+        "f": "Женский"
+    };
+    return gender[this.gender];
+});
 User.virtual('roleName').get(function() {
     var role = {
         "1": "Студент",
@@ -115,6 +124,7 @@ User.virtual('roleName').get(function() {
 User.set('toJSON', {
     virtuals: true,
     transform: function(doc, ret, options) {
+        delete ret.password;
         delete ret.hashedPassword;
         delete ret.salt;
         return ret;

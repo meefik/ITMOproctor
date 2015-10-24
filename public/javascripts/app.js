@@ -539,7 +539,7 @@ var LoginView = Backbone.View.extend({
         "click input[type='submit']": "submit"
     },
     initialize: function() {
-        this._Form = this.$("form");
+        this._Form = this.$("form#auth-plain");
         this._Username = this.$(".username");
         this._Password = this.$(".password");
         this.render();

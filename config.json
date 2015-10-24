@@ -3,28 +3,31 @@
         "level": "debug"
     },
     "cookie": {
-        "secret": "cookie_secret",
+        "secret": "its-a-secret",
         "ttl": 14
     },
     "upload": {
         "limit": 10
     },
     "mongoose": {
-        "uri": "mongodb://demo:demo@ds047622.mongolab.com:47622/proctor"
+        "uri": "mongodb://127.0.0.1:47622/proctor"
     },
     "ws": {
-        "uri": "ws://de.ifmo.ru:8888/kurento"
+        "uri": "ws://127.0.0.1:8888/kurento"
     },
     "recorder": {
         "uri": "file:///tmp/"
     },
     "auth": {
         "openedu": {
-            "authorizationURL": "https://www.provider.com/oauth2/authorize",
+            "authorizationURL": "https://sso.openedu.ru/login/",
             "tokenURL": "https://www.provider.com/oauth2/toke",
             "clientID": "123-456-789",
             "clientSecret": "shhh-its-a-secret",
-            "callbackURL": "https://www.example.com/auth/provider/callback"
+            "callbackURL": "https://proctor-meefik.c9.io/profile/openedu/callback"
+        },
+        "ifmosso": {
+            "secretKey": "its-a-secret"
         }
     }
 }

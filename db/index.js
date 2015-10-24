@@ -19,7 +19,7 @@ var db = {
                 var User = require('./models/user');
                 User.findOne({
                     username: username
-                }).select("+hashedPassword +salt -passport").exec(function(err, user) {
+                }).select("+hashedPassword +salt").exec(function(err, user) {
                     if (err) {
                         return done(err);
                     }
@@ -41,10 +41,45 @@ var db = {
                     return done(null, user);
                 });
             },
-            oauth2: function(accessToken, refreshToken, profile, done) {
+            openedu: function(accessToken, refreshToken, prof, done) {
                 //User.findOrCreate(..., function(err, user) {
                 //  done(err, user);
                 //});
+                done(null, user);
+            },
+            ifmosso: function(prof, done) {
+                var userData = {
+                    username: prof.ssoid,
+                    firstname: prof.firstname,
+                    lastname: prof.lastname,
+                    middlename: prof.middlename,
+                    gender: prof.gender,
+                    birthday: prof.birthdate,
+                    email: prof.email,
+                    password: null
+                };
+                var User = require('./models/user');
+                User.findOne({
+                    username: userData.username
+                }).exec(function(err, data) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (!data) {
+                        var user = new User(userData);
+                        user.save(function(err, data) {
+                            return done(err, data);
+                        });
+                    }
+                    else {
+                        if (!data.isActive()) {
+                            return done(null, false, {
+                                message: 'User is inactive.'
+                            });
+                        }
+                        return done(null, data);
+                    }
+                });
             }
         },
         log: function(args, callback) {
@@ -57,7 +92,7 @@ var db = {
         },
         passport: function(args, callback) {
             var User = require('./models/user');
-            User.findById(args.userId).exec(callback);
+            User.findById(args.userId).select("+passport").exec(callback);
         }
     },
     storage: {
