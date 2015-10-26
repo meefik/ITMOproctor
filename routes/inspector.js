@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
-var protocol = require('./protocol');
 router.get('/', function(req, res) {
     var args = {
         rows: req.query.rows,

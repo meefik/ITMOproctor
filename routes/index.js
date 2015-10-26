@@ -11,7 +11,7 @@ var members = require('./members');
 var tools = require('./tools');
 module.exports = function(app) {
     app.use('/profile', profile);
-    app.use('/passport', profile.isInspector, passport);
+    app.use('/passport', profile.isStudent, passport);
     app.use('/storage', profile.isAuth, storage);
     app.use('/exam', profile.isStudent, exam);
     app.use('/student', profile.isStudent, student);

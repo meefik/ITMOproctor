@@ -6,6 +6,7 @@ var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var IfmoSSOStrategy = require('passport-ifmosso').Strategy;
 var config = require('nconf')
 var db = require('../db');
+var passportRoute = require('./passport');
 
 function checkAccess(req, res, next, role) {
     if (req.isAuthenticated()) {
@@ -17,11 +18,17 @@ function checkAccess(req, res, next, role) {
     }
 };
 
-function logUserIP(req) {
-    db.profile.log({
-        userId: req.user._id,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    });
+router.isAuth = function(req, res, next) {
+    checkAccess(req, res, next);
+};
+router.isStudent = function(req, res, next) {
+    checkAccess(req, res, next, 1);
+};
+router.isInspector = function(req, res, next) {
+    checkAccess(req, res, next, 2);
+};
+router.isAdministrator = function(req, res, next) {
+    checkAccess(req, res, next, 3);
 };
 
 passport.use('local', new LocalStrategy(db.profile.auth.local));
@@ -42,6 +49,13 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
+
+function logUserIP(req) {
+    db.profile.log({
+        userId: req.user._id,
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    });
+};
 
 router.get('/', function(req, res) {
     req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
@@ -77,16 +91,4 @@ router.get('/logout', function(req, res) {
     res.end();
 });
 
-router.isAuth = function(req, res, next) {
-    checkAccess(req, res, next);
-};
-router.isStudent = function(req, res, next) {
-    checkAccess(req, res, next, 1);
-};
-router.isInspector = function(req, res, next) {
-    checkAccess(req, res, next, 2);
-};
-router.isAdministrator = function(req, res, next) {
-    checkAccess(req, res, next, 3);
-};
 module.exports = router;

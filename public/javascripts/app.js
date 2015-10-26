@@ -1847,8 +1847,8 @@ var ScheduleView = Backbone.View.extend({
                     case "demo":
                         self.view.demo.doOpen();
                         break;
-                    case "profile":
-                        self.view.profile.doOpen();
+                    case "passport":
+                        self.view.passport.doOpen();
                         break;
                     case "settings":
                         self.view.settings.doOpen();
@@ -1862,7 +1862,7 @@ var ScheduleView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            profile: new ProfileView(),
+            passport: new PassportView(),
             info: new InfoView(),
             demo: new DemoView()
         };
@@ -2092,8 +2092,8 @@ var ExamView = Backbone.View.extend({
                     case "info":
                         self.view.info.doOpen();
                         break;
-                    case "profile":
-                        self.view.profile.doOpen();
+                    case "passport":
+                        self.view.passport.doOpen();
                         break;
                     case "settings":
                         self.view.settings.doOpen();
@@ -2118,7 +2118,7 @@ var ExamView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            profile: new ProfileView(),
+            passport: new PassportView(),
             info: new InfoView({
                 examId: this.options.examId
             }),
@@ -2312,7 +2312,7 @@ var PassportView = Backbone.View.extend({
     tagName: 'div',
     events: {
         'click .passport-edit-btn': 'showEdit',
-        'click .passport-cancel-btn': 'doCancel',
+        'click .passport-cancel-btn': 'showInfo',
         'click .passport-save-btn': 'doSave',
         'click .passport-attach-btn': 'doAttach',
         'change .passport-attach-input': 'onFileChange',
@@ -2331,7 +2331,11 @@ var PassportView = Backbone.View.extend({
             cache: false,
             href: '/templates/passport.html',
             onLoad: function() {
-                self.model.fetch();
+                self.model.fetch({
+                    success: function() {
+                        self.render();
+                    }
+                });
             },
             onOpen: function() {
                 $(this).dialog('center');
@@ -2365,14 +2369,14 @@ var PassportView = Backbone.View.extend({
             urlRoot: '/passport'
         });
         this.model = new DialogModel();
-        this.listenTo(this.model, 'change', this.render);
+        //this.listenTo(this.model, 'change', this.render);
     },
     destroy: function() {
         this.remove();
     },
     render: function() {
         console.log('render');
-        if (!this.model.get('username')) return;
+        //if (!this.model.get('username')) return;
         // var view = this.$('.passport-view');
         var view = this.$('.passport-tpl-insert');
         var tpl = _.template($("#passport-tpl").html());
@@ -2414,7 +2418,8 @@ var PassportView = Backbone.View.extend({
         else {
             attach.splice(attachId, 1);
         }
-        this.model.trigger('change');
+        //this.model.trigger('change');
+        this.drawAttachList();
     },
     drawAttachList: function() {
         this._AttachList.html('');
@@ -2437,6 +2442,12 @@ var PassportView = Backbone.View.extend({
         }
     },
     showInfo: function() {
+        var self = this;
+        this.model.fetch({
+            success: function() {
+                self.render();
+            }
+        });
         this._EditContainer.hide();
         this._InfoContainer.show();
     },
@@ -2488,13 +2499,9 @@ var PassportView = Backbone.View.extend({
                 filename: respond.originalname,
                 uploadname: respond.name
             });
-            self.model.trigger('change');
             self._Progress.progressbar('setColor', 'green');
+            self.drawAttachList();
         });
-    },
-    doCancel: function() {
-        this.model.fetch();
-        this.showInfo();
     },
     doSave: function() {
         var self = this;
@@ -2527,6 +2534,8 @@ var PassportView = Backbone.View.extend({
     doOpen: function(userId) {
         if (userId) {
             this.model.set('id', userId);
+        } else {
+            this.model.set('id', app.profile.get('_id'));
         }
         this._Dialog.dialog('open');
     },
