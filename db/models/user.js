@@ -41,7 +41,7 @@ var User = new Schema({
     middlename: {
         type: String
     },
-    // Пол
+    // Пол: m или f
     gender: {
         type: String
     },
@@ -53,7 +53,7 @@ var User = new Schema({
     email: {
         type: String
     },
-    // Роль пользователя
+    // Роль пользователя: 1 = Студент, 2 = Инспектор, 3 = Администратор
     role: {
         type: Number,
         default: 1
@@ -63,25 +63,25 @@ var User = new Schema({
         type: Boolean,
         default: true
     },
-    // Паспортные данные
-    passport: {
-        select: false,
-        // Тип документа: паспорт, водительское удостоверение и т.п.
-        doctype: {
-            type: String
-        },
-        // Серия и номер
-        number: {
-            type: String
-        },
-        // Дата выдачи
-        issueDate: {
-            type: String
-        },
-        // Дополнительная информация
-        description: {
-            type: String
-        }
+    // Гражданство
+    citizenship: {
+        type: String
+    },
+    // Тип документа: паспорт, свидетельство о рождении и т.п.
+    documentType: {
+        type: String
+    },
+    // Серия и номер документа
+    documentNumber: {
+        type: String
+    },
+    // Дата выдачи документа
+    documentIssueDate: {
+        type: String
+    },
+    // Дополнительная информация
+    description: {
+        type: String
     },
     // Связанные с пользователем файлы
     // Первый элемент массива - фотография пользователя
@@ -92,7 +92,7 @@ User.methods.encryptPassword = function(password) {
     //more secure - return crypto.pbkdf2Sync(password, this.salt, 10000, 512);
 };
 User.virtual('password').set(function(password) {
-    if (!password) password =  crypto.randomBytes(8).toString('base64');
+    if (!password) password = crypto.randomBytes(8).toString('base64');
     this._plainPassword = password;
     this.salt = crypto.randomBytes(32).toString('base64');
     //more secure - this.salt = crypto.randomBytes(128).toString('base64');

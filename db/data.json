@@ -41,11 +41,10 @@
             "fileId": "55a16f039d67a11969642654",
             "filename": "avatar.png"
         }],
-        "passport": {
-            "doctype": "Паспорт",
-            "number": "1234 123456",
-            "issueDate": "01.02.2004"
-        }
+        "citizenship": "РФ",
+        "documentType": "Паспорт",
+        "documentNumber": "1234 123456",
+        "documentIssueDate": "01.02.2004"
     }, {
         "_id": "55633e000cf842a221a37af2",
         "username": "student2",

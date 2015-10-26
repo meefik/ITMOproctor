@@ -63,6 +63,7 @@ app.use(function(req, res, next) {
 });
 // socket.io authorization
 io.use(passportSocketIo.authorize({
+    passport: passport,
     cookieParser: cookieParser,
     key: 'proctor',
     secret: config.get("cookie:secret"),

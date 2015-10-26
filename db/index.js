@@ -90,9 +90,40 @@ var db = {
             });
             log.save(callback);
         },
-        passport: function(args, callback) {
+        info: function(args, callback) {
             var User = require('./models/user');
-            User.findById(args.userId).select("+passport").exec(callback);
+            User.findById(args.userId).exec(callback);
+        },
+        update: function(args, callback) {
+            var User = require('./models/user');
+            var attach = args.data.attach || [];
+            var attachAdd = [];
+            var attachDel = [];
+            for (var i = 0; i < attach.length; i++) {
+                if (!attach[i].fileId) {
+                    attach[i].fileId = mongoose.Types.ObjectId();
+                    attachAdd.push(attach[i]);
+                }
+                if (attach[i].removed) {
+                    attachDel.push(attach[i]);
+                    attach.splice(i, 1);
+                }
+            }
+            User.findByIdAndUpdate(args.userId, {
+                $set: args.data
+            }, {
+                'new': true
+            }, function(err, data) {
+                callback(err, data);
+                if (!err && data) {
+                    if (attachAdd.length > 0) {
+                        db.storage.upload(attachAdd);
+                    }
+                    if (attachDel.length > 0) {
+                        db.storage.remove(attachDel);
+                    }
+                };
+            });
         }
     },
     storage: {

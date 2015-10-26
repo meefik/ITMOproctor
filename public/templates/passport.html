@@ -1,54 +1,147 @@
-<div class="passport-view"></div>
-<button class="easyui-linkbutton" style="height:24px;width:100px;position:absolute;bottom:20px;right:20px">Редактировать</button>
+<div class="passport-view" style="margin:10px;">
+    <div class="passport-info-container">
+        <div class="passport-tpl-insert"></div>
+        <div style="">
+            <button class="easyui-linkbutton passport-edit-btn" data-options="iconCls:'fa fa-pencil'" style="position:absolute;bottom:15px;right:15px">Редактировать</button>
+        </div>
+    </div>
+    <div class="passport-edit-container" style="display:none;">
+        <div>
+            <form class="passport-edit-form">
+                <table cellpadding="5" style="width:100%;">
+                    <tr>
+                        <td style="width:40%">ФИО:</td>
+                        <td>
+                            <input type="text" name="lastname" class="easyui-textbox lastname" data-options="width:100,prompt:'Фамилия'"/>
+                            <input type="text" name="firstname" class="easyui-textbox firstname" data-options="width:100,prompt:'Имя'"/>
+                            <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:100,prompt:'Отчество'"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Пол:</td>
+                        <td>
+                            <select name="gender" class="gender" style="width:200px;">
+                                <option selected disabled>...</option>
+                                <option value="Мужской">Мужской</option>
+                                <option value="Женский">Женский</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Дата рождения:</td>
+                        <td><input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="prompt:'Выберите...'"></td>
+                    </tr>
+                    <tr>
+                        <td>Электронный адрес:</td>
+                        <td><input type="text" name="email" class="easyui-textbox email" data-options="width:310,prompt:'E-Mail'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Гражданство:</td>
+                        <td><input type="text" name="citizenship" class="easyui-textbox citizenship" data-options="width:310,prompt:'Гражданство'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Тип документа:</td>
+                        <td>
+                            <select name="documentType" class="documentType" style="width:200px;">
+                                <option selected disabled>...</option>
+                                <option value="Паспорт">Паспорт</option>
+                                <option value="Заграничный паспорт">Заграничный паспорт</option>
+                                <option value="Иностранный документ">Иностранный документ</option>
+                                <option value="Паспорт моряка">Паспорт моряка</option>
+                                <option value="Свидетельство о рождении">Свидетельство о рождении</option>
+                                <option value="Военный билет">Военный билет</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Номер документа:</td>
+                        <td><input type="text" name="documentNumber" class="easyui-textbox documentNumber" data-options="width:310,prompt:'Номер документа'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Дата выдачи документа:</td>
+                        <td><input name="documentIssueDate" class="easyui-datebox documentIssueDate" style="width:200px;" data-options="prompt:'Выберите...'"></td>
+                    </tr>
+                    <tr>
+                        <td>Дополнительная информация:</td>
+                        <td><input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:50,multiline:true,prompt:'Введите описание...'"></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top;width:40%;">Приложенные файлы:</td>
+                        <td>
+                            <div class="passport-files" style="float:left;"></div>
+                        </td>
+                    </tr>                    
+                </table>
+            </form>
+        </div>
+        <div style="position:absolute;right:15px;bottom:15px">
+            <button class="easyui-linkbutton passport-attach-btn" data-options="iconCls:'fa fa-paperclip'" style="">Прикрепить</button>
+            <form method="post" enctype="multipart/form-data" class="passport-attach-form" style="display:none;">
+                <input type="file" name="passportFile" class="passport-attach-input"/>
+            </form>
+            <button class="easyui-linkbutton passport-save-btn" data-options="iconCls:'fa fa-check'">Сохранить</button>
+            <button class="easyui-linkbutton passport-cancel-btn" data-options="iconCls:'fa fa-times'">Отмена</button>
+        </div>
+        <button class="easyui-linkbutton passport-file-btn" data-options="plain:true,iconCls:'fa fa-download'" style="display:none;position:absolute;left:15px;bottom:15px;">
+            <div class="easyui-progressbar passport-progress" data-options="width:150,height:18" style="margin:3px 0 3px 0;float:left;"></div>
+        </button>
+    </div>
+</div>
 <script type="text/template" id="passport-tpl">
-<div style="padding:10px">
-    <% var photo = attach.length > 0 ? '/storage/' + attach[0].fileId : '/images/avatar.png'; %>
-    <img src="<%- photo %>" alt="Фотография" style="border:1px solid lightgray;width:240px;height:320px;object-position:center;object-fit:cover;float:left;margin-right:10px;">
-    <table cellpadding="5" style="float:clear">
+<table cellpadding="5" style="width:100%;">
     <tr>
         <td>ФИО:</td>
-        <td><%- lastname %> <%- firstname %> <%- middlename %></td>
+        <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
     </tr>
     <tr>
         <td>Пол:</td>
-        <td><%- gender %></td>
+        <td><%- user.gender %></td>
     </tr>
     <tr>
         <td>Дата рождения:</td>
-        <td><%- birthday %></td>
+        <td><%- user.birthday %></td>
     </tr>
     <tr>
         <td>Электронный адрес:</td>
-        <td style="word-break:break-all;"><%- email %></td>
+        <td style="word-break:break-all;"><%- user.email %></td>
+    </tr>
+    <tr>
+        <td>Гражданство:</td>
+        <td><% if (user.citizenship) { %><%- user.citizenship %><% } else { %> - <% } %></td>
     </tr>
     <tr>
         <td>Тип документа:</td>
-        <td><% if (passport.doctype) { %><%- passport.doctype %><% } else { %> - <% } %></td>
+        <td><% if (user.documentType) { %><%- user.documentType %><% } else { %> - <% } %></td>
     </tr>
     <tr>
         <td>Номер документа:</td>
-        <td><% if (passport.number) { %><%- passport.number %><% } else { %> - <% } %></td>
+        <td><% if (user.documentNumber) { %><%- user.documentNumber %><% } else { %> - <% } %></td>
     </tr>
     <tr>
         <td>Дата выдачи документа:</td>
-        <td><% if (passport.issueDate) { %><%- passport.issueDate %><% } else { %> - <% } %></td>
+        <td><% if (user.documentIssueDate) { %><%- user.documentIssueDate %><% } else { %> - <% } %></td>
     </tr>
     <tr>
-        <td>Дополнительная информация:</td>
-        <td><% if (passport.description) { %><%- passport.description %><% } else { %> - <% } %></td>
+        <td>Дополнительно:</td>
+        <td><% if (user.description) { %><%- user.description %><% } else { %> - <% } %></td>
     </tr>
     <tr>
-        <td>Приложенные файлы:</td>
+        <td style="vertical-align:top;">Приложенные файлы:</td>
         <td>
-            <% if(attach.length > 0) { %>
-                <% _.each(attach, function(element, index, list){ %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- element.filename %></a>
+            <% if(user.attach.length > 0) { %>
+                <% _.each(user.attach, function(element, index, list){ 
+                    var filename = element.filename;
+                    var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
+                    if (filename.length > 30) {
+                        filename = filename.substring(0, 30) + '...' + extension;
+                    }
+                    %>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- filename %></a><br/>
                 <% }); %>
             <% } else { %>
                 -
             <% } %>
         </td>
     </tr>
-    </table>
-</div>
+</table>
 </script>

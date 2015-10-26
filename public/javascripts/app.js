@@ -2310,19 +2310,28 @@ var InfoView = Backbone.View.extend({
 //
 var PassportView = Backbone.View.extend({
     tagName: 'div',
+    events: {
+        'click .passport-edit-btn': 'showEdit',
+        'click .passport-cancel-btn': 'doCancel',
+        'click .passport-save-btn': 'doSave',
+        'click .passport-attach-btn': 'doAttach',
+        'change .passport-attach-input': 'onFileChange',
+        'click .passport-delete-file': 'removeAttach'
+    },
     initialize: function(options) {
         var self = this;
         this.options = options || {};
+        // Dialog
         var dialog = $(this.el).dialog({
             title: 'Карточка студента',
-            width: 800,
-            height: 380,
+            width: 500,
+            height: 500,
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
             cache: false,
             href: '/templates/passport.html',
             onLoad: function() {
-                self.render();
+                self.model.fetch();
             },
             onOpen: function() {
                 $(this).dialog('center');
@@ -2330,36 +2339,201 @@ var PassportView = Backbone.View.extend({
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
+        // Variables
+        $.extend($.fn.progressbar.methods, {
+            setColor: function(jq, color) {
+                var pb = jq.find('.progressbar-value > .progressbar-text');
+                var defaultColor = $.data(jq[0], 'progressbar').options.color;
+                if (!defaultColor) {
+                    defaultColor = pb.css('backgroundColor');
+                    $.data(jq[0], 'progressbar').options.color = defaultColor;
+                }
+                if (color) {
+                    pb.css({
+                        backgroundColor: color
+                    });
+                }
+                else {
+                    pb.css({
+                        backgroundColor: defaultColor
+                    });
+                }
+            }
+        });
         // Dialog model
         var DialogModel = Backbone.Model.extend({
             urlRoot: '/passport'
         });
         this.model = new DialogModel();
+        this.listenTo(this.model, 'change', this.render);
     },
     destroy: function() {
         this.remove();
     },
     render: function() {
-        var view = this.$('.passport-view');
+        console.log('render');
+        if (!this.model.get('username')) return;
+        // var view = this.$('.passport-view');
+        var view = this.$('.passport-tpl-insert');
         var tpl = _.template($("#passport-tpl").html());
-        this.model.set('id', this.options.userId);
-        this.model.fetch({
-            success: function(model, response, options) {
-                if (!model.get("passport")) model.set("passport", {});
-                var html = tpl(model.toJSON());
-                view.html(html);
+        var html = tpl({
+            user: this.model.toJSON()
+        });
+        view.html(html);
+        // Variables
+        this.attachedFile = [];
+        this._InfoContainer = this.$(".passport-info-container");
+        this._EditContainer = this.$(".passport-edit-container");
+        this._FileBtn = this.$(".passport-file-btn");
+        this._AttachInput = this.$(".passport-attach-input");
+        this._AttachBtn = this.$(".passport-attach-btn");
+        this._Progress = this.$(".passport-progress");
+        this._AttachList = this.$(".passport-files");
+        this._AttachForm = this.$(".passport-attach-form");
+        this._EditForm = this.$('.passport-edit-form');
+        // Reset form
+        this.doReset();
+        // Load form data
+        this._EditForm.form('load', this.model.toJSON());
+        // Display files
+        this.drawAttachList();
+    },
+    trancateFilename: function(filename, length) {
+        var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
+        if (filename.length > length) {
+            filename = filename.substring(0, length - extension.length) + '...' + extension;
+        }
+        return filename;
+    },
+    removeAttach: function(event) {
+        var attachId = $(event.currentTarget).attr("data-id");
+        var attach = this.model.get('attach');
+        if (attach[attachId].fileId) {
+            attach[attachId].removed = 1;
+        }
+        else {
+            attach.splice(attachId, 1);
+        }
+        this.model.trigger('change');
+    },
+    drawAttachList: function() {
+        this._AttachList.html('');
+        var attach = this.model.get('attach');
+        for (var i = 0, l = attach.length; i < l; i++) {
+            if (attach[i].removed) continue;
+            var html = '<div><i class="fa fa-paperclip"></i> ';
+            if (attach[i].fileId) {
+                html += '<a href="/storage/' + attach[i].fileId + '" title="' +
+                    attach[i].filename + '">' + this.trancateFilename(attach[i].filename, 25) +
+                    '</a>';
+            }
+            else {
+                html += '<span title="' + attach[i].filename + '">' +
+                    this.trancateFilename(attach[i].filename, 25) + '</span>';
+            }
+            html += ' <i data-id="' + i +
+                '" class="fa fa-times passport-delete-file" title="Удалить" style="cursor:pointer;"></i></div>';
+            this._AttachList.append(html);
+        }
+    },
+    showInfo: function() {
+        this._EditContainer.hide();
+        this._InfoContainer.show();
+    },
+    showEdit: function() {
+        this._InfoContainer.hide();
+        this._EditContainer.show();
+    },
+    doAttach: function() {
+        if (this.attachedFile.length > 0) return;
+        this._AttachInput.trigger('click');
+    },
+    onFileChange: function() {
+        var self = this;
+        var limitSize = 10 * 1024 * 1024; // 10 MB
+        var data = new FormData(this._AttachForm);
+        var files = self._AttachInput[0].files;
+        if (files.length === 0 || files[0].size > limitSize) {
+            return;
+        }
+        $.each(files, function(key, value) {
+            data.append(key, value);
+        });
+        var filename = files['0'].name;
+        self._Progress.progressbar('setColor', null);
+        self._FileBtn.show();
+        self._AttachBtn.linkbutton('disable');
+        self._Progress.progressbar({
+            value: 0,
+            text: self.trancateFilename(filename, 15)
+        });
+        $.ajax({
+            type: 'post',
+            url: '/storage',
+            data: data,
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
+                xhr.upload.onprogress = function(progress) {
+                    var percentage = Math.floor((progress.loaded / progress.total) * 100);
+                    self._Progress.progressbar('setValue', percentage);
+                };
+                return xhr;
+            },
+            processData: false,
+            contentType: false
+        }).done(function(respond) {
+            var attach = self.model.get('attach');
+            attach.push({
+                fileId: respond.fileId,
+                filename: respond.originalname,
+                uploadname: respond.name
+            });
+            self.model.trigger('change');
+            self._Progress.progressbar('setColor', 'green');
+        });
+    },
+    doCancel: function() {
+        this.model.fetch();
+        this.showInfo();
+    },
+    doSave: function() {
+        var self = this;
+        var config = {}
+        this._EditForm.serializeArray().map(function(item) {
+            if (config[item.name]) {
+                if (typeof(config[item.name]) === "string") {
+                    config[item.name] = [config[item.name]];
+                }
+                config[item.name].push(item.value);
+            }
+            else {
+                config[item.name] = item.value;
+            }
+        });
+        config.attach = this.model.get('attach');
+        this.model.save(config, {
+            success: function() {
+                self.showInfo();
             }
         });
     },
+    doReset: function() {
+        this.attachedFile = [];
+        this._FileBtn.hide();
+        this._AttachBtn.linkbutton('enable');
+        this._AttachForm.trigger('reset');
+        this._EditForm.form('reset');
+    },
     doOpen: function(userId) {
         if (userId) {
-            this.options.userId = userId;
+            this.model.set('id', userId);
         }
         this._Dialog.dialog('open');
     },
     doClose: function() {
         this._Dialog.dialog('close');
     }
+
 });
 //
 // Profile view
