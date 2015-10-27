@@ -35,3 +35,6 @@ uploads/
 # For nw-pack.sh
 cache/
 public/dist/
+
+# Configuration
+/config.json

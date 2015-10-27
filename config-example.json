@@ -1,0 +1,34 @@
+{
+    "logger": {
+        "level": "debug"
+    },
+    "cookie": {
+        "secret": "its-a-secret",
+        "ttl": 14
+    },
+    "upload": {
+        "limit": 10
+    },
+    "mongoose": {
+        "uri": "mongodb://127.0.0.1:47622/proctor"
+    },
+    "ws": {
+        "uri": "ws://127.0.0.1:8888/kurento"
+    },
+    "recorder": {
+        "uri": "file:///tmp/"
+    },
+    "auth": {
+        "openedu": {
+            "authorizationURL": "https://sso.test.npoed.ru/oauth2/authorize",
+            "tokenURL": "https://sso.test.npoed.ru/oauth2/access_token",
+            "userProfile": "https://sso.test.npoed.ru/users/me?format=json",
+            "clientID": "123-456-789",
+            "clientSecret": "its-a-secret",
+            "callbackURL": "https://localhost:3000/profile/openedu/callback"
+        },
+        "ifmosso": {
+            "secretKey": "its-a-secret"
+        }
+    }
+}

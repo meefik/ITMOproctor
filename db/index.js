@@ -42,10 +42,35 @@ var db = {
                 });
             },
             openedu: function(accessToken, refreshToken, prof, done) {
-                //User.findOrCreate(..., function(err, user) {
-                //  done(err, user);
-                //});
-                done(null, user);
+                var userData = {
+                    username: prof.username,
+                    firstname: prof.firstname,
+                    lastname: prof.lastname,
+                    email: prof.email,
+                    password: null
+                };
+                var User = require('./models/user');
+                User.findOne({
+                    username: userData.username
+                }).exec(function(err, data) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (!data) {
+                        var user = new User(userData);
+                        user.save(function(err, data) {
+                            return done(err, data);
+                        });
+                    }
+                    else {
+                        if (!data.isActive()) {
+                            return done(null, false, {
+                                message: 'User is inactive.'
+                            });
+                        }
+                        return done(null, data);
+                    }
+                });
             },
             ifmosso: function(prof, done) {
                 var userData = {

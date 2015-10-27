@@ -6,7 +6,6 @@ var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var IfmoSSOStrategy = require('passport-ifmosso').Strategy;
 var config = require('nconf')
 var db = require('../db');
-var passportRoute = require('./passport');
 
 function checkAccess(req, res, next, role) {
     if (req.isAuthenticated()) {
@@ -29,6 +28,21 @@ router.isInspector = function(req, res, next) {
 };
 router.isAdministrator = function(req, res, next) {
     checkAccess(req, res, next, 3);
+};
+
+OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+    this._oauth2.get(config.get('auth:openedu:userProfile'), accessToken, function(err, body, res) {
+        if (err) {
+            var InternalOAuthError = require('passport-oauth').InternalOAuthError;
+            return done(new InternalOAuthError('failed to fetch user profile', err));
+        }
+        try {
+            done(null, JSON.parse(body));
+        }
+        catch (e) {
+            done(e);
+        }
+    });
 };
 
 passport.use('local', new LocalStrategy(db.profile.auth.local));
