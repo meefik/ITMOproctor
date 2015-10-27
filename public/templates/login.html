@@ -19,14 +19,6 @@
     </div>
 </div>
 
-<!--
-<form id="auth-ifmosso-plain" method="post" action="https://de.ifmo.ru/IfmoSSO/auth" style="display:none">
-    <input type="hidden" name="login" value="">
-    <input type="hidden" name="password" value="">
-    <input type="hidden" name="externalRequestData" value="{!@!redirect!@!:!@!https:\/\/proctor-meefik.c9.io\/profile\/ifmosso\/callback!@!,!@!externalParams!@!:[{!@!redirect!@!:[!@!https:\/\/proctor-meefik.c9.io\/profile\/ifmosso\/callback!@!]}],!@!externalCss!@!:null}">
-</form>
--->
-
 <form name="auth-ifmosso" action="https://de.ifmo.ru/IfmoSSO/" method="post" style="display:none">
     <input type="hidden" name="redirect" value="" />
 </form>
@@ -39,12 +31,4 @@
         form.redirect.value = callbackUrl;
         form.submit();
     }
-    /*
-    function authPlainIfmoSSO() {
-        var form = document.forms["auth-ifmosso-plain"];
-        form.login.value = document.forms["auth-plain"].username.value;
-        form.password.value = document.forms["auth-plain"].password.value;
-        form.submit();
-    }
-    */
 </script>

@@ -1862,7 +1862,7 @@ var ScheduleView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            passport: new PassportView(),
+            passport: new PassportEditorView(),
             info: new InfoView(),
             demo: new DemoView()
         };
@@ -2118,7 +2118,7 @@ var ExamView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            passport: new PassportView(),
+            passport: new PassportEditorView(),
             info: new InfoView({
                 examId: this.options.examId
             }),
@@ -2272,6 +2272,13 @@ var InfoView = Backbone.View.extend({
             onOpen: function() {
                 $(this).dialog('center');
             },
+            buttons: [{
+				text:'Закрыть',
+				iconCls: 'fa fa-times',
+				handler:function(){
+				    self.doClose();
+				}
+			}],
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2310,14 +2317,6 @@ var InfoView = Backbone.View.extend({
 //
 var PassportView = Backbone.View.extend({
     tagName: 'div',
-    events: {
-        'click .passport-edit-btn': 'showEdit',
-        'click .passport-cancel-btn': 'showInfo',
-        'click .passport-save-btn': 'doSave',
-        'click .passport-attach-btn': 'doAttach',
-        'change .passport-attach-input': 'onFileChange',
-        'click .passport-delete-file': 'removeAttach'
-    },
     initialize: function(options) {
         var self = this;
         this.options = options || {};
@@ -2325,7 +2324,7 @@ var PassportView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Карточка студента',
             width: 500,
-            height: 500,
+            height: 400,
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
             cache: false,
@@ -2340,6 +2339,13 @@ var PassportView = Backbone.View.extend({
             onOpen: function() {
                 $(this).dialog('center');
             },
+            buttons: [{
+				text:'Закрыть',
+				iconCls: 'fa fa-times',
+				handler:function(){
+				    self.doClose();
+				}
+			}],
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2375,28 +2381,97 @@ var PassportView = Backbone.View.extend({
         this.remove();
     },
     render: function() {
-        console.log('render');
-        //if (!this.model.get('username')) return;
-        // var view = this.$('.passport-view');
-        var view = this.$('.passport-tpl-insert');
+        var view = this.$('.passport-view');
         var tpl = _.template($("#passport-tpl").html());
         var html = tpl({
             user: this.model.toJSON()
         });
         view.html(html);
+    },
+    doOpen: function(userId) {
+        if (userId) {
+            this.model.set('id', userId);
+        } else {
+            this.model.set('id', app.profile.get('_id'));
+        }
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+
+});
+//
+// PassportEditor view
+//
+var PassportEditorView = Backbone.View.extend({
+    tagName: 'div',
+    events: {
+        'change .passport-attach-input': 'onFileChange',
+        'click .passport-delete-file': 'removeAttach'
+    },
+    initialize: function(options) {
+        var self = this;
+        this.options = options || {};
+        // Dialog
+        var dialog = $(this.el).dialog({
+            title: 'Карточка студента',
+            width: 500,
+            height: 500,
+            closed: true,
+            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            cache: false,
+            href: '/templates/passport-editor.html',
+            onLoad: function() {
+                self.model.fetch({
+                    success: function() {
+                        self.render();
+                    }
+                });
+            },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
+            buttons: [{
+				text:'Прикрепить',
+				iconCls: 'fa fa-paperclip',
+				handler:function(){
+				    self.doAttach();
+				}
+			},{
+				text:'Сохранить',
+				iconCls: 'fa fa-check',
+				handler:function(){
+				    self.doSave();
+				}
+			},{
+				text:'Отменить',
+				iconCls: 'fa fa-times',
+				handler:function(){
+				    self.doClose();
+				}
+			}],
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+        // Dialog model
+        var DialogModel = Backbone.Model.extend({
+            urlRoot: '/passport'
+        });
+        this.model = new DialogModel();
+        //this.listenTo(this.model, 'change', this.render);
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
         // Variables
-        this.attachedFile = [];
-        this._InfoContainer = this.$(".passport-info-container");
-        this._EditContainer = this.$(".passport-edit-container");
-        this._FileBtn = this.$(".passport-file-btn");
+        this.attachedFile = false;
         this._AttachInput = this.$(".passport-attach-input");
-        this._AttachBtn = this.$(".passport-attach-btn");
         this._Progress = this.$(".passport-progress");
         this._AttachList = this.$(".passport-files");
         this._AttachForm = this.$(".passport-attach-form");
-        this._EditForm = this.$('.passport-edit-form');
-        // Reset form
-        this.doReset();
+        this._EditForm = this.$('.passport-form');
         // Load form data
         this._EditForm.form('load', this.model.toJSON());
         // Display files
@@ -2441,22 +2516,8 @@ var PassportView = Backbone.View.extend({
             this._AttachList.append(html);
         }
     },
-    showInfo: function() {
-        var self = this;
-        this.model.fetch({
-            success: function() {
-                self.render();
-            }
-        });
-        this._EditContainer.hide();
-        this._InfoContainer.show();
-    },
-    showEdit: function() {
-        this._InfoContainer.hide();
-        this._EditContainer.show();
-    },
     doAttach: function() {
-        if (this.attachedFile.length > 0) return;
+        if (this.attachedFile) return;
         this._AttachInput.trigger('click');
     },
     onFileChange: function() {
@@ -2471,9 +2532,8 @@ var PassportView = Backbone.View.extend({
             data.append(key, value);
         });
         var filename = files['0'].name;
-        self._Progress.progressbar('setColor', null);
-        self._FileBtn.show();
-        self._AttachBtn.linkbutton('disable');
+        self.attachedFile = true;
+        self._Progress.show();
         self._Progress.progressbar({
             value: 0,
             text: self.trancateFilename(filename, 15)
@@ -2499,8 +2559,9 @@ var PassportView = Backbone.View.extend({
                 filename: respond.originalname,
                 uploadname: respond.name
             });
-            self._Progress.progressbar('setColor', 'green');
+            self._Progress.hide();
             self.drawAttachList();
+            self.attachedFile = false;
         });
     },
     doSave: function() {
@@ -2520,16 +2581,9 @@ var PassportView = Backbone.View.extend({
         config.attach = this.model.get('attach');
         this.model.save(config, {
             success: function() {
-                self.showInfo();
+                self.doClose();
             }
         });
-    },
-    doReset: function() {
-        this.attachedFile = [];
-        this._FileBtn.hide();
-        this._AttachBtn.linkbutton('enable');
-        this._AttachForm.trigger('reset');
-        this._EditForm.form('reset');
     },
     doOpen: function(userId) {
         if (userId) {
@@ -2542,7 +2596,6 @@ var PassportView = Backbone.View.extend({
     doClose: function() {
         this._Dialog.dialog('close');
     }
-
 });
 //
 // Profile view
