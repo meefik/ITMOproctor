@@ -1,0 +1,84 @@
+<div class="passport-view" style="margin:10px;">
+    <form class="passport-form">
+        <table cellpadding="5" style="width:100%;">
+            <tr>
+                <td style="width:40%">ФИО:</td>
+                <td>
+                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="width:100,prompt:'Фамилия'" />
+                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="width:100,prompt:'Имя'" />
+                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:100,prompt:'Отчество'" />
+                </td>
+            </tr>
+            <tr>
+                <td>Пол:</td>
+                <td>
+                    <select name="gender" class="gender" style="width:200px;">
+                        <option selected disabled>...</option>
+                        <option value="Мужской">Мужской</option>
+                        <option value="Женский">Женский</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Дата рождения:</td>
+                <td>
+                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="prompt:'Выберите...'">
+                </td>
+            </tr>
+            <tr>
+                <td>Электронный адрес:</td>
+                <td>
+                    <input type="text" name="email" class="easyui-textbox email" data-options="width:310,prompt:'E-Mail'" />
+                </td>
+            </tr>
+            <tr>
+                <td>Гражданство:</td>
+                <td>
+                    <input type="text" name="citizenship" class="easyui-textbox citizenship" data-options="width:310,prompt:'Гражданство'" />
+                </td>
+            </tr>
+            <tr>
+                <td>Тип документа:</td>
+                <td>
+                    <select name="documentType" class="documentType" style="width:200px;">
+                        <option selected disabled>...</option>
+                        <option value="Паспорт">Паспорт</option>
+                        <option value="Заграничный паспорт">Заграничный паспорт</option>
+                        <option value="Иностранный документ">Иностранный документ</option>
+                        <option value="Паспорт моряка">Паспорт моряка</option>
+                        <option value="Свидетельство о рождении">Свидетельство о рождении</option>
+                        <option value="Военный билет">Военный билет</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Номер документа:</td>
+                <td>
+                    <input type="text" name="documentNumber" class="easyui-textbox documentNumber" data-options="width:310,prompt:'Номер документа'" />
+                </td>
+            </tr>
+            <tr>
+                <td>Дата выдачи документа:</td>
+                <td>
+                    <input name="documentIssueDate" class="easyui-datebox documentIssueDate" style="width:200px;" data-options="prompt:'Выберите...'">
+                </td>
+            </tr>
+            <tr>
+                <td>Дополнительная информация:</td>
+                <td>
+                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:50,multiline:true,prompt:'Введите описание...'">
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align:top;width:40%;">Приложенные файлы:</td>
+                <td>
+                    <div class="passport-files" style="float:left;"></div>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <form method="post" enctype="multipart/form-data" class="passport-attach-form" style="display:none;">
+        <input type="file" name="passportFile" class="passport-attach-input" />
+    </form>
+    <div class="easyui-progressbar passport-progress" data-options="width:150,height:18" style="display:none;position:absolute;left:15px;bottom:16px;z-index:10;"></div>
+</div>

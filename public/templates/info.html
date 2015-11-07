@@ -10,29 +10,41 @@
     <tr>
         <td><strong>Начало:</strong></td>
         <td>
-            <%= moment(beginDate).format('DD.MM.YYYY HH:mm') %>
-            <% if(startDate != null) { %>
-                (<%- moment(startDate).format('HH:mm') %>)
+            <% if(beginDate) { %>
+                <%= moment(beginDate).format('DD.MM.YYYY HH:mm') %>
+                <% if(startDate) { %>
+                    (<%- moment(startDate).format('HH:mm') %>)
+                <% } %>
+            <% } else { %>
+                не запланировано
             <% } %>
         </td>
     </tr>
     <tr>
         <td><strong>Окончание:</strong></td>
         <td>
-            <%= moment(endDate).format('DD.MM.YYYY HH:mm') %> 
-            <% if(stopDate != null) { %>
-                (<%- moment(stopDate).format('HH:mm') %>)
+            <% if(endDate) { %>
+                <%= moment(endDate).format('DD.MM.YYYY HH:mm') %>
+                <% if(stopDate != null) { %>
+                    (<%- moment(stopDate).format('HH:mm') %>)
+                <% } %>
+            <% } else { %>
+                не запланировано
             <% } %>
         </td>
     </tr>
     <tr>
         <td><strong>Длительность:</strong></td>
         <td>
-            <% var plan = moment(endDate).diff(beginDate);
-            var actual = moment(stopDate||undefined).diff(startDate);
-            var duration = moment(plan).utc().format('HH:mm');
-            if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
-            <%- duration %>
+            <% if(beginDate && endDate) { %>
+                <% var plan = moment(endDate).diff(beginDate);
+                var actual = moment(stopDate||undefined).diff(startDate);
+                var duration = moment(plan).utc().format('HH:mm');
+                if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
+                <%- duration %>
+            <% } else { %>
+                неизвестно
+            <% } %>
         </td>
     </tr>
     <tr>
@@ -48,6 +60,8 @@
         <td>
             <% if(inspector) { %>
                 <%- inspector.lastname %> <%- inspector.firstname %> <%- inspector.middlename %>
+            <% } else { %>
+                не назначен
             <% } %>
         </td>
     </tr>

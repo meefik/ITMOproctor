@@ -21,15 +21,28 @@ var Exam = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    // Плановое время начала экзамена
-    beginDate: {
+    // Плановая продолжительность экзамена
+    duration: {
+        type: Number,
+        required: true
+    },
+    // Верхняя граница сдачи экзамена
+    leftDate: {
         type: Date,
         required: true
     },
-    // Плановое время окончания экзамена
-    endDate: {
+    // Нижняя граница сдачи экзамена
+    rightDate: {
         type: Date,
         required: true
+    },
+    // Плановое время начала экзамена
+    beginDate: {
+        type: Date
+    },
+    // Плановое время окончания экзамена
+    endDate: {
+        type: Date
     },
     // Фактическое время начала экзамена
     startDate: {

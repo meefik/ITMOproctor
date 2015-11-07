@@ -1822,7 +1822,8 @@ var ScreenView = Backbone.View.extend({
 //
 var ScheduleView = Backbone.View.extend({
     events: {
-        "click .start-btn": "doStart"
+        "click .start-btn": "doStart",
+        "click .plan-btn": "doPlan"
     },
     initialize: function() {
         // Variables
@@ -1833,7 +1834,63 @@ var ScheduleView = Backbone.View.extend({
         this._TimeWidget = this.$('.time-widget');
         this._CountdownWidget = this.$('.countdown-widget');
         this._StartBtn = this.$('.start-btn');
+        this._PlanBtn = this.$('.plan-btn');
         this._Grid = this.$('.exams-table');
+        this._Dialog = $('#plan-dlg');
+        this._PlanSubject = this._Dialog.find('.plan-subject');
+        this._PlanFrom = this._Dialog.find('.plan-from');
+        this._PlanTo = this._Dialog.find('.plan-to');
+        this._PlanDuration = this._Dialog.find('.plan-duration');
+        this._PlanGrid = this._Dialog.find('.plan-table');
+        // Model
+        var Exam = Backbone.Model.extend({
+            idAttribute: "_id",
+            urlRoot: '/exam'
+        });
+        this.model = new Exam();
+        // Dialog
+        this._Dialog.dialog({
+            buttons: [{
+                text: 'Обновить',
+                iconCls: 'fa fa-refresh',
+                handler: function() {
+                    self._PlanGrid.datagrid('reload');
+                }
+            }, {
+                text: 'Выбрать',
+                iconCls: 'fa fa-check',
+                handler: function() {
+                    var selected = self._PlanGrid.datagrid('getSelected');
+                    if (selected) {
+                        self.model.save({
+                            beginDate: selected.beginDate
+                        }, {
+                            success: function(model) {
+                                self.refreshTable();
+                                self._Dialog.dialog('close');
+                            }
+                        });
+                    }
+                }
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self._Dialog.dialog('close');
+                }
+            }],
+            onOpen: function() {
+                $(this).dialog('center');
+                var subject = self.model.get('subject');
+                var duration = self.model.get('duration');
+                var leftDate = moment(self.model.get('leftDate')).format('DD.MM.YYYY');
+                var rightDate = moment(self.model.get('rightDate')).format('DD.MM.YYYY');
+                self._PlanSubject.text(subject);
+                self._PlanFrom.text(leftDate);
+                self._PlanTo.text(rightDate);
+                self._PlanDuration.text(duration);
+            }
+        });
         // DOM events
         this._Menu.menu({
             onClick: function(item) {
@@ -1879,10 +1936,6 @@ var ScheduleView = Backbone.View.extend({
             // decrement
             self.nextExam.countdown -= 1000;
             if (self.nextExam.countdown <= 0 && self.nextExam.resolution == null) {
-                self._StartBtn.linkbutton('enable');
-                self._StartBtn.css({
-                    color: 'green'
-                });
                 if (self.nextExam.countdown > -1000) self._Grid.datagrid('reload');
                 self.nextExam.ready = true;
             }
@@ -1902,7 +1955,7 @@ var ScheduleView = Backbone.View.extend({
             columns: [
                 [{
                     field: 'subject',
-                    title: 'Экзамен',
+                    title: 'Испытание',
                     width: 200,
                     formatter: self.formatSubject
                 }, {
@@ -1922,42 +1975,56 @@ var ScheduleView = Backbone.View.extend({
                     formatter: self.formatStatus
                 }]
             ],
-            rownumbers: true,
             url: '/student',
             method: 'get',
-            rowStyler: function(index, row) {
-                if (row.beginDate == null) return null;
+            onSelect: function(index, row) {
+                self.model.set(row);
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
                 var d = app.now();
-                if (beginDate <= d && endDate > d) {
-                    return 'background-color:#ccffcc;color:black';
+                if (!row.beginDate || !row.endDate) {
+                    self._StartBtn.hide();
+                    self._PlanBtn.show();
                 }
-                else if (endDate <= d) {
-                    return 'background-color:#eee;color:black';
+                else if (beginDate < d && endDate >= d) {
+                    self._StartBtn.linkbutton('enable');
+                    self._StartBtn.css({
+                        color: 'green'
+                    });
+                    self._PlanBtn.hide();
+                    self._StartBtn.show();
                 }
                 else {
-                    return 'background-color:white;color:black';
+                    self._StartBtn.linkbutton('disable');
+                    self._StartBtn.css({
+                        color: ''
+                    });
+                    self._PlanBtn.hide();
+                    self._StartBtn.show();
                 }
             },
             onLoadSuccess: function(data) {
-                var self = app.content;
-                self._StartBtn.linkbutton('disable');
-                self._StartBtn.css({
-                    color: ''
-                });
+                var d = app.now();
+                for (var k in data.rows) {
+                    var beginDate = moment(data.rows[k].beginDate);
+                    var endDate = moment(data.rows[k].endDate);
+                    if (beginDate <= d && endDate > d) {
+                        self._Grid.datagrid('selectRow', k);
+                        return;
+                    }
+                }
+                self._Grid.datagrid('selectRow', 0);
             },
             loadFilter: function(data) {
                 var exams = {
                     "total": 0,
                     "rows": []
                 }
-                var self = app.content;
                 self.nextExam = null;
                 var d = app.now();
                 for (var k in data) {
                     var endDate = moment(data[k].endDate);
-                    if (endDate > d || self.historyFlag) {
+                    if (!data[k].endDate || endDate > d || self.historyFlag) {
                         exams.rows.push(data[k]);
                     }
                     if (!self.nextExam && endDate > d) {
@@ -1968,6 +2035,26 @@ var ScheduleView = Backbone.View.extend({
                 exams.total = exams.rows.length;
                 return exams;
             }
+        });
+        this._PlanGrid.datagrid({
+            columns: [
+                [{
+                    field: 'date',
+                    title: 'Дата',
+                    width: 200,
+                    formatter: function(val, row) {
+                        return moment(row.beginDate).format('DD.MM.YYYY');
+                    }
+                }, {
+                    field: 'time',
+                    title: 'Время начала',
+                    width: 200,
+                    formatter: function(val, row) {
+                        return moment(row.beginDate).format('hh:mm');
+                    }
+                }]
+            ],
+            method: 'get'
         });
     },
     destroy: function() {
@@ -1999,10 +2086,21 @@ var ScheduleView = Backbone.View.extend({
         this._Grid.datagrid('reload');
     },
     doStart: function() {
-        if (this.nextExam && this.nextExam.ready) {
-            var examId = this.nextExam._id;
-            app.router.navigate("exam/" + examId, {
+        var selected = this._Grid.datagrid('getSelected');
+        var disabled = this._StartBtn.linkbutton('options').disabled;
+        if (selected && !disabled) {
+            app.router.navigate("exam/" + selected._id, {
                 trigger: true
+            });
+        }
+    },
+    doPlan: function() {
+        var selected = this._Grid.datagrid('getSelected');
+        var disabled = this._PlanBtn.linkbutton('options').disabled;
+        if (selected && !disabled) {
+            this._Dialog.dialog('open');
+            this._PlanGrid.datagrid({
+                url: '/schedule/' + selected._id
             });
         }
     },
@@ -2031,7 +2129,7 @@ var ScheduleView = Backbone.View.extend({
         });
     },
     formatStatus: function(val, row) {
-        if (row.beginDate == null) return;
+        //if (row.beginDate == null) return;
         var status = 0;
         var d = app.now();
         var beginDate = moment(row.beginDate);
@@ -2039,18 +2137,20 @@ var ScheduleView = Backbone.View.extend({
         if (beginDate > d) status = 1;
         if (endDate <= d) status = 7;
         if (beginDate <= d && endDate > d) status = 2;
-        if (row.startDate != null) status = 3;
-        if (row.inspector) status = 4;
+        if (row.startDate) status = 3;
+        //if (row.inspector) status = 4;
         if (row.resolution === true) status = 5;
         if (row.resolution === false) status = 6;
         switch (status) {
+            case 0:
+                return '<span style="color:olive;">Не запланирован</span>';
             case 1:
                 return '<span style="color:teal;">Запланирован</span>';
             case 2:
                 return '<span style="color:orange;">Ожидает</span>';
             case 3:
-                return '<span style="color:olive;">Начат</span>';
-            case 4:
+                //    return '<span style="color:olive;">Начат</span>';
+                //case 4:
                 return '<span style="color:red;">Идет</span>';
             case 5:
                 return '<span style="color:green;">Сдан</span>';
@@ -2273,12 +2373,12 @@ var InfoView = Backbone.View.extend({
                 $(this).dialog('center');
             },
             buttons: [{
-				text:'Закрыть',
-				iconCls: 'fa fa-times',
-				handler:function(){
-				    self.doClose();
-				}
-			}],
+                text: 'Закрыть',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }],
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2340,12 +2440,12 @@ var PassportView = Backbone.View.extend({
                 $(this).dialog('center');
             },
             buttons: [{
-				text:'Закрыть',
-				iconCls: 'fa fa-times',
-				handler:function(){
-				    self.doClose();
-				}
-			}],
+                text: 'Закрыть',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }],
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2391,7 +2491,8 @@ var PassportView = Backbone.View.extend({
     doOpen: function(userId) {
         if (userId) {
             this.model.set('id', userId);
-        } else {
+        }
+        else {
             this.model.set('id', app.profile.get('_id'));
         }
         this._Dialog.dialog('open');
@@ -2433,24 +2534,24 @@ var PassportEditorView = Backbone.View.extend({
                 $(this).dialog('center');
             },
             buttons: [{
-				text:'Прикрепить',
-				iconCls: 'fa fa-paperclip',
-				handler:function(){
-				    self.doAttach();
-				}
-			},{
-				text:'Сохранить',
-				iconCls: 'fa fa-check',
-				handler:function(){
-				    self.doSave();
-				}
-			},{
-				text:'Отменить',
-				iconCls: 'fa fa-times',
-				handler:function(){
-				    self.doClose();
-				}
-			}],
+                text: 'Прикрепить',
+                iconCls: 'fa fa-paperclip',
+                handler: function() {
+                    self.doAttach();
+                }
+            }, {
+                text: 'Сохранить',
+                iconCls: 'fa fa-check',
+                handler: function() {
+                    self.doSave();
+                }
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }],
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
@@ -2588,7 +2689,8 @@ var PassportEditorView = Backbone.View.extend({
     doOpen: function(userId) {
         if (userId) {
             this.model.set('id', userId);
-        } else {
+        }
+        else {
             this.model.set('id', app.profile.get('_id'));
         }
         this._Dialog.dialog('open');

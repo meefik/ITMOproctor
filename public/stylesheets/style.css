@@ -75,6 +75,11 @@ a {
     padding-left: 0;
 }
 
+.datagrid-row-selected {
+    background: #ddddff;
+    color: inherit;
+}
+
 hr.enter {
     border: 0;
     height: 0;

@@ -321,6 +321,92 @@ var db = {
                 select: 'firstname lastname middlename'
             }];
             Exam.findById(args.examId).populate(opts).exec(callback);
+        },
+        update: function(args, callback) {
+            var Exam = require('./models/exam');
+            Exam.findOne({
+                _id: args.examId,
+                student: args.userId
+            }).exec(function(err, exam) {
+                if (!err && exam) {
+                    var endDate = moment(args.beginDate).add(exam.duration, 'minutes');
+                    Exam.update({
+                        _id: args.examId
+                    }, {
+                        "$set": {
+                            beginDate: moment(args.beginDate),
+                            endDate: endDate
+                        }
+                    }, callback);
+                }
+                else {
+                    callback(err);
+                }
+            });
+        },
+        schedule: function(args, callback) {
+            var Exam = require('./models/exam');
+            var Schedule = require('./models/schedule');
+            var leftDate = moment(args.leftDate).set({
+                'minute': 0,
+                'second': 0,
+                'millisecond': 0
+            });
+            var rightDate = moment(args.rightDate).set({
+                'minute': 0,
+                'second': 0,
+                'millisecond': 0
+            });
+            var diff = rightDate.diff(leftDate, 'hours');
+            var timetable = new Array(diff);
+            Schedule.find({
+                '$and': [{
+                    beginDate: {
+                        '$lt': rightDate
+                    }
+                }, {
+                    endDate: {
+                        '$gt': leftDate
+                    }
+                }]
+            }).exec(function(err, schedule) {
+                if (err) return callback(err, schedule);
+                for (var k in schedule) {
+                    var start = moment(schedule[k].beginDate).diff(leftDate, 'hours');
+                    var diff = moment(schedule[k].endDate).diff(schedule[k].beginDate, 'hours');
+                    for (var i = start, l = start + diff; i < l; i++) {
+                        timetable[i]++;
+                    }
+                }
+                Exam.find({
+                    '$and': [{
+                        beginDate: {
+                            '$gte': leftDate
+                        }
+                    }, {
+                        endDate: {
+                            '$lte': rightDate
+                        }
+                    }]
+                }).exec(function(err, exam) {
+                    if (err) return callback(err, exam);
+                    for (var k in exam) {
+                        var start = moment(exam[k].beginDate).diff(leftDate, 'hours');
+                        var diff = moment(exam[k].endDate).diff(exam[k].beginDate, 'hours');
+                        for (var i = start, l = start + diff; i < l; i++) {
+                            timetable[i]--;
+                        }
+                    }
+                    console.log(timetable);
+                    var arr = [];
+                    for (var k in timetable) {
+                        if (timetable[k] > 0) {
+                            arr.push(moment(leftDate).add(k, 'hours'));
+                        }
+                    }
+                    callback(null, arr);
+                });
+            });
         }
     },
     vision: {
