@@ -347,6 +347,7 @@ var db = {
         schedule: function(args, callback) {
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
+            var duration = Number(args.duration);
             var leftDate = moment(args.leftDate).set({
                 'minute': 0,
                 'second': 0,
@@ -357,8 +358,7 @@ var db = {
                 'second': 0,
                 'millisecond': 0
             });
-            var diff = rightDate.diff(leftDate, 'hours');
-            var timetable = new Array(diff);
+            var timetable = {};
             Schedule.find({
                 '$and': [{
                     beginDate: {
@@ -371,40 +371,65 @@ var db = {
                 }]
             }).exec(function(err, schedule) {
                 if (err) return callback(err, schedule);
-                for (var k in schedule) {
-                    var start = moment(schedule[k].beginDate).diff(leftDate, 'hours');
-                    var diff = moment(schedule[k].endDate).diff(schedule[k].beginDate, 'hours');
-                    for (var i = start, l = start + diff; i < l; i++) {
-                        timetable[i]++;
+                // формируем таблицу доступных рабочих часов каждого инспектора
+                for (var i = 0, li = schedule.length; i < li; i++) {
+                    var inspector = schedule[i].inspector;
+                    var beginDate = moment(schedule[i].beginDate);
+                    var endDate = moment(schedule[i].endDate);
+                    var concurrent = schedule[i].concurrent;
+                    if (!timetable[inspector]) timetable[inspector] = [];
+                    var start = beginDate.diff(leftDate, 'hours');
+                    var times = moment.min(rightDate, endDate).diff(beginDate, 'hours');
+                    for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {
+                        if (!timetable[inspector][j]) timetable[inspector][j] = concurrent;
                     }
                 }
+                console.log(timetable);
                 Exam.find({
                     '$and': [{
                         beginDate: {
-                            '$gte': leftDate
+                            '$lt': rightDate
                         }
                     }, {
                         endDate: {
-                            '$lte': rightDate
+                            '$gt': leftDate
                         }
                     }]
                 }).exec(function(err, exam) {
                     if (err) return callback(err, exam);
-                    for (var k in exam) {
-                        var start = moment(exam[k].beginDate).diff(leftDate, 'hours');
-                        var diff = moment(exam[k].endDate).diff(exam[k].beginDate, 'hours');
-                        for (var i = start, l = start + diff; i < l; i++) {
-                            timetable[i]--;
+                    // исключаем из таблицы уже запланированные экзамены
+                    for (var i = 0, li = exam.length; i < li; i++) {
+                        var inspector = exam[i].inspector;
+                        var beginDate = moment(exam[i].beginDate);
+                        var endDate = moment(exam[i].endDate);
+                        var start = beginDate.diff(leftDate, 'hours');
+                        var times = moment.min(rightDate, endDate).diff(beginDate, 'hours');
+                        for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {
+                            if (timetable[inspector]) timetable[inspector][j]--;
                         }
                     }
                     console.log(timetable);
-                    var arr = [];
+                    // определяем доступные для записи часы с учетом duration
+                    var out = [];
                     for (var k in timetable) {
-                        if (timetable[k] > 0) {
-                            arr.push(moment(leftDate).add(k, 'hours'));
+                        var arr = timetable[k];
+                        var seq = 0;
+                        for (var m = 0, lm = arr.length; m < lm; m++) {
+                            if (!arr[m] > 0) seq = 0;
+                            else if (++seq >= duration) {
+                                var n = m - duration + 1;
+                                out.push(n);
+                            }
                         }
                     }
-                    callback(null, arr);
+                    console.log(out);
+                    // сортируем, исключаем повторы и преобразуем в даты
+                    var dates = out.sort().filter(function(item, pos, arr) {
+                        return !pos || item != arr[pos - 1];
+                    }).map(function(v) {
+                        return moment(leftDate).add(v, 'hours');
+                    });
+                    callback(null, dates);
                 });
             });
         }

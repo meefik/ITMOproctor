@@ -2043,14 +2043,14 @@ var ScheduleView = Backbone.View.extend({
                     title: 'Дата',
                     width: 200,
                     formatter: function(val, row) {
-                        return moment(row.beginDate).format('DD.MM.YYYY');
+                        return moment(row).format('DD.MM.YYYY');
                     }
                 }, {
                     field: 'time',
                     title: 'Время начала',
                     width: 200,
                     formatter: function(val, row) {
-                        return moment(row.beginDate).format('hh:mm');
+                        return moment(row).format('HH:mm');
                     }
                 }]
             ],
@@ -2100,7 +2100,8 @@ var ScheduleView = Backbone.View.extend({
         if (selected && !disabled) {
             this._Dialog.dialog('open');
             this._PlanGrid.datagrid({
-                url: '/schedule/' + selected._id
+                url: '/exam?leftDate=' + selected.leftDate + '&rightDate=' +
+                    selected.rightDate + '&duration=' + selected.duration
             });
         }
     },
