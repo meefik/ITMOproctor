@@ -36,12 +36,12 @@
     <tr>
         <td><strong>Длительность:</strong></td>
         <td>
-            <% if(beginDate && endDate) { %>
-                <% var plan = moment(endDate).diff(beginDate);
-                var actual = moment(stopDate||undefined).diff(startDate);
-                var duration = moment(plan).utc().format('HH:mm');
-                if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
-                <%- duration %>
+            <% if(duration) { %>
+                <% var actual = moment(stopDate||undefined).diff(startDate);
+                var plan = duration * 60 * 60 * 1000;
+                var val = moment(plan).utc().format('HH:mm');
+                if (actual) val += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
+                <%- val %>
             <% } else { %>
                 неизвестно
             <% } %>

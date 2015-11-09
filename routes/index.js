@@ -1,3 +1,4 @@
+var api = require('./api');
 var profile = require('./profile');
 var passport = require('./passport');
 var storage = require('./storage');
@@ -10,6 +11,7 @@ var protocol = require('./protocol');
 var members = require('./members');
 var tools = require('./tools');
 module.exports = function(app) {
+    app.use('/api', api);
     app.use('/profile', profile);
     app.use('/passport', profile.isStudent, passport);
     app.use('/storage', profile.isAuth, storage);

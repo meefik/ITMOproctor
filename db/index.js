@@ -324,24 +324,72 @@ var db = {
         },
         update: function(args, callback) {
             var Exam = require('./models/exam');
+            var Schedule = require('./models/schedule');
             Exam.findOne({
                 _id: args.examId,
                 student: args.userId
             }).exec(function(err, exam) {
-                if (!err && exam) {
-                    var endDate = moment(args.beginDate).add(exam.duration, 'minutes');
-                    Exam.update({
-                        _id: args.examId
-                    }, {
-                        "$set": {
-                            beginDate: moment(args.beginDate),
-                            endDate: endDate
+                if (err || !exam) return callback(err, exam);
+                var beginDate = moment(args.beginDate);
+                var endDate = moment(beginDate).add(exam.duration, 'hours');
+                var timetable = {};
+                // find schedules with working time around beginDate, end of working time >= endDate
+                Schedule.find({
+                    '$and': [{
+                        beginDate: {
+                            '$lte': beginDate
                         }
-                    }, callback);
-                }
-                else {
-                    callback(err);
-                }
+                    }, {
+                        endDate: {
+                            '$gte': endDate
+                        }
+                    }]
+                }).exec(function(err, schedule) {
+                    if (err || !schedule.length) return callback(err, schedule);
+                    for (var i = 0, li = schedule.length; i < li; i++) {
+                        var inspector = schedule[i].inspector;
+                        var concurrent = schedule[i].concurrent;
+                        timetable[inspector] = concurrent;
+                    }
+                    console.log(timetable);
+                    // find exams with time around beginDate
+                    Exam.find({
+                        '$and': [{
+                            beginDate: {
+                                '$lt': endDate
+                            }
+                        }, {
+                            endDate: {
+                                '$gt': beginDate
+                            }
+                        }]
+                    }).exec(function(err, exams) {
+                        if (err) return callback(err, exams);
+                        for (var i = 0, li = exams.length; i < li; i++) {
+                            var inspector = exams[i].inspector;
+                            if (timetable[inspector]) {
+                                timetable[inspector]--;
+                                if (timetable[inspector] <= 0) delete timetable[inspector];
+                            }
+                        }
+                        console.log(timetable);
+                        var inspectors = Object.getOwnPropertyNames(timetable);
+                        var amount = inspectors.length;
+                        if (!amount) return callback();
+                        Exam.update({
+                            _id: args.examId
+                        }, {
+                            "$set": {
+                                inspector: inspectors[Math.floor(Math.random() * amount)], // для честного распределения времени инспекторов
+                                beginDate: beginDate,
+                                endDate: endDate
+                            }
+                        }, function(err, data) {
+                            callback(err, data);
+                        });
+                    });
+                });
+
             });
         },
         schedule: function(args, callback) {
@@ -395,13 +443,13 @@ var db = {
                             '$gt': leftDate
                         }
                     }]
-                }).exec(function(err, exam) {
-                    if (err) return callback(err, exam);
+                }).exec(function(err, exams) {
+                    if (err) return callback(err, exams);
                     // исключаем из таблицы уже запланированные экзамены
-                    for (var i = 0, li = exam.length; i < li; i++) {
-                        var inspector = exam[i].inspector;
-                        var beginDate = moment(exam[i].beginDate);
-                        var endDate = moment(exam[i].endDate);
+                    for (var i = 0, li = exams.length; i < li; i++) {
+                        var inspector = exams[i].inspector;
+                        var beginDate = moment(exams[i].beginDate);
+                        var endDate = moment(exams[i].endDate);
                         var start = beginDate.diff(leftDate, 'hours');
                         var times = moment.min(rightDate, endDate).diff(beginDate, 'hours');
                         for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {

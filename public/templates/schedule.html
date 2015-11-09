@@ -7,19 +7,6 @@
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
         <table class="easyui-datagrid exams-table" data-options="singleSelect:true,border:false,fitColumns:true,fit:true,rownumbers:true"></table>
-        <!--
-        <div class="easyui-layout" data-options="fit:true">
-            <div data-options="region:'center',border:false">
-                <table class="easyui-datagrid exams-table" data-options="singleSelect:true,border:false,fitColumns:true,fit:true"></table>
-            </div>
-            <div data-options="region:'south',border:false,height:160" style="border-top:1px dotted lightgray;padding:0 5px">
-                <p>Условные обозначения:</p>
-                <p></p><span style="height:18px;width:50px;border:1px dotted gray;background-color:#eee;display:inline-block">&nbsp;</span> - прошедший экзамен</p>
-                <p></p><span style="height:18px;width:50px;border:1px dotted gray;background-color:#ccffcc;display:inline-block">&nbsp;</span> - текущий экзамен</p>
-                <p></p><span style="height:18px;width:50px;border:1px dotted gray;background-color:#fff;display:inline-block">&nbsp;</span> - запланированный экзамен</p>
-            </div>
-        </div>
-        -->
     </div>
     <div data-options="region:'south',border:false" style="margin-top:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
@@ -44,25 +31,10 @@
 <div id="plan-dlg" class="easyui-dialog" style="padding:0;width:500px;height:450px;" data-options="closed:true,modal:true,title:'Запланировать испытание'">
     <table class="easyui-datagrid plan-table" data-options="fit:true,border:false,rownumbers:true,singleSelect:true,fitColumns:true,rownumbers:true,toolbar:'#schedule-toolbar'"></table>
     <div id="schedule-toolbar" style="padding: 8px;">
-    <b>Испытание</b>: <span class="plan-subject">...</span><br>
-    <b>Сроки прохождения</b>: с <span class="plan-from">...</span> по <span class="plan-to">...</span><br>
-    <b>Продолжительность</b>: <span class="plan-duration">...</span> ч.
-        <!--
-        Дата: <input class="easyui-datebox" style="width:110px;float:right">
-        <button class="easyui-linkbutton grid-reload" data-options="iconCls:'pagination-load',plain:true"></button>
-        -->
+        <b>Испытание</b>: <span class="plan-subject">...</span><br>
+        <b>Сроки</b>: с <span class="plan-from">...</span> по <span class="plan-to">...</span><br>
+        <b>Длительность</b>: <span class="plan-duration">...</span> ч.
     </div>
-    <!--
-    <p>Выберите дату и время:</p>
-    <form>
-        <input name="planDate" class="easyui-datebox plan-date" style="width:150px;float:left;" data-options="prompt:'Дата...'">
-        <input name="planTime" class="easyui-combobox plan-time" style="width:150px;" data-options="editable:false,prompt:'Время...',valueField:'value',textField:'text'">
-    </form>
-    <br>
-    <p>Испытание: <span class="plan-subject">...</span></p>
-    <p>Сроки: с <span class="plan-from">...</span> по <span class="plan-to">...</span></p>
-    <p>Продолжительность: <span class="plan-duration">...</span> мин.</p>
-    -->
 </div>
 <!-- Templates -->
 <script type="text/template" id="subject-item-tpl">

@@ -7,7 +7,7 @@ router.get('/', function(req, res) {
         userId: req.user._id
     }
     db.exam.list(args, function(err, data) {
-        if (!err && data.length > 0) {
+        if (!err) {
             res.json(data);
         }
         else {

@@ -1860,10 +1860,10 @@ var ScheduleView = Backbone.View.extend({
                 text: 'Выбрать',
                 iconCls: 'fa fa-check',
                 handler: function() {
-                    var selected = self._PlanGrid.datagrid('getSelected');
-                    if (selected) {
+                    var selectedDate = self._PlanGrid.datagrid('getSelected');
+                    if (selectedDate) {
                         self.model.save({
-                            beginDate: selected.beginDate
+                            beginDate: selectedDate
                         }, {
                             success: function(model) {
                                 self.refreshTable();
@@ -1978,6 +1978,7 @@ var ScheduleView = Backbone.View.extend({
             url: '/student',
             method: 'get',
             onSelect: function(index, row) {
+                if (!row) return;
                 self.model.set(row);
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
@@ -2028,8 +2029,10 @@ var ScheduleView = Backbone.View.extend({
                         exams.rows.push(data[k]);
                     }
                     if (!self.nextExam && endDate > d) {
-                        self.nextExam = data[k];
-                        self.nextExam.countdown = moment(data[k].beginDate).diff(app.now());
+                        self.nextExam = {
+                            beginDate: data[k].beginDate,
+                            countdown: moment(data[k].beginDate).diff(app.now())
+                        };
                     }
                 }
                 exams.total = exams.rows.length;
@@ -2106,10 +2109,9 @@ var ScheduleView = Backbone.View.extend({
         }
     },
     formatDuration: function(val, row) {
-        if (row.beginDate == null) return null;
-        var plan = moment(row.endDate).diff(row.beginDate);
-        var actual = moment(row.stopDate || undefined).diff(row.startDate);
+        var plan = val * 60 * 60 * 1000;
         var duration = moment(plan).utc().format('HH:mm');
+        var actual = moment(row.stopDate || undefined).diff(row.startDate);
         if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
         return duration;
     },
