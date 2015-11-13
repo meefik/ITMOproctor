@@ -78,6 +78,7 @@ cd ~/itmoproctor
 git clone https://github.com/meefik/ITMOproctor.git ./
 npm install
 npm start
+mv config-example.json config.json
 ```
 
 Добавление пользователей
