@@ -1,4 +1,4 @@
-var logger = require('../logger');
+var logger = require('../common/logger');
 var mongoose = require('mongoose');
 var config = require('nconf');
 mongoose.connect(config.get('mongoose:uri'));
@@ -47,7 +47,8 @@ var db = {
                     firstname: prof.firstname,
                     lastname: prof.lastname,
                     email: prof.email,
-                    password: null
+                    password: null,
+                    accountType: 'openedu'
                 };
                 var User = require('./models/user');
                 User.findOne({
@@ -81,7 +82,8 @@ var db = {
                     gender: prof.gender,
                     birthday: prof.birthdate,
                     email: prof.email,
-                    password: null
+                    password: null,
+                    accountType: 'ifmosso'
                 };
                 var User = require('./models/user');
                 User.findOne({
@@ -322,7 +324,7 @@ var db = {
             }];
             Exam.findById(args.examId).populate(opts).exec(callback);
         },
-        update: function(args, callback) {
+        plan: function(args, callback) {
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
             Exam.findOne({
@@ -331,7 +333,9 @@ var db = {
             }).exec(function(err, exam) {
                 if (err || !exam) return callback(err, exam);
                 var beginDate = moment(args.beginDate);
-                var endDate = moment(beginDate).add(exam.duration, 'hours');
+                var offset = Number(config.get('schedule:offset'));
+                var duration = Number(exam.duration) + offset;
+                var endDate = moment(beginDate).add(duration, 'minutes');
                 var timetable = {};
                 // find schedules with working time around beginDate, end of working time >= endDate
                 Schedule.find({
@@ -395,13 +399,15 @@ var db = {
         schedule: function(args, callback) {
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
-            var duration = Number(args.duration);
-            var leftDate = moment(args.leftDate).set({
+            var duration = Math.ceil(Number(args.duration) / 60);
+            var leftDate = moment.max(moment(), moment(args.leftDate));
+            var rightDate = moment(args.rightDate);
+            leftDate.add(1, 'hours').set({
                 'minute': 0,
                 'second': 0,
                 'millisecond': 0
             });
-            var rightDate = moment(args.rightDate).set({
+            rightDate.set({
                 'minute': 0,
                 'second': 0,
                 'millisecond': 0
@@ -451,7 +457,7 @@ var db = {
                         var beginDate = moment(exams[i].beginDate);
                         var endDate = moment(exams[i].endDate);
                         var start = beginDate.diff(leftDate, 'hours');
-                        var times = moment.min(rightDate, endDate).diff(beginDate, 'hours');
+                        var times = moment.min(rightDate, endDate).diff(beginDate, 'hours') + 1;
                         for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {
                             if (timetable[inspector]) timetable[inspector][j]--;
                         }
@@ -480,9 +486,81 @@ var db = {
                     callback(null, dates);
                 });
             });
-        }
-    },
-    vision: {
+        },
+        cancel: function(args, callback) {
+            var Exam = require('./models/exam');
+            Exam.findOneAndUpdate({
+                _id: args.examId,
+                student: args.userId
+            }, {
+                "$set": {
+                    beginDate: null,
+                    endDate: null
+                }
+            }, {
+                'new': true
+            }).exec(callback);
+        },
+        add: function(args, callback) {
+            var Exam = require('./models/exam');
+            var isExamExist = function(examId, arr) {
+                for (var i = 0, li = arr.length; i < li; i++) {
+                    if (examId == arr[i].examId) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            Exam.find({
+                student: args.userId
+            }).exec(function(err, exams) {
+                if (err || !exams) return callback(err);
+                var proctored = args.exams;
+                var appends = [];
+                for (var i = 0, li = proctored.length; i < li; i++) {
+                    if (!isExamExist(proctored[i].examId, exams)) {
+                        appends.push({
+                            //_id: mongoose.Types.ObjectId(),
+                            examId: proctored[i].examId,
+                            student: args.userId,
+                            subject: proctored[i].subject,
+                            duration: proctored[i].duration,
+                            leftDate: proctored[i].leftDate,
+                            rightDate: proctored[i].rightDate
+                        });
+                    }
+                }
+                if (!appends.length) return callback();
+                var saved = 0;
+                for (var j = 0, lj = appends.length; j < lj; j++) {
+                    var exam = new Exam(appends[j]);
+                    exam.save(function(err, data) {
+                        if (err) console.log(err);
+                        if (++saved === lj) return callback();
+                    });
+                }
+            });
+        },
+        updateCode: function(args, callback) {
+            var User = require('./models/user');
+            var Exam = require('./models/exam');
+            User.findOne({
+                username: args.username,
+                accountType: args.accountType
+            }).exec(function(err, user) {
+                if (err) return callback(err);
+                Exam.findOneAndUpdate({
+                    examId: args.examId,
+                    student: user._id
+                }, {
+                    "$set": {
+                        examCode: args.examCode
+                    }
+                }, {
+                    'new': true
+                }).exec(callback);
+            });
+        },
         start: function(args, callback) {
             var opts = [{
                 path: 'student',
@@ -532,6 +610,8 @@ var db = {
                     resolution: args.resolution,
                     comment: args.comment
                 }
+            }, {
+                'new': true
             }, callback);
         }
     },

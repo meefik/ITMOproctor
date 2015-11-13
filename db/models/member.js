@@ -1,5 +1,5 @@
 /**
- * Модель протокола экзамена
+ * Модель участников экзамена
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;

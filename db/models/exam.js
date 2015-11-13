@@ -5,6 +5,14 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var User = require('./user').schema;
 var Exam = new Schema({
+    // Идентификатор экзамена в LMS
+    examId: {
+        type: String
+    },
+    // Идентификатор экзаменационной сессии в LMS
+    examCode: {
+        type: String
+    },
     // Название экзамена
     subject: {
         type: String,
@@ -21,7 +29,7 @@ var Exam = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    // Плановая продолжительность экзамена
+    // Плановая продолжительность экзамена в минутах
     duration: {
         type: Number,
         required: true

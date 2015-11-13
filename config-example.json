@@ -30,5 +30,17 @@
         "ifmosso": {
             "secretKey": "its-a-secret"
         }
+    },
+    "schedule": {
+        "offset": 30
+    },
+    "api": {
+        "openedu": {
+            "apiKey": "its-a-secret",
+            "requestExams": "http://lms.sandbox-m.raccoongang.com/api/extended/user_proctored_exams/{username}/?format=json",
+            "startExam": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
+            "examStatus": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_poll_status/{examCode}",
+            "stopExam": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_review_callback/"
+        }
     }
 }

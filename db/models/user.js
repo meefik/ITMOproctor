@@ -29,6 +29,10 @@ var User = new Schema({
         type: Date,
         default: Date.now
     },
+    // Тип используемой авторизации
+    accountType: {
+        type: String
+    },
     // Имя
     firstname: {
         type: String

@@ -47,10 +47,11 @@ router.put('/:examId', function(req, res) {
         userId: req.user._id,
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
         resolution: req.body.resolution,
-        comment: req.body.comment
+        comment: req.body.comment,
+        accountType: req.user.accountType
     }
     if (args.resolution != null) {
-        db.vision.finish(args, function(err, data) {
+        db.exam.finish(args, function(err, data) {
             if (!err && data) {
                 res.json(data);
                 req.notify('exam-' + args.examId, {
@@ -68,6 +69,12 @@ router.put('/:examId', function(req, res) {
                         req.notify('protocol-' + args.examId);
                     }
                 });
+                // send start request
+                var api = require('../common/api');
+                api.startExam({
+                    accountType: args.accountType,
+                    exam: data
+                }, function() {});
             }
             else {
                 res.status(400).end();
@@ -75,7 +82,7 @@ router.put('/:examId', function(req, res) {
         });
     }
     else {
-        db.vision.start(args, function(err, data) {
+        db.exam.start(args, function(err, data) {
             if (!err && data) {
                 res.json(data);
                 req.notify('exam-' + args.examId, {
@@ -98,6 +105,12 @@ router.put('/:examId', function(req, res) {
                         req.notify('protocol-' + args.examId);
                     }
                 });
+                // send stop request
+                var api = require('../common/api');
+                api.startExam({
+                    accountType: args.accountType,
+                    examCode: data.examCode
+                }, function() {});
             }
             else {
                 res.status(400).end();

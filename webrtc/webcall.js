@@ -1,7 +1,7 @@
 module.exports = function(io, targets) {
     var config = require('nconf');
     var kurento = require('kurento-client');
-    var logger = require('../logger');
+    var logger = require('../common/logger');
 
     /*
      * Definition of global variables

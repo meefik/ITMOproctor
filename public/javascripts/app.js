@@ -1823,7 +1823,8 @@ var ScreenView = Backbone.View.extend({
 var ScheduleView = Backbone.View.extend({
     events: {
         "click .start-btn": "doStart",
-        "click .plan-btn": "doPlan"
+        "click .plan-btn": "doPlan",
+        "click .cancel-btn": "doCancel"
     },
     initialize: function() {
         // Variables
@@ -1835,6 +1836,7 @@ var ScheduleView = Backbone.View.extend({
         this._CountdownWidget = this.$('.countdown-widget');
         this._StartBtn = this.$('.start-btn');
         this._PlanBtn = this.$('.plan-btn');
+        this._CancelBtn = this.$('.cancel-btn');
         this._Grid = this.$('.exams-table');
         this._Dialog = $('#plan-dlg');
         this._PlanSubject = this._Dialog.find('.plan-subject');
@@ -1955,7 +1957,7 @@ var ScheduleView = Backbone.View.extend({
             columns: [
                 [{
                     field: 'subject',
-                    title: 'Испытание',
+                    title: 'Экзамен',
                     width: 200,
                     formatter: self.formatSubject
                 }, {
@@ -1983,30 +1985,24 @@ var ScheduleView = Backbone.View.extend({
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
                 var d = app.now();
+                self._PlanBtn.hide();
+                self._CancelBtn.hide();
+                self._StartBtn.hide();
                 if (!row.beginDate || !row.endDate) {
-                    self._StartBtn.hide();
                     self._PlanBtn.show();
                 }
-                else if (beginDate < d && endDate >= d) {
-                    self._StartBtn.linkbutton('enable');
-                    self._StartBtn.css({
-                        color: 'green'
-                    });
-                    self._PlanBtn.hide();
-                    self._StartBtn.show();
+                else if (beginDate > d) {
+                    self._CancelBtn.show();
                 }
-                else {
-                    self._StartBtn.linkbutton('disable');
-                    self._StartBtn.css({
-                        color: ''
-                    });
-                    self._PlanBtn.hide();
+                else if (beginDate <= d && (endDate >= d ||
+                        !(row.resolution === true || row.resolution === false))) {
                     self._StartBtn.show();
                 }
             },
             onLoadSuccess: function(data) {
                 var d = app.now();
                 for (var k in data.rows) {
+                    if (!data.rows[k].beginDate || !data.rows[k].endDate) continue;
                     var beginDate = moment(data.rows[k].beginDate);
                     var endDate = moment(data.rows[k].endDate);
                     if (beginDate <= d && endDate > d) {
@@ -2025,10 +2021,11 @@ var ScheduleView = Backbone.View.extend({
                 var d = app.now();
                 for (var k in data) {
                     var endDate = moment(data[k].endDate);
-                    if (!data[k].endDate || endDate > d || self.historyFlag) {
+                    if (!data[k].endDate || endDate > d || self.historyFlag ||
+                        !(data[k].resolution === true || data[k].resolution === false)) {
                         exams.rows.push(data[k]);
                     }
-                    if (!self.nextExam && endDate > d) {
+                    if (!self.nextExam && data[k].beginDate && endDate > d) {
                         self.nextExam = {
                             beginDate: data[k].beginDate,
                             countdown: moment(data[k].beginDate).diff(app.now())
@@ -2108,11 +2105,26 @@ var ScheduleView = Backbone.View.extend({
             });
         }
     },
+    doCancel: function() {
+        var self = this;
+        $.messager.confirm('Подтверждение', 'Вы действительно хотите отменить выбранный экзамен?', function(r) {
+            if (r) {
+                self.model.destroy({
+                    success: function(model) {
+                        self.refreshTable();
+                    }
+                });
+            }
+        });
+    },
     formatDuration: function(val, row) {
-        var plan = val * 60 * 60 * 1000;
+        if (val == null) return null;
+        var plan = val * 60 * 1000;
         var duration = moment(plan).utc().format('HH:mm');
-        var actual = moment(row.stopDate || undefined).diff(row.startDate);
-        if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
+        if (row.startDate && row.stopDate) {
+            var actual = moment(row.stopDate).diff(row.startDate);
+            duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
+        }
         return duration;
     },
     formatDate: function(val, row) {
@@ -2132,18 +2144,19 @@ var ScheduleView = Backbone.View.extend({
         });
     },
     formatStatus: function(val, row) {
-        //if (row.beginDate == null) return;
         var status = 0;
-        var d = app.now();
-        var beginDate = moment(row.beginDate);
-        var endDate = moment(row.endDate);
-        if (beginDate > d) status = 1;
-        if (endDate <= d) status = 7;
-        if (beginDate <= d && endDate > d) status = 2;
-        if (row.startDate) status = 3;
-        //if (row.inspector) status = 4;
-        if (row.resolution === true) status = 5;
-        if (row.resolution === false) status = 6;
+        if (row.beginDate && row.endDate) {
+            var d = app.now();
+            var beginDate = moment(row.beginDate);
+            var endDate = moment(row.endDate);
+            if (beginDate > d) status = 1;
+            if (endDate <= d) status = 7;
+            if (beginDate <= d && endDate > d) status = 2;
+            if (row.startDate) status = 3;
+            //if (row.inspector) status = 4;
+            if (row.resolution === true) status = 5;
+            if (row.resolution === false) status = 6;
+        }
         switch (status) {
             case 0:
                 return '<span style="color:olive;">Не запланирован</span>';
@@ -2400,7 +2413,9 @@ var InfoView = Backbone.View.extend({
         this.model.set('id', this.options.examId);
         this.model.fetch({
             success: function(model, response, options) {
-                var html = tpl(model.toJSON());
+                var html = tpl({
+                    exam: model.toJSON()
+                });
                 view.html(html);
             }
         });

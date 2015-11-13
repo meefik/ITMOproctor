@@ -4,21 +4,26 @@ var db = require('../db');
 
 router.get('/', function(req, res) {
     var args = {
-        userId: req.user._id
-    }
-    db.exam.list(args, function(err, data) {
-        if (!err) {
-            res.json(data);
-        }
-        else {
-            res.status(400).end();
-        }
+        userId: req.user._id,
+        username: req.user.username,
+        accountType: req.user.accountType
+    };
+    var api = require('../common/api');
+    api.fetchExams(args, function() {
+        db.exam.list(args, function(err, data) {
+            if (!err) {
+                res.json(data);
+            }
+            else {
+                res.status(400).end();
+            }
+        });
     });
 });
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId
-    }
+    };
     db.exam.info(args, function(err, data) {
         if (!err && data) {
             res.json(data);
@@ -33,8 +38,8 @@ router.put('/:examId', function(req, res) {
         examId: req.params.examId,
         userId: req.user._id,
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    }
-    db.vision.start(args, function(err, data) {
+    };
+    db.exam.start(args, function(err, data) {
         if (!err && data) {
             res.json(data);
             req.notify('exam-' + args.examId, {

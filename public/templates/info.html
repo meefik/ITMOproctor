@@ -4,16 +4,16 @@
     <tr>
         <td><strong>Экзамен:</strong></td>
         <td>
-            <%- subject %>
+            <%- exam.subject %>
         </td>
     </tr>
     <tr>
         <td><strong>Начало:</strong></td>
         <td>
-            <% if(beginDate) { %>
-                <%= moment(beginDate).format('DD.MM.YYYY HH:mm') %>
-                <% if(startDate) { %>
-                    (<%- moment(startDate).format('HH:mm') %>)
+            <% if(exam.beginDate) { %>
+                <%= moment(exam.beginDate).format('DD.MM.YYYY HH:mm') %>
+                <% if(exam.startDate) { %>
+                    (<%- moment(exam.startDate).format('HH:mm') %>)
                 <% } %>
             <% } else { %>
                 не запланировано
@@ -23,10 +23,10 @@
     <tr>
         <td><strong>Окончание:</strong></td>
         <td>
-            <% if(endDate) { %>
-                <%= moment(endDate).format('DD.MM.YYYY HH:mm') %>
-                <% if(stopDate != null) { %>
-                    (<%- moment(stopDate).format('HH:mm') %>)
+            <% if(exam.endDate) { %>
+                <%= moment(exam.endDate).format('DD.MM.YYYY HH:mm') %>
+                <% if(exam.stopDate != null) { %>
+                    (<%- moment(exam.stopDate).format('HH:mm') %>)
                 <% } %>
             <% } else { %>
                 не запланировано
@@ -36,11 +36,15 @@
     <tr>
         <td><strong>Длительность:</strong></td>
         <td>
-            <% if(duration) { %>
-                <% var actual = moment(stopDate||undefined).diff(startDate);
-                var plan = duration * 60 * 60 * 1000;
+            <% if(exam.duration) { %>
+                <%
+                var plan = exam.duration * 60 * 1000;
                 var val = moment(plan).utc().format('HH:mm');
-                if (actual) val += ' (' + moment(actual).utc().format('HH:mm') + ')'; %>
+                if (exam.startDate && exam.stopDate) {
+                    var actual = moment(exam.stopDate).diff(exam.startDate);
+                    val += ' (' + moment(actual).utc().format('HH:mm') + ')';
+                }
+                %>
                 <%- val %>
             <% } else { %>
                 неизвестно
@@ -50,16 +54,16 @@
     <tr>
         <td><strong>Студент:</strong></td>
         <td>
-            <% if(student) { %>
-                <%- student.lastname %> <%- student.firstname %> <%- student.middlename %> (<%- student.birthday %>)
+            <% if(exam.student) { %>
+                <%- exam.student.lastname %> <%- exam.student.firstname %> <%- exam.student.middlename %> (<%- exam.student.birthday %>)
             <% } %>
         </td>
     </tr>
     <tr>
         <td><strong>Инспектор:</strong></td>
         <td>
-            <% if(inspector) { %>
-                <%- inspector.lastname %> <%- inspector.firstname %> <%- inspector.middlename %>
+            <% if(exam.inspector) { %>
+                <%- exam.inspector.lastname %> <%- exam.inspector.firstname %> <%- exam.inspector.middlename %>
             <% } else { %>
                 не назначен
             <% } %>
@@ -68,13 +72,13 @@
     <tr>
         <td><strong>Заключение:</strong></td>
         <td>
-            <% if(resolution === true) { %> <span style="color: green">Принят</span> <% } %>
-            <% if(resolution === false) { %> <span style="color: red">Прерван</span> <% } %>
+            <% if(exam.resolution === true) { %> <span style="color: green">Принят</span> <% } %>
+            <% if(exam.resolution === false) { %> <span style="color: red">Прерван</span> <% } %>
         </td>
     </tr>
     <tr>
         <td><strong>Комментарий:</strong></td>
-        <td><%- comment %></td>
+        <td><%- exam.comment %></td>
     </tr>
 </table>
 </script>
