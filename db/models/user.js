@@ -29,8 +29,8 @@ var User = new Schema({
         type: Date,
         default: Date.now
     },
-    // Тип используемой авторизации
-    accountType: {
+    // Провайдер SSO-аккаунта
+    provider: {
         type: String
     },
     // Имя
@@ -110,12 +110,12 @@ User.methods.validPassword = function(password) {
 User.methods.isActive = function() {
     return this.active === true;
 };
-User.virtual('genderName').get(function() {
+User.virtual('genderId').set(function(genderId) {
     var gender = {
         "m": "Мужской",
         "f": "Женский"
     };
-    return gender[this.gender];
+    this.gender = gender[genderId];
 });
 User.virtual('roleName').get(function() {
     var role = {

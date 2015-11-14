@@ -1,33 +1,46 @@
 <div id="exam-view" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-tooltip text-item" title="Принимающий экзамен инспектор"><i class="fa fa-eye"></i><span class="inspector-widget">Ожидайте инспектора...</span></span>
+            <span class="text-item"><i class="fa fa-tags"></i><span class="exam-widget">...</span></span>
             <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
         <div class="easyui-layout" data-options="fit:true">
             <div data-options="region:'north',border:false" class="ws-widget" style="height:50%">
-                <div class="easyui-panel ws-panel panel-webcam" title="Веб-камера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
-                    <!-- Begin: Webcam -->
-                    <video class="video-output" autoplay poster="images/webrtc.png"></video>
-                    <video class="video-input" autoplay poster="images/webrtc.png"></video>
-                    <!-- End: Webcam -->
-                </div>
-                <div class="panel-screen" style="display:none">
-                    <!-- Begin: Screen -->
-                    <video class="video-input" autoplay poster="images/webrtc.png"></video>
-                    <!-- End: Screen -->
+                <div class="easyui-layout" data-options="fit:true">
+                    <div data-options="region:'center',border:false" class="ws-widget">
+                        <!-- Begin: Webcam -->
+                        <div class="easyui-panel ws-panel panel-webcam" title="Веб-камера" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true">
+                            <video class="video-output" autoplay poster="images/webrtc.png"></video>
+                            <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                        </div>
+                        <!-- End: Webcam -->
+                        <!-- Begin: Screen -->
+                        <div class="panel-screen" style="display:none">
+                            <video class="video-input" autoplay poster="images/webrtc.png"></video>
+                        </div>
+                        <!-- End: Screen -->
+                    </div>
+                    <div data-options="region:'east',border:false" class="ws-widget" style="width:35%">
+                        <!-- Begin: Members -->
+                        <div class="easyui-panel ws-panel panel-members" title="Участники" data-options="fit:true,iconCls:'fa fa-users',maximizable:true">
+                            <div class="easyui-panel members-panel" data-options="fit:true,border:false">
+                                <ul class="members-output" style="list-style-type:none;padding:.3em;margin:0"></ul>
+                            </div>
+                        </div>
+                        <!-- End: Members -->
+                    </div>
                 </div>
             </div>
             <div data-options="region:'center',border:false" class="ws-widget">
+                <!-- Begin: Chat -->
                 <div class="easyui-panel ws-panel panel-chat" title="Сообщения" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true">
-                    <!-- Begin: Chat -->
                     <div class="easyui-layout" data-options="fit:true">
                         <div class="chat-panel" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;">
-                            <ul class="chat-output" style="list-style-type:none; padding:.3em; margin:0"></ul>
+                            <ul class="chat-output" style="list-style-type:none;padding:.3em;margin:0"></ul>
                         </div>
-                        <div data-options="region:'south',split:true,border:false">
+                        <div data-options="region:'south',border:false,minHeight:60" style="height:35%;">
                             <div class="easyui-layout" data-options="fit:true">
                                 <div data-options="region:'north',border:false">
                                     <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
@@ -41,12 +54,12 @@
                                         </form>
                                     </div>
                                 </div>
-                                <div class="chat-input" data-options="region:'center',border:false" placeholder="Текст сообщения..." contenteditable="true" style="height:80px;overflow-x:hidden;padding:.3em"></div>
+                                <div class="chat-input" data-options="region:'center',border:false" placeholder="Текст сообщения..." contenteditable="true" style="height:100%;overflow-x:hidden;padding:.3em"></div>
                             </div>
                         </div>
                     </div>
-                    <!-- End: Chat -->
                 </div>
+                <!-- End: Chat -->
             </div>
         </div>
     </div>
@@ -71,12 +84,18 @@
 <script type="text/template" id="chat-item-tpl">
 <div class="chat-view">
     <% var color = app.profile.isMe(author._id) ? 'red' : 'blue'; %>
-    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname.charAt(0) %>.<%- author.middlename.charAt(0) %>.:</span><span><%= text %>
+    <span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(time).format('HH:mm') %> <%- author.lastname %> <%- author.firstname ? author.firstname.charAt(0) + '.' : '' %><%- author.middlename ? author.middlename.charAt(0) + '.' : '' %>:</span><span><%= text %>
         <% if(attach.length > 0) { %>
             <% _.each(attach, function(element, index, list){ %>
                 <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>"><%- element.filename %></a>
             <% }); %>
         <% } %>
     </span>
+</div>
+</script>
+<script type="text/template" id="members-item-tpl">
+<div class="members-view">
+    <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- user.lastname %> <%- user.firstname %> <%- user.middlename %> (<%- user.roleName %>)</div>
+    <div style="color:gray"><%- country %>, <%- city %> [IP: <%- ip %>]</div>
 </div>
 </script>

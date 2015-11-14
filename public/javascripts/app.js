@@ -714,47 +714,50 @@ var MonitorView = Backbone.View.extend({
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
     },
     formatStatus: function(val, row) {
-        if (row.beginDate == null) return;
         var status = 0;
         var d = app.now();
-        var beginDate = moment(row.beginDate);
-        var endDate = moment(row.endDate);
-        if (beginDate > d) status = 1;
-        if (endDate <= d) status = 7;
-        if (beginDate <= d && endDate > d) status = 2;
-        if (row.startDate != null) status = 3;
-        if (row.inspector) status = 4;
-        if (row.resolution === true) status = 5;
-        if (row.resolution === false) status = 6;
+        if (row.rightDate) {
+            var rightDate = moment(row.rightDate);
+            if (rightDate <= d) status = 6;
+        }
+        if (row.beginDate && row.endDate) {
+            var beginDate = moment(row.beginDate);
+            var endDate = moment(row.endDate);
+            if (beginDate > d) status = 1;
+            if (endDate <= d) status = 6;
+            if (beginDate <= d && endDate > d) status = 2;
+            if (row.startDate) status = 3;
+            if (row.resolution === true) status = 4;
+            if (row.resolution === false) status = 5;
+        }
         switch (status) {
+            case 0:
+                return '<span style="color:olive;">Не запланирован</span>';
             case 1:
                 return '<span style="color:teal;">Запланирован</span>';
             case 2:
                 return '<span style="color:orange;">Ожидает</span>';
             case 3:
-                return '<span style="color:olive;">Начат</span>';
-            case 4:
                 return '<span style="color:red;">Идет</span>';
-            case 5:
+            case 4:
                 return '<span style="color:green;">Сдан</span>';
-            case 6:
+            case 5:
                 return '<span style="color:purple;">Прерван</span>';
-            case 7:
+            case 6:
                 return '<span style="color:gray;">Пропущен</span>';
             default:
                 return null;
         }
     },
     formatAction: function(val, row) {
-        if (row.beginDate == null) return null;
+        if (!row.beginDate) return;
         var html = $('#action-item-tpl').html();
         var tpl = _.template(html);
         var d = app.now();
         var beginDate = moment(row.beginDate);
-        var endDate = moment(row.endDate);
         var isAllow = function() {
             var allow = false;
-            if (beginDate <= d && row.startDate != null && row.resolution == null) {
+            if (beginDate <= d && row.startDate && !row.stopDate) {
                 allow = true;
             }
             return allow;
@@ -765,21 +768,24 @@ var MonitorView = Backbone.View.extend({
         return isAllow() ? tpl(data) : null;
     },
     formatDuration: function(val, row) {
-        if (row.beginDate == null) return null;
-        var plan = moment(row.endDate).diff(row.beginDate);
-        var actual = moment(row.stopDate || undefined).diff(row.startDate);
-        var duration = moment(plan).utc().format('HH:mm');
-        if (actual) duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
-        return duration;
+        if (!val) return;
+        return val + ' мин.';
     },
     formatDate: function(val, row) {
-        if (val == null) return null;
-        else {
-            return moment(val).format('DD.MM.YYYY HH:mm');
-        }
+        if (!val) return;
+        return moment(val).format('DD.MM.YYYY HH:mm');
+    },
+    formatSubject: function(val, row) {
+        if (!val || !row) return;
+        var html = $('#subject-item-tpl').html();
+        var tpl = _.template(html);
+        return tpl({
+            examId: row._id,
+            subject: val
+        });
     },
     formatStudent: function(val, row) {
-        if (val == null) return null;
+        if (!val) return;
         var data = {
             userId: val._id,
             lastname: val.lastname,
@@ -791,18 +797,8 @@ var MonitorView = Backbone.View.extend({
         return tpl(data);
     },
     formatInspector: function(val, row) {
-        if (val == null) return null;
+        if (!val) return;
         return val.lastname + " " + val.firstname + " " + val.middlename;
-    },
-    formatSubject: function(val, row) {
-        if (val == null) return null;
-        var data = {
-            examId: row._id,
-            subject: val
-        };
-        var html = $('#subject-item-tpl').html();
-        var tpl = _.template(html);
-        return tpl(data);
     },
     doSearch: function() {
         var status = 0;
@@ -848,6 +844,7 @@ var MonitorView = Backbone.View.extend({
 //
 var VisionView = Backbone.View.extend({
     events: {
+        "click .unlock-btn": "doUnlock",
         "click .screenshot-btn": "doScreenshot",
         "click .passport-btn": "showPassport",
         "click .exam-info-btn": "showInfo",
@@ -865,7 +862,6 @@ var VisionView = Backbone.View.extend({
         this._Screen = this.$('.panel-screen');
         this._Chat = this.$('.panel-chat');
         this._Notes = this.$('.panel-notes');
-        this._Protocol = this.$('.panel-protocol');
         this._Members = this.$('.panel-members');
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
@@ -993,10 +989,6 @@ var VisionView = Backbone.View.extend({
                 el: this._Chat.get(0),
                 examId: this.options.examId
             }),
-            protocol: new ProtocolView({
-                el: this._Protocol.get(0),
-                examId: this.options.examId
-            }),
             members: new MembersView({
                 el: this._Members.get(0),
                 examId: this.options.examId
@@ -1045,7 +1037,7 @@ var VisionView = Backbone.View.extend({
         var startDate = this.model.get("startDate");
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
-        this._StudentWidget.text(student.lastname + " " + student.firstname + " " + student.middlename);
+        this._StudentWidget.text(student.lastname + " " + student.firstname || "" + " " + student.middlename || "");
         this._ExamWidget.text(subject);
     },
     destroy: function() {
@@ -1061,10 +1053,23 @@ var VisionView = Backbone.View.extend({
         this.remove();
     },
     showPassport: function() {
-        this.view.passport.doOpen();
+        var userId = this.model.get('student')._id;
+        this.view.passport.doOpen(userId);
     },
     showInfo: function() {
-        this.view.info.doOpen();
+        var examId = this.model.get('_id');
+        this.view.info.doOpen(examId);
+    },
+    doUnlock: function() {
+        $.ajax({
+            url: "/inspector/" + this.options.examId,
+            type: "post",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(this.model.toJSON())
+        }).done(function(respond) {
+            console.log(respond);
+        });
     },
     doScreenshot: function() {
         parent.postMessage('takeScreenshot', '*');
@@ -1492,60 +1497,6 @@ var ChatView = Backbone.View.extend({
             });
             self._Progress.progressbar('setColor', 'green');
         });
-    }
-});
-//
-// Protocol view
-//
-var ProtocolView = Backbone.View.extend({
-    initialize: function(options) {
-        // Variables
-        var self = this;
-        this.options = options || {};
-        // Single item view
-        this.ItemView = Backbone.View.extend({
-            tagName: "li",
-            initialize: function() {
-                this.template = _.template($('#protocol-item-tpl').html());
-                this.listenTo(this.model, 'change', this.render);
-                this.listenTo(this.model, 'destroy', this.remove);
-            },
-            render: function() {
-                this.$el.html(this.template(this.model.toJSON()));
-                return this;
-            }
-        });
-        // jQuery selectors
-        this._Panel = this.$(".protocol-panel");
-        this._Output = this.$(".protocol-output");
-        // Protocol model
-        var Protocol = Backbone.Model.extend({
-            idAttribute: "_id"
-        });
-        // Protocol collection
-        var ProtocolList = Backbone.Collection.extend({
-            url: '/protocol/' + this.options.examId,
-            model: Protocol,
-            comparator: 'time'
-        });
-        this.collection = new ProtocolList();
-        this.listenTo(this.collection, 'add', this.appendItem);
-        this.collection.fetch();
-        // Socket notification
-        app.io.notify.on('protocol-' + this.options.examId, function(data) {
-            self.collection.fetch();
-        });
-    },
-    destroy: function() {
-        app.io.notify.removeListener('protocol-' + this.options.examId);
-        this.remove();
-    },
-    appendItem: function(model) {
-        var view = new this.ItemView({
-            model: model
-        });
-        this._Output.append(view.render().el);
-        this._Panel.scrollTop(this._Panel[0].scrollHeight);
     }
 });
 //
@@ -1982,20 +1933,20 @@ var ScheduleView = Backbone.View.extend({
             onSelect: function(index, row) {
                 if (!row) return;
                 self.model.set(row);
+                var rightDate = moment(row.rightDate);
                 var beginDate = moment(row.beginDate);
-                var endDate = moment(row.endDate);
                 var d = app.now();
                 self._PlanBtn.hide();
                 self._CancelBtn.hide();
                 self._StartBtn.hide();
-                if (!row.beginDate || !row.endDate) {
+                if (row.rightDate && rightDate < d) {}
+                else if (!row.beginDate || !row.endDate) {
                     self._PlanBtn.show();
                 }
                 else if (beginDate > d) {
                     self._CancelBtn.show();
                 }
-                else if (beginDate <= d && (endDate >= d ||
-                        !(row.resolution === true || row.resolution === false))) {
+                else if (beginDate <= d && !row.stopDate) {
                     self._StartBtn.show();
                 }
             },
@@ -2021,11 +1972,13 @@ var ScheduleView = Backbone.View.extend({
                 var d = app.now();
                 for (var k in data) {
                     var endDate = moment(data[k].endDate);
-                    if (!data[k].endDate || endDate > d || self.historyFlag ||
-                        !(data[k].resolution === true || data[k].resolution === false)) {
+                    var rightDate = moment(data[k].rightDate);
+                    if (self.historyFlag || (data[k].endDate && endDate > d) ||
+                        (data[k].rightDate && rightDate > d)) {
                         exams.rows.push(data[k]);
                     }
-                    if (!self.nextExam && data[k].beginDate && endDate > d) {
+                    if (!self.nextExam && data[k].beginDate &&
+                        data[k].endDate && endDate > d) {
                         self.nextExam = {
                             beginDate: data[k].beginDate,
                             countdown: moment(data[k].beginDate).diff(app.now())
@@ -2118,24 +2071,15 @@ var ScheduleView = Backbone.View.extend({
         });
     },
     formatDuration: function(val, row) {
-        if (val == null) return null;
-        var plan = val * 60 * 1000;
-        var duration = moment(plan).utc().format('HH:mm');
-        if (row.startDate && row.stopDate) {
-            var actual = moment(row.stopDate).diff(row.startDate);
-            duration += ' (' + moment(actual).utc().format('HH:mm') + ')';
-        }
-        return duration;
+        if (!val) return;
+        return val + ' мин.';
     },
     formatDate: function(val, row) {
-        if (val == null) return null;
-        else {
-            var d = moment(val);
-            return moment(d).format('DD.MM.YYYY HH:mm');
-        }
+        if (!val) return;
+        return moment(val).format('DD.MM.YYYY HH:mm');
     },
     formatSubject: function(val, row) {
-        if (val == null) return null;
+        if (!val || !row) return;
         var html = $('#subject-item-tpl').html();
         var tpl = _.template(html);
         return tpl({
@@ -2145,17 +2089,20 @@ var ScheduleView = Backbone.View.extend({
     },
     formatStatus: function(val, row) {
         var status = 0;
+        var d = app.now();
+        if (row.rightDate) {
+            var rightDate = moment(row.rightDate);
+            if (rightDate <= d) status = 6;
+        }
         if (row.beginDate && row.endDate) {
-            var d = app.now();
             var beginDate = moment(row.beginDate);
             var endDate = moment(row.endDate);
             if (beginDate > d) status = 1;
-            if (endDate <= d) status = 7;
+            if (endDate <= d) status = 6;
             if (beginDate <= d && endDate > d) status = 2;
             if (row.startDate) status = 3;
-            //if (row.inspector) status = 4;
-            if (row.resolution === true) status = 5;
-            if (row.resolution === false) status = 6;
+            if (row.resolution === true) status = 4;
+            if (row.resolution === false) status = 5;
         }
         switch (status) {
             case 0:
@@ -2165,14 +2112,12 @@ var ScheduleView = Backbone.View.extend({
             case 2:
                 return '<span style="color:orange;">Ожидает</span>';
             case 3:
-                //    return '<span style="color:olive;">Начат</span>';
-                //case 4:
                 return '<span style="color:red;">Идет</span>';
-            case 5:
+            case 4:
                 return '<span style="color:green;">Сдан</span>';
-            case 6:
+            case 5:
                 return '<span style="color:purple;">Прерван</span>';
-            case 7:
+            case 6:
                 return '<span style="color:gray;">Пропущен</span>';
             default:
                 return null;
@@ -2197,16 +2142,17 @@ var ExamView = Backbone.View.extend({
         this._Chat = this.$('.panel-chat');
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
+        this._Members = this.$('.panel-members');
         this._DurationWidget = this.$('.duration-widget');
         this._StudentWidget = this.$('.student-widget');
-        this._InspectorWidget = this.$('.inspector-widget');
+        this._ExamWidget = this.$('.exam-widget');
         this._FinishBtn = this.$('.finish-btn');
         // DOM events
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
                     case "info":
-                        self.view.info.doOpen();
+                        self.view.info.doOpen(self.options.examId);
                         break;
                     case "passport":
                         self.view.passport.doOpen();
@@ -2240,6 +2186,10 @@ var ExamView = Backbone.View.extend({
             }),
             chat: new ChatView({
                 el: this._Chat.get(0),
+                examId: this.options.examId
+            }),
+            members: new MembersView({
+                el: this._Members.get(0),
                 examId: this.options.examId
             }),
             webcam: new WebcamView({
@@ -2346,12 +2296,10 @@ var ExamView = Backbone.View.extend({
             return;
         }
         var startDate = this.model.get("startDate");
-        var inspector = this.model.get("inspector");
+        var subject = this.model.get("subject");
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
-        if (inspector) {
-            this._InspectorWidget.text(inspector.lastname + " " + inspector.firstname + " " + inspector.middlename);
-        }
+        this._ExamWidget.text(subject);
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -2377,13 +2325,17 @@ var InfoView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Карточка экзамена',
             width: 500,
-            height: 300,
+            height: 350,
             closed: true,
             modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
             cache: false,
             href: '/templates/info.html',
             onLoad: function() {
-                self.render();
+                self.model.fetch({
+                    success: function() {
+                        self.render();
+                    }
+                });
             },
             onOpen: function() {
                 $(this).dialog('center');
@@ -2410,21 +2362,17 @@ var InfoView = Backbone.View.extend({
     render: function() {
         var view = this.$('.info-view');
         var tpl = _.template($("#info-tpl").html());
-        this.model.set('id', this.options.examId);
-        this.model.fetch({
-            success: function(model, response, options) {
-                var html = tpl({
-                    exam: model.toJSON()
-                });
-                view.html(html);
-            }
+        var html = tpl({
+            exam: this.model.toJSON()
         });
+        view.html(html);
     },
     doOpen: function(examId) {
         if (examId) {
-            this.options.examId = examId;
+            this.model.clear();
+            this.model.set('id', examId);
+            this._Dialog.dialog('open');
         }
-        this._Dialog.dialog('open');
     },
     doClose: function() {
         this._Dialog.dialog('close');
@@ -2507,6 +2455,7 @@ var PassportView = Backbone.View.extend({
         view.html(html);
     },
     doOpen: function(userId) {
+        this.model.clear();
         if (userId) {
             this.model.set('id', userId);
         }
@@ -2699,7 +2648,8 @@ var PassportEditorView = Backbone.View.extend({
         });
         config.attach = this.model.get('attach');
         this.model.save(config, {
-            success: function() {
+            success: function(model) {
+                app.profile.clear().set(model.attributes);
                 self.doClose();
             }
         });

@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var moment = require('moment');
 var db = require('../db');
 // List all messages
 router.get('/:examId', function(req, res) {

@@ -7,7 +7,7 @@ var IfmoSSOStrategy = require('passport-ifmosso').Strategy;
 var config = require('nconf')
 var db = require('../db');
 
-function checkAccess(req, res, next, role) {
+function checkRole(req, res, next, role) {
     if (req.isAuthenticated()) {
         if (!role || req.user.role >= role) next()
         else res.status(403).end();
@@ -18,16 +18,24 @@ function checkAccess(req, res, next, role) {
 };
 
 router.isAuth = function(req, res, next) {
-    checkAccess(req, res, next);
+    checkRole(req, res, next);
 };
 router.isStudent = function(req, res, next) {
-    checkAccess(req, res, next, 1);
+    checkRole(req, res, next, 1);
 };
 router.isInspector = function(req, res, next) {
-    checkAccess(req, res, next, 2);
+    checkRole(req, res, next, 2);
 };
 router.isAdministrator = function(req, res, next) {
-    checkAccess(req, res, next, 3);
+    checkRole(req, res, next, 3);
+};
+router.isMyself = function(req, res, next) {
+    if (req.params.userId === req.user._id) next();
+    else res.status(403).end();
+};
+router.isInspectorOrMyself = function(req, res, next) {
+    if (req.user.role > 1 || req.params.userId === req.user._id) next();
+    else res.status(403).end();
 };
 
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {

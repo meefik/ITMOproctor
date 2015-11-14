@@ -1,17 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var profile = require('./profile');
 var db = require('../db');
-
-function checkAccess(req, res, next) {
-    if (req.user.role > 1 || req.params.userId === req.user._id) {
-        next();
-    } else {
-        res.status(403).end();
-    }
-}
-
 // Get user info
-router.get('/:userId', checkAccess, function(req, res) {
+router.get('/:userId', profile.isInspectorOrMyself, function(req, res) {
     var args = {
         userId: req.params.userId
     }
@@ -25,7 +17,7 @@ router.get('/:userId', checkAccess, function(req, res) {
     });
 });
 // Update user info
-router.put('/:userId', checkAccess, function(req, res) {
+router.put('/:userId', profile.isMyself, function(req, res) {
     var args = {
         userId: req.params.userId,
         data: {
@@ -45,6 +37,9 @@ router.put('/:userId', checkAccess, function(req, res) {
     };
     db.profile.update(args, function(err, data) {
         if (!err && data) {
+            req.login(data, function(error) {
+                if (error) console.log(error);
+            });
             res.json(data);
         }
         else {

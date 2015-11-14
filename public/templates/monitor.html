@@ -38,7 +38,7 @@
 <a href="javascript:void(0);" onclick="app.content.doPlay('<%- examId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
 </script>
 <script type="text/template" id="student-item-tpl">
-<a href="javascript:void(0);" onclick="app.content.doPassport('<%- userId %>');" title="Карточка студента"><%- lastname %> <%- firstname %> <%- middlename %></a>
+<a href="javascript:void(0);" onclick="app.content.doPassport('<%- userId %>');" title="Карточка студента"><%- lastname || "Неизвестный" %> <%- firstname %> <%- middlename %></a>
 </script>
 <script type="text/template" id="subject-item-tpl">
 <a href="javascript:void(0);" onclick="app.content.doInfo('<%- examId %>');" title="Карточка экзамена"><%- subject %></a>

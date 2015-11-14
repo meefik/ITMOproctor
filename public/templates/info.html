@@ -1,10 +1,26 @@
-<div class="info-view"></div>
+<div class="info-view" style="margin:5px;"></div>
 <script type="text/template" id="info-tpl">
 <table width="100%" height="100%" cellpadding="5">
     <tr>
         <td><strong>Экзамен:</strong></td>
         <td>
             <%- exam.subject %>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Сроки:</strong></td>
+        <td>
+            с <%= moment(exam.leftDate).format('DD.MM.YYYY') %> по <%= moment(exam.rightDate).format('DD.MM.YYYY') %>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Длительность:</strong></td>
+        <td>
+            <% if(exam.duration) { %>
+                <%- exam.duration + ' мин.' %>
+            <% } else { %>
+                неизвестно
+            <% } %>
         </td>
     </tr>
     <tr>
@@ -30,24 +46,6 @@
                 <% } %>
             <% } else { %>
                 не запланировано
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Длительность:</strong></td>
-        <td>
-            <% if(exam.duration) { %>
-                <%
-                var plan = exam.duration * 60 * 1000;
-                var val = moment(plan).utc().format('HH:mm');
-                if (exam.startDate && exam.stopDate) {
-                    var actual = moment(exam.stopDate).diff(exam.startDate);
-                    val += ' (' + moment(actual).utc().format('HH:mm') + ')';
-                }
-                %>
-                <%- val %>
-            <% } else { %>
-                неизвестно
             <% } %>
         </td>
     </tr>

@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+var members = require('./members');
+var api = require('./api');
+// Get list of exams
 router.get('/', function(req, res) {
     var args = {
         rows: req.query.rows,
@@ -25,56 +28,19 @@ router.get('/', function(req, res) {
         }
     });
 });
-router.get('/:examId', function(req, res) {
+// Update exam state
+router.put('/:examId', function(req, res, next) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    }
-    db.vision.start(args, function(err, data) {
-        if (!err && data) {
-            res.json(data);
-            req.notify('members-' + args.examId);
-        }
-        else {
-            res.status(400).end();
-        }
-    });
-});
-router.put('/:examId', function(req, res) {
-    var args = {
-        examId: req.params.examId,
-        userId: req.user._id,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
         resolution: req.body.resolution,
-        comment: req.body.comment,
-        accountType: req.user.accountType
-    }
+        comment: req.body.comment
+    };
     if (args.resolution != null) {
         db.exam.finish(args, function(err, data) {
             if (!err && data) {
-                res.json(data);
-                req.notify('exam-' + args.examId, {
-                    userId: args.userId
-                });
-                // add to protocol
-                db.protocol.add({
-                    examId: args.examId,
-                    text: '[' + args.ip + '] ' + req.user.lastname + ' ' +
-                        req.user.firstname + ' ' + req.user.middlename +
-                        ' (' + req.user.roleName + ') завершил экзамен.'
-                }, function(err, data) {
-                    if (err) console.log(err);
-                    if (!err && data) {
-                        req.notify('protocol-' + args.examId);
-                    }
-                });
-                // send start request
-                var api = require('../common/api');
-                api.startExam({
-                    accountType: args.accountType,
-                    exam: data
-                }, function() {});
+                req.exam = data;
+                api.stopExam(req, res, next);
             }
             else {
                 res.status(400).end();
@@ -84,38 +50,30 @@ router.put('/:examId', function(req, res) {
     else {
         db.exam.start(args, function(err, data) {
             if (!err && data) {
-                res.json(data);
-                req.notify('exam-' + args.examId, {
-                    userId: args.userId
-                });
-                // add or update member
-                db.members.update(args, function(err, member) {
-                    if (err) console.log(err);
-                    req.notify('members-' + args.examId);
-                });
-                // add to protocol
-                db.protocol.add({
-                    examId: args.examId,
-                    text: '[' + args.ip + '] ' + req.user.lastname + ' ' +
-                        req.user.firstname + ' ' + req.user.middlename +
-                        ' (' + req.user.roleName + ') подключился к экзамену.'
-                }, function(err, data) {
-                    if (err) console.log(err);
-                    if (!err && data) {
-                        req.notify('protocol-' + args.examId);
-                    }
-                });
-                // send stop request
-                var api = require('../common/api');
-                api.startExam({
-                    accountType: args.accountType,
-                    examCode: data.examCode
-                }, function() {});
+                req.exam = data;
+                next();
             }
             else {
                 res.status(400).end();
             }
         });
     }
+}, members.updateMember, function(req, res) {
+    var args = {
+        examId: req.params.examId,
+        userId: req.user._id,
+        exam: req.exam
+    };
+    res.json(args.exam);
+    req.notify('exam-' + req.params.examId, {
+        userId: args.userId
+    });
+});
+// Unlock exam
+router.post('/:examId', function(req, res, next) {
+    req.exam = req.body;
+    api.startExam(req, res, next);
+}, function(req, res){
+    res.json({});
 });
 module.exports = router;

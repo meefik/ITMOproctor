@@ -1,44 +1,44 @@
-<div class="passport-view" style="margin:10px;"></div>
+<div class="passport-view" style="margin:5px;"></div>
 <script type="text/template" id="passport-tpl">
 <table cellpadding="5" style="width:100%;">
     <tr>
-        <td>ФИО:</td>
+        <td><strong>ФИО:</strong></td>
         <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
     </tr>
     <tr>
-        <td>Пол:</td>
+        <td><strong>Пол:</strong></td>
         <td><%- user.gender %></td>
     </tr>
     <tr>
-        <td>Дата рождения:</td>
+        <td><strong>Дата рождения:</strong></td>
         <td><%- user.birthday %></td>
     </tr>
     <tr>
-        <td>Электронный адрес:</td>
+        <td><strong>Электронный адрес:</strong></td>
         <td style="word-break:break-all;"><%- user.email %></td>
     </tr>
     <tr>
-        <td>Гражданство:</td>
+        <td><strong>Гражданство:</strong></td>
         <td><%- user.citizenship %></td>
     </tr>
     <tr>
-        <td>Тип документа:</td>
+        <td><strong>Тип документа:</strong></td>
         <td><%- user.documentType %></td>
     </tr>
     <tr>
-        <td>Номер документа:</td>
+        <td><strong>Номер документа:</strong></td>
         <td><%- user.documentNumber %></td>
     </tr>
     <tr>
-        <td>Дата выдачи документа:</td>
+        <td><strong>Дата выдачи документа:</strong></td>
         <td><%- user.documentIssueDate %></td>
     </tr>
     <tr>
-        <td>Дополнительно:</td>
+        <td><strong>Дополнительно:</strong></td>
         <td><%- user.description %></td>
     </tr>
     <tr>
-        <td style="vertical-align:top;">Приложенные файлы:</td>
+        <td style="vertical-align:top;"><strong>Приложенные файлы:</strong></td>
         <td>
             <% if(user.attach.length > 0) { %>
                 <% _.each(user.attach, function(element, index, list){ 

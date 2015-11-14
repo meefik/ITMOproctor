@@ -48,7 +48,7 @@ var db = {
                     lastname: prof.lastname,
                     email: prof.email,
                     password: null,
-                    accountType: 'openedu'
+                    provider: 'openedu'
                 };
                 var User = require('./models/user');
                 User.findOne({
@@ -79,11 +79,11 @@ var db = {
                     firstname: prof.firstname,
                     lastname: prof.lastname,
                     middlename: prof.middlename,
-                    gender: prof.gender,
+                    genderId: prof.gender,
                     birthday: prof.birthdate,
                     email: prof.email,
                     password: null,
-                    accountType: 'ifmosso'
+                    provider: 'ifmosso'
                 };
                 var User = require('./models/user');
                 User.findOne({
@@ -238,7 +238,7 @@ var db = {
                         stopDate: {
                             "$eq": null
                         },
-                        inspector: {
+                        startDate: {
                             "$ne": null
                         }
                     };
@@ -253,7 +253,7 @@ var db = {
                         endDate: {
                             "$gt": moment()
                         },
-                        inspector: {
+                        startDate: {
                             "$eq": null
                         }
                     };
@@ -399,7 +399,8 @@ var db = {
         schedule: function(args, callback) {
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
-            var duration = Math.ceil(Number(args.duration) / 60);
+            var offset = Number(config.get('schedule:offset'));
+            var duration = Math.ceil((Number(args.duration) + offset) / 60);
             var leftDate = moment.max(moment(), moment(args.leftDate));
             var rightDate = moment(args.rightDate);
             leftDate.add(1, 'hours').set({
@@ -438,7 +439,7 @@ var db = {
                         if (!timetable[inspector][j]) timetable[inspector][j] = concurrent;
                     }
                 }
-                console.log(timetable);
+                //console.log(timetable);
                 Exam.find({
                     '$and': [{
                         beginDate: {
@@ -457,12 +458,12 @@ var db = {
                         var beginDate = moment(exams[i].beginDate);
                         var endDate = moment(exams[i].endDate);
                         var start = beginDate.diff(leftDate, 'hours');
-                        var times = moment.min(rightDate, endDate).diff(beginDate, 'hours') + 1;
+                        var times = moment.min(rightDate, endDate).diff(beginDate, 'hours', true);
                         for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {
-                            if (timetable[inspector]) timetable[inspector][j]--;
+                            if (timetable[inspector] && timetable[inspector][j] > 0) timetable[inspector][j]--;
                         }
                     }
-                    console.log(timetable);
+                    //console.log(timetable);
                     // определяем доступные для записи часы с учетом duration
                     var out = [];
                     for (var k in timetable) {
@@ -476,9 +477,11 @@ var db = {
                             }
                         }
                     }
-                    console.log(out);
+                    //console.log(out);
                     // сортируем, исключаем повторы и преобразуем в даты
-                    var dates = out.sort().filter(function(item, pos, arr) {
+                    var dates = out.sort(function(a, b) {
+                        return a - b;
+                    }).filter(function(item, pos, arr) {
                         return !pos || item != arr[pos - 1];
                     }).map(function(v) {
                         return moment(leftDate).add(v, 'hours');
@@ -495,7 +498,8 @@ var db = {
             }, {
                 "$set": {
                     beginDate: null,
-                    endDate: null
+                    endDate: null,
+                    inspector: null
                 }
             }, {
                 'new': true
@@ -546,9 +550,9 @@ var db = {
             var Exam = require('./models/exam');
             User.findOne({
                 username: args.username,
-                accountType: args.accountType
+                provider: args.provider
             }).exec(function(err, user) {
-                if (err) return callback(err);
+                if (err || !user) return callback(err);
                 Exam.findOneAndUpdate({
                     examId: args.examId,
                     student: user._id
@@ -564,7 +568,7 @@ var db = {
         start: function(args, callback) {
             var opts = [{
                 path: 'student',
-                select: 'firstname lastname middlename'
+                select: 'firstname lastname middlename provider'
             }, {
                 path: 'inspector',
                 select: 'firstname lastname middlename'
@@ -602,6 +606,13 @@ var db = {
         },
         finish: function(args, callback) {
             var Exam = require('./models/exam');
+            var opts = [{
+                path: 'student',
+                select: 'firstname lastname middlename provider'
+            }, {
+                path: 'inspector',
+                select: 'firstname lastname middlename'
+            }];
             Exam.findOneAndUpdate({
                 _id: args.examId
             }, {
@@ -612,7 +623,7 @@ var db = {
                 }
             }, {
                 'new': true
-            }, callback);
+            }).populate(opts).exec(callback);
         }
     },
     notes: {
