@@ -53,7 +53,7 @@
         <td><strong>Студент:</strong></td>
         <td>
             <% if(exam.student) { %>
-                <%- exam.student.lastname %> <%- exam.student.firstname %> <%- exam.student.middlename %> (<%- exam.student.birthday %>)
+                <%- exam.student.lastname || "Неизвестный" %> <%- exam.student.firstname %> <%- exam.student.middlename %> (<%- exam.student.birthday || "-" %>)
             <% } %>
         </td>
     </tr>

@@ -1037,8 +1037,11 @@ var VisionView = Backbone.View.extend({
         var startDate = this.model.get("startDate");
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
-        this._StudentWidget.text(student.lastname + " " + student.firstname || "" + " " + student.middlename || "");
-        this._ExamWidget.text(subject);
+        var fio = (student.lastname || "Неизвестный") +
+            " " + (student.firstname || "") +
+            " " + (student.middlename || "");
+        this._StudentWidget.text(_.truncateString(fio, 50));
+        this._ExamWidget.text(_.truncateString(subject, 50));
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1198,7 +1201,8 @@ var VisionView = Backbone.View.extend({
 //
 var NotesView = Backbone.View.extend({
     events: {
-        "click .note-add-btn": "add"
+        "click .note-add-btn": "add",
+        "click .attach-link": "doDownload"
     },
     initialize: function(options) {
         // Varialbes
@@ -1321,6 +1325,9 @@ var NotesView = Backbone.View.extend({
         });
         this._List.append(view.render().el);
         this._Panel.scrollTop(this._Panel[0].scrollHeight);
+    },
+    doDownload: function(e) {
+        return _.isHttpStatusOK(e.currentTarget.href);
     }
 });
 //
@@ -1332,7 +1339,8 @@ var ChatView = Backbone.View.extend({
         "click .chat-attach-btn": "doAttach",
         "click .chat-file-btn": "doReset",
         "keyup .chat-input": "doInputKeyup",
-        "change .chat-attach-input": "doFileChange"
+        "change .chat-attach-input": "doFileChange",
+        "click .attach-link": "doDownload"
     },
     initialize: function(options) {
         // Variables
@@ -1463,16 +1471,9 @@ var ChatView = Backbone.View.extend({
         self._Progress.progressbar('setColor', null);
         self._FileBtn.show();
         self._AttachBtn.linkbutton('disable');
-        var trancateFile = function(filename, length) {
-            var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
-            if (filename.length > length) {
-                filename = filename.substring(0, length) + '...' + extension;
-            }
-            return filename;
-        }
         self._Progress.progressbar({
             value: 0,
-            text: trancateFile(filename, 15)
+            text: _.truncateFilename(filename, 15)
         });
         $.ajax({
             type: 'post',
@@ -1497,6 +1498,9 @@ var ChatView = Backbone.View.extend({
             });
             self._Progress.progressbar('setColor', 'green');
         });
+    },
+    doDownload: function(e) {
+        return _.isHttpStatusOK(e.currentTarget.href);
     }
 });
 //
@@ -2382,6 +2386,9 @@ var InfoView = Backbone.View.extend({
 // Passport view
 //
 var PassportView = Backbone.View.extend({
+    events: {
+        "click .attach-link": "doDownload"
+    },
     tagName: 'div',
     initialize: function(options) {
         var self = this;
@@ -2466,6 +2473,9 @@ var PassportView = Backbone.View.extend({
     },
     doClose: function() {
         this._Dialog.dialog('close');
+    },
+    doDownload: function(e) {
+        return _.isHttpStatusOK(e.currentTarget.href);
     }
 
 });
@@ -2475,8 +2485,9 @@ var PassportView = Backbone.View.extend({
 var PassportEditorView = Backbone.View.extend({
     tagName: 'div',
     events: {
-        'change .passport-attach-input': 'onFileChange',
-        'click .passport-delete-file': 'removeAttach'
+        "change .passport-attach-input": "onFileChange",
+        "click .passport-delete-file": "removeAttach",
+        "click .attach-link": "doDownload"
     },
     initialize: function(options) {
         var self = this;
@@ -2545,13 +2556,6 @@ var PassportEditorView = Backbone.View.extend({
         // Display files
         this.drawAttachList();
     },
-    trancateFilename: function(filename, length) {
-        var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
-        if (filename.length > length) {
-            filename = filename.substring(0, length - extension.length) + '...' + extension;
-        }
-        return filename;
-    },
     removeAttach: function(event) {
         var attachId = $(event.currentTarget).attr("data-id");
         var attach = this.model.get('attach');
@@ -2571,13 +2575,13 @@ var PassportEditorView = Backbone.View.extend({
             if (attach[i].removed) continue;
             var html = '<div><i class="fa fa-paperclip"></i> ';
             if (attach[i].fileId) {
-                html += '<a href="/storage/' + attach[i].fileId + '" title="' +
-                    attach[i].filename + '">' + this.trancateFilename(attach[i].filename, 25) +
+                html += '<a class="attach-link" href="/storage/' + attach[i].fileId + '" title="' +
+                    attach[i].filename + '">' + _.truncateFilename(attach[i].filename, 25) +
                     '</a>';
             }
             else {
                 html += '<span title="' + attach[i].filename + '">' +
-                    this.trancateFilename(attach[i].filename, 25) + '</span>';
+                    _.truncateFilename(attach[i].filename, 25) + '</span>';
             }
             html += ' <i data-id="' + i +
                 '" class="fa fa-times passport-delete-file" title="Удалить" style="cursor:pointer;"></i></div>';
@@ -2604,7 +2608,7 @@ var PassportEditorView = Backbone.View.extend({
         self._Progress.show();
         self._Progress.progressbar({
             value: 0,
-            text: self.trancateFilename(filename, 15)
+            text: _.truncateFilename(filename, 15)
         });
         $.ajax({
             type: 'post',
@@ -2665,6 +2669,9 @@ var PassportEditorView = Backbone.View.extend({
     },
     doClose: function() {
         this._Dialog.dialog('close');
+    },
+    doDownload: function(e) {
+        return _.isHttpStatusOK(e.currentTarget.href);
     }
 });
 //
@@ -3064,6 +3071,39 @@ var AppView = Backbone.View.extend({
                 trigger: true
             });
         }
+    }
+});
+//
+// Functions
+//
+_.mixin({
+    truncateString: function(str, length) {
+        if (str.length > length) {
+            str = str.substring(0, length) + '...';
+        }
+        return str;
+    },
+    truncateFilename: function(filename, length) {
+        var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
+        if (filename.length > length) {
+            filename = filename.substring(0, length - extension.length) + '...' + extension;
+        }
+        return filename;
+    },
+    isHttpStatusOK: function(url) {
+        var status;
+        $.ajax({
+            url: url,
+            type: 'HEAD',
+            async: false,
+            error: function() {
+                status = false;
+            },
+            success: function() {
+                status = true
+            }
+        });
+        return status;
     }
 });
 //

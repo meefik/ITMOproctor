@@ -48,7 +48,7 @@
                         filename = filename.substring(0, 30) + '...' + extension;
                     }
                     %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- filename %></a><br/>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- filename %></a><br/>
                 <% }); %>
             <% } %>
         </td>
