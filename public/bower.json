@@ -1,6 +1,16 @@
 {
   "name": "proctor-web",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "System of distant supervision",
+  "licenses": "GPL-3.0",
+  "authors": [{
+    "name": "Anton Skshidlevsky",
+    "email": "meefik@gmail.com"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/meefik/ITMOproctor.git"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
@@ -16,5 +26,6 @@
     "adapter.js": "~0.1.1",
     "kurento-utils": "~5.1.0",
     "Backbone.localStorage": "~1.1.16"
-  }
+  },
+  "private": true
 }

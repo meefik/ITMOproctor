@@ -2,11 +2,11 @@
 
 (с) [Университет ИТМО](http://www.ifmo.ru), 2015
 
-Проект опубликован под лицензией [GPL версии 3](http://www.gnu.org/licenses/gpl-3.0.html).
-
 Система дистанционного надзора ITMOproctor предназначена для сопровождения процесса территориально удаленного прохождения экзаменов, подтверждения личности испытуемого и подтверждения результатов его аттестации.
 
-#### Клиентская часть
+Проект опубликован под лицензией [GPL версии 3](http://www.gnu.org/licenses/gpl-3.0.html).
+
+### Клиентская часть
 
 | Параметр                     | Минимальные требования          |
 |------------------------------|---------------------------------|
@@ -21,7 +21,7 @@
 
 [Инструкция по использованию системы ITMOproctor](https://drive.google.com/file/d/0B7YdZbqVWxzeZnU4WmlvWXJubnc/view?usp=sharing)
 
-#### Серверная часть
+### Серверная часть
 
 * [Debian GNU/Linux](http://www.debian.org)
 * [node.js](http://www.nodejs.org) и [nw.js](http://nwjs.io)
@@ -30,7 +30,7 @@
 
 [Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
 
-**Запуск серверной части через Vagrant**
+#### Запуск серверной части через Vagrant
 
 Необходимо установить:
 
@@ -47,7 +47,7 @@ vagrant ssh
 ```
 Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)<br>На гостевой машине: [localhost:3000](http://localhost:3000)
 
-**Развертывание системы на Ubuntu 14.04**
+#### Развертывание системы на Ubuntu 14.04
 
 Установить MongoDB:
 ```
@@ -71,17 +71,25 @@ sudo apt-get update
 sudo apt-get install kurento-server
 ```
 
-Клонирование репозитория itmoproctor и инициализация:
+Клонирование репозитория ITMOproctor и инициализация:
 ```
-mkdir ~/itmoproctor
-cd ~/itmoproctor
-git clone https://github.com/meefik/ITMOproctor.git ./
-npm install
-npm start
+git clone https://github.com/meefik/ITMOproctor.git
+cd ./ITMOproctor
 mv config-example.json config.json
+npm install
 ```
 
-Добавление пользователей
+Запуск сервера, по умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000):
+```
+npm start
+```
+
+Сборка приложения под все архитектуры, архивы для загрузки приложения будут размещены в public/dist:
+```
+npm run-script build-app
+```
+
+Добавление пользователей:
 ```
 cd ~/imoproctor/db
 node import.js data.json

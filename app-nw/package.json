@@ -2,13 +2,29 @@
   "name": "proctor-client",
   "version": "0.2.2",
   "description": "System of distant supervision",
+  "contributors": [{
+    "name": "Anton Skshidlevsky",
+    "email": "meefik@gmail.com"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/meefik/ITMOproctor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/meefik/ITMOproctor/issues"
+  },
+  "licenses": [{
+      "type": "GPL-3.0",
+      "url": "http://opensource.org/licenses/GPL-3.0"
+  }],
   "main": "index.html",
-  "homepage": "https://proctor-meefik.c9.io",
+  "homepage": "https://proctor-meefik.c9users.io",
   "window": {
     "frame": true,
     "toolbar": false,
     "width": 520,
     "height": 700
   },
-  "chromium-args": "--enable-usermedia-screen-capturing"
+  "chromium-args": "--enable-usermedia-screen-capturing",
+  "private": true
 }
