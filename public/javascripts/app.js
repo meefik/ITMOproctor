@@ -939,21 +939,6 @@ var MonitorView = Backbone.View.extend({
         });
     }
 });
-// //
-// // Plan inspector's schedule
-// //
-// var PlanView = Backbone.View.extend({
-//     events:{},
-//     initialize: function(options) {
-//         var self = this;
-//         this._Dialog = this.$(".schedule-dlg");
-//         this._Grid = this.$(".easyui-datagrid");
-//         this._DialogFrom = this.$(".schedule-from");
-//         this._DialogTo = this.$(".schedule-to");
-//         this._DialogConcurrent = this.$(".schedule-concurrent");
-        
-//     },
-// });
 //
 // Vision view
 //
