@@ -638,10 +638,18 @@ var db = {
         },
         add: function(args,callback){
             var Schedule = require('./models/schedule');
+            var beginDate = moment(args.beginDate).set({
+                'minutes': 0,
+                'seconds': 0
+            });
+            var endDate = moment(args.endDate).set({
+                'minutes': 0,
+                'seconds': 0
+            });
             var schedule = new Schedule({
                 inspector: args.inspector,
-                beginDate: args.beginDate,
-                endDate: args.endDate,
+                beginDate: beginDate,
+                endDate: endDate,
                 concurrent: args.concurrent
             });
             schedule.save(callback);
