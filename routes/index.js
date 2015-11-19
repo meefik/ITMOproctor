@@ -10,6 +10,7 @@ var chat = require('./chat');
 var protocol = require('./protocol');
 var members = require('./members');
 var tools = require('./tools');
+var schedule = require('./schedule');
 module.exports = function(app) {
     app.use('/api', api);
     app.use('/profile', profile);
@@ -23,4 +24,5 @@ module.exports = function(app) {
     app.use('/protocol', profile.isInspector, protocol);
     app.use('/members', profile.isStudent, members);
     app.use('/tools', profile.isStudent, tools);
+    app.use('/schedule', profile.isInspector, schedule);
 }

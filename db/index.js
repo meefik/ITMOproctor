@@ -626,6 +626,27 @@ var db = {
             }).populate(opts).exec(callback);
         }
     },
+    schedule:{
+        list: function(args, callback){
+            var Schedule = require('./models/schedule');
+            Schedule.find({
+                inspector: args.inspector,
+                endDate:{
+                    '$gte': moment() 
+                }
+            }).exec(callback);
+        },
+        add: function(args,callback){
+            var Schedule = require('./models/schedule');
+            var schedule = new Schedule({
+                inspector: args.inspector,
+                beginDate: args.beginDate,
+                endDate: args.endDate,
+                concurrent: args.concurrent
+            });
+            schedule.save(callback);
+        }
+    },
     notes: {
         list: function(args, callback) {
             var Note = require('./models/note');
