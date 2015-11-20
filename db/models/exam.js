@@ -24,8 +24,10 @@ var Exam = new Schema({
         ref: 'User',
         required: true
     },
-    // Проверенная копия данных студента
-    //studentVerified: [User],
+    // Хэшкод персональных данных студента (вычисляется в процессе идентификации)
+    verified: {
+        type: String
+    },
     // Инспектор
     inspector: {
         type: Schema.Types.ObjectId,

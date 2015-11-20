@@ -355,7 +355,7 @@ var db = {
                         var concurrent = schedule[i].concurrent;
                         timetable[inspector] = concurrent;
                     }
-                    console.log(timetable);
+                    //console.log(timetable);
                     // find exams with time around beginDate
                     Exam.find({
                         '$and': [{
@@ -376,7 +376,7 @@ var db = {
                                 if (timetable[inspector] <= 0) delete timetable[inspector];
                             }
                         }
-                        console.log(timetable);
+                        //console.log(timetable);
                         var inspectors = Object.getOwnPropertyNames(timetable);
                         var amount = inspectors.length;
                         if (!amount) return callback();
@@ -539,7 +539,7 @@ var db = {
                 for (var j = 0, lj = appends.length; j < lj; j++) {
                     var exam = new Exam(appends[j]);
                     exam.save(function(err, data) {
-                        if (err) console.log(err);
+                        if (err) logger.warn(err);
                         if (++saved === lj) return callback();
                     });
                 }
@@ -586,7 +586,7 @@ var db = {
                                 startDate: moment(),
                             }
                         }, function(err, data) {
-                            if (err) console.log(err);
+                            if (err) logger.warn(err);
                         });
                     }
                     // set inspector
@@ -598,7 +598,7 @@ var db = {
                                 inspector: args.userId
                             }
                         }, function(err, data) {
-                            if (err) console.log(err);
+                            if (err) logger.warn(err);
                         });
                     }
                 }

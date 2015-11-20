@@ -36,6 +36,9 @@
     },
     "api": {
         "openedu": {
+            "cryptoKey": "its-a-secret",
+            "secretKey": "its-a-secret",
+            "secretKeyId": "its-a-secret",
             "apiKey": "its-a-secret",
             "requestExams": "http://lms.sandbox-m.raccoongang.com/api/extended/user_proctored_exams/{username}/?format=json",
             "startExam": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",

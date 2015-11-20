@@ -17,7 +17,7 @@ var Note = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true  
+        required: true
     },
     // Время заметки
     time: {
@@ -27,6 +27,11 @@ var Note = new Schema({
     // Текст заметки
     text: {
         type: String
+    },
+    // Возможность редактировать заметку
+    editable: {
+        type: Boolean,
+        default: true
     },
     // Ссылка на вложение
     attach: [Attach]

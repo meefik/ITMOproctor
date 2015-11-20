@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var logger = require('../common/logger');
 var config = require('nconf');
 var db = require('../db');
 /**
@@ -13,7 +14,7 @@ router.fetchExams = function(req, res, next) {
             var url = config.get('api:openedu:requestExams').replace('{username}', req.user.username);
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
-            console.log('fetch: ' + url);
+            logger.debug('API request: ' + url);
             request.get({
                 url: url,
                 headers: {
@@ -48,6 +49,7 @@ router.fetchExams = function(req, res, next) {
                     });
                 }
                 else {
+                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
                     next();
                 }
             });
@@ -66,7 +68,7 @@ router.startExam = function(req, res, next) {
             var url = config.get('api:openedu:startExam').replace('{examCode}', req.exam.examCode);
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
-            console.log('start: ' + url);
+            logger.debug('API request: ' + url);
             request.get({
                 url: url,
                 headers: {
@@ -77,6 +79,7 @@ router.startExam = function(req, res, next) {
                     next();
                 }
                 else {
+                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });
@@ -100,13 +103,13 @@ router.stopExam = function(req, res, next) {
                     reviewerNotes: req.exam.comment
                 },
                 // reviewStatus: 'Clean', 'Rules Violation', 'Not Reviewed', 'Suspicious'
-                reviewStatus: req.exam.resolution ? 'Clean' : 'Rules Violation',
+                reviewStatus: req.exam.resolution ? 'Clean' : 'Suspicious',
                 videoReviewLink: ''
             };
             var url = config.get('api:openedu:stopExam');
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
-            console.log('stop: ' + url);
+            logger.debug('API request: ' + url);
             request.post({
                 url: url, //"https://proctor-meefik.c9.io/api/test",
                 json: data,
@@ -118,7 +121,7 @@ router.stopExam = function(req, res, next) {
                     next();
                 }
                 else {
-                    console.log(body);
+                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });
@@ -137,7 +140,7 @@ router.examStatus = function(req, res, next) {
             var url = config.get('api:openedu:examStatus').replace('{examCode}', req.exam.examCode);
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
-            console.log('status: ' + url);
+            logger.debug('API request: ' + url);
             request.get({
                 url: url,
                 headers: {
@@ -148,6 +151,7 @@ router.examStatus = function(req, res, next) {
                     next();
                 }
                 else {
+                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });

@@ -7,7 +7,9 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
 var multer = require('multer');
+var fs = require('fs');
 var config = require('nconf').file('./config.json');
+var logger = require('./common/logger');
 var db = require('./db');
 var MongoStore = require('connect-mongo')(session);
 var mongoStore = new MongoStore({
@@ -22,7 +24,9 @@ var notify = io.of('/notify');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public/images/favicon.png')));
-app.use(morgan('dev'));
+app.use(morgan("short", {
+    "stream": logger.stream
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
@@ -58,7 +62,7 @@ app.use(function(req, res, next) {
             userId: userId
         };
         notify.emit(target, out);
-    }
+    };
     next();
 });
 // socket.io authorization
@@ -87,7 +91,7 @@ app.use(function(req, res, next) {
 if (config.get("logger:level") === 'debug') {
     // development error handler
     // will print stacktrace
-    db.mongoose.set('debug', true);
+    db.mongoose.set('debug', logger.db);
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {

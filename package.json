@@ -2,10 +2,12 @@
   "name": "proctor-server",
   "version": "0.5.0",
   "description": "System of distant supervision",
-  "contributors": [{
-    "name": "Anton Skshidlevsky",
-    "email": "meefik@gmail.com"
-  }],
+  "contributors": [
+    {
+      "name": "Anton Skshidlevsky",
+      "email": "meefik@gmail.com"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/meefik/ITMOproctor.git"

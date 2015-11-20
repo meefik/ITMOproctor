@@ -877,6 +877,10 @@ var VisionView = Backbone.View.extend({
         this._ExamComment = this._DialogConfirm.find('.exam-comment');
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
+        this._DialogUnlock = $("#unlock-dlg");
+        this._Video = this.$('.panel-webcam > .video-input');
+        this._Camera = this._DialogUnlock.find('.camera');
+        this._Passport = this._DialogUnlock.find('.passport');
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
@@ -1064,14 +1068,64 @@ var VisionView = Backbone.View.extend({
         this.view.info.doOpen(examId);
     },
     doUnlock: function() {
-        $.ajax({
-            url: "/inspector/" + this.options.examId,
-            type: "post",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: JSON.stringify(this.model.toJSON())
-        }).done(function(respond) {
-            console.log(respond);
+        var self = this;
+
+        function draw(v, c, w, h) {
+            if (v.paused || v.ended) return false;
+            c.drawImage(v, 0, 0, w, h);
+            setTimeout(draw, 20, v, c, w, h);
+        }
+
+        function takePhoto() {
+            var video = self._Video.get(0);
+            var canvas = self._Camera.get(0);
+            console.log(video);
+            console.log(canvas);
+            var context = canvas.getContext('2d');
+            var cw = self._Video.width();//Math.floor(canvas.clientWidth / 100);
+            var ch = self._Video.height();//Math.floor(canvas.clientHeight / 100);
+            console.log(cw+'x'+ch);
+            
+            var proportion = cw / ch;
+            //cw = Math.floor(cw * scale);
+            //ch = Math.floor(ch * scale);
+            canvas.width = cw;
+            canvas.height = ch;
+            //draw(video,context,cw,ch);
+            console.log(cw+'x'+ch);
+            context.drawImage(video, 0, 0, 480, 480*proportion);
+        }
+
+        function applyBtn() {
+            $.ajax({
+                url: "/inspector/" + self.options.examId,
+                type: "post",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(self.model.toJSON())
+            }).done(function(respond) {
+                console.log(respond);
+            });
+        }
+
+        function rejectBtn() {
+
+        }
+        this._DialogUnlock.dialog({
+            closed: false,
+            buttons: [{
+                text: 'Сделать снимок',
+                iconCls: 'fa fa-photo',
+                handler: takePhoto
+            }, {
+                text: 'Подтвердить',
+                iconCls: 'fa fa-check',
+                handler: applyBtn
+            }, {
+                text: 'Отклонить',
+                iconCls: 'fa fa-times',
+                handler: rejectBtn
+            }, ]
         });
     },
     doScreenshot: function() {

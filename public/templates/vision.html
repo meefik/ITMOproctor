@@ -122,6 +122,10 @@
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
+<div id="unlock-dlg" class="easyui-dialog" title="Идентификация личности" style="padding:5px;width:500px;height:415px;text-align:center;" data-options="modal:true,closed:true">
+    <canvas class="camera"></canvas>
+    <div class="passport"></div>
+</div>
 <div id="exam-confirm-dlg" style="padding:5px" title="Завершить экзамен" data-options="width:350,height:245,modal:true,closed:true">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong class="reject-text" style="color:red;display:none">прервать</strong><strong class="apply-text" style="color:green">подписать</strong> экзамен, отменить операцию будет невозможно.</div> 
     <div style="padding-bottom:5px">Введите код подтверждения: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>

@@ -45,7 +45,7 @@ var User = new Schema({
     middlename: {
         type: String
     },
-    // Пол: m или f
+    // Пол
     gender: {
         type: String
     },
