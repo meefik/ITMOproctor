@@ -401,7 +401,11 @@ var db = {
             var Schedule = require('./models/schedule');
             var offset = Number(config.get('schedule:offset'));
             var duration = Math.ceil((Number(args.duration) + offset) / 60);
-            var leftDate = moment.max(moment(), moment(args.leftDate));
+            var now = moment();
+            if (config.get('schedule:current')) {
+                now.add(-1,'hours');
+            }
+            var leftDate = moment.max(now, moment(args.leftDate));
             var rightDate = moment(args.rightDate);
             leftDate.add(1, 'hours').set({
                 'minute': 0,

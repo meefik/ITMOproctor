@@ -1082,18 +1082,18 @@ var VisionView = Backbone.View.extend({
             console.log(video);
             console.log(canvas);
             var context = canvas.getContext('2d');
-            var cw = self._Video.width();//Math.floor(canvas.clientWidth / 100);
-            var ch = self._Video.height();//Math.floor(canvas.clientHeight / 100);
-            console.log(cw+'x'+ch);
-            
+            var cw = self._Video.width(); //Math.floor(canvas.clientWidth / 100);
+            var ch = self._Video.height(); //Math.floor(canvas.clientHeight / 100);
+            console.log(cw + 'x' + ch);
+
             var proportion = cw / ch;
             //cw = Math.floor(cw * scale);
             //ch = Math.floor(ch * scale);
             canvas.width = cw;
             canvas.height = ch;
             //draw(video,context,cw,ch);
-            console.log(cw+'x'+ch);
-            context.drawImage(video, 0, 0, 480, 480*proportion);
+            console.log(cw + 'x' + ch);
+            context.drawImage(video, 0, 0, 480, 480 * proportion);
         }
 
         function applyBtn() {
@@ -1993,18 +1993,20 @@ var ScheduleView = Backbone.View.extend({
                 self.model.set(row);
                 var rightDate = moment(row.rightDate);
                 var beginDate = moment(row.beginDate);
-                var d = app.now();
+                var endDate = moment(row.endDate);
+                var now = app.now();
                 self._PlanBtn.hide();
                 self._CancelBtn.hide();
                 self._StartBtn.hide();
-                if (row.rightDate && rightDate < d) {}
+                if (row.rightDate && rightDate < now) {}
                 else if (!row.beginDate || !row.endDate) {
                     self._PlanBtn.show();
                 }
-                else if (beginDate > d) {
+                else if (beginDate > now) {
                     self._CancelBtn.show();
                 }
-                else if (beginDate <= d && !row.stopDate) {
+                else if (beginDate <= now && !row.stopDate &&
+                    (endDate > now || row.startDate)) {
                     self._StartBtn.show();
                 }
             },
