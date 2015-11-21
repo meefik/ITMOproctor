@@ -17,44 +17,22 @@ router.get('/', api.fetchExams, function(req, res) {
         }
     });
 });
-// Get exam info by id
-router.get('/:examId', function(req, res) {
-    var args = {
-        examId: req.params.examId
-    };
-    db.exam.info(args, function(err, data) {
-        if (!err && data) {
-            res.json(data);
-        }
-        else {
-            res.status(400).end();
-        }
-    });
-});
-// Update exam state
-router.put('/:examId', function(req, res, next) {
+// Start exam
+router.get('/:examId', members.updateMember, function(req, res, next) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id
     };
     db.exam.start(args, function(err, data) {
         if (!err && data) {
-            req.exam = data;
-            next();
+            res.json(data);
+            req.notify('exam-' + req.params.examId, {
+                userId: args.userId
+            });
         }
         else {
             res.status(400).end();
         }
-    });
-}, members.updateMember, function(req, res) {
-    var args = {
-        examId: req.params.examId,
-        userId: req.user._id,
-        exam: req.exam
-    };
-    res.json(args.exam);
-    req.notify('exam-' + req.params.examId, {
-        userId: args.userId
     });
 });
 module.exports = router;

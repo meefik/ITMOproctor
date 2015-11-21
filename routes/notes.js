@@ -21,7 +21,8 @@ router.post('/:examId', function(req, res) {
         author: req.user._id,
         examId: req.params.examId,
         text: req.body.text,
-        attach: req.body.attach
+        attach: req.body.attach,
+        editable: req.body.editable
     };
     db.notes.add(args, function(err, data) {
         if (!err && data) {
@@ -58,7 +59,7 @@ router.delete('/:examId/:noteId', function(req, res) {
         examId: req.params.examId,
         author: req.user._id
     };
-    db.notes.delete(args, function(err, data) {
+    db.notes.remove(args, function(err, data) {
         if (!err && data) {
             res.json(data);
             req.notify('notes-' + args.examId);

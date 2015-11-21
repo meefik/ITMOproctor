@@ -1,11 +1,10 @@
 <div id="vision-view" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
         <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <a href="javascript:void(0)" class="easyui-linkbutton unlock-btn" data-options="plain:true,iconCls:'fa fa-unlock'">Идентификация</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'">Снимок экрана</a>
+            <span class="text-item"><i class="fa fa-tags"></i><span class="exam-widget">...</span></span>
             <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
-            <a href="javascript:void(0)" class="easyui-linkbutton passport-btn" data-options="plain:true,iconCls:'fa fa-user'" style="float:right"><span class="student-widget">...</span></a>
-            <a href="javascript:void(0)" class="easyui-linkbutton exam-info-btn" data-options="plain:true,iconCls:'fa fa-tags'" style="float:right"><span class="exam-widget">...</span></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'" style="float:right">Снимок экрана</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton verify-btn" data-options="plain:true,iconCls:'fa fa-unlock'" style="float:right">Идентификация</a>
         </div>
     </div>
     <div class="ws-content" data-options="region:'center',border:false">
@@ -106,10 +105,13 @@
     </div>
 </div>
 <div id="main-menu" style="width:150px;">
+    <div name="info" data-options="iconCls:'fa fa-tags'">Об экзамене</div>
+    <div name="passport" data-options="iconCls:'fa fa-graduation-cap'">О студенте</div>
+    <div class="menu-sep"></div>
     <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
     <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
     <div class="menu-sep"></div>
-    <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
+    <div name="disconnect" data-options="iconCls:'fa fa-sign-out'">Отключиться</div>
 </div>
 <!-- Dialogs -->
 <div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
@@ -122,9 +124,24 @@
     <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
     <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'Введите комментарий...'">
 </div>
-<div id="unlock-dlg" class="easyui-dialog" title="Идентификация личности" style="padding:5px;width:500px;height:415px;text-align:center;" data-options="modal:true,closed:true">
-    <canvas class="camera"></canvas>
-    <div class="passport"></div>
+<div id="verify-dlg" class="easyui-dialog" title="Идентификация личности" style="padding:5px;width:670px;height:760px;" data-options="modal:true,closed:true">
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'north',border:false,height:190">
+
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'west',border:false,width:250">
+                    <img class="student-photo" style="width:240px;height:180px;border:1px solid lightgray;object-position:center;object-fit:cover;"/>
+                </div>
+                <div data-options="region:'center',border:false">
+                    <div class="verify-data"></div>
+                </div>
+            </div>
+
+        </div>
+        <div data-options="region:'center',border:false">
+            <canvas class="student-video" style="border:1px solid lightgray;width:640px;height:480px;"></canvas>
+        </div>
+    </div>
 </div>
 <div id="exam-confirm-dlg" style="padding:5px" title="Завершить экзамен" data-options="width:350,height:245,modal:true,closed:true">
     <div style="padding-bottom:10px">Подтвердите свое решение <strong class="reject-text" style="color:red;display:none">прервать</strong><strong class="apply-text" style="color:green">подписать</strong> экзамен, отменить операцию будет невозможно.</div> 
@@ -145,10 +162,12 @@
                 <% }); %>
             <% } %>
     </div>
+    <% if (editable) { %>
     <div class="edit-buttons" style="padding:0 5px 3px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
         <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="Редактировать"><i class="fa fa-pencil"></i></a>
         <a href="javascript:void(0);" class="note-remove" style="font-size:1.4em;color:gray;" title="Удалить"><i class="fa fa-close"></i></a>
     </div>
+    <% } %>
 </div>
 </script>
 <script type="text/template" id="chat-item-tpl">
@@ -168,4 +187,40 @@
     <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- user.lastname %> <%- user.firstname %> <%- user.middlename %> (<%- user.roleName %>)</div>
     <div style="color:gray"><%- country %>, <%- city %> [IP: <%- ip %>]</div>
 </div>
+</script>
+<script type="text/template" id="verify-tpl">
+<table cellpadding="1">
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">ФИО:</td>
+        <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Пол:</td>
+        <td><%- user.gender %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Дата рождения:</td>
+        <td><%- user.birthday %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Гражданство:</td>
+        <td><%- user.citizenship %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Тип документа:</td>
+        <td><%- user.documentType %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Номер док-та:</td>
+        <td><%- user.documentNumber %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Дата выдачи:</td>
+        <td><%- user.documentIssueDate %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px;font-weight:bold">Дополнительно:</td>
+        <td><%- user.description || "-" %></td>
+    </tr>
+</table>
 </script>

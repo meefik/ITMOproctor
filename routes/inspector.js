@@ -28,52 +28,89 @@ router.get('/', function(req, res) {
         }
     });
 });
-// Update exam state
+// Start exam
+router.get('/:examId', members.updateMember, function(req, res, next) {
+    var args = {
+        examId: req.params.examId,
+        userId: req.user._id
+    };
+    db.exam.start(args, function(err, data) {
+        if (!err && data) {
+            res.json(data);
+            req.notify('exam-' + req.params.examId, {
+                userId: args.userId
+            });
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+});
+// Stop exam
 router.put('/:examId', function(req, res, next) {
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, data) {
+        if (!err && data) {
+            req.body.provider = data.student.provider;
+            req.body.examCode = data.examCode;
+            req.body._id = data._id;
+            req.body.resolution = data.resolution;
+            req.body.comment = data.comment;
+            next();
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+}, api.stopExam, function(req, res) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id,
         resolution: req.body.resolution,
         comment: req.body.comment
     };
-    if (args.resolution != null) {
-        db.exam.finish(args, function(err, data) {
-            if (!err && data) {
-                req.exam = data;
-                api.stopExam(req, res, next);
-            }
-            else {
-                res.status(400).end();
-            }
-        });
-    }
-    else {
-        db.exam.start(args, function(err, data) {
-            if (!err && data) {
-                req.exam = data;
-                next();
-            }
-            else {
-                res.status(400).end();
-            }
-        });
-    }
-}, members.updateMember, function(req, res) {
-    var args = {
-        examId: req.params.examId,
-        userId: req.user._id,
-        exam: req.exam
-    };
-    res.json(args.exam);
+    db.exam.finish(args, function(err, data) {
+        if (!err && data) {
+            res.json(data);
+        }
+        else {
+            res.status(400).end();
+        }
+    });
     req.notify('exam-' + req.params.examId, {
         userId: args.userId
     });
 });
-// Unlock exam
+// Verify passport
 router.post('/:examId', function(req, res, next) {
-    req.exam = req.body;
-    api.startExam(req, res, next);
-}, function(req, res){
-    res.json({});
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, data) {
+        if (!err && data) {
+            req.body.provider = data.student.provider;
+            req.body.examCode = data.examCode;
+            next();
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+}, /*api.startExam,*/ function(req, res) {
+    var args = {
+        student: req.body.student,
+        userId: req.user._id,
+        examId: req.params.examId
+    };
+    db.exam.verify(args, function(err, data) {
+        if (!err && data) {
+            res.json(data);
+        }
+        else {
+            res.status(400).end();
+        }
+    });
 });
 module.exports = router;

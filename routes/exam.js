@@ -7,7 +7,7 @@ router.get('/', function(req, res) {
         leftDate: req.query.leftDate,
         rightDate: req.query.rightDate,
         duration: req.query.duration
-    }
+    };
     if (!args.leftDate || !args.rightDate || !args.duration) {
         return res.status(400).end();
     }
@@ -24,7 +24,7 @@ router.get('/', function(req, res) {
 router.get('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId
-    }
+    };
     db.exam.info(args, function(err, data) {
         if (!err && data) {
             res.json(data);
@@ -40,7 +40,7 @@ router.put('/:examId', function(req, res) {
         examId: req.params.examId,
         userId: req.user._id,
         beginDate: req.body.beginDate
-    }
+    };
     if (!args.beginDate) {
         return res.status(400).end();
     }
@@ -58,7 +58,7 @@ router.delete('/:examId', function(req, res) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id
-    }
+    };
     db.exam.cancel(args, function(err, data) {
         if (!err && data) {
             res.json(data);

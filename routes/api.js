@@ -5,7 +5,7 @@ var config = require('nconf');
 var db = require('../db');
 /**
  * Get list of exams from provider
- * @param req.user - user data
+ * @param req.user
  */
 router.fetchExams = function(req, res, next) {
     switch (req.user.provider) {
@@ -49,7 +49,7 @@ router.fetchExams = function(req, res, next) {
                     });
                 }
                 else {
-                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
                     next();
                 }
             });
@@ -60,12 +60,13 @@ router.fetchExams = function(req, res, next) {
 };
 /**
  * Start exam request to provider
- * @param req.exam - exam data
+ * @param req.body.provider
+ * @param req.body.examCode
  */
 router.startExam = function(req, res, next) {
-    switch (req.exam.student.provider) {
+    switch (req.body.provider) {
         case 'openedu':
-            var url = config.get('api:openedu:startExam').replace('{examCode}', req.exam.examCode);
+            var url = config.get('api:openedu:startExam').replace('{examCode}', req.body.examCode);
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
             logger.debug('API request: ' + url);
@@ -79,7 +80,7 @@ router.startExam = function(req, res, next) {
                     next();
                 }
                 else {
-                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });
@@ -90,20 +91,24 @@ router.startExam = function(req, res, next) {
 };
 /**
  * Stop exam request to provider
- * @param req.exam - exam data
+ * @param req.body.provider
+ * @param req.body.examCode
+ * @param req.body._id
+ * @param req.body.resolution
+ * @param req.body.comment
  */
 router.stopExam = function(req, res, next) {
-    switch (req.exam.student.provider) {
+    switch (req.body.provider) {
         case 'openedu':
             var data = {
                 examMetaData: {
-                    examCode: req.exam.examCode,
-                    ssiRecordLocator: req.exam._id,
-                    reviewedExam: req.exam.resolution,
-                    reviewerNotes: req.exam.comment
+                    examCode: req.body.examCode,
+                    ssiRecordLocator: req.body._id,
+                    reviewedExam: req.body.resolution,
+                    reviewerNotes: req.body.comment
                 },
                 // reviewStatus: 'Clean', 'Rules Violation', 'Not Reviewed', 'Suspicious'
-                reviewStatus: req.exam.resolution ? 'Clean' : 'Suspicious',
+                reviewStatus: req.body.resolution ? 'Clean' : 'Suspicious',
                 videoReviewLink: ''
             };
             var url = config.get('api:openedu:stopExam');
@@ -121,7 +126,7 @@ router.stopExam = function(req, res, next) {
                     next();
                 }
                 else {
-                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });
@@ -132,12 +137,13 @@ router.stopExam = function(req, res, next) {
 };
 /**
  * Get exam status from provider
- * @param req.exam - exam data
+ * @param req.body.provider
+ * @param req.body.examCode
  */
 router.examStatus = function(req, res, next) {
-    switch (req.exam.student.provider) {
+    switch (req.body.provider) {
         case 'openedu':
-            var url = config.get('api:openedu:examStatus').replace('{examCode}', req.exam.examCode);
+            var url = config.get('api:openedu:examStatus').replace('{examCode}', req.body.examCode);
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
             logger.debug('API request: ' + url);
@@ -151,7 +157,7 @@ router.examStatus = function(req, res, next) {
                     next();
                 }
                 else {
-                    logger.warn("API response: code %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
                     res.status(400).end();
                 }
             });

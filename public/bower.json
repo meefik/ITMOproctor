@@ -20,7 +20,7 @@
   ],
   "dependencies": {
     "moment": "~2.10.2",
-    "font-awesome": "~4.3.0",
+    "font-awesome": "~4.4.0",
     "jeasyui": "~1.4.3",
     "backbone": "~1.2.1",
     "adapter.js": "~0.1.1",

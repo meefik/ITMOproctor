@@ -7,6 +7,7 @@ var Grid = require('gridfs-stream');
 var moment = require('moment');
 var fs = require('fs');
 var path = require('path');
+var crypto = require('crypto');
 var db = {
     geoip: function(ip) {
         var geoip = require('geoip-lite');
@@ -149,7 +150,7 @@ var db = {
                     if (attachDel.length > 0) {
                         db.storage.remove(attachDel);
                     }
-                };
+                }
             });
         }
     },
@@ -187,7 +188,7 @@ var db = {
             });
         },
         remove: function(files, callback) {
-            if (!callback) callback = function(err) {};
+            if (!callback) callback = function() {};
             files.forEach(function(file, i, arr) {
                 db.gfs.remove({
                     _id: file.fileId
@@ -198,14 +199,13 @@ var db = {
     exam: {
         list: function(args, callback) {
             var Exam = require('./models/exam');
-            var query = {
+            Exam.find({
                 student: args.userId
-            };
-            Exam.find(query).sort('beginDate').exec(callback);
+            }).sort('beginDate').exec(callback);
         },
         search: function(args, callback) {
-            var rows = args.rows ? parseInt(args.rows) : 100;
-            var page = args.page ? parseInt(args.page) - 1 : 0;
+            var rows = args.rows ? Number(args.rows) : 100;
+            var page = args.page ? Number(args.page) - 1 : 0;
             var status = args.status;
             var fromDate = args.from ? moment(args.from) : null;
             var toDate = args.to ? moment(args.to) : null;
@@ -214,7 +214,7 @@ var db = {
             var query = {};
             // Date
             if (fromDate && toDate) {
-                var q = {
+                var q1 = {
                     beginDate: {
                         "$lt": toDate
                     },
@@ -222,7 +222,7 @@ var db = {
                         "$gt": fromDate
                     }
                 };
-                query = merge.recursive(true, query, q);
+                query = merge.recursive(true, query, q1);
             }
             // Status: all, process, away
             switch (status) {
@@ -231,7 +231,7 @@ var db = {
                     break;
                 case '2':
                     //console.log('Идет экзамен');
-                    var q = {
+                    var q2 = {
                         startDate: {
                             "$ne": null
                         },
@@ -242,11 +242,11 @@ var db = {
                             "$ne": null
                         }
                     };
-                    query = merge.recursive(true, query, q);
+                    query = merge.recursive(true, query, q2);
                     break;
                 case '3':
                     //console.log('Ожидают');
-                    var q = {
+                    var q3 = {
                         beginDate: {
                             "$lte": moment()
                         },
@@ -257,7 +257,7 @@ var db = {
                             "$eq": null
                         }
                     };
-                    query = merge.recursive(true, query, q);
+                    query = merge.recursive(true, query, q3);
                     break;
             }
             // Populate options
@@ -279,7 +279,8 @@ var db = {
                     for (var i = 0; i < dl; i++) {
                         var item = data[i];
                         if (!item.inspector) item.inspector = {};
-                        var arr = [item.subject,
+                        var arr = [
+                            item.subject,
                             item.student.lastname, item.student.firstname, item.student.middlename,
                             item.inspector.lastname, item.inspector.firstname, item.inspector.middlename
                         ];
@@ -287,8 +288,8 @@ var db = {
                         for (var k = 0; k < text.length; k++) {
                             var match = false;
                             for (var j = 0; j < arr.length; j++) {
-                                var str = new String(arr[j]).toLowerCase();
-                                var sub = new String(text[k]).toLowerCase();
+                                var str = String(arr[j]).toLowerCase();
+                                var sub = String(text[k]).toLowerCase();
                                 if (str.indexOf(sub) > -1) {
                                     match = true;
                                     break;
@@ -306,6 +307,7 @@ var db = {
             }
             else {
                 Exam.find(query).count(function(err, count) {
+                    if (err) return callback(err);
                     Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
                         callback(err, data, count);
                     });
@@ -317,7 +319,7 @@ var db = {
             // get data
             var opts = [{
                 path: 'student',
-                select: 'firstname lastname middlename birthday'
+                select: 'provider firstname lastname middlename birthday'
             }, {
                 path: 'inspector',
                 select: 'firstname lastname middlename'
@@ -403,7 +405,7 @@ var db = {
             var duration = Math.ceil((Number(args.duration) + offset) / 60);
             var now = moment();
             if (config.get('schedule:current')) {
-                now.add(-1,'hours');
+                now.add(-1, 'hours');
             }
             var leftDate = moment.max(now, moment(args.leftDate));
             var rightDate = moment(args.rightDate);
@@ -572,7 +574,7 @@ var db = {
         start: function(args, callback) {
             var opts = [{
                 path: 'student',
-                select: 'firstname lastname middlename provider'
+                select: 'provider firstname lastname middlename gender birthday citizenship documentType documentNumber documentIssueDate description'
             }, {
                 path: 'inspector',
                 select: 'firstname lastname middlename'
@@ -610,15 +612,9 @@ var db = {
         },
         finish: function(args, callback) {
             var Exam = require('./models/exam');
-            var opts = [{
-                path: 'student',
-                select: 'firstname lastname middlename provider'
-            }, {
-                path: 'inspector',
-                select: 'firstname lastname middlename'
-            }];
             Exam.findOneAndUpdate({
-                _id: args.examId
+                _id: args.examId,
+                inspector: args.userId
             }, {
                 $set: {
                     stopDate: moment(),
@@ -627,7 +623,33 @@ var db = {
                 }
             }, {
                 'new': true
-            }).populate(opts).exec(callback);
+            }).exec(callback);
+        },
+        verify: function(args, callback) {
+            var Exam = require('./models/exam');
+            var passport = {
+                firstname: args.student.firstname,
+                lastname: args.student.lastname,
+                middlename: args.student.middlename,
+                gender: args.student.gender,
+                birthday: args.student.birthday,
+                citizenship: args.student.citizenship,
+                documentType: args.student.documentType,
+                documentNumber: args.student.documentNumber,
+                documentIssueDate: args.student.documentIssueDate
+            };
+            var hash = crypto.createHash('md5').update(JSON.stringify(passport)).digest('hex');
+            Exam.findOneAndUpdate({
+                _id: args.examId,
+                inspector: args.userId
+            }, {
+                $set: {
+                    'verified.data': passport,
+                    'verified.hash': hash
+                }
+            }, {
+                'new': true
+            }).exec(callback);
         }
     },
     notes: {
@@ -646,7 +668,8 @@ var db = {
                 exam: args.examId,
                 author: args.author,
                 text: args.text,
-                attach: args.attach
+                attach: args.attach,
+                editable: args.editable
             });
             note.save(function(err, data) {
                 callback(err, data);
@@ -658,7 +681,8 @@ var db = {
         update: function(args, callback) {
             var Note = require('./models/note');
             Note.update({
-                _id: args.noteId
+                _id: args.noteId,
+                editable: true
             }, {
                 $set: {
                     author: args.author,
@@ -666,17 +690,18 @@ var db = {
                 }
             }, callback);
         },
-        delete: function(args, callback) {
+        remove: function(args, callback) {
             var Note = require('./models/note');
             Note.findOneAndRemove({
-                _id: args.noteId
+                _id: args.noteId,
+                editable: true
             }, function(err, data) {
                 callback(err, data);
                 if (!err && data) {
                     if (data.attach.length > 0) {
                         db.storage.remove(data.attach);
                     }
-                };
+                }
             });
         }
     },
@@ -766,7 +791,7 @@ var db = {
             }, callback);
         }
     }
-}
+};
 conn.on('error', function(err) {
     logger.error("MongoDB connection error: " + err.message);
 });

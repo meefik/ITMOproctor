@@ -644,6 +644,7 @@ var MonitorView = Backbone.View.extend({
         this.timers = [t1];
         // Monitor model
         var Monitor = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/inspector'
         });
         this.monitor = new Monitor();
@@ -761,7 +762,7 @@ var MonitorView = Backbone.View.extend({
                 allow = true;
             }
             return allow;
-        }
+        };
         var data = {
             examId: row._id
         };
@@ -844,10 +845,8 @@ var MonitorView = Backbone.View.extend({
 //
 var VisionView = Backbone.View.extend({
     events: {
-        "click .unlock-btn": "doUnlock",
+        "click .verify-btn": "doVerify",
         "click .screenshot-btn": "doScreenshot",
-        "click .passport-btn": "showPassport",
-        "click .exam-info-btn": "showInfo",
         "click .exam-stop-btn": "rejectExam",
         "click .exam-apply-btn": "applyExam"
     },
@@ -866,7 +865,6 @@ var VisionView = Backbone.View.extend({
         this._NetworkWidget = this.$('.network-widget');
         this._TimeWidget = this.$('.time-widget');
         this._DurationWidget = this.$('.duration-widget');
-        this._StudentWidget = this.$('.student-widget');
         this._ExamWidget = this.$('.exam-widget');
         this._DialogScreenshot = $("#screenshot-dlg");
         this._ScreenshotPreview = this._DialogScreenshot.find('img');
@@ -877,22 +875,29 @@ var VisionView = Backbone.View.extend({
         this._ExamComment = this._DialogConfirm.find('.exam-comment');
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
-        this._DialogUnlock = $("#unlock-dlg");
+        this._DialogVerify = $("#verify-dlg");
         this._Video = this.$('.panel-webcam > .video-input');
-        this._Camera = this._DialogUnlock.find('.camera');
-        this._Passport = this._DialogUnlock.find('.passport');
+        this._StudentPhoto = this._DialogVerify.find('.student-photo');
+        this._StudentVideo = this._DialogVerify.find('.student-video');
+        this._Passport = this._DialogVerify.find('.verify-data');
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
+                    case "info":
+                        self.view.info.doOpen(self.options.examId);
+                        break;
+                    case "passport":
+                        self.view.passport.doOpen();
+                        break;
                     case "profile":
                         self.view.profile.doOpen();
                         break;
                     case "settings":
                         self.view.settings.doOpen();
                         break;
-                    case "logout":
-                        app.logout();
+                    case "disconnect":
+                        self.disconnect();
                         break;
                 }
             }
@@ -919,17 +924,17 @@ var VisionView = Backbone.View.extend({
                     self.screenshotDlg(message.data);
                     break;
             }
-        }
+        };
         window.addEventListener('message', this.eventHandler);
         // Socket events
         this.connectHandler = function(data) {
             self._NetworkWidget.html('В сети');
             self._NetworkWidget.css('color', 'green');
-        }
+        };
         this.disconnectHandler = function(data) {
             self._NetworkWidget.html('Не в сети');
             self._NetworkWidget.css('color', 'red');
-        }
+        };
         app.io.notify.on('connect', this.connectHandler);
         app.io.notify.on('disconnect', this.disconnectHandler);
         // Resize widgets
@@ -955,7 +960,7 @@ var VisionView = Backbone.View.extend({
                     element.style.right = '5px';
                 }
             });
-        }
+        };
         this.$(".ws-widget").each(function(index, element) {
             var wsWidget = $(element);
             var wsContent = self.$(".ws-content");
@@ -971,10 +976,11 @@ var VisionView = Backbone.View.extend({
         });
         // Vision model
         var Vision = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/inspector'
         });
         this.model = new Vision({
-            id: this.options.examId
+            _id: this.options.examId
         });
         this.listenTo(this.model, 'change', this.render);
         // Sub views
@@ -982,8 +988,7 @@ var VisionView = Backbone.View.extend({
             settings: new SettingsView(),
             profile: new ProfileView(),
             info: new InfoView({
-                examId: this.options.examId,
-                modal: false
+                examId: this.options.examId
             }),
             notes: new NotesView({
                 el: this._Notes.get(0),
@@ -1015,37 +1020,32 @@ var VisionView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
-            var nowDate = app.now();
-            var endDate = moment(self.model.get("endDate"));
-            if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            var now = app.now();
+            var endDate = moment(self.model.get('endDate'));
+            if (endDate.diff(now, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if (endDate.diff(now, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
         this.timers = [t1, t2];
         // Start exam
-        this.model.save(null, {
+        this.model.fetch({
             success: function(model, response, options) {
+                console.log('ok');
                 var student = model.get("student");
                 self.view.passport = new PassportView({
-                    userId: student._id,
-                    modal: false
+                    userId: student._id
                 });
             }
         });
     },
     render: function() {
-        var student = this.model.get("student");
-        var subject = this.model.get("subject");
-        var startDate = this.model.get("startDate");
+        var subject = this.model.get('subject');
+        var startDate = this.model.get('startDate');
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
-        var fio = (student.lastname || "Неизвестный") +
-            " " + (student.firstname || "") +
-            " " + (student.middlename || "");
-        this._StudentWidget.text(_.truncateString(fio, 50));
-        this._ExamWidget.text(_.truncateString(subject, 50));
+        this._ExamWidget.text(subject);
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1059,42 +1059,83 @@ var VisionView = Backbone.View.extend({
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
     },
-    showPassport: function() {
-        var userId = this.model.get('student')._id;
-        this.view.passport.doOpen(userId);
-    },
-    showInfo: function() {
-        var examId = this.model.get('_id');
-        this.view.info.doOpen(examId);
-    },
-    doUnlock: function() {
+    doVerify: function() {
         var self = this;
+        var timer;
+        var paused = false;
+        var video = self._Video.get(0);
+        var photo = self._StudentPhoto.get(0);
+        var canvas = self._StudentVideo.get(0);
 
-        function draw(v, c, w, h) {
-            if (v.paused || v.ended) return false;
-            c.drawImage(v, 0, 0, w, h);
-            setTimeout(draw, 20, v, c, w, h);
-        }
+        var tpl = _.template($('#verify-tpl').html());
+        var html = tpl({
+            user: this.model.get('student')
+        });
+        this._Passport.html(html);
 
-        function takePhoto() {
-            var video = self._Video.get(0);
-            var canvas = self._Camera.get(0);
-            console.log(video);
-            console.log(canvas);
+        function playVideo() {
             var context = canvas.getContext('2d');
             var cw = self._Video.width(); //Math.floor(canvas.clientWidth / 100);
             var ch = self._Video.height(); //Math.floor(canvas.clientHeight / 100);
+            var proportion = ch / cw;
             console.log(cw + 'x' + ch);
-
-            var proportion = cw / ch;
-            //cw = Math.floor(cw * scale);
-            //ch = Math.floor(ch * scale);
-            canvas.width = cw;
-            canvas.height = ch;
-            //draw(video,context,cw,ch);
-            console.log(cw + 'x' + ch);
-            context.drawImage(video, 0, 0, 480, 480 * proportion);
+            cw = 640;
+            ch = Math.floor(640 * proportion);
+            canvas.width = cw; //self._StudentVideo.parent().width();
+            canvas.height = ch; //self._StudentVideo.parent().height();
+            timer = setInterval(function() {
+                if (video.paused || video.ended || paused) return false;
+                context.drawImage(video, 0, 0, cw, ch);
+                if (!photo.src) {
+                    photo.setAttribute('src', canvas.toDataURL());
+                }
+            }, 20);
         }
+
+        function stopVideo() {
+            clearInterval(timer);
+            timer = null;
+            photo.removeAttribute('src');
+        }
+
+        function toggleVideo() {
+            paused = !paused;
+        }
+        
+        function saveImage(callback) {
+            var dataUrl = self._StudentVideo.get(0).toDataURL();
+            var blobBin = atob(dataUrl.split(',')[1]);
+            var array = [];
+            for (var i = 0; i < blobBin.length; i++) {
+                array.push(blobBin.charCodeAt(i));
+            }
+            var file = new Blob([new Uint8Array(array)], {
+                type: 'image/png'
+            });
+            var formdata = new FormData();
+            formdata.append(0, file, "document.png");
+            $.ajax({
+                url: "/storage",
+                type: "post",
+                data: formdata,
+                processData: false,
+                contentType: false,
+            }).done(function(respond) {
+                var attach = [];
+                attach.push({
+                    fileId: respond.fileId,
+                    filename: respond.originalname,
+                    uploadname: respond.name
+                });
+                self.view.notes.collection.create({
+                    time: app.now(),
+                    text: 'Персональные данные студента',
+                    attach: attach,
+                    editable: false
+                });
+                callback();
+            });
+        };
 
         function applyBtn() {
             $.ajax({
@@ -1102,30 +1143,37 @@ var VisionView = Backbone.View.extend({
                 type: "post",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                data: JSON.stringify(self.model.toJSON())
+                data: JSON.stringify({
+                    student: self.model.get('student')
+                })
             }).done(function(respond) {
-                console.log(respond);
+                saveImage(function(){
+                    self._DialogVerify.dialog('close');
+                });
             });
         }
 
         function rejectBtn() {
-
+            self._DialogVerify.dialog('close');
         }
-        this._DialogUnlock.dialog({
+
+        this._DialogVerify.dialog({
             closed: false,
             buttons: [{
-                text: 'Сделать снимок',
-                iconCls: 'fa fa-photo',
-                handler: takePhoto
+                text: 'Cнимок документа',
+                iconCls: 'fa fa-clone',
+                handler: toggleVideo
             }, {
-                text: 'Подтвердить',
+                text: 'Подтвердить личность',
                 iconCls: 'fa fa-check',
                 handler: applyBtn
             }, {
-                text: 'Отклонить',
+                text: 'Личность не установлена',
                 iconCls: 'fa fa-times',
                 handler: rejectBtn
-            }, ]
+            }, ],
+            onOpen: playVideo,
+            onClose: stopVideo
         });
     },
     doScreenshot: function() {
@@ -1243,10 +1291,15 @@ var VisionView = Backbone.View.extend({
     rejectExam: function() {
         this.confirmDlg(false);
     },
+    disconnect: function() {
+        app.router.navigate("monitor", {
+            trigger: true
+        });
+    },
     generateCode: function() {
         var randomizeNumber = function(min, max) {
             return Math.ceil((Math.random() * (max - min)) + min);
-        }
+        };
         this.protectionCode = randomizeNumber(1000, 9999);
     }
 });
@@ -1369,7 +1422,8 @@ var NotesView = Backbone.View.extend({
         this.collection.create({
             time: app.now(),
             text: noteText,
-            attach: []
+            attach: [],
+            editable: true
         });
         this._Input.textbox('setValue', '');
     },
@@ -1855,7 +1909,7 @@ var ScheduleView = Backbone.View.extend({
         this._PlanGrid = this._Dialog.find('.plan-table');
         // Model
         var Exam = Backbone.Model.extend({
-            idAttribute: "_id",
+            idAttribute: '_id',
             urlRoot: '/exam'
         });
         this.model = new Exam();
@@ -2220,8 +2274,8 @@ var ExamView = Backbone.View.extend({
                     case "settings":
                         self.view.settings.doOpen();
                         break;
-                    case "logout":
-                        app.logout();
+                    case "disconnect":
+                        self.disconnect();
                         break;
                 }
             }
@@ -2240,7 +2294,7 @@ var ExamView = Backbone.View.extend({
         // Sub views
         this.view = {
             settings: new SettingsView(),
-            passport: new PassportEditorView(),
+            passport: new PassportView(),
             info: new InfoView({
                 examId: this.options.examId
             }),
@@ -2305,10 +2359,10 @@ var ExamView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self.timer.add(1, 'seconds');
             self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
-            var nowDate = app.now();
+            var now = app.now();
             var endDate = moment(self.model.get("endDate"));
-            if (endDate.diff(nowDate, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if (endDate.diff(nowDate, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            if (endDate.diff(now, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
+            else if (endDate.diff(now, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
         }, 1000);
         var t2 = setInterval(function() {
             self._TimeWidget.text(app.now().format('HH:mm:ss'));
@@ -2316,10 +2370,11 @@ var ExamView = Backbone.View.extend({
         this.timers = [t1, t2];
         // Student model
         var Student = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/student'
         });
         this.model = new Student({
-            id: this.options.examId
+            _id: this.options.examId
         });
         this.listenTo(this.model, 'change', this.render);
         // Socket notification
@@ -2329,7 +2384,7 @@ var ExamView = Backbone.View.extend({
             }
         });
         // Start exam
-        this.model.save();
+        this.model.fetch();
     },
     render: function() {
         var resolution = this.model.get("resolution");
@@ -2372,6 +2427,11 @@ var ExamView = Backbone.View.extend({
         app.io.notify.removeListener('connect', this.connectHandler);
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
+    },
+    disconnect: function() {
+        app.router.navigate("schedule", {
+            trigger: true
+        });
     }
 });
 //
@@ -2412,6 +2472,7 @@ var InfoView = Backbone.View.extend({
         this._Dialog = $(dialog);
         // Dialog model
         var DialogModel = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/exam'
         });
         this.model = new DialogModel();
@@ -2430,7 +2491,7 @@ var InfoView = Backbone.View.extend({
     doOpen: function(examId) {
         if (examId) {
             this.model.clear();
-            this.model.set('id', examId);
+            this.model.set('_id', examId);
             this._Dialog.dialog('open');
         }
     },
@@ -2501,6 +2562,7 @@ var PassportView = Backbone.View.extend({
         });
         // Dialog model
         var DialogModel = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/passport'
         });
         this.model = new DialogModel();
@@ -2520,10 +2582,10 @@ var PassportView = Backbone.View.extend({
     doOpen: function(userId) {
         this.model.clear();
         if (userId) {
-            this.model.set('id', userId);
+            this.model.set('_id', userId);
         }
         else {
-            this.model.set('id', app.profile.get('_id'));
+            this.model.set('_id', app.profile.get('_id'));
         }
         this._Dialog.dialog('open');
     },
@@ -2591,6 +2653,7 @@ var PassportEditorView = Backbone.View.extend({
         this._Dialog = $(dialog);
         // Dialog model
         var DialogModel = Backbone.Model.extend({
+            idAttribute: '_id',
             urlRoot: '/passport'
         });
         this.model = new DialogModel();
@@ -2716,10 +2779,10 @@ var PassportEditorView = Backbone.View.extend({
     },
     doOpen: function(userId) {
         if (userId) {
-            this.model.set('id', userId);
+            this.model.set('_id', userId);
         }
         else {
-            this.model.set('id', app.profile.get('_id'));
+            this.model.set('_id', app.profile.get('_id'));
         }
         this._Dialog.dialog('open');
     },
