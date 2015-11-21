@@ -1511,7 +1511,12 @@ var ChatView = Backbone.View.extend({
         });
         this.collection = new ChatList();
         this.listenTo(this.collection, 'add', this.appendItem);
-        this.collection.fetch();
+        this.collection.fetch({
+            success: function(model, response, options) {
+                var text = 'подключился к экзамену...';
+                self.createMessage(text);
+            }
+        });
         // Socket notification
         app.io.notify.on('chat-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
@@ -1523,9 +1528,7 @@ var ChatView = Backbone.View.extend({
         app.io.notify.removeListener('chat-' + this.options.examId);
         this.remove();
     },
-    doSend: function() {
-        var text = this._Input.text();
-        if (text || this.attach.length > 0) {
+    createMessage: function(text) {
             var author = {
                 _id: app.profile.get('_id'),
                 lastname: app.profile.get('lastname'),
@@ -1538,6 +1541,11 @@ var ChatView = Backbone.View.extend({
                 text: text,
                 attach: this.attach
             });
+    },
+    doSend: function() {
+        var text = this._Input.text();
+        if (text || this.attach.length > 0) {
+            this.createMessage(text);
         }
         this.doReset();
     },
