@@ -27,11 +27,21 @@
 <div id="exam-info-dlg" class="easyui-dialog" title="Информация об экзамене" style="width:600px;height:400px;" data-options="iconCls:'fa fa-info-circle',resizable:true,modal:true,closed:true">
 </div>
 <div id="main-menu" style="width:150px;">
+    <div name="schedule" data-options="iconCls:'fa fa-calendar'">Планирование</div>
     <div name="profile" data-options="iconCls:'fa fa-user'">Профиль</div>
     <div name="settings" data-options="iconCls:'fa fa-wrench'">Настройки</div>
     <div name="demo" data-options="iconCls:'fa fa-exchange'">Проверка</div>
     <div class="menu-sep"></div>
     <div name="logout" data-options="iconCls:'fa fa-sign-out'">Выход</div>
+</div>
+<!-- Dialogs -->
+<div id="schedule-dlg" class="easyui-dialog" style="padding:0;width:550px;height:450px;" data-options="closed:true,modal:true,title:'Планирование расписания'">
+    <table class="easyui-datagrid" data-options="fit:true,border:false,rownumbers:true,singleSelect:true,fitColumns:true,rownumbers:true,toolbar:'#schedule-toolbar'"></table>
+    <div id="schedule-toolbar" style="padding:8px;">
+        <div style="margin-bottom:3px;" >Даты: С <input id="schedule-from" class="easyui-datetimebox" style="width:150px;" data-options="currentText:'Сейчас',okText:'Выбор'" />
+        По <input id="schedule-to" class="easyui-datetimebox" style="width:150px;margin-bottom:3px;"  data-options="currentText:'Сейчас',okText:'Выбор'" /></div>
+        Количество одновременных сессий <input class="easyui-numberspinner schedule-concurrent" style="width:80px;" data-options="min:1,value:1" />
+    </div>
 </div>
 <!-- Templates -->
 <script type="text/template" id="action-item-tpl">

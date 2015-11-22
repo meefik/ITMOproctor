@@ -652,6 +652,35 @@ var db = {
             }).exec(callback);
         }
     },
+    schedule:{
+        list: function(args, callback){
+            var Schedule = require('./models/schedule');
+            Schedule.find({
+                inspector: args.inspector,
+                endDate:{
+                    '$gte': moment() 
+                }
+            }).exec(callback);
+        },
+        add: function(args,callback){
+            var Schedule = require('./models/schedule');
+            var beginDate = moment(args.beginDate).set({
+                'minutes': 0,
+                'seconds': 0
+            });
+            var endDate = moment(args.endDate).set({
+                'minutes': 0,
+                'seconds': 0
+            });
+            var schedule = new Schedule({
+                inspector: args.inspector,
+                beginDate: beginDate,
+                endDate: endDate,
+                concurrent: args.concurrent
+            });
+            schedule.save(callback);
+        }
+    },
     notes: {
         list: function(args, callback) {
             var Note = require('./models/note');

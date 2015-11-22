@@ -599,10 +599,18 @@ var MonitorView = Backbone.View.extend({
         this._StatusBtn3 = this.$(".status-btn3");
         this._TimeWidget = this.$(".time-widget");
         this._LoguserWidget = this.$(".loguser-widget");
+        this._Dialog = $("#schedule-dlg");
+        this._DialogGrid = this._Dialog.find(".easyui-datagrid");
+        this._DialogFrom = this._Dialog.find("#schedule-from");
+        this._DialogTo = this._Dialog.find("#schedule-to");
+        this._DialogConcurrent = this._Dialog.find(".schedule-concurrent");
         // Event handlers
         this._Menu.menu({
             onClick: function(item) {
                 switch (item.name) {
+                    case "schedule":
+                        self._Dialog.dialog('open');
+                        break;
                     case "profile":
                         self.view.profile.doOpen();
                         break;
@@ -617,6 +625,68 @@ var MonitorView = Backbone.View.extend({
                         break;
                 }
             }
+        });
+        this._Dialog.dialog({
+            buttons: [{
+                text: 'Добавить',
+                iconCls: 'fa fa-plus',
+                handler: function(){
+                    var fromDate = self._DialogFrom.datetimebox('getValue');
+                    var toDate = self._DialogTo.datetimebox('getValue');
+                    var concurrent = self._DialogConcurrent.numberspinner('getValue');
+                    if (fromDate && toDate && concurrent){
+                        self._DialogGrid.datagrid('appendRow',{
+                            beginDate: moment(fromDate,'DD.MM.YYYY HH:mm:ss'),
+                            endDate: moment(toDate,'DD.MM.YYYY HH:mm:ss'),
+                            concurrent: concurrent
+                        });
+                    }
+                }
+            }, {
+                text: 'Сохранить',
+                iconCls: 'fa fa-floppy-o',
+                handler: function(){
+                    var addedRows = self._DialogGrid.datagrid('getChanges');
+                    addedRows.forEach(function(element,index,array){
+                        self.schedules.create({
+                            beginDate: element.beginDate,
+                            endDate: element.endDate,
+                            concurrent: element.concurrent
+                        },{
+                            success: function(model){
+                                self._DialogGrid.datagrid('reload');
+                                console.log('everything is ok!');
+                            }
+                        });
+                    });
+                }
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: function(){
+                    self._Dialog.dialog('close');
+                    self._DialogGrid.datagrid('reload');
+                }
+            }],
+            onOpen: function() {
+                $(this).dialog('center');
+            }
+        });
+        this._DialogFrom.datetimebox('calendar').calendar({
+                validator: function(date){
+                    var now = moment().startOf('day');
+                    return date>=now;
+                }
+        });
+        this._DialogFrom.datetimebox({
+            onSelect: function(date){
+                var d1 = date;
+        		self._DialogTo.datetimebox('calendar').calendar({
+                        validator: function(date){
+                            return date>=d1;
+                        }
+                });
+        	} 
         });
         this._DateSearch.datebox({
             value: app.now().format("DD.MM.YYYY"),
@@ -649,6 +719,15 @@ var MonitorView = Backbone.View.extend({
             urlRoot: '/inspector'
         });
         this.monitor = new Monitor();
+        // Schedule model
+        var Schedule = Backbone.Model.extend({
+            idAttribute: "_id"
+        });
+        var ScheduleList = Backbone.Collection.extend({
+            url: '/schedule',
+            model: Schedule
+        });
+        this.schedules = new ScheduleList();
         // Rendering
         this.render();
     },
@@ -712,6 +791,27 @@ var MonitorView = Backbone.View.extend({
                 from: app.now().startOf('day').toJSON(),
                 to: app.now().startOf('day').add(1, 'days').toJSON()
             }
+        });
+        this._DialogGrid.datagrid({
+            columns:[
+                [{
+                    field: 'beginDate',
+                    title: 'Начало',
+                    width: 200,
+                    formatter: self.formatDate
+                },{
+                    field: 'endDate',
+                    title: 'Окончание',
+                    width: 200,
+                    formatter: self.formatDate
+                },{
+                    field: 'concurrent',
+                    title: 'Кол-во сессий',
+                    width: 150
+                }]
+            ],
+            url: '/schedule',
+            method: 'get'
         });
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
     },
