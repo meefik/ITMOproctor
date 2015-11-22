@@ -654,37 +654,38 @@ var MonitorView = Backbone.View.extend({
                         }, {
                             success: function(model) {
                                 self._DialogGrid.datagrid('reload');
-                                console.log('everything is ok!');
                             }
                         });
                     });
                 }
             }, {
-                text: 'Отменить',
+                text: 'Закрыть',
                 iconCls: 'fa fa-times',
                 handler: function() {
                     self._Dialog.dialog('close');
-                    self._DialogGrid.datagrid('reload');
                 }
             }],
             onOpen: function() {
+                self._DialogGrid.datagrid({url: '/schedule'});
                 $(this).dialog('center');
+            }
+        });
+        this._DialogFrom.datetimebox({
+            formatter: function(date) {
+                date = moment(date).startOf('hour');
+                return date.format("DD.MM.YYYY HH:mm");
+            }
+        });
+        this._DialogTo.datetimebox({
+            formatter: function(date) {
+                date = moment(date).startOf('hour');
+                return date.format("DD.MM.YYYY HH:mm");
             }
         });
         this._DialogFrom.datetimebox('calendar').calendar({
             validator: function(date) {
-                var now = moment().startOf('day');
+                var now = app.now().startOf('day');
                 return date >= now;
-            }
-        });
-        this._DialogFrom.datetimebox({
-            onSelect: function(date) {
-                var d1 = date;
-                self._DialogTo.datetimebox('calendar').calendar({
-                    validator: function(date) {
-                        return date >= d1;
-                    }
-                });
             }
         });
         this._DateSearch.datebox({
@@ -837,7 +838,7 @@ var MonitorView = Backbone.View.extend({
                 from: now.startOf('day').toJSON(),
                 to: now.startOf('day').add(1, 'days').toJSON()
             },
-            onLoadSuccess: function(){
+            onLoadSuccess: function() {
                 self.lastUpdated = {};
             }
         });
@@ -859,7 +860,6 @@ var MonitorView = Backbone.View.extend({
                     width: 150
                 }]
             ],
-            url: '/schedule',
             method: 'get'
         });
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
