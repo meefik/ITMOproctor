@@ -56,12 +56,8 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 // notifications
 app.use(function(req, res, next) {
-    req.notify = function(target) {
-        var userId = req.user._id;
-        var out = {
-            userId: userId
-        };
-        notify.emit(target, out);
+    req.notify = function(target, data) {
+        notify.emit(target, data);
     };
     next();
 });

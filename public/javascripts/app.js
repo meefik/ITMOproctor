@@ -596,7 +596,6 @@ var MonitorView = Backbone.View.extend({
         this._TextSearch = this.$(".text-search");
         this._StatusBtn1 = this.$(".status-btn1");
         this._StatusBtn2 = this.$(".status-btn2");
-        this._StatusBtn3 = this.$(".status-btn3");
         this._TimeWidget = this.$(".time-widget");
         this._LoguserWidget = this.$(".loguser-widget");
         this._Dialog = $("#schedule-dlg");
@@ -712,7 +711,47 @@ var MonitorView = Backbone.View.extend({
         var t1 = setInterval(function() {
             self._TimeWidget.text(app.now().format('HH:mm:ss'));
         }, 1000);
-        this.timers = [t1];
+        var t2 = setInterval(function() {
+            var rows = self._Grid.datagrid('getRows');
+            if (rows) {
+                if (!this.nextRow || this.nextRow >= rows.length) this.nextRow = 0;
+                var row = rows[this.nextRow];
+                if (row) {
+                    var updatedRow = self.lastUpdated[row._id];
+                    if (updatedRow) {
+                        self._Grid.datagrid('updateRow', {
+                            index: this.nextRow,
+                            row: updatedRow
+                        });
+                        self._Grid.datagrid('highlightRow', this.nextRow);
+                        delete self.lastUpdated[row._id];
+                    }
+                    else {
+                        self._Grid.datagrid('refreshRow', this.nextRow);
+                    }
+                }
+                this.nextRow++;
+            }
+        }, 1000);
+        /*
+        var t3 = setInterval(function() {
+            if (!self.lastUpdated) return;
+            var rows = self._Grid.datagrid('getRows');
+            for (var i = 0, li = rows.length; i < li; i++) {
+                var updatedRow = self.lastUpdated[rows[i]._id];
+                if (updatedRow) {
+                    //console.log(self._Grid.datagrid('getRowIndex', rows[i]));
+                    console.log(updatedRow);
+                    self._Grid.datagrid('updateRow', {
+                        index: i,
+                        row: updatedRow
+                    });
+                }
+            }
+            self.lastUpdated = {};
+        }, 30000);
+        */
+        this.timers = [t1, t2];
         // Monitor model
         var Monitor = Backbone.Model.extend({
             idAttribute: '_id',
@@ -728,6 +767,12 @@ var MonitorView = Backbone.View.extend({
             model: Schedule
         });
         this.schedules = new ScheduleList();
+        // Socket events
+        this.lastUpdated = {};
+        app.io.notify.on('exam', function(data) {
+            if (!data) return;
+            self.lastUpdated[data._id] = data;
+        });
         // Rendering
         this.render();
     },
@@ -791,6 +836,9 @@ var MonitorView = Backbone.View.extend({
             queryParams: {
                 from: now.startOf('day').toJSON(),
                 to: now.startOf('day').add(1, 'days').toJSON()
+            },
+            onLoadSuccess: function(){
+                self.lastUpdated = {};
             }
         });
         this._DialogGrid.datagrid({
@@ -901,7 +949,15 @@ var MonitorView = Backbone.View.extend({
     },
     formatInspector: function(val, row) {
         if (!val) return;
-        return val.lastname + " " + val.firstname + " " + val.middlename;
+        var data = {
+            userId: val._id,
+            lastname: val.lastname,
+            firstname: val.firstname,
+            middlename: val.middlename
+        };
+        var html = $('#inspector-item-tpl').html();
+        var tpl = _.template(html);
+        return tpl(data);
     },
     doSearch: function() {
         var status = 0;
@@ -911,9 +967,6 @@ var MonitorView = Backbone.View.extend({
                 break;
             case this._StatusBtn2.linkbutton('options').selected:
                 status = 2;
-                break;
-            case this._StatusBtn3.linkbutton('options').selected:
-                status = 3;
                 break;
         }
         var text = this._TextSearch.textbox('getValue');
@@ -930,11 +983,14 @@ var MonitorView = Backbone.View.extend({
     doReload: function() {
         this._Grid.datagrid('reload');
     },
-    doInfo: function(examId) {
+    doExamInfo: function(examId) {
         this.view.info.doOpen(examId);
     },
-    doPassport: function(userId) {
+    doStudentInfo: function(userId) {
         this.view.passport.doOpen(userId);
+    },
+    doInspectorInfo: function(userId) {
+        this.view.profile.doOpen(userId);
     },
     doPlay: function(examId) {
         app.router.navigate("vision/" + examId, {
@@ -2494,12 +2550,6 @@ var ExamView = Backbone.View.extend({
             _id: this.options.examId
         });
         this.listenTo(this.model, 'change', this.render);
-        // Socket notification
-        app.io.notify.on('exam-' + this.options.examId, function(data) {
-            if (!app.profile.isMe(data.userId)) {
-                self.model.fetch();
-            }
-        });
         // Start exam
         this.model.fetch();
     },
@@ -2564,7 +2614,7 @@ var InfoView = Backbone.View.extend({
             width: 500,
             height: 350,
             closed: true,
-            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            modal: true,
             cache: false,
             href: '/templates/info.html',
             onLoad: function() {
@@ -2629,11 +2679,11 @@ var PassportView = Backbone.View.extend({
         this.options = options || {};
         // Dialog
         var dialog = $(this.el).dialog({
-            title: 'Карточка студента',
+            title: 'Профиль студента',
             width: 500,
             height: 400,
             closed: true,
-            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            modal: true,
             cache: false,
             href: '/templates/passport.html',
             onLoad: function() {
@@ -2729,11 +2779,11 @@ var PassportEditorView = Backbone.View.extend({
         this.options = options || {};
         // Dialog
         var dialog = $(this.el).dialog({
-            title: 'Карточка студента',
+            title: 'Профиль студента',
             width: 500,
             height: 500,
             closed: true,
-            modal: typeof this.options.modal !== 'undefined' ? this.options.modal : true,
+            modal: true,
             cache: false,
             href: '/templates/passport-editor.html',
             onLoad: function() {
@@ -2915,17 +2965,30 @@ var PassportEditorView = Backbone.View.extend({
 //
 var ProfileView = Backbone.View.extend({
     tagName: 'div',
-    initialize: function() {
+    initialize: function(options) {
         var self = this;
+        this.options = options || {};
         var dialog = $(this.el).dialog({
-            title: 'Профиль пользователя',
+            title: 'Профиль инспектора',
             width: 500,
             height: 250,
             closed: true,
             modal: true,
+            cache: false,
             href: '/templates/profile.html',
             onLoad: function() {
-                self.render();
+                if (self.options.userId) {
+                    self.model.set('_id', self.options.userId);
+                    self.model.fetch({
+                        success: function() {
+                            self.render();
+                        }
+                    });
+                }
+                else {
+                    self.model.set(app.profile.toJSON());
+                    self.render();
+                }
             },
             onOpen: function() {
                 $(this).dialog('center');
@@ -2933,6 +2996,12 @@ var ProfileView = Backbone.View.extend({
             loadingMessage: 'Загрузка...'
         });
         this._Dialog = $(dialog);
+        // Dialog model
+        var DialogModel = Backbone.Model.extend({
+            idAttribute: '_id',
+            urlRoot: '/passport'
+        });
+        this.model = new DialogModel();
     },
     destroy: function() {
         this.remove();
@@ -2940,10 +3009,12 @@ var ProfileView = Backbone.View.extend({
     render: function() {
         var view = this.$('.profile-view');
         var tpl = _.template($("#profile-tpl").html());
-        var html = tpl(app.profile.toJSON());
+        var html = tpl(this.model.toJSON());
         view.html(html);
     },
-    doOpen: function() {
+    doOpen: function(userId) {
+        if (userId) this.options.userId = userId;
+        else this.options.userId = null;
         this._Dialog.dialog('open');
     },
     doClose: function() {

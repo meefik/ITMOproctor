@@ -9,9 +9,8 @@
         <table class="easyui-datagrid" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true,fit:true">
         </table>
         <div id="toolbar">
-            <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Все</a> |
-            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Идет экзамен</a> |
-            <a href="javascript:void(0);" class="easyui-linkbutton status-btn3" data-options="plain:true,toggle:true,group:'g1'">Ожидают</a>
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true">Мои</a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'">Все</a>
             <input name="date-search" class="easyui-datebox date-search" style="width:110px;" data-options="prompt:'Показать на...'">
             <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt:'Введите текст...'">
             <button class="easyui-linkbutton grid-reload" data-options="iconCls:'pagination-load',plain:true"></button>
@@ -46,11 +45,14 @@
 </div>
 <!-- Templates -->
 <script type="text/template" id="action-item-tpl">
-<a href="javascript:void(0);" onclick="app.content.doPlay('<%- examId %>');" title="Открыть"><i class="fa fa-play-circle fa-lg"></i></a>
+<a href="javascript:void(0);" onclick="app.content.doPlay('<%- examId %>');" title="Подключиться"><i class="fa fa-play-circle fa-lg"></i></a>
 </script>
 <script type="text/template" id="student-item-tpl">
-<a href="javascript:void(0);" onclick="app.content.doPassport('<%- userId %>');" title="Карточка студента"><%- lastname || "Неизвестный" %> <%- firstname %> <%- middlename %></a>
+<a href="javascript:void(0);" onclick="app.content.doStudentInfo('<%- userId %>');" title="Профиль студента"><%- lastname || "Неизвестный" %> <%- firstname %> <%- middlename %></a>
+</script>
+<script type="text/template" id="inspector-item-tpl">
+<a href="javascript:void(0);" onclick="app.content.doInspectorInfo('<%- userId %>');" title="Профиль инспектора"><%- lastname || "Неизвестный" %> <%- firstname %> <%- middlename %></a>
 </script>
 <script type="text/template" id="subject-item-tpl">
-<a href="javascript:void(0);" onclick="app.content.doInfo('<%- examId %>');" title="Карточка экзамена"><%- subject %></a>
+<a href="javascript:void(0);" onclick="app.content.doExamInfo('<%- examId %>');" title="Карточка экзамена"><%- subject %></a>
 </script>

@@ -227,37 +227,14 @@ var db = {
             // Status: all, process, away
             switch (status) {
                 case '1':
-                    //console.log('Все');
-                    break;
-                case '2':
-                    //console.log('Идет экзамен');
+                    //console.log('Мои');
                     var q2 = {
-                        startDate: {
-                            "$ne": null
-                        },
-                        stopDate: {
-                            "$eq": null
-                        },
-                        startDate: {
-                            "$ne": null
-                        }
+                        inspector: args.userId
                     };
                     query = merge.recursive(true, query, q2);
                     break;
-                case '3':
-                    //console.log('Ожидают');
-                    var q3 = {
-                        beginDate: {
-                            "$lte": moment()
-                        },
-                        endDate: {
-                            "$gt": moment()
-                        },
-                        startDate: {
-                            "$eq": null
-                        }
-                    };
-                    query = merge.recursive(true, query, q3);
+                case '2':
+                    //console.log('Все');
                     break;
             }
             // Populate options
@@ -273,16 +250,17 @@ var db = {
             if (text) {
                 // Full text search
                 Exam.find(query).sort('beginDate').populate(opts).exec(function(err, data) {
-                    if (err || !data) return callback(err, null);
+                    if (err || !data) return callback(err);
                     var out = [];
                     var dl = data.length;
                     for (var i = 0; i < dl; i++) {
                         var item = data[i];
-                        if (!item.inspector) item.inspector = {};
+                        var student = item.student ? item.student : {};
+                        var inspector = item.inspector ? item.inspector : {};
                         var arr = [
                             item.subject,
-                            item.student.lastname, item.student.firstname, item.student.middlename,
-                            item.inspector.lastname, item.inspector.firstname, item.inspector.middlename
+                            student.lastname, student.firstname, student.middlename,
+                            inspector.lastname, inspector.firstname, inspector.middlename
                         ];
                         var cond = true;
                         for (var k = 0; k < text.length; k++) {
@@ -580,34 +558,22 @@ var db = {
                 select: 'firstname lastname middlename'
             }];
             var Exam = require('./models/exam');
-            Exam.findById(args.examId).populate(opts).exec(function(err, exam) {
-                callback(err, exam);
-                if (!err && exam) {
-                    // set startDate
-                    if (!exam.startDate) {
-                        Exam.update({
-                            _id: args.examId
-                        }, {
-                            "$set": {
-                                startDate: moment(),
-                            }
-                        }, function(err, data) {
-                            if (err) logger.warn(err);
-                        });
-                    }
-                    // set inspector
-                    if (args.userId != exam.student._id) {
-                        Exam.update({
-                            _id: args.examId
-                        }, {
-                            "$set": {
-                                inspector: args.userId
-                            }
-                        }, function(err, data) {
-                            if (err) logger.warn(err);
-                        });
-                    }
+            Exam.findById(args.examId).exec(function(err, exam) {
+                if (err || !exam) return callback(err);
+                var query = {};
+                if (!exam.startDate && exam.student == args.userId) {
+                    query.startDate = moment();
                 }
+                if (!exam.inspector && exam.student != args.userId) {
+                    query.inspector = args.userId;
+                }
+                if (!query) return callback();
+                Exam.findByIdAndUpdate(args.examId, {
+                    "$set": query
+                }, {
+                    'new': true
+                }).populate(opts).exec(callback);
+
             });
         },
         finish: function(args, callback) {
@@ -652,17 +618,17 @@ var db = {
             }).exec(callback);
         }
     },
-    schedule:{
-        list: function(args, callback){
+    schedule: {
+        list: function(args, callback) {
             var Schedule = require('./models/schedule');
             Schedule.find({
                 inspector: args.inspector,
-                endDate:{
-                    '$gte': moment() 
+                endDate: {
+                    '$gte': moment()
                 }
             }).exec(callback);
         },
-        add: function(args,callback){
+        add: function(args, callback) {
             var Schedule = require('./models/schedule');
             var beginDate = moment(args.beginDate).set({
                 'minutes': 0,

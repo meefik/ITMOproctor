@@ -6,6 +6,7 @@ var api = require('./api');
 // Get list of exams
 router.get('/', function(req, res) {
     var args = {
+        userId: req.user._id,
         rows: req.query.rows,
         page: req.query.page,
         status: req.query.status,
@@ -37,9 +38,6 @@ router.get('/:examId', members.updateMember, function(req, res, next) {
     db.exam.start(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('exam-' + req.params.examId, {
-                userId: args.userId
-            });
         }
         else {
             res.status(400).end();
@@ -78,9 +76,6 @@ router.put('/:examId', function(req, res, next) {
         else {
             res.status(400).end();
         }
-    });
-    req.notify('exam-' + req.params.examId, {
-        userId: args.userId
     });
 });
 // Verify passport

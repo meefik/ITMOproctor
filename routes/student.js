@@ -18,7 +18,7 @@ router.get('/', api.fetchExams, function(req, res) {
     });
 });
 // Start exam
-router.get('/:examId', members.updateMember, function(req, res, next) {
+router.get('/:examId', function(req, res, next) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id
@@ -26,9 +26,7 @@ router.get('/:examId', members.updateMember, function(req, res, next) {
     db.exam.start(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('exam-' + req.params.examId, {
-                userId: args.userId
-            });
+            req.notify('exam', data);
         }
         else {
             res.status(400).end();

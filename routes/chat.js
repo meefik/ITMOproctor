@@ -26,7 +26,9 @@ router.post('/:examId', function(req, res) {
     db.chat.add(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('chat-' + args.examId);
+            req.notify('chat-' + args.examId, {
+                userId: args.author
+            });
         }
         else {
             res.status(400).end();

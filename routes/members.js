@@ -24,7 +24,9 @@ router.updateMember = function(req, res, next) {
     };
     db.members.update(args, function(err, member) {
         if (err) console.log(err);
-        req.notify('members-' + args.examId);
+        req.notify('members-' + args.examId, {
+            userId: args.userId
+        });
     });
     next();
 };

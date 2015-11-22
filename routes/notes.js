@@ -27,7 +27,9 @@ router.post('/:examId', function(req, res) {
     db.notes.add(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('notes');
+            req.notify('notes-' + args.examId, {
+                userId: args.author
+            });
         }
         else {
             res.status(400).end();
@@ -45,7 +47,9 @@ router.put('/:examId/:noteId', function(req, res) {
     db.notes.update(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('notes');
+            req.notify('notes-' + args.examId, {
+                userId: args.author
+            });
         }
         else {
             res.status(400).end();
@@ -62,7 +66,9 @@ router.delete('/:examId/:noteId', function(req, res) {
     db.notes.remove(args, function(err, data) {
         if (!err && data) {
             res.json(data);
-            req.notify('notes-' + args.examId);
+            req.notify('notes-' + args.examId, {
+                userId: args.author
+            });
         }
         else {
             res.status(400).end();
