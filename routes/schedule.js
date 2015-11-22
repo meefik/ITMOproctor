@@ -3,7 +3,6 @@ var router = express.Router();
 var db = require('../db');
 // List all times for inspector
 router.get('/', function(req, res) {
-    console.log(req.user._id);
     var args = {
         inspector: req.user._id
     };

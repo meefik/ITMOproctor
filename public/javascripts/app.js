@@ -679,7 +679,11 @@ var MonitorView = Backbone.View.extend({
             }
         });
         this._DialogFrom.datetimebox({
+            formatter: function(date){
+                return self.formatDialogDate(date);
+            },
             onSelect: function(date) {
+                // Borders for 'To'-date
                 var d1 = date;
                 self._DialogTo.datetimebox('calendar').calendar({
                     validator: function(date) {
@@ -687,6 +691,11 @@ var MonitorView = Backbone.View.extend({
                     }
                 });
             }
+        });
+        this._DialogTo.datetimebox({
+            formatter: function(date){
+                return self.formatDialogDate(date);
+            },
         });
         this._DateSearch.datebox({
             value: app.now().format("DD.MM.YYYY"),
@@ -877,6 +886,16 @@ var MonitorView = Backbone.View.extend({
     formatDate: function(val, row) {
         if (!val) return;
         return moment(val).format('DD.MM.YYYY HH:mm');
+    },
+    formatDialogDate: function(date){
+        // Rounding date
+        if (moment(date).startOf('hour').diff(moment(date))<0){
+            date = moment(date).add(1,'h').startOf('hour');
+        }
+        else{
+            date = moment(date).startOf('hour');
+        }
+        return date.format("DD.MM.YYYY HH:mm:ss");
     },
     formatSubject: function(val, row) {
         if (!val || !row) return;
