@@ -666,7 +666,9 @@ var MonitorView = Backbone.View.extend({
                 }
             }],
             onOpen: function() {
-                self._DialogGrid.datagrid({url: '/schedule'});
+                self._DialogGrid.datagrid({
+                    url: '/schedule'
+                });
                 $(this).dialog('center');
             }
         });
@@ -1034,7 +1036,7 @@ var VisionView = Backbone.View.extend({
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
         this._DialogVerify = $("#verify-dlg");
-        this._Video = this.$('.panel-webcam > .video-input');
+        this._Video = this.$('.panel-webcam > .video-output');
         this._StudentPhoto = this._DialogVerify.find('.student-photo');
         this._StudentVideo = this._DialogVerify.find('.student-video');
         this._Passport = this._DialogVerify.find('.verify-data');
@@ -1190,7 +1192,6 @@ var VisionView = Backbone.View.extend({
         // Start exam
         this.model.fetch({
             success: function(model, response, options) {
-                console.log('ok');
                 var student = model.get("student");
                 self.view.passport = new PassportView({
                     userId: student._id
@@ -1233,14 +1234,14 @@ var VisionView = Backbone.View.extend({
 
         function playVideo() {
             var context = canvas.getContext('2d');
-            var cw = self._Video.width(); //Math.floor(canvas.clientWidth / 100);
-            var ch = self._Video.height(); //Math.floor(canvas.clientHeight / 100);
+            var cw = self._Video.width();
+            var ch = self._Video.height();
             var proportion = ch / cw;
-            console.log(cw + 'x' + ch);
+            //console.log(cw + 'x' + ch);
             cw = 640;
             ch = Math.floor(640 * proportion);
-            canvas.width = cw; //self._StudentVideo.parent().width();
-            canvas.height = ch; //self._StudentVideo.parent().height();
+            canvas.width = cw;
+            canvas.height = ch;
             timer = setInterval(function() {
                 if (video.paused || video.ended || paused) return false;
                 context.drawImage(video, 0, 0, cw, ch);
@@ -1260,7 +1261,7 @@ var VisionView = Backbone.View.extend({
             paused = !paused;
         }
 
-        function saveImage(callback) {
+        function saveAttach(callback) {
             var dataUrl = self._StudentVideo.get(0).toDataURL();
             var blobBin = atob(dataUrl.split(',')[1]);
             var array = [];
@@ -1285,13 +1286,7 @@ var VisionView = Backbone.View.extend({
                     filename: respond.originalname,
                     uploadname: respond.name
                 });
-                self.view.notes.collection.create({
-                    time: app.now(),
-                    text: 'Персональные данные студента',
-                    attach: attach,
-                    editable: false
-                });
-                callback();
+                callback(attach);
             });
         }
 
@@ -1305,14 +1300,28 @@ var VisionView = Backbone.View.extend({
                     student: self.model.get('student')
                 })
             }).done(function(respond) {
-                saveImage(function() {
+                saveAttach(function(attach) {
+                    self.view.notes.collection.create({
+                        time: app.now(),
+                        text: 'Личность студента подтверждена',
+                        attach: attach,
+                        editable: false
+                    });
                     self._DialogVerify.dialog('close');
                 });
             });
         }
 
         function rejectBtn() {
-            self._DialogVerify.dialog('close');
+            saveAttach(function(attach) {
+                self.view.notes.collection.create({
+                    time: app.now(),
+                    text: 'Личность студента не установлена',
+                    attach: attach,
+                    editable: false
+                });
+                self._DialogVerify.dialog('close');
+            });
         }
 
         this._DialogVerify.dialog({
@@ -2015,6 +2024,10 @@ var ScreenView = Backbone.View.extend({
         });
     },
     constraints: function() {
+        var constraints = {
+            audio: false,
+            video: true
+        };
         if (this.videoInput) {
             var resolution = app.settings.get('screen-resolution');
             resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
@@ -2022,24 +2035,15 @@ var ScreenView = Backbone.View.extend({
             fps = fps ? fps.get('value') : 15;
             var sourceId = app.settings.get('screen-id');
             sourceId = sourceId ? sourceId.get('value') : 'screen:0';
-            var constraints = {
-                audio: false,
-                video: {
-                    mandatory: {
-                        maxWidth: resolution[0],
-                        maxHeight: resolution[1],
-                        maxFrameRate: fps,
-                        minFrameRate: 1,
-                        chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: sourceId
-                    }
+            constraints.video = {
+                mandatory: {
+                    maxWidth: resolution[0],
+                    maxHeight: resolution[1],
+                    maxFrameRate: fps,
+                    minFrameRate: 1,
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: sourceId
                 }
-            };
-        }
-        else {
-            var constraints = {
-                audio: false,
-                video: true
             };
         }
         return constraints;

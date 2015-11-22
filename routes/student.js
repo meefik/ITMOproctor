@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
-var members = require('./members');
 var api = require('./api');
 // Get list of exams
 router.get('/', api.fetchExams, function(req, res) {
