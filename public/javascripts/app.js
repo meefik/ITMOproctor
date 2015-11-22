@@ -2,6 +2,7 @@
 // Global initialize
 //
 var app;
+var UPLOAD_LIMIT = 10; // MB
 //
 // Profile model
 //
@@ -318,7 +319,7 @@ var Webcall = Backbone.Model.extend({
         if (flag !== false) {
             var message = {
                 id: 'stop'
-            }
+            };
             if (flag === true) message.unregister = true;
             this.sendMessage(message);
         }
@@ -1101,7 +1102,7 @@ var VisionView = Backbone.View.extend({
         function toggleVideo() {
             paused = !paused;
         }
-        
+
         function saveImage(callback) {
             var dataUrl = self._StudentVideo.get(0).toDataURL();
             var blobBin = atob(dataUrl.split(',')[1]);
@@ -1135,7 +1136,7 @@ var VisionView = Backbone.View.extend({
                 });
                 callback();
             });
-        };
+        }
 
         function applyBtn() {
             $.ajax({
@@ -1147,7 +1148,7 @@ var VisionView = Backbone.View.extend({
                     student: self.model.get('student')
                 })
             }).done(function(respond) {
-                saveImage(function(){
+                saveImage(function() {
                     self._DialogVerify.dialog('close');
                 });
             });
@@ -1346,10 +1347,10 @@ var NotesView = Backbone.View.extend({
                             self.close();
                         }
                     });
-                }
+                };
                 var closeDlg = function() {
                     self.close();
-                }
+                };
                 self._Dialog.dialog({
                     title: 'Редактирование заметки',
                     buttons: [{
@@ -1529,18 +1530,18 @@ var ChatView = Backbone.View.extend({
         this.remove();
     },
     createMessage: function(text) {
-            var author = {
-                _id: app.profile.get('_id'),
-                lastname: app.profile.get('lastname'),
-                firstname: app.profile.get('firstname'),
-                middlename: app.profile.get('middlename')
-            };
-            this.collection.create({
-                time: app.now(),
-                author: author,
-                text: text,
-                attach: this.attach
-            });
+        var author = {
+            _id: app.profile.get('_id'),
+            lastname: app.profile.get('lastname'),
+            firstname: app.profile.get('firstname'),
+            middlename: app.profile.get('middlename')
+        };
+        this.collection.create({
+            time: app.now(),
+            author: author,
+            text: text,
+            attach: this.attach
+        });
     },
     doSend: function() {
         var text = this._Input.text();
@@ -1574,27 +1575,34 @@ var ChatView = Backbone.View.extend({
     },
     doFileChange: function() {
         var self = this;
-        var limitSize = 10 * 1024 * 1024; // 10 MB
-        var data = new FormData();
-        var files = self._AttachInput[0].files;
-        if (files.length === 0 || files[0].size > limitSize) {
+        var limitSize = UPLOAD_LIMIT * 1024 * 1024; // bytes
+        var formdata = new FormData();
+        var files = self._AttachInput.get(0).files;
+        if (files.length === 0) return;
+        if (files[0].size > limitSize) {
+            $.messager.show({
+                title: 'Ошибка загрузки файла',
+                msg: 'Выбранный файл больше установленного лимита в ' + UPLOAD_LIMIT + ' МБ.',
+                showType: 'fade',
+                style: {
+                    right: '',
+                    bottom: ''
+                }
+            });
             return;
         }
-        $.each(files, function(key, value) {
-            data.append(key, value);
-        });
-        var filename = files['0'].name;
+        formdata.append(0, files[0]);
         self._Progress.progressbar('setColor', null);
         self._FileBtn.show();
         self._AttachBtn.linkbutton('disable');
         self._Progress.progressbar({
             value: 0,
-            text: _.truncateFilename(filename, 15)
+            text: _.truncateFilename(files[0].name, 15)
         });
         $.ajax({
             type: 'post',
             url: '/storage',
-            data: data,
+            data: formdata,
             xhr: function() {
                 var xhr = $.ajaxSettings.xhr();
                 xhr.upload.onprogress = function(progress) {
@@ -1606,7 +1614,7 @@ var ChatView = Backbone.View.extend({
             processData: false,
             contentType: false
         }).done(function(respond) {
-            console.log(respond);
+            //console.log(respond);
             self.attach.push({
                 fileId: respond.fileId,
                 filename: respond.originalname,
@@ -1687,10 +1695,10 @@ var WebcamView = Backbone.View.extend({
                 var parent = $(d.parent);
                 var target = $(d.target);
                 if (d.left < 0) {
-                    d.left = 0
+                    d.left = 0;
                 }
                 if (d.top < 0) {
-                    d.top = 0
+                    d.top = 0;
                 }
                 if (d.left + target.outerWidth() > parent.width()) {
                     d.left = parent.width() - target.outerWidth();
@@ -1808,10 +1816,10 @@ var ScreenView = Backbone.View.extend({
                 var parent = $(d.parent);
                 var target = $(d.target);
                 if (d.left < 0) {
-                    d.left = 0
+                    d.left = 0;
                 }
                 if (d.top < 0) {
-                    d.top = 0
+                    d.top = 0;
                 }
                 if (d.left + target.outerWidth() > parent.width()) {
                     d.left = parent.width() - target.outerWidth();
@@ -1869,13 +1877,13 @@ var ScreenView = Backbone.View.extend({
                         chromeMediaSourceId: sourceId
                     }
                 }
-            }
+            };
         }
         else {
             var constraints = {
                 audio: false,
                 video: true
-            }
+            };
         }
         return constraints;
     },
@@ -2089,7 +2097,7 @@ var ScheduleView = Backbone.View.extend({
                 var exams = {
                     "total": 0,
                     "rows": []
-                }
+                };
                 self.nextExam = null;
                 var d = app.now();
                 for (var k in data) {
@@ -2292,11 +2300,11 @@ var ExamView = Backbone.View.extend({
         this.connectHandler = function(data) {
             self._NetworkWidget.html('В сети');
             self._NetworkWidget.css('color', 'green');
-        }
+        };
         this.disconnectHandler = function(data) {
             self._NetworkWidget.html('Не в сети');
             self._NetworkWidget.css('color', 'red');
-        }
+        };
         app.io.notify.on('connect', this.connectHandler);
         app.io.notify.on('disconnect', this.disconnectHandler);
         // Sub views
@@ -2348,7 +2356,7 @@ var ExamView = Backbone.View.extend({
                     element.style.right = '5px';
                 }
             });
-        }
+        };
         this.$(".ws-widget").each(function(index, element) {
             var wsWidget = $(element);
             var wsContent = self.$(".ws-content");
@@ -2765,7 +2773,7 @@ var PassportEditorView = Backbone.View.extend({
     },
     doSave: function() {
         var self = this;
-        var config = {}
+        var config = {};
         this._EditForm.serializeArray().map(function(item) {
             if (config[item.name]) {
                 if (typeof(config[item.name]) === "string") {
@@ -2894,7 +2902,7 @@ var SettingsView = Backbone.View.extend({
                     self.doUpdate(message.data.app);
                     break;
             }
-        }
+        };
         window.addEventListener('message', this.eventHandler);
     },
     destroy: function() {
@@ -2918,7 +2926,7 @@ var SettingsView = Backbone.View.extend({
                 }
                 if (callback) callback(mediaSources);
             });
-        };
+        }
         this._ScreenBtn = this.$('.screen-btn');
         this._WebcameraAudio = this.$('.webcamera-audio');
         this._WebcameraVideo = this.$('.webcamera-video');
@@ -3116,7 +3124,7 @@ var DemoView = Backbone.View.extend({
                     }
                 }).done(function() {
                     var diff = Date.now() - timestamp;
-                    report.ping = parseInt(diff);
+                    report.ping = parseInt(diff, 10);
                     report.render();
                     if (callback) callback();
                 });
@@ -3204,12 +3212,6 @@ var AppView = Backbone.View.extend({
 // Functions
 //
 _.mixin({
-    truncateString: function(str, length) {
-        if (str.length > length) {
-            str = str.substring(0, length) + '...';
-        }
-        return str;
-    },
     truncateFilename: function(filename, length) {
         var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
         if (filename.length > length) {
@@ -3227,7 +3229,7 @@ _.mixin({
                 status = false;
             },
             success: function() {
-                status = true
+                status = true;
             }
         });
         return status;
