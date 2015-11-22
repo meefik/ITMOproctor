@@ -630,14 +630,14 @@ var MonitorView = Backbone.View.extend({
             buttons: [{
                 text: 'Добавить',
                 iconCls: 'fa fa-plus',
-                handler: function(){
+                handler: function() {
                     var fromDate = self._DialogFrom.datetimebox('getValue');
                     var toDate = self._DialogTo.datetimebox('getValue');
                     var concurrent = self._DialogConcurrent.numberspinner('getValue');
-                    if (fromDate && toDate && concurrent){
-                        self._DialogGrid.datagrid('appendRow',{
-                            beginDate: moment(fromDate,'DD.MM.YYYY HH:mm:ss'),
-                            endDate: moment(toDate,'DD.MM.YYYY HH:mm:ss'),
+                    if (fromDate && toDate && concurrent) {
+                        self._DialogGrid.datagrid('appendRow', {
+                            beginDate: moment(fromDate, 'DD.MM.YYYY HH:mm:ss'),
+                            endDate: moment(toDate, 'DD.MM.YYYY HH:mm:ss'),
                             concurrent: concurrent
                         });
                     }
@@ -645,15 +645,15 @@ var MonitorView = Backbone.View.extend({
             }, {
                 text: 'Сохранить',
                 iconCls: 'fa fa-floppy-o',
-                handler: function(){
+                handler: function() {
                     var addedRows = self._DialogGrid.datagrid('getChanges');
-                    addedRows.forEach(function(element,index,array){
+                    addedRows.forEach(function(element, index, array) {
                         self.schedules.create({
                             beginDate: element.beginDate,
                             endDate: element.endDate,
                             concurrent: element.concurrent
-                        },{
-                            success: function(model){
+                        }, {
+                            success: function(model) {
                                 self._DialogGrid.datagrid('reload');
                                 console.log('everything is ok!');
                             }
@@ -663,7 +663,7 @@ var MonitorView = Backbone.View.extend({
             }, {
                 text: 'Отменить',
                 iconCls: 'fa fa-times',
-                handler: function(){
+                handler: function() {
                     self._Dialog.dialog('close');
                     self._DialogGrid.datagrid('reload');
                 }
@@ -673,20 +673,20 @@ var MonitorView = Backbone.View.extend({
             }
         });
         this._DialogFrom.datetimebox('calendar').calendar({
-                validator: function(date){
-                    var now = moment().startOf('day');
-                    return date>=now;
-                }
+            validator: function(date) {
+                var now = moment().startOf('day');
+                return date >= now;
+            }
         });
         this._DialogFrom.datetimebox({
-            onSelect: function(date){
+            onSelect: function(date) {
                 var d1 = date;
-        		self._DialogTo.datetimebox('calendar').calendar({
-                        validator: function(date){
-                            return date>=d1;
-                        }
+                self._DialogTo.datetimebox('calendar').calendar({
+                    validator: function(date) {
+                        return date >= d1;
+                    }
                 });
-        	} 
+            }
         });
         this._DateSearch.datebox({
             value: app.now().format("DD.MM.YYYY"),
@@ -742,6 +742,7 @@ var MonitorView = Backbone.View.extend({
     },
     render: function() {
         var self = this;
+        var now = app.now();
         this._Grid.datagrid({
             columns: [
                 [{
@@ -788,23 +789,23 @@ var MonitorView = Backbone.View.extend({
             url: '/inspector',
             method: 'get',
             queryParams: {
-                from: app.now().startOf('day').toJSON(),
-                to: app.now().startOf('day').add(1, 'days').toJSON()
+                from: now.startOf('day').toJSON(),
+                to: now.startOf('day').add(1, 'days').toJSON()
             }
         });
         this._DialogGrid.datagrid({
-            columns:[
+            columns: [
                 [{
                     field: 'beginDate',
                     title: 'Начало',
                     width: 200,
                     formatter: self.formatDate
-                },{
+                }, {
                     field: 'endDate',
                     title: 'Окончание',
                     width: 200,
                     formatter: self.formatDate
-                },{
+                }, {
                     field: 'concurrent',
                     title: 'Кол-во сессий',
                     width: 150
@@ -817,17 +818,17 @@ var MonitorView = Backbone.View.extend({
     },
     formatStatus: function(val, row) {
         var status = 0;
-        var d = app.now();
+        var now = app.now();
         if (row.rightDate) {
             var rightDate = moment(row.rightDate);
-            if (rightDate <= d) status = 6;
+            if (rightDate <= now) status = 6;
         }
         if (row.beginDate && row.endDate) {
             var beginDate = moment(row.beginDate);
             var endDate = moment(row.endDate);
-            if (beginDate > d) status = 1;
-            if (endDate <= d) status = 6;
-            if (beginDate <= d && endDate > d) status = 2;
+            if (beginDate > now) status = 1;
+            if (endDate <= now) status = 6;
+            if (beginDate <= now && endDate > now) status = 2;
             if (row.startDate) status = 3;
             if (row.resolution === true) status = 4;
             if (row.resolution === false) status = 5;
@@ -855,11 +856,11 @@ var MonitorView = Backbone.View.extend({
         if (!row.beginDate) return;
         var html = $('#action-item-tpl').html();
         var tpl = _.template(html);
-        var d = app.now();
+        var now = app.now();
         var beginDate = moment(row.beginDate);
         var isAllow = function() {
             var allow = false;
-            if (beginDate <= d && row.startDate && !row.stopDate) {
+            if (beginDate <= now && row.startDate && !row.stopDate) {
                 allow = true;
             }
             return allow;
