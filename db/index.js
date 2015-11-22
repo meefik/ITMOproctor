@@ -138,7 +138,7 @@ var db = {
                 }
             }
             User.findByIdAndUpdate(args.userId, {
-                $set: args.data
+                '$set': args.data
             }, {
                 'new': true
             }, function(err, data) {
@@ -206,36 +206,23 @@ var db = {
         search: function(args, callback) {
             var rows = args.rows ? Number(args.rows) : 100;
             var page = args.page ? Number(args.page) - 1 : 0;
-            var status = args.status;
+            var any = args.any === '1' ? true : false;
             var fromDate = args.from ? moment(args.from) : null;
             var toDate = args.to ? moment(args.to) : null;
             var text = args.text ? args.text.trim().split(' ') : null;
-            var merge = require('merge');
             var query = {};
             // Date
             if (fromDate && toDate) {
-                var q1 = {
-                    beginDate: {
-                        "$lt": toDate
-                    },
-                    endDate: {
-                        "$gt": fromDate
-                    }
+                query.beginDate = {
+                    "$lt": toDate
                 };
-                query = merge.recursive(true, query, q1);
+                query.endDate = {
+                    "$gt": fromDate
+                };
             }
-            // Status: all, process, away
-            switch (status) {
-                case '1':
-                    //console.log('Мои');
-                    var q2 = {
-                        inspector: args.userId
-                    };
-                    query = merge.recursive(true, query, q2);
-                    break;
-                case '2':
-                    //console.log('Все');
-                    break;
+            // If myself
+            if (!any) {
+                query.inspector = args.userId;
             }
             // Populate options
             var opts = [{
@@ -363,7 +350,7 @@ var db = {
                         Exam.update({
                             _id: args.examId
                         }, {
-                            "$set": {
+                            '$set': {
                                 inspector: inspectors[Math.floor(Math.random() * amount)], // для честного распределения времени инспекторов
                                 beginDate: beginDate,
                                 endDate: endDate
@@ -480,7 +467,7 @@ var db = {
                 _id: args.examId,
                 student: args.userId
             }, {
-                "$set": {
+                '$set': {
                     beginDate: null,
                     endDate: null,
                     inspector: null
@@ -541,7 +528,7 @@ var db = {
                     examId: args.examId,
                     student: user._id
                 }, {
-                    "$set": {
+                    '$set': {
                         examCode: args.examCode
                     }
                 }, {
@@ -569,7 +556,7 @@ var db = {
                 }
                 if (!query) return callback();
                 Exam.findByIdAndUpdate(args.examId, {
-                    "$set": query
+                    '$set': query
                 }, {
                     'new': true
                 }).populate(opts).exec(callback);
@@ -582,7 +569,7 @@ var db = {
                 _id: args.examId,
                 inspector: args.userId
             }, {
-                $set: {
+                '$set': {
                     stopDate: moment(),
                     resolution: args.resolution,
                     comment: args.comment
@@ -609,7 +596,7 @@ var db = {
                 _id: args.examId,
                 inspector: args.userId
             }, {
-                $set: {
+                '$set': {
                     'verified.data': passport,
                     'verified.hash': hash
                 }
@@ -679,10 +666,12 @@ var db = {
                 _id: args.noteId,
                 editable: true
             }, {
-                $set: {
+                '$set': {
                     author: args.author,
                     text: args.text
                 }
+            }, {
+                'new': true
             }, callback);
         },
         remove: function(args, callback) {

@@ -3,6 +3,8 @@
 //
 var app;
 var UPLOAD_LIMIT = 10; // MB
+var TX_MIN = 1000; // Mbps
+var RX_MIN = 1000; // Mbps
 //
 // Profile model
 //
@@ -962,13 +964,13 @@ var MonitorView = Backbone.View.extend({
         return tpl(data);
     },
     doSearch: function() {
-        var status = 0;
+        var any = 0;
         switch (true) {
             case this._StatusBtn1.linkbutton('options').selected:
-                status = 1;
+                any = 0;
                 break;
             case this._StatusBtn2.linkbutton('options').selected:
-                status = 2;
+                any = 1;
                 break;
         }
         var text = this._TextSearch.textbox('getValue');
@@ -976,7 +978,7 @@ var MonitorView = Backbone.View.extend({
         var fromDate = date ? moment(date, 'DD.MM.YYYY').toJSON() : null;
         var toDate = date ? moment(date, 'DD.MM.YYYY').add(1, 'days').toJSON() : null;
         this._Grid.datagrid('load', {
-            status: status,
+            any: any,
             from: fromDate,
             to: toDate,
             text: text
@@ -1205,6 +1207,7 @@ var VisionView = Backbone.View.extend({
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
         this._ExamWidget.text(subject);
+        this._DurationWidget.css('color', '');
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1496,6 +1499,7 @@ var NotesView = Backbone.View.extend({
                 this._DialogTime = this._Dialog.find(".note-time");
                 this._DialogText = this._Dialog.find(".note-text");
                 this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'remove', this.remove);
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
@@ -2554,6 +2558,12 @@ var ExamView = Backbone.View.extend({
             _id: this.options.examId
         });
         this.listenTo(this.model, 'change', this.render);
+        // Socket notification
+        app.io.notify.on('exam-' + this.options.examId, function(data) {
+            if (!app.profile.isMe(data.userId)) {
+                self.model.fetch();
+            }
+        });
         // Start exam
         this.model.fetch();
     },
@@ -2586,6 +2596,7 @@ var ExamView = Backbone.View.extend({
         var duration = app.now() - moment(startDate);
         if (duration > 0) this.timer = moment(duration);
         this._ExamWidget.text(subject);
+        this._DurationWidget.css('color', '');
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -2884,7 +2895,7 @@ var PassportEditorView = Backbone.View.extend({
     },
     onFileChange: function() {
         var self = this;
-        var limitSize = 10 * 1024 * 1024; // 10 MB
+        var limitSize = UPLOAD_LIMIT * 1024 * 1024; // 10 MB
         var data = new FormData(this._AttachForm);
         var files = self._AttachInput[0].files;
         if (files.length === 0 || files[0].size > limitSize) {
@@ -3315,7 +3326,7 @@ var DemoView = Backbone.View.extend({
                     }
                 }).done(function() {
                     var diff = Date.now() - timestamp;
-                    var mbps = 1000 * 8 / (diff - report.ping);
+                    var mbps = RX_MIN * 8 / (diff - report.ping);
                     report.rx = mbps.toFixed(2);
                     report.render();
                 });
@@ -3334,7 +3345,7 @@ var DemoView = Backbone.View.extend({
                     }
                 }).done(function() {
                     var diff = Date.now() - timestamp;
-                    var mbps = 1000 * 8 / (diff - report.ping);
+                    var mbps = TX_MIN * 8 / (diff - report.ping);
                     report.tx = mbps.toFixed(2);
                     report.render();
                 });

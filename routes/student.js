@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+var members = require('./members');
 var api = require('./api');
 // Get list of exams
 router.get('/', api.fetchExams, function(req, res) {
@@ -17,7 +18,7 @@ router.get('/', api.fetchExams, function(req, res) {
     });
 });
 // Start exam
-router.get('/:examId', function(req, res, next) {
+router.get('/:examId', members.updateMember, function(req, res, next) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id

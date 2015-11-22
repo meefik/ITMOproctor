@@ -9,7 +9,7 @@ router.get('/', function(req, res) {
         userId: req.user._id,
         rows: req.query.rows,
         page: req.query.page,
-        status: req.query.status,
+        any: req.query.any,
         from: req.query.from,
         to: req.query.to,
         text: req.query.text
@@ -38,6 +38,9 @@ router.get('/:examId', members.updateMember, function(req, res, next) {
     db.exam.start(args, function(err, data) {
         if (!err && data) {
             res.json(data);
+            req.notify('exam-' + args.examId, {
+                userId: args.userId
+            });
         }
         else {
             res.status(400).end();
@@ -47,15 +50,15 @@ router.get('/:examId', members.updateMember, function(req, res, next) {
 // Stop exam
 router.put('/:examId', function(req, res, next) {
     var args = {
-        examId: req.params.examId
+        examId: req.params.examId,
+        resolution: req.body.resolution,
+        comment: req.body.comment
     };
     db.exam.info(args, function(err, data) {
         if (!err && data) {
             req.body.provider = data.student.provider;
             req.body.examCode = data.examCode;
             req.body._id = data._id;
-            req.body.resolution = data.resolution;
-            req.body.comment = data.comment;
             next();
         }
         else {
@@ -72,6 +75,9 @@ router.put('/:examId', function(req, res, next) {
     db.exam.finish(args, function(err, data) {
         if (!err && data) {
             res.json(data);
+            req.notify('exam-' + args.examId, {
+                userId: args.userId
+            });
         }
         else {
             res.status(400).end();

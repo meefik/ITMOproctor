@@ -38,7 +38,6 @@
     "geoip-lite": "^1.1.6",
     "gridfs-stream": "^1.1.1",
     "kurento-client": "^5.1.0",
-    "merge": "^1.2.0",
     "moment": "^2.10.6",
     "mongoose": "^4.2.6",
     "morgan": "^1.6.1",
