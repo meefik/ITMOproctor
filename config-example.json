@@ -10,7 +10,8 @@
         "limit": 10
     },
     "schedule": {
-        "offset": 30
+        "offset": 0,
+        "interval": 30
     },
     "mongoose": {
         "uri": "mongodb://localhost:47622/proctor"

@@ -300,8 +300,8 @@ var db = {
             }).exec(function(err, exam) {
                 if (err || !exam) return callback(err, exam);
                 var beginDate = moment(args.beginDate);
-                var offset = Number(config.get('schedule:offset'));
-                var duration = Number(exam.duration) + offset;
+                var interval = Number(config.get('schedule:interval'));
+                var duration = Number(exam.duration) + interval;
                 var endDate = moment(beginDate).add(duration, 'minutes');
                 var timetable = {};
                 // find schedules with working time around beginDate, end of working time >= endDate
@@ -366,12 +366,10 @@ var db = {
         schedule: function(args, callback) {
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
+            var interval = Number(config.get('schedule:interval'));
+            var duration = Math.ceil((Number(args.duration) + interval) / 60);
             var offset = Number(config.get('schedule:offset'));
-            var duration = Math.ceil((Number(args.duration) + offset) / 60);
-            var now = moment();
-            if (config.get('schedule:current')) {
-                now.add(-1, 'hours');
-            }
+            var now = moment().add(offset, 'hours');
             var leftDate = moment.max(now, moment(args.leftDate));
             var rightDate = moment(args.rightDate);
             leftDate.add(1, 'hours').set({
