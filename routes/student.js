@@ -6,14 +6,21 @@ var api = require('./api');
 // Get list of exams
 router.get('/', api.fetchExams, function(req, res) {
     var args = {
-        userId: req.user._id
+        userId: req.user._id,
+        history: req.query.history === '1' ? true : false
     };
     db.exam.list(args, function(err, data) {
-        if (!err) {
-            res.json(data);
+        if (!err && data) {
+            res.json({
+                "total": data.length,
+                "rows": data
+            });
         }
         else {
-            res.status(400).end();
+            res.json({
+                "total": 0,
+                "rows": []
+            });
         }
     });
 });

@@ -2246,42 +2246,23 @@ var ScheduleView = Backbone.View.extend({
                 }
             },
             onLoadSuccess: function(data) {
-                var d = app.now();
+                var now = app.now();
                 for (var k in data.rows) {
                     if (!data.rows[k].beginDate || !data.rows[k].endDate) continue;
                     var beginDate = moment(data.rows[k].beginDate);
                     var endDate = moment(data.rows[k].endDate);
-                    if (beginDate <= d && endDate > d) {
+                    if (!self.nextExam && endDate > now) {
+                        self.nextExam = {
+                            beginDate: beginDate,
+                            countdown: beginDate.diff(now)
+                        };
+                    }
+                    if (beginDate <= now && endDate > now) {
                         self._Grid.datagrid('selectRow', k);
                         return;
                     }
                 }
                 self._Grid.datagrid('selectRow', 0);
-            },
-            loadFilter: function(data) {
-                var exams = {
-                    "total": 0,
-                    "rows": []
-                };
-                self.nextExam = null;
-                var d = app.now();
-                for (var k in data) {
-                    var endDate = moment(data[k].endDate);
-                    var rightDate = moment(data[k].rightDate);
-                    if (self.historyFlag || (data[k].endDate && endDate > d) ||
-                        (data[k].rightDate && rightDate > d)) {
-                        exams.rows.push(data[k]);
-                    }
-                    if (!self.nextExam && data[k].beginDate &&
-                        data[k].endDate && endDate > d) {
-                        self.nextExam = {
-                            beginDate: data[k].beginDate,
-                            countdown: moment(data[k].beginDate).diff(app.now())
-                        };
-                    }
-                }
-                exams.total = exams.rows.length;
-                return exams;
             }
         });
         this._PlanGrid.datagrid({
@@ -2331,7 +2312,11 @@ var ScheduleView = Backbone.View.extend({
         this.refreshTable();
     },
     refreshTable: function() {
-        this._Grid.datagrid('reload');
+        this._Grid.datagrid({
+            queryParams: {
+                history: this.historyFlag ? '1' : '0'
+            }
+        });
     },
     doStart: function() {
         var selected = this._Grid.datagrid('getSelected');

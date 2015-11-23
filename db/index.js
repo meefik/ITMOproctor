@@ -199,9 +199,33 @@ var db = {
     exam: {
         list: function(args, callback) {
             var Exam = require('./models/exam');
-            Exam.find({
-                student: args.userId
-            }).sort('beginDate').exec(callback);
+            var query;
+            if (args.history) {
+                query = {
+                    student: args.userId
+                };
+            }
+            else {
+                var now = moment();
+                query = {
+                    '$and': [{
+                        student: args.userId
+                    }, {
+                        rightDate: {
+                            '$gt': now
+                        }
+                    }, {
+                        '$or': [{
+                            endDate: null
+                        }, {
+                            endDate: {
+                                '$gt': now
+                            }
+                        }]
+                    }]
+                };
+            }
+            Exam.find(query).sort('beginDate').exec(callback);
         },
         search: function(args, callback) {
             var rows = args.rows ? Number(args.rows) : 100;
