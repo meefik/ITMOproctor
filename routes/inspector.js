@@ -13,7 +13,7 @@ router.get('/', function(req, res) {
         from: req.query.from,
         to: req.query.to,
         text: req.query.text
-    }
+    };
     db.exam.search(args, function(err, data, count) {
         if (!err && data) {
             res.json({

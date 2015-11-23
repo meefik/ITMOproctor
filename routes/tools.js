@@ -13,13 +13,13 @@ router.get('/time', function(req, res) {
     var data = {
         serverTime: Date.now()
     };
-    if (req.query.client) data.clientTime = parseInt(req.query.client);
+    if (req.query.client) data.clientTime = Number(req.query.client);
     if (data.clientTime) data.diff = data.serverTime - data.clientTime;
     res.json(data);
 });
 // Get ip info
 router.get('/ip', function(req, res) {
-    var ip = req.query.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    var ip = req.query.ip || req.ip;
     var geo = geoip.lookup(ip) || {};
     var data = {
         ip: ip,

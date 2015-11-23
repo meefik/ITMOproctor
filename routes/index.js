@@ -23,4 +23,4 @@ module.exports = function(app) {
     app.use('/members', profile.isStudent, members);
     app.use('/tools', profile.isStudent, tools);
     app.use('/schedule', profile.isInspector, schedule);
-}
+};

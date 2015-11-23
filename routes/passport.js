@@ -6,7 +6,7 @@ var db = require('../db');
 router.get('/:userId', profile.isInspectorOrMyself, function(req, res) {
     var args = {
         userId: req.params.userId
-    }
+    };
     db.profile.info(args, function(err, data) {
         if (!err && data) {
             res.json(data);
@@ -38,9 +38,9 @@ router.put('/:userId', profile.isMyself, function(req, res) {
     db.profile.update(args, function(err, data) {
         if (!err && data) {
             req.login(data, function(error) {
-                if (error) console.log(error);
+                if (error) res.status(400).end();
+                else res.json(data);
             });
-            res.json(data);
         }
         else {
             res.status(400).end();

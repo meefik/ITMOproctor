@@ -20,7 +20,7 @@ router.updateMember = function(req, res, next) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        ip: req.ip
     };
     db.members.update(args, function(err, member) {
         if (err) console.log(err);

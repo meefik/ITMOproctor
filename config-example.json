@@ -1,6 +1,7 @@
 {
     "logger": {
-        "level": "debug"
+        "level": "debug",
+        "file": "./itmoproctor.log"
     },
     "cookie": {
         "secret": "its-a-secret",

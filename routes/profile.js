@@ -4,18 +4,18 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var IfmoSSOStrategy = require('passport-ifmosso').Strategy;
-var config = require('nconf')
+var config = require('nconf');
 var db = require('../db');
 
 function checkRole(req, res, next, role) {
     if (req.isAuthenticated()) {
-        if (!role || req.user.role >= role) next()
+        if (!role || req.user.role >= role) next();
         else res.status(403).end();
     }
     else {
         res.status(401).end();
     }
-};
+}
 
 router.isAuth = function(req, res, next) {
     checkRole(req, res, next);
@@ -75,9 +75,9 @@ passport.deserializeUser(function(user, done) {
 function logUserIP(req) {
     db.profile.log({
         userId: req.user._id,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        ip: req.ip
     });
-};
+}
 
 router.get('/', function(req, res) {
     req.isAuthenticated() ? res.json(req.user) : res.status(401).end();

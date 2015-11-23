@@ -174,7 +174,7 @@ router.post('/edx/init', function(req, res) {
         examId: orgExtra.examID,
         examCode: req.body.examCode,
         provider: 'openedu'
-    }
+    };
     if (!args.username || !args.examId || !args.examCode) {
         return res.status(400).end();
     }
