@@ -49,7 +49,7 @@ router.fetchExams = function(req, res, next) {
                     });
                 }
                 else {
-                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s", response.statusCode);
                     next();
                 }
             });
@@ -80,7 +80,7 @@ router.startExam = function(req, res, next) {
                     next();
                 }
                 else {
-                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s", response.statusCode);
                     res.status(400).end();
                 }
             });
@@ -126,7 +126,7 @@ router.stopExam = function(req, res, next) {
                     next();
                 }
                 else {
-                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s", response.statusCode);
                     res.status(400).end();
                 }
             });
@@ -154,10 +154,14 @@ router.examStatus = function(req, res, next) {
                 }
             }, function(error, response, body) {
                 if (!error && response.statusCode == 200) {
+                    var data = JSON.parse(body);
+                    if (data) {
+                        req.body.examStatus = data.status;
+                    }
                     next();
                 }
                 else {
-                    logger.warn("API response: %s, %s", response.statusCode, JSON.stringify(error));
+                    logger.warn("API response: %s", response.statusCode);
                     res.status(400).end();
                 }
             });

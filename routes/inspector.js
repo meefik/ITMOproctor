@@ -99,7 +99,7 @@ router.post('/:examId', function(req, res, next) {
             res.status(400).end();
         }
     });
-}, /*api.startExam,*/ function(req, res) {
+}, api.startExam, function(req, res) {
     var args = {
         student: req.body.student,
         userId: req.user._id,
@@ -113,5 +113,29 @@ router.post('/:examId', function(req, res, next) {
             res.status(400).end();
         }
     });
+});
+// Exam status
+router.get('/:examId/status', function(req, res, next) {
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, data) {
+        if (!err && data) {
+            req.body.provider = data.student.provider;
+            req.body.examCode = data.examCode;
+            next();
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+}, api.examStatus, function(req, res) {
+    if (req.body.examStatus) {
+        res.json({
+            status: req.body.examStatus
+        });
+    } else {
+        res.status(400).end();
+    }
 });
 module.exports = router;

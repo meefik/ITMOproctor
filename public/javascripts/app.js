@@ -1178,18 +1178,30 @@ var VisionView = Backbone.View.extend({
         this.view.webcam.toolbar();
         this.view.screen.toolbar();
         // Timers
-        this.timer = moment(0);
         var t1 = setInterval(function() {
-            self.timer.add(1, 'seconds');
-            self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
             var now = app.now();
-            var endDate = moment(self.model.get('endDate'));
-            if (endDate.diff(now, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if (endDate.diff(now, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            self._TimeWidget.text(now.format('HH:mm:ss'));
+            var startDate = self.model.get('startDate');
+            if (startDate) {
+                var diff = now.diff(startDate);
+                if (diff < 0) diff = 0;
+                var timer = moment(diff);
+                self._DurationWidget.text(timer.utc().format('HH:mm:ss'));
+            }
+            var endDate = self.model.get('endDate');
+            if (endDate) {
+                if (moment(endDate).diff(now, 'minutes') <= 5)
+                    self._DurationWidget.css('color', 'red');
+                else if (moment(endDate).diff(now, 'minutes') <= 15)
+                    self._DurationWidget.css('color', 'orange');
+            }
         }, 1000);
         var t2 = setInterval(function() {
-            self._TimeWidget.text(app.now().format('HH:mm:ss'));
-        }, 1000);
+            var student = self.model.get('student');
+            if (student && student.provider) {
+                self.getExamStatus();
+            }
+        }, 60000);
         this.timers = [t1, t2];
         // Start exam
         this.model.fetch({
@@ -1203,9 +1215,6 @@ var VisionView = Backbone.View.extend({
     },
     render: function() {
         var subject = this.model.get('subject');
-        var startDate = this.model.get('startDate');
-        var duration = app.now() - moment(startDate);
-        if (duration > 0) this.timer = moment(duration);
         this._ExamWidget.text(subject);
         this._DurationWidget.css('color', '');
     },
@@ -1220,6 +1229,23 @@ var VisionView = Backbone.View.extend({
         app.io.notify.removeListener('connect', this.connectHandler);
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
+    },
+    getExamStatus: function() {
+        var self = this;
+        $.getJSON('/inspector/' + this.options.examId + '/status',
+            function(data) {
+                if (!data) return;
+                if (!self.examStatus) self.examStatus = data.status;
+                if (data.status != self.examStatus) {
+                    self.examStatus = data.status;
+                    self.view.notes.collection.create({
+                        time: app.now(),
+                        text: 'Статус экзамена в LMS изменился: ' + self.examStatus,
+                        attach: [],
+                        editable: false
+                    });
+                }
+            });
     },
     doVerify: function() {
         var self = this;
@@ -2521,19 +2547,25 @@ var ExamView = Backbone.View.extend({
             });
         });
         // Timers
-        this.timer = moment(0);
         var t1 = setInterval(function() {
-            self.timer.add(1, 'seconds');
-            self._DurationWidget.text(self.timer.utc().format('HH:mm:ss'));
             var now = app.now();
-            var endDate = moment(self.model.get("endDate"));
-            if (endDate.diff(now, 'minutes') <= 5) self._DurationWidget.css('color', 'red');
-            else if (endDate.diff(now, 'minutes') <= 15) self._DurationWidget.css('color', 'orange');
+            self._TimeWidget.text(now.format('HH:mm:ss'));
+            var startDate = self.model.get('startDate');
+            if (startDate) {
+                var diff = now.diff(startDate);
+                if (diff < 0) diff = 0;
+                var timer = moment(diff);
+                self._DurationWidget.text(timer.utc().format('HH:mm:ss'));
+            }
+            var endDate = self.model.get('endDate');
+            if (endDate) {
+                if (moment(endDate).diff(now, 'minutes') <= 5)
+                    self._DurationWidget.css('color', 'red');
+                else if (moment(endDate).diff(now, 'minutes') <= 15)
+                    self._DurationWidget.css('color', 'orange');
+            }
         }, 1000);
-        var t2 = setInterval(function() {
-            self._TimeWidget.text(app.now().format('HH:mm:ss'));
-        }, 1000);
-        this.timers = [t1, t2];
+        this.timers = [t1];
         // Student model
         var Student = Backbone.Model.extend({
             idAttribute: '_id',
@@ -2576,10 +2608,7 @@ var ExamView = Backbone.View.extend({
             });
             return;
         }
-        var startDate = this.model.get("startDate");
         var subject = this.model.get("subject");
-        var duration = app.now() - moment(startDate);
-        if (duration > 0) this.timer = moment(duration);
         this._ExamWidget.text(subject);
         this._DurationWidget.css('color', '');
     },
