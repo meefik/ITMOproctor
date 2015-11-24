@@ -5,7 +5,7 @@ var app;
 var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1000; // Mbps
 var RX_MIN = 1000; // Mbps
-var SINGLE_MODE = true;
+var SINGLE_MODE = false;
 var MUTE_IF_FOCUS_LOST = false;
 //
 // Profile model
@@ -1005,7 +1005,7 @@ var MonitorView = Backbone.View.extend({
             });
         }
         else {
-            window.open("#/vision/" + examId);
+            window.open("#/vision/" + examId, examId);
         }
     }
 });
