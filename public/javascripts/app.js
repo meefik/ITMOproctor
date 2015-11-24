@@ -5,6 +5,8 @@ var app;
 var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1000; // Mbps
 var RX_MIN = 1000; // Mbps
+var SINGLE_MODE = true;
+var MUTE_IF_FOCUS_LOST = false;
 //
 // Profile model
 //
@@ -411,7 +413,7 @@ var Settings = Backbone.Collection.extend({
 //
 // Application routing
 //
-var Workspace = Backbone.Router.extend({
+var Router = Backbone.Router.extend({
     routes: {
         "": "main",
         "login": "login",
@@ -997,9 +999,14 @@ var MonitorView = Backbone.View.extend({
         this.view.profile.doOpen(userId);
     },
     doPlay: function(examId) {
-        app.router.navigate("vision/" + examId, {
-            trigger: true
-        });
+        if (SINGLE_MODE) {
+            app.router.navigate("vision/" + examId, {
+                trigger: true
+            });
+        }
+        else {
+            window.open("#/vision/" + examId);
+        }
     }
 });
 //
@@ -1078,27 +1085,6 @@ var VisionView = Backbone.View.extend({
             required: true,
             validType: 'protectionCode',
         });
-        // screenshot event
-        this.eventHandler = function(event) {
-            var message = event.data;
-            switch (message.id) {
-                case 'screenshot':
-                    self.screenshotDlg(message.data);
-                    break;
-            }
-        };
-        window.addEventListener('message', this.eventHandler);
-        // Socket events
-        this.connectHandler = function(data) {
-            self._NetworkWidget.html('В сети');
-            self._NetworkWidget.css('color', 'green');
-        };
-        this.disconnectHandler = function(data) {
-            self._NetworkWidget.html('Не в сети');
-            self._NetworkWidget.css('color', 'red');
-        };
-        app.io.notify.on('connect', this.connectHandler);
-        app.io.notify.on('disconnect', this.disconnectHandler);
         // Resize widgets
         var resizeWidget = function(container, pobj) {
             var p = pobj.panel('panel');
@@ -1177,6 +1163,39 @@ var VisionView = Backbone.View.extend({
         };
         this.view.webcam.toolbar();
         this.view.screen.toolbar();
+        // Window events
+        this.messageEventHandler = function(event) {
+            var message = event.data;
+            switch (message.id) {
+                case 'screenshot':
+                    self.screenshotDlg(message.data);
+                    break;
+            }
+        };
+        window.addEventListener('message', this.messageEventHandler);
+        if (MUTE_IF_FOCUS_LOST) {
+            this.focusEventHandler = function(event) {
+                console.log('focus');
+                self.view.webcam.mute(false);
+            };
+            window.addEventListener('focus', this.focusEventHandler);
+            this.blurEventHandler = function(event) {
+                console.log('blur');
+                self.view.webcam.mute(true);
+            };
+            window.addEventListener('blur', this.blurEventHandler);
+        }
+        // Socket events
+        this.connectHandler = function(data) {
+            self._NetworkWidget.html('В сети');
+            self._NetworkWidget.css('color', 'green');
+        };
+        this.disconnectHandler = function(data) {
+            self._NetworkWidget.html('Не в сети');
+            self._NetworkWidget.css('color', 'red');
+        };
+        app.io.notify.on('connect', this.connectHandler);
+        app.io.notify.on('disconnect', this.disconnectHandler);
         // Timers
         var t1 = setInterval(function() {
             var now = app.now();
@@ -1225,7 +1244,11 @@ var VisionView = Backbone.View.extend({
         for (var v in this.view) {
             if (this.view[v]) this.view[v].destroy();
         }
-        window.removeEventListener('message', this.eventHandler);
+        window.removeEventListener('message', this.messageEventHandler);
+        if (MUTE_IF_FOCUS_LOST) {
+            window.removeEventListener('focus', this.focusEventHandler);
+            window.removeEventListener('blur', this.blurEventHandler);
+        }
         app.io.notify.removeListener('connect', this.connectHandler);
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
@@ -1488,9 +1511,14 @@ var VisionView = Backbone.View.extend({
         this.confirmDlg(false);
     },
     disconnect: function() {
-        app.router.navigate("monitor", {
-            trigger: true
-        });
+        if (SINGLE_MODE) {
+            app.router.navigate("monitor", {
+                trigger: true
+            });
+        }
+        else {
+            window.close();
+        }
     },
     generateCode: function() {
         var randomizeNumber = function(min, max) {
@@ -1984,6 +2012,10 @@ var WebcamView = Backbone.View.extend({
             }
         };
         return constraints;
+    },
+    mute: function(state) {
+        this.webcall.toggleAudio(!state);
+        this.webcall.toggleVideo(!state);
     },
     play: function(userId) {
         var peer = "webcam-" + this.options.examId + "-" + userId;
@@ -3000,7 +3032,7 @@ var ProfileView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль инспектора',
             width: 500,
-            height: 250,
+            height: 270,
             closed: true,
             modal: true,
             cache: false,
@@ -3019,6 +3051,13 @@ var ProfileView = Backbone.View.extend({
                     self.render();
                 }
             },
+            buttons: [{
+                text: 'Закрыть',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }],
             onOpen: function() {
                 $(this).dialog('center');
             },
@@ -3377,7 +3416,7 @@ var AppView = Backbone.View.extend({
         this.serverTime = new ServerTime();
         this.profile = new Profile();
         this.settings = new Settings();
-        this.router = new Workspace();
+        this.router = new Router();
         this.connect();
         Backbone.history.start();
     },

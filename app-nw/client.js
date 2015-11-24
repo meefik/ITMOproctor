@@ -2,12 +2,12 @@ var gui = require('nw.gui');
 gui.Screen.Init();
 var win = gui.Window.get();
 
-function parseArgs(argv){
+function parseArgs(argv) {
     var args = {};
     for (var index = 0; index < argv.length; index++) {
         var re = new RegExp('--([A-Za-z0-9_]+)=(.*)'),
             matches = re.exec(argv[index]);
-        if(matches !== null) {
+        if (matches !== null) {
             args[matches[1]] = matches[2];
         }
     }
@@ -61,3 +61,7 @@ if (!homepage) {
     homepage = gui.App.manifest.homepage;
 }
 frame.src = homepage;
+
+win.on('new-win-policy', function(frame, url, policy) {
+    if (url.indexOf(homepage) > -1) policy.forceNewWindow();
+});
