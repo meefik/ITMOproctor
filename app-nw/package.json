@@ -22,7 +22,7 @@
   "window": {
     "frame": true,
     "toolbar": false,
-    "width": 520,
+    "width": 1000,
     "height": 700
   },
   "chromium-args": "--enable-usermedia-screen-capturing",

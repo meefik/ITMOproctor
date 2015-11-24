@@ -1432,7 +1432,8 @@ var VisionView = Backbone.View.extend({
                 self.view.notes.collection.create({
                     time: app.now(),
                     text: comment,
-                    attach: attach
+                    attach: attach,
+                    editable: true
                 });
                 closeBtn();
             });

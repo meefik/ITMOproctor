@@ -162,7 +162,6 @@ for platform in ${NW_PLATFORM}
 do
    echo ">>> Processing: ${platform}"
    platform_dir=${CACHE_DIR}/${platform}
-   [ -e "${platform_dir}" ] && rm -rf ${platform_dir}
    case "${platform}" in
    linux-*)
       build_app "http://dl.nwjs.io/v${NW_VERSION}/nwjs-v${NW_VERSION}-${platform}.tar.gz" ${platform_dir}
@@ -177,6 +176,7 @@ do
       pack_zip ${platform_dir} ${DIST_DIR}/${APP_NAME}-${platform}.zip
    ;;
    esac
+   [ -e "${platform_dir}" ] && rm -rf ${platform_dir}
 done
 
 mk_meta
