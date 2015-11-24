@@ -1743,10 +1743,16 @@ var ChatView = Backbone.View.extend({
                 self.createMessage(text);
             }
         });
+        // Audio notification
+        this.audio = new Audio("/sounds/alert.ogg");
         // Socket notification
         app.io.notify.on('chat-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
-                self.collection.fetch();
+                self.collection.fetch({
+                    success: function() {
+                        self.audio.play();
+                    }
+                });
             }
         });
     },
