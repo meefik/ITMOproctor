@@ -91,6 +91,6 @@ npm run-script build-app
 
 Добавление пользователей:
 ```
-cd ~/imoproctor/db
-node import.js data.json
+cd ./ITMOproctor/db
+node import.js users.json
 ```

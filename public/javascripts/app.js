@@ -2,11 +2,11 @@
 // Global initialize
 //
 var app;
+var SINGLE_MODE = false;
 var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1000; // Mbps
 var RX_MIN = 1000; // Mbps
-var SINGLE_MODE = false;
-var MUTE_IF_FOCUS_LOST = false;
+var OFFSET = 0; // hours
 //
 // Profile model
 //
@@ -1024,6 +1024,7 @@ var VisionView = Backbone.View.extend({
         var self = this;
         this.options = options || {};
         this.protectionCode = null;
+        this.automuteFlag = false;
         // jQuery selectors
         this._Menu = $('#main-menu');
         this._Webcam = this.$('.panel-webcam');
@@ -1058,6 +1059,9 @@ var VisionView = Backbone.View.extend({
                         break;
                     case "passport":
                         self.view.passport.doOpen();
+                        break;
+                    case "automute":
+                        self.toggleAutomute(item);
                         break;
                     case "profile":
                         self.view.profile.doOpen();
@@ -1172,19 +1176,13 @@ var VisionView = Backbone.View.extend({
                     break;
             }
         };
+        this.focusEventHandler = function(event) {
+            self.view.webcam.mute(false);
+        };
+        this.blurEventHandler = function(event) {
+            self.view.webcam.mute(true);
+        };
         window.addEventListener('message', this.messageEventHandler);
-        if (MUTE_IF_FOCUS_LOST) {
-            this.focusEventHandler = function(event) {
-                console.log('focus');
-                self.view.webcam.mute(false);
-            };
-            window.addEventListener('focus', this.focusEventHandler);
-            this.blurEventHandler = function(event) {
-                console.log('blur');
-                self.view.webcam.mute(true);
-            };
-            window.addEventListener('blur', this.blurEventHandler);
-        }
         // Socket events
         this.connectHandler = function(data) {
             self._NetworkWidget.html('В сети');
@@ -1245,13 +1243,31 @@ var VisionView = Backbone.View.extend({
             if (this.view[v]) this.view[v].destroy();
         }
         window.removeEventListener('message', this.messageEventHandler);
-        if (MUTE_IF_FOCUS_LOST) {
-            window.removeEventListener('focus', this.focusEventHandler);
-            window.removeEventListener('blur', this.blurEventHandler);
-        }
+        window.removeEventListener('focus', this.focusEventHandler);
+        window.removeEventListener('blur', this.blurEventHandler);
         app.io.notify.removeListener('connect', this.connectHandler);
         app.io.notify.removeListener('disconnect', this.disconnectHandler);
         this.remove();
+    },
+    toggleAutomute: function(item) {
+        this.automuteFlag = !this.automuteFlag;
+        if (this.automuteFlag) {
+            window.addEventListener('focus', this.focusEventHandler);
+            window.addEventListener('blur', this.blurEventHandler);
+            this._Menu.menu('setIcon', {
+                target: item.target,
+                iconCls: 'fa fa-dot-circle-o'
+            });
+        }
+        else {
+            window.removeEventListener('focus', this.focusEventHandler);
+            window.removeEventListener('blur', this.blurEventHandler);
+            this._Menu.menu('setIcon', {
+                target: item.target,
+                iconCls: 'fa fa-circle-o'
+            });
+        }
+
     },
     getExamStatus: function() {
         var self = this;
@@ -2210,7 +2226,7 @@ var ScheduleView = Backbone.View.extend({
                         self.refreshTable();
                         break;
                     case "history":
-                        self.toggleHostory(item);
+                        self.toggleHistory(item);
                         break;
                     case "demo":
                         self.view.demo.doOpen();
@@ -2302,7 +2318,7 @@ var ScheduleView = Backbone.View.extend({
                 else if (!row.beginDate || !row.endDate) {
                     self._PlanBtn.show();
                 }
-                else if (beginDate > now) {
+                else if (beginDate > moment(now).add(OFFSET, 'hours')) {
                     self._CancelBtn.show();
                 }
                 else if (beginDate <= now && !row.stopDate &&
@@ -2360,7 +2376,7 @@ var ScheduleView = Backbone.View.extend({
         }
         this.remove();
     },
-    toggleHostory: function(item) {
+    toggleHistory: function(item) {
         this.historyFlag = !this.historyFlag;
         if (this.historyFlag) {
             this._Menu.menu('setIcon', {

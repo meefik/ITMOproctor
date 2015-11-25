@@ -1,0 +1,73 @@
+{
+    "user": [{
+        "username": "inspector1",
+        "password": "inspector1",
+        "salt": "secret",
+        "lastname": "Петров",
+        "firstname": "Петр",
+        "middlename": "Петрович",
+        "gender": "Мужской",
+        "birthday": "11.03.1982",
+        "email": "inspector1@example.com",
+        "role": 2,
+        "attach": [{
+            "fileId": "55a16f039d67a11969642654",
+            "filename": "avatar_boy.png"
+        }]
+    }, {
+        "username": "inspector2",
+        "password": "inspector2",
+        "salt": "secret",
+        "lastname": "Смирнова",
+        "firstname": "Евгения",
+        "middlename": "Владимировна",
+        "gender": "Женский",
+        "birthday": "02.07.1981",
+        "email": "inspector2@example.com",
+        "role": 2,
+        "attach": [{
+            "fileId": "55a16f039d67a11969642655",
+            "filename": "avatar_girl.png"
+        }]
+    }, {
+        "username": "student1",
+        "password": "student1",
+        "salt": "secret",
+        "lastname": "Иванов",
+        "firstname": "Иван",
+        "middlename": "Иванович",
+        "gender": "Мужской",
+        "birthday": "22.07.1992",
+        "email": "student1@example.com",
+        "role": 1,
+        "attach": [],
+        "citizenship": "РФ",
+        "documentType": "Паспорт",
+        "documentNumber": "1234 123456",
+        "documentIssueDate": "01.02.2004"
+    }, {
+        "username": "student2",
+        "password": "student2",
+        "salt": "secret",
+        "lastname": "Попов",
+        "firstname": "Сергей",
+        "middlename": "Иванович",
+        "gender": "Мужской",
+        "birthday": "12.09.1992",
+        "email": "student2@example.com",
+        "role": 1,
+        "attach": []
+    }, {
+        "username": "admin",
+        "password": "admin",
+        "salt": "secret",
+        "lastname": "Админ",
+        "firstname": "",
+        "middlename": "",
+        "gender": "Мужской",
+        "birthday": "19.11.1986",
+        "email": "admin@example.com",
+        "role": 3,
+        "attach": []
+    }]
+}

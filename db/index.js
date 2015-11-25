@@ -485,9 +485,14 @@ var db = {
         },
         cancel: function(args, callback) {
             var Exam = require('./models/exam');
+            var offset = Number(config.get('schedule:offset'));
+            var now = moment().add(offset, 'hours');
             Exam.findOneAndUpdate({
                 _id: args.examId,
-                student: args.userId
+                student: args.userId,
+                beginDate: {
+                    '$gt': now
+                }
             }, {
                 '$set': {
                     beginDate: null,
