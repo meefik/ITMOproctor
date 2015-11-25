@@ -1058,7 +1058,8 @@ var VisionView = Backbone.View.extend({
                         self.view.info.doOpen(self.options.examId);
                         break;
                     case "passport":
-                        self.view.passport.doOpen();
+                        var student = self.model.get('student');
+                        if (student) self.view.passport.doOpen(student._id);
                         break;
                     case "automute":
                         self.toggleAutomute(item);
@@ -1139,9 +1140,8 @@ var VisionView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
-            info: new InfoView({
-                examId: this.options.examId
-            }),
+            passport: new PassportView(),
+            info: new InfoView(),
             notes: new NotesView({
                 el: this._Notes.get(0),
                 examId: this.options.examId
@@ -1221,14 +1221,7 @@ var VisionView = Backbone.View.extend({
         }, 60000);
         this.timers = [t1, t2];
         // Start exam
-        this.model.fetch({
-            success: function(model, response, options) {
-                var student = model.get("student");
-                self.view.passport = new PassportView({
-                    userId: student._id
-                });
-            }
-        });
+        this.model.fetch();
     },
     render: function() {
         var subject = this.model.get('subject');
@@ -1500,9 +1493,7 @@ var VisionView = Backbone.View.extend({
                         }, {
                             success: function() {
                                 self._DialogConfirm.dialog('close');
-                                app.router.navigate("monitor", {
-                                    trigger: true
-                                });
+                                self.disconnect();
                             }
                         });
                     }
@@ -2542,9 +2533,7 @@ var ExamView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             passport: new PassportView(),
-            info: new InfoView({
-                examId: this.options.examId
-            }),
+            info: new InfoView(),
             chat: new ChatView({
                 el: this._Chat.get(0),
                 examId: this.options.examId
@@ -2702,11 +2691,15 @@ var InfoView = Backbone.View.extend({
             cache: false,
             href: '/templates/info.html',
             onLoad: function() {
-                self.model.fetch({
-                    success: function() {
-                        self.render();
-                    }
-                });
+                self.model.clear();
+                if (self.options.examId) {
+                    self.model.set('_id', self.options.examId);
+                    self.model.fetch({
+                        success: function() {
+                            self.render();
+                        }
+                    });
+                }
             },
             onOpen: function() {
                 $(this).dialog('center');
@@ -2740,11 +2733,9 @@ var InfoView = Backbone.View.extend({
         view.html(html);
     },
     doOpen: function(examId) {
-        if (examId) {
-            this.model.clear();
-            this.model.set('_id', examId);
-            this._Dialog.dialog('open');
-        }
+        if (examId) this.options.examId = examId;
+        else this.options.userId = null;
+        this._Dialog.dialog('open');
     },
     doClose: function() {
         this._Dialog.dialog('close');
@@ -2771,6 +2762,13 @@ var PassportView = Backbone.View.extend({
             cache: false,
             href: '/templates/passport.html',
             onLoad: function() {
+                self.model.clear();
+                if (self.options.userId) {
+                    self.model.set('_id', self.options.userId);
+                }
+                else {
+                    self.model.set('_id', app.profile.get('_id'));
+                }
                 self.model.fetch({
                     success: function() {
                         self.render();
@@ -2831,13 +2829,8 @@ var PassportView = Backbone.View.extend({
         view.html(html);
     },
     doOpen: function(userId) {
-        this.model.clear();
-        if (userId) {
-            this.model.set('_id', userId);
-        }
-        else {
-            this.model.set('_id', app.profile.get('_id'));
-        }
+        if (userId) this.options.userId = userId;
+        else this.options.userId = null;
         this._Dialog.dialog('open');
     },
     doClose: function() {
@@ -2871,6 +2864,13 @@ var PassportEditorView = Backbone.View.extend({
             cache: false,
             href: '/templates/passport-editor.html',
             onLoad: function() {
+                self.model.clear();
+                if (self.options.userId) {
+                    self.model.set('_id', self.options.userId);
+                }
+                else {
+                    self.model.set('_id', app.profile.get('_id'));
+                }
                 self.model.fetch({
                     success: function() {
                         self.render();
@@ -3029,12 +3029,8 @@ var PassportEditorView = Backbone.View.extend({
         });
     },
     doOpen: function(userId) {
-        if (userId) {
-            this.model.set('_id', userId);
-        }
-        else {
-            this.model.set('_id', app.profile.get('_id'));
-        }
+        if (userId) this.options.userId = userId;
+        else this.options.userId = null;
         this._Dialog.dialog('open');
     },
     doClose: function() {
@@ -3061,6 +3057,7 @@ var ProfileView = Backbone.View.extend({
             cache: false,
             href: '/templates/profile.html',
             onLoad: function() {
+                self.model.clear();
                 if (self.options.userId) {
                     self.model.set('_id', self.options.userId);
                     self.model.fetch({
