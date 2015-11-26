@@ -42,7 +42,7 @@ var db = {
                     return done(null, user);
                 });
             },
-            openedu: function(accessToken, refreshToken, prof, done) {
+            openedu: function(prof, done) {
                 var userData = {
                     username: prof.username,
                     firstname: prof.firstname,
