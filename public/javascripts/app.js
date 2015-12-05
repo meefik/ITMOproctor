@@ -7,6 +7,7 @@ var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1000; // Mbps
 var RX_MIN = 1000; // Mbps
 var OFFSET = 0; // hours
+var REQUEST_INTERVAL = 30; // seconds
 //
 // Profile model
 //
@@ -1218,7 +1219,7 @@ var VisionView = Backbone.View.extend({
             if (student && student.provider) {
                 self.getExamStatus();
             }
-        }, 60000);
+        }, REQUEST_INTERVAL * 1000);
         this.timers = [t1, t2];
         // Start exam
         this.model.fetch();
@@ -2685,7 +2686,7 @@ var InfoView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Карточка экзамена',
             width: 500,
-            height: 350,
+            height: 380,
             closed: true,
             modal: true,
             cache: false,

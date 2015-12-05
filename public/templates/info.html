@@ -8,6 +8,12 @@
         </td>
     </tr>
     <tr>
+        <td><strong>Код:</strong></td>
+        <td>
+            <%- exam.examCode || 'нет' %>
+        </td>
+    </tr>
+    <tr>
         <td><strong>Сроки:</strong></td>
         <td>
             с <%= moment(exam.leftDate).format('DD.MM.YYYY') %> по <%= moment(exam.rightDate).format('DD.MM.YYYY') %>

@@ -22,7 +22,13 @@ router.fetchExams = function(req, res, next) {
                 }
             }, function(error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    var json = JSON.parse(body);
+                    try {
+                        var json = JSON.parse(body);
+                    }
+                    catch (err) {
+                        logger.warn("Incorrect JSON format.");
+                        return next();
+                    }
                     //console.log(json);
                     var arr = [];
                     for (var k in json) {
@@ -107,10 +113,17 @@ router.stopExam = function(req, res, next) {
                     reviewedExam: req.body.resolution,
                     reviewerNotes: req.body.comment
                 },
+                examApiData: {
+                    orgExtra: {
+                        examStartDate: req.body.startDate,
+                        examEndDate: req.body.stopDate
+                    }
+                },
                 // reviewStatus: 'Clean', 'Rules Violation', 'Not Reviewed', 'Suspicious'
                 reviewStatus: req.body.resolution ? 'Clean' : 'Suspicious',
                 videoReviewLink: ''
             };
+            console.log(data);
             var url = config.get('api:openedu:stopExam');
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
