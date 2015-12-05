@@ -101,7 +101,7 @@ router.post('/:examId', function(req, res, next) {
     });
 }, api.startExam, function(req, res) {
     var args = {
-        student: req.body.student,
+        verified: req.body.verified,
         userId: req.user._id,
         examId: req.params.examId
     };

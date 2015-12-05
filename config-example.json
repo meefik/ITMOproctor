@@ -15,7 +15,7 @@
         "interval": 30
     },
     "mongoose": {
-        "uri": "mongodb://localhost:47622/proctor"
+        "uri": "mongodb://localhost:27017/proctor"
     },
     "ws": {
         "uri": "ws://localhost:8888/kurento"
@@ -25,9 +25,9 @@
     },
     "auth": {
         "openedu": {
-            "authorizationURL": "http://sso.sandbox-m.raccoongang.com/oauth2/authorize",
-            "tokenURL": "http://sso.sandbox-m.raccoongang.com/oauth2/access_token",
-            "userProfileURL": "http://sso.sandbox-m.raccoongang.com/users/me?format=json",
+            "authorizationURL": "https://sso.openedu.ru/oauth2/authorize",
+            "tokenURL": "https://sso.openedu.ru/oauth2/access_token",
+            "userProfileURL": "https://sso.openedu.ru/users/me?format=json",
             "clientID": "123-456-789",
             "clientSecret": "its-a-secret",
             "callbackURL": "http://localhost:3000/profile/openedu/callback"
@@ -42,10 +42,10 @@
             "secretKey": "its-a-secret",
             "secretKeyId": "its-a-secret",
             "apiKey": "its-a-secret",
-            "requestExams": "http://lms.sandbox-m.raccoongang.com/api/extended/user_proctored_exams/{username}/?format=json",
-            "startExam": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
-            "examStatus": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_poll_status/{examCode}",
-            "stopExam": "http://lms.sandbox-m.raccoongang.com/api/edx_proctoring/proctoring_review_callback/"
+            "requestExams": "https://courses.openedu.ru/api/extended/user_proctored_exams/{username}/?format=json",
+            "startExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
+            "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}",
+            "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/"
         }
     }
 }

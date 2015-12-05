@@ -606,25 +606,16 @@ var db = {
             }).exec(callback);
         },
         verify: function(args, callback) {
+            if (!args.verified) return callback();
             var Exam = require('./models/exam');
-            var passport = {
-                firstname: args.student.firstname,
-                lastname: args.student.lastname,
-                middlename: args.student.middlename,
-                gender: args.student.gender,
-                birthday: args.student.birthday,
-                citizenship: args.student.citizenship,
-                documentType: args.student.documentType,
-                documentNumber: args.student.documentNumber,
-                documentIssueDate: args.student.documentIssueDate
-            };
-            var hash = crypto.createHash('md5').update(JSON.stringify(passport)).digest('hex');
+            var hash = crypto.createHash('md5').update(JSON.stringify(args.verified.data)).digest('hex');
             Exam.findOneAndUpdate({
                 _id: args.examId,
                 inspector: args.userId
             }, {
                 '$set': {
-                    'verified.data': passport,
+                    'verified.submit': args.verified.submit,
+                    'verified.data': args.verified.data,
                     'verified.hash': hash
                 }
             }, {

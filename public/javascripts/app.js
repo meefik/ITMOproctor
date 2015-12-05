@@ -1046,6 +1046,7 @@ var VisionView = Backbone.View.extend({
         this._ExamComment = this._DialogConfirm.find('.exam-comment');
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
+        this._VerifyBtn = this.$('.verify-btn');
         this._DialogVerify = $("#verify-dlg");
         this._Video = this.$('.panel-webcam > .video-output');
         this._StudentPhoto = this._DialogVerify.find('.student-photo');
@@ -1228,6 +1229,7 @@ var VisionView = Backbone.View.extend({
         var subject = this.model.get('subject');
         this._ExamWidget.text(subject);
         this._DurationWidget.css('color', '');
+        if (this.model.get('verified')) this._VerifyBtn.linkbutton('disable');
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1281,6 +1283,7 @@ var VisionView = Backbone.View.extend({
             });
     },
     doVerify: function() {
+        if (this.model.get('verified')) return;
         var self = this;
         var timer;
         var paused = false;
@@ -1352,38 +1355,52 @@ var VisionView = Backbone.View.extend({
             });
         }
 
-        function applyBtn() {
+        function submitData(submit) {
+            var student = self.model.get('student');
+            var verified = {
+                submit: submit,
+                data: {
+                    firstname: student.firstname,
+                    lastname: student.lastname,
+                    middlename: student.middlename,
+                    gender: student.gender,
+                    birthday: student.birthday,
+                    citizenship: student.citizenship,
+                    documentType: student.documentType,
+                    documentNumber: student.documentNumber,
+                    documentIssueDate: student.documentIssueDate
+                }
+            };
+            self.model.set('verified', verified);
             $.ajax({
                 url: "/inspector/" + self.options.examId,
                 type: "post",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify({
-                    student: self.model.get('student')
+                    verified: verified
                 })
             }).done(function(respond) {
+                var message = submit ? 'Личность студента подтверждена' : 'Личность студента не установлена';
                 saveAttach(function(attach) {
                     self.view.notes.collection.create({
                         time: app.now(),
-                        text: 'Личность студента подтверждена',
+                        text: message,
                         attach: attach,
                         editable: false
                     });
                     self._DialogVerify.dialog('close');
+                    self._VerifyBtn.linkbutton('disable');
                 });
             });
         }
 
+        function applyBtn() {
+            submitData(true);
+        }
+
         function rejectBtn() {
-            saveAttach(function(attach) {
-                self.view.notes.collection.create({
-                    time: app.now(),
-                    text: 'Личность студента не установлена',
-                    attach: attach,
-                    editable: false
-                });
-                self._DialogVerify.dialog('close');
-            });
+            submitData(false);
         }
 
         this._DialogVerify.dialog({
