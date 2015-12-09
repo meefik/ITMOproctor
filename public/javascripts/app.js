@@ -2268,12 +2268,10 @@ var ScheduleView = Backbone.View.extend({
         // Countdown timer
         var t2 = setInterval(function() {
             if (!self.nextExam) return;
-            if (self.nextExam.ready) return;
             // decrement
             self.nextExam.countdown -= 1000;
             if (self.nextExam.countdown <= 0 && self.nextExam.resolution == null) {
                 if (self.nextExam.countdown > -1000) self._Grid.datagrid('reload');
-                self.nextExam.ready = true;
             }
             // display countdown
             if (self.nextExam.countdown < 0) self.nextExam.countdown = 0;
@@ -2337,6 +2335,7 @@ var ScheduleView = Backbone.View.extend({
             },
             onLoadSuccess: function(data) {
                 var now = app.now();
+                self.nextExam = null;
                 for (var k in data.rows) {
                     if (!data.rows[k].beginDate || !data.rows[k].endDate) continue;
                     var beginDate = moment(data.rows[k].beginDate);
