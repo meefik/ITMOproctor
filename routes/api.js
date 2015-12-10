@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var logger = require('../common/logger');
 var config = require('nconf');
+var moment = require('moment');
 var db = require('../db');
 /**
  * Get list of exams from provider
@@ -102,6 +103,8 @@ router.startExam = function(req, res, next) {
  * @param req.body._id
  * @param req.body.resolution
  * @param req.body.comment
+ * @param req.body.startDate
+ * @param req.body.stopDate
  */
 router.stopExam = function(req, res, next) {
     switch (req.body.provider) {
@@ -123,13 +126,12 @@ router.stopExam = function(req, res, next) {
                 reviewStatus: req.body.resolution ? 'Clean' : 'Suspicious',
                 videoReviewLink: ''
             };
-            console.log(data);
             var url = config.get('api:openedu:stopExam');
             var apiKey = config.get('api:openedu:apiKey');
             var request = require('request');
             logger.debug('API request: ' + url);
             request.post({
-                url: url, //"https://proctor-meefik.c9.io/api/test",
+                url: url,
                 json: data,
                 headers: {
                     'X-Edx-Api-Key': apiKey

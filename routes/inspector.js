@@ -51,30 +51,18 @@ router.get('/:examId', members.updateMember, function(req, res, next) {
 router.put('/:examId', function(req, res, next) {
     var args = {
         examId: req.params.examId,
-        resolution: req.body.resolution,
-        comment: req.body.comment
-    };
-    db.exam.info(args, function(err, data) {
-        if (!err && data) {
-            req.body.provider = data.student.provider;
-            req.body.examCode = data.examCode;
-            req.body._id = data._id;
-            next();
-        }
-        else {
-            res.status(400).end();
-        }
-    });
-}, api.stopExam, function(req, res) {
-    var args = {
-        examId: req.params.examId,
         userId: req.user._id,
         resolution: req.body.resolution,
         comment: req.body.comment
     };
     db.exam.finish(args, function(err, data) {
         if (!err && data) {
-            res.json(data);
+            req.body._id = data._id;
+            req.body.provider = data.student.provider;
+            req.body.examCode = data.examCode;
+            req.body.startDate = data.startDate;
+            req.body.stopDate = data.stopDate;
+            next();
             req.notify('exam-' + args.examId, {
                 userId: args.userId
             });
@@ -83,23 +71,11 @@ router.put('/:examId', function(req, res, next) {
             res.status(400).end();
         }
     });
+}, api.stopExam, function(req, res) {
+    res.json({});
 });
 // Verify passport
 router.post('/:examId', function(req, res, next) {
-    var args = {
-        examId: req.params.examId
-    };
-    db.exam.info(args, function(err, data) {
-        if (!err && data) {
-            req.body.provider = data.student.provider;
-            req.body.examCode = data.examCode;
-            next();
-        }
-        else {
-            res.status(400).end();
-        }
-    });
-}, api.startExam, function(req, res) {
     var args = {
         verified: req.body.verified,
         userId: req.user._id,
@@ -107,12 +83,17 @@ router.post('/:examId', function(req, res, next) {
     };
     db.exam.verify(args, function(err, data) {
         if (!err && data) {
-            res.json(data);
+            req.body.provider = data.student.provider;
+            req.body.examCode = data.examCode;
+            if (data.verified.submit) next();
+            else res.json({});
         }
         else {
             res.status(400).end();
         }
     });
+}, api.startExam, function(req, res) {
+    res.json({});
 });
 // Exam status
 router.get('/:examId/status', function(req, res, next) {

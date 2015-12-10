@@ -344,7 +344,8 @@ var db = {
                     for (var i = 0, li = schedule.length; i < li; i++) {
                         var inspector = schedule[i].inspector;
                         var concurrent = schedule[i].concurrent;
-                        timetable[inspector] = concurrent;
+                        if (timetable[inspector]) timetable[inspector] += concurrent;
+                        else timetable[inspector] = concurrent;
                     }
                     //console.log(timetable);
                     // find exams with time around beginDate
@@ -429,7 +430,8 @@ var db = {
                     var start = beginDate.diff(leftDate, 'hours');
                     var times = moment.min(rightDate, endDate).diff(beginDate, 'hours');
                     for (var j = start < 0 ? 0 : start, lj = start + times; j < lj; j++) {
-                        if (!timetable[inspector][j]) timetable[inspector][j] = concurrent;
+                        if (timetable[inspector][j]) timetable[inspector][j] += concurrent;
+                        else timetable[inspector][j] = concurrent;
                     }
                 }
                 //console.log(timetable);
@@ -592,6 +594,10 @@ var db = {
         },
         finish: function(args, callback) {
             var Exam = require('./models/exam');
+            var opts = [{
+                path: 'student',
+                select: 'provider'
+            }];
             Exam.findOneAndUpdate({
                 _id: args.examId,
                 inspector: args.userId
@@ -603,11 +609,15 @@ var db = {
                 }
             }, {
                 'new': true
-            }).exec(callback);
+            }).populate(opts).exec(callback);
         },
         verify: function(args, callback) {
             if (!args.verified) return callback();
             var Exam = require('./models/exam');
+            var opts = [{
+                path: 'student',
+                select: 'provider'
+            }];
             var hash = crypto.createHash('md5').update(JSON.stringify(args.verified.data)).digest('hex');
             Exam.findOneAndUpdate({
                 _id: args.examId,
@@ -620,7 +630,7 @@ var db = {
                 }
             }, {
                 'new': true
-            }).exec(callback);
+            }).populate(opts).exec(callback);
         }
     },
     schedule: {

@@ -7,7 +7,7 @@ var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1000; // Mbps
 var RX_MIN = 1000; // Mbps
 var OFFSET = 0; // hours
-var REQUEST_INTERVAL = 30; // seconds
+var REQUEST_INTERVAL = 60; // seconds
 //
 // Profile model
 //
