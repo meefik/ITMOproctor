@@ -91,6 +91,7 @@ passport.use('openedu', new OAuth2Strategy({
     callbackURL: config.get('auth:openedu:callbackURL')
 }, function(accessToken, refreshToken, prof, done) {
     var userProfileURL = config.get('auth:openedu:userProfileURL');
+    this._oauth2._useAuthorizationHeaderForGET = true;
     this._oauth2.get(userProfileURL, accessToken, function(err, body, res) {
         if (err) {
             var InternalOAuthError = require('passport-oauth').InternalOAuthError;
