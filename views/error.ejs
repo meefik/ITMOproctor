@@ -1,15 +1,40 @@
 <!doctype html>
 <html>
-
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= message %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Ошибка</title>
+    <style type="text/css">
+        * { font-family: Arial; }
+        html, body { height:100%; margin:0px; }
+        h2 { color: #7F7F7F; margin:0px; font-size:14pt; }
+        a img { border: none; }
+        .caption { text-align: left; margin-top:1em; margin-bottom:1em; font-size:10pt; }
+        .footer { margin-top:1em; margin-bottom:1em; font-size:10pt; color: #7F7F7F; }
+    </style>
 </head>
-
 <body>
-    <h1><%= message %></h1>
-    <h2><%= error.status %></h2>
-    <pre><%= error.stack %></pre>
+   <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+       <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="500">
+                    <tr>
+                        <td align="center" height="128">
+                            <a href="/"><img src="/images/logo-128x116.png" /></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                            <h2><%= error.status %>: <%= message %></h2>
+                            <div class="caption">
+                                <pre><%= error.stack %></pre>
+                            </div>
+                            <div class="footer">Система дистанционного надзора <a href="https://github.com/meefik/ITMOproctor">ITMOproctor</a></div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
