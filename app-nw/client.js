@@ -1,7 +1,3 @@
-var gui = require('nw.gui');
-gui.Screen.Init();
-var win = gui.Window.get();
-
 function parseArgs(argv) {
     var args = {};
     for (var index = 0; index < argv.length; index++) {
@@ -14,7 +10,7 @@ function parseArgs(argv) {
     return args;
 }
 
-window.addEventListener("message", function(event) {
+function eventHandler(event) {
     switch (event.data) {
         case 'chooseSourceId':
             gui.Screen.chooseDesktopMedia(["screen"], function(sourceId) {
@@ -48,8 +44,15 @@ window.addEventListener("message", function(event) {
             };
             event.source.postMessage(message, '*');
             break;
+        case 'closeWindow':
+            win.window.close();
+            break;
     }
-});
+}
+
+var gui = require('nw.gui');
+gui.Screen.Init();
+var win = gui.Window.get();
 
 var frame = document.getElementById('app-frame');
 frame.onload = function() {
@@ -60,8 +63,20 @@ var homepage = args['homepage'];
 if (!homepage) {
     homepage = gui.App.manifest.homepage;
 }
-frame.src = homepage;
+frame.src = homepage + '#' + win.window.name;
+
+win.window.addEventListener('message', eventHandler);
 
 win.on('new-win-policy', function(frame, url, policy) {
-    if (url.indexOf(homepage) > -1) policy.forceNewWindow();
+    if (url.indexOf(homepage) > -1) {
+        policy.ignore();
+        var hash = url.split('#')[1];
+        var popup = win.window.open('', hash);
+        if (popup.closed || (!popup.document.URL) || (popup.document.URL.indexOf("about") == 0)) {
+            popup.location = win.window.location.href;
+        }
+        else {
+            popup.focus();
+        }
+    }
 });

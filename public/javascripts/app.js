@@ -1069,9 +1069,6 @@ var VisionView = Backbone.View.extend({
                     case "profile":
                         self.view.profile.doOpen();
                         break;
-                    case "settings":
-                        self.view.settings.doOpen();
-                        break;
                     case "disconnect":
                         self.disconnect();
                         break;
@@ -1140,7 +1137,6 @@ var VisionView = Backbone.View.extend({
         this.listenTo(this.model, 'change', this.render);
         // Sub views
         this.view = {
-            settings: new SettingsView(),
             profile: new ProfileView(),
             passport: new PassportView(),
             info: new InfoView(),
@@ -1543,6 +1539,7 @@ var VisionView = Backbone.View.extend({
             });
         }
         else {
+            parent.postMessage('closeWindow', '*');
             window.close();
         }
     },
