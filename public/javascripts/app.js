@@ -416,14 +416,14 @@ var Settings = Backbone.Collection.extend({
 //
 var Router = Backbone.Router.extend({
     routes: {
-        "": "main",
         "login": "login",
         "monitor": "monitor",
         "vision/:examid": "vision",
         "play/:examid": "play",
         "schedule": "schedule",
         "exam/:examid": "exam",
-        "admin": "admin"
+        "admin": "admin",
+        "*path": "main"
     },
     main: function() {
         if (app.profile.isAuth()) {

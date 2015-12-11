@@ -37,7 +37,7 @@ function eventHandler(event) {
             var version = {
                 app: gui.App.manifest.version,
                 nw: process.versions['node-webkit']
-            }
+            };
             var message = {
                 id: 'version',
                 data: version
@@ -57,7 +57,7 @@ var win = gui.Window.get();
 var frame = document.getElementById('app-frame');
 frame.onload = function() {
     win.title = this.contentDocument.title;
-}
+};
 var args = parseArgs(gui.App.argv);
 var homepage = args['homepage'];
 if (!homepage) {
