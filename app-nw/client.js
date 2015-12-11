@@ -44,6 +44,22 @@ function eventHandler(event) {
             };
             event.source.postMessage(message, '*');
             break;
+        case 'clearCookies':
+            win.cookies.getAll({}, function(cookies) {
+                cookies.forEach(function(cookie) {
+                    // for http
+                    win.cookies.remove({
+                        url: 'http://' + cookie.domain,
+                        name: cookie.name
+                    });
+                    // for https
+                    win.cookies.remove({
+                        url: 'https://' + cookie.domain,
+                        name: cookie.name
+                    });
+                });
+            });
+            break;
         case 'closeWindow':
             win.window.close();
             break;

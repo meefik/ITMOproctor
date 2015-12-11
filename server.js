@@ -50,7 +50,11 @@ app.use(session({
     store: mongoStore,
     proxy: true,
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        session: false,
+        maxAge: config.get("cookie:ttl") * 24 * 60 * 60 * 1000 // days
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

@@ -3475,6 +3475,7 @@ var AppView = Backbone.View.extend({
         return this.serverTime.now();
     },
     logout: function() {
+        parent.postMessage('clearCookies', '*');
         if (this.profile.logout()) {
             this.router.navigate("login", {
                 trigger: true
