@@ -1414,7 +1414,10 @@ var VisionView = Backbone.View.extend({
                 iconCls: 'fa fa-times',
                 handler: rejectBtn
             }, ],
-            onOpen: playVideo,
+            onOpen: function() {
+                $(this).dialog('center');
+                playVideo();
+            },
             onClose: stopVideo
         });
     },
