@@ -25,7 +25,9 @@
 | Частота кадров веб-камеры    | 15 кадров/с                     |
 | Разрешение экрана монитора   | 1280x720                        |
 
-[Инструкция по использованию системы ITMOproctor](https://drive.google.com/file/d/0B7YdZbqVWxzeZnU4WmlvWXJubnc/view?usp=sharing)
+Инструкции:
+* [Инструкция по использованию системы для студентов](https://docs.google.com/document/d/15fsEL3sHCGuJ9_rSuFprQXP--WXb9Ct-PzayBXvxWp0/edit?usp=sharing)
+* [Инструкция по использованию системы для инспекторов](https://docs.google.com/document/d/1EbW52RQLdgwkRwJa_HgzP-nqU_860bPQuMZZ-ns1Hmc/edit?usp=sharing)
 
 ### Серверная часть
 
@@ -46,7 +48,9 @@
 | Запись на диск                | 150 КБ/c / сессия                                |
 | Дисковое пространство         | 500 МБ/час / сессия                              |
 
-[Структурная схема ITMOproctor] (https://drive.google.com/file/d/0B7YdZbqVWxzeMGRuVjZaaEpzVDA/view?usp=sharing)
+Документация:
+* [Структурная схема системы](https://drive.google.com/file/d/0B7YdZbqVWxzeSlFWZUl4S1RiaVE/view?usp=sharing)
+* [Диаграмма взаимодействия компонентов системы](https://drive.google.com/file/d/0B7YdZbqVWxzeRVVBanVFWlVNQ2M/view?usp=sharing)
 
 #### Запуск серверной части через Vagrant
 
