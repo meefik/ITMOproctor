@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var logger = require('../common/logger');
 var config = require('nconf');
-var moment = require('moment');
 var db = require('../db');
 /**
  * Get list of exams from provider
@@ -10,6 +9,30 @@ var db = require('../db');
  */
 router.fetchExams = function(req, res, next) {
     switch (req.user.provider) {
+        case 'local':
+            var path = require('path');
+            var template = config.get('api:local:template');
+            try {
+                var data = require(path.join('..', template));
+            }
+            catch (err) {
+                logger.warn(err);
+                return next();
+            }
+            var users = data.users || [req.user.username];
+            if (users.indexOf(req.user.username) > -1) {
+                var exams = data.exams || [];
+                if (!exams.length) return next();
+                var args = {
+                    userId: req.user._id,
+                    exams: exams
+                };
+                db.exam.add(args, function() {
+                    next();
+                });
+            }
+            else return next();
+            break;
         case 'openedu':
             // Request proctored exams from edX
             var url = config.get('api:openedu:requestExams').replace('{username}', req.user.username);

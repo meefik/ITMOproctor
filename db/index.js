@@ -49,7 +49,7 @@ var db = {
                     lastname: prof.lastname,
                     email: prof.email,
                     password: null,
-                    provider: 'openedu'
+                    provider: config.get('auth:openedu:provider') || 'openedu'
                 };
                 var User = require('./models/user');
                 User.findOne({
@@ -84,7 +84,7 @@ var db = {
                     birthday: prof.birthdate,
                     email: prof.email,
                     password: null,
-                    provider: 'ifmosso'
+                    provider: config.get('auth:ifmosso:provider') || 'ifmosso'
                 };
                 var User = require('./models/user');
                 User.findOne({

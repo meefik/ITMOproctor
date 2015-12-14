@@ -37,6 +37,9 @@
         }
     },
     "api": {
+        "local": {
+            "template": "db/data.json"
+        },
         "openedu": {
             "cryptoKey": "its-a-secret",
             "secretKey": "its-a-secret",

@@ -1,0 +1,10 @@
+{
+    "users": ["user1", "user2", "user3"],
+    "exams": [{
+        "examId": 1,
+        "subject": "Тестовый экзамен",
+        "leftDate": "2015-12-01T21:00:00.000Z",
+        "rightDate": "2016-01-01T21:00:00.000Z",
+        "duration": 60
+    }]
+}
