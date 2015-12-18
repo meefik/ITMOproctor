@@ -1304,7 +1304,10 @@ var VisionView = Backbone.View.extend({
             canvas.width = cw;
             canvas.height = ch;
             timer = setInterval(function() {
-                if (video.paused || video.ended || paused) return false;
+                if (paused) return false;
+                if (video.paused || video.ended) {
+                    return photo.setAttribute('src', video.poster);
+                }
                 context.drawImage(video, 0, 0, cw, ch);
                 if (!photo.src) {
                     photo.setAttribute('src', canvas.toDataURL());
@@ -1477,7 +1480,10 @@ var VisionView = Backbone.View.extend({
                 text: 'Отменить',
                 iconCls: 'fa fa-times',
                 handler: closeBtn
-            }]
+            }],
+            onOpen: function() {
+                $(this).dialog('center');
+            }
         });
     },
     confirmDlg: function(resolution) {
@@ -2773,7 +2779,7 @@ var PassportView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль студента',
             width: 500,
-            height: 400,
+            height: 450,
             closed: true,
             modal: true,
             cache: false,
@@ -2875,7 +2881,7 @@ var PassportEditorView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль студента',
             width: 500,
-            height: 500,
+            height: 530,
             closed: true,
             modal: true,
             cache: false,

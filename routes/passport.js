@@ -31,6 +31,7 @@ router.put('/:userId', profile.isMyself, function(req, res) {
             documentType: req.body.documentType,
             documentNumber: req.body.documentNumber,
             documentIssueDate: req.body.documentIssueDate,
+            address: req.body.address,
             description: req.body.description,
             attach: req.body.attach
         }

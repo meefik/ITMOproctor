@@ -83,6 +83,10 @@ var User = new Schema({
     documentIssueDate: {
         type: String
     },
+    // Адрес
+    address: {
+        type: String
+    },
     // Дополнительная информация
     description: {
         type: String
