@@ -13,7 +13,7 @@ router.get('/', function(req, res) {
     }
     db.exam.schedule(args, function(err, data) {
         if (!err && data) {
-            res.json(data);
+            res.json(data.dates);
         }
         else {
             res.status(400).end();

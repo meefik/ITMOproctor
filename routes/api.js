@@ -19,7 +19,8 @@ router.fetchExams = function(req, res, next) {
                 logger.warn(err);
                 return next();
             }
-            var users = data.users || [req.user.username];
+            var users = data.users || [];
+            users = data.users.length ? users : [req.user.username];
             if (users.indexOf(req.user.username) > -1) {
                 var exams = data.exams || [];
                 if (!exams.length) return next();
