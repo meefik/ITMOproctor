@@ -1425,7 +1425,7 @@ var VisionView = Backbone.View.extend({
         });
     },
     doScreenshot: function() {
-        parent.postMessage('takeScreenshot', '*');
+        app.postMessage('takeScreenshot', '*');
     },
     screenshotDlg: function(dataUrl) {
         var self = this;
@@ -1548,7 +1548,7 @@ var VisionView = Backbone.View.extend({
             });
         }
         else {
-            parent.postMessage('closeWindow', '*');
+            app.postMessage('closeWindow', '*');
             window.close();
         }
     },
@@ -3218,9 +3218,9 @@ var SettingsView = Backbone.View.extend({
         this._Version = this.$('.app-version');
         this._Update = this.$('.app-update');
         this._Dist = this.$('.app-dist');
-        parent.postMessage('getVersion', '*');
+        app.postMessage('getVersion', '*');
         this._ScreenBtn.click(function() {
-            parent.postMessage('chooseSourceId', '*');
+            app.postMessage('chooseSourceId', '*');
         });
         var self = this;
 
@@ -3480,11 +3480,14 @@ var AppView = Backbone.View.extend({
             screen: io.connect(url + '/screen', options)
         };
     },
+    postMessage: function(message, targetOrigin, transfer) {
+        if (win) win.window.postMessage(message, targetOrigin, transfer);
+    },
     now: function() {
         return this.serverTime.now();
     },
     logout: function() {
-        parent.postMessage('clearCookies', '*');
+        app.postMessage('clearCookies', '*');
         if (this.profile.logout()) {
             this.router.navigate("login", {
                 trigger: true

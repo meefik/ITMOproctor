@@ -49,12 +49,12 @@ function eventHandler(event) {
                 cookies.forEach(function(cookie) {
                     // for http
                     win.cookies.remove({
-                        url: 'http://' + cookie.domain,
+                        url: 'http://' + cookie.domain + cookie.path,
                         name: cookie.name
                     });
                     // for https
                     win.cookies.remove({
-                        url: 'https://' + cookie.domain,
+                        url: 'https://' + cookie.domain + cookie.path,
                         name: cookie.name
                     });
                 });
@@ -72,7 +72,8 @@ var win = gui.Window.get();
 
 var frame = document.getElementById('app-frame');
 frame.onload = function() {
-    win.title = this.contentDocument.title;
+    this.contentWindow.win = win;
+    //win.title = this.contentDocument.title;
 };
 var args = parseArgs(gui.App.argv);
 var homepage = args['homepage'];
