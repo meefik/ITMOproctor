@@ -4,8 +4,8 @@
 var app;
 var SINGLE_MODE = false;
 var UPLOAD_LIMIT = 10; // MB
-var TX_MIN = 1000; // Mbps
-var RX_MIN = 1000; // Mbps
+var TX_MIN = 1; // Mbps
+var RX_MIN = 1; // Mbps
 var OFFSET = 0; // hours
 var REQUEST_INTERVAL = 60; // seconds
 //
@@ -3421,10 +3421,12 @@ var DemoView = Backbone.View.extend({
                         timestamp = Date.now();
                     }
                 }).done(function() {
-                    var diff = Date.now() - timestamp;
-                    var mbps = RX_MIN * 8 / (diff - report.ping);
-                    report.rx = mbps.toFixed(2);
-                    report.render();
+                    var diff = Date.now() - timestamp - report.ping;
+                    if (diff > 0) {
+                        var mbps = 1000 * 8 / diff;
+                        report.rx = mbps.toFixed(2);
+                        report.render();
+                    }
                 });
             },
             doTX: function() {
@@ -3440,10 +3442,12 @@ var DemoView = Backbone.View.extend({
                         timestamp = Date.now();
                     }
                 }).done(function() {
-                    var diff = Date.now() - timestamp;
-                    var mbps = TX_MIN * 8 / (diff - report.ping);
-                    report.tx = mbps.toFixed(2);
-                    report.render();
+                    var diff = Date.now() - timestamp - report.ping;
+                    if (diff > 0) {
+                        var mbps = 1000 * 8 / diff;
+                        report.tx = mbps.toFixed(2);
+                        report.render();
+                    }
                 });
             }
         };
