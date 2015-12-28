@@ -3485,6 +3485,7 @@ var AppView = Backbone.View.extend({
         };
     },
     postMessage: function(message, targetOrigin, transfer) {
+        var win = window.win;
         if (win) win.window.postMessage(message, targetOrigin, transfer);
     },
     now: function() {
