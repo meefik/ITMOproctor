@@ -1,3 +1,4 @@
+var dist = require('./dist');
 var api = require('./api');
 var profile = require('./profile');
 var passport = require('./passport');
@@ -11,6 +12,7 @@ var members = require('./members');
 var tools = require('./tools');
 var schedule = require('./schedule');
 module.exports = function(app) {
+    app.use('/dist', dist);
     app.use('/api', api);
     app.use('/profile', profile);
     app.use('/passport', profile.isStudent, passport);

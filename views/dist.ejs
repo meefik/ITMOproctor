@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Загрузка приложения ITMOproctor</title>
+    <style type="text/css">
+        * { font-family: Arial; }
+        html, body { height: 100%; margin: 0px; }
+        h1 { color: #7F7F7F; margin: 0px; font-size: 18pt; }
+        a img { border: none; }
+        ul { padding: 0 25px; margin: 0; }
+        li { padding: 2px 0; }
+        .caption { text-align: left; margin-top: 2em; margin-bottom: 1em; font-size: 12pt; display: none; }
+        .caption > div { padding: 2px 0; }
+        .app-version, .os-version, .app-link { font-weight: bold; }
+        .download { display: none; }
+    </style>
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="/bower_components/moment/min/moment.min.js"></script>
+</head>
+<body>
+   <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+       <tr>
+            <td align="center">
+                <div>
+                    <a href="./"><img src="/images/logo-128x116.png" /></a>
+                </div>
+                <div style="max-width:500px;padding:0 5px;">
+                    <h1>ITMOproctor</h1>
+                    <div class="caption">
+                        <div>Последняя версия: <span class="app-version">...</span></div>
+                        <div>Ваша система: <span class="os-version">...</span></div>
+                        <div class="download">Скачать: <span class="app-link">...</span></div>
+                        <br>
+                        <div>Все версии приложения:</div>
+                        <ul class="app-dist">...</ul>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+<script>
+    function detectOS() {
+        var os = "unknown";
+        if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) os = "win";
+        else if (navigator.platform.toUpperCase().indexOf('MAC') !== -1) os = "osx";
+        else if (navigator.platform.toUpperCase().indexOf('LINUX') !== -1) os = "linux";
+        return os;
+    }
+    function detectArch() {
+        var arch = "32";
+        var arr = ["x86_64", "x86-64", "Win64", "x64;", "amd64", "AMD64", "WOW64", "x64_64"];
+        for (var i = 0, l = arr.length; i < l; i++) {
+            if (navigator.userAgent.indexOf(arr[i]) !== -1) {
+                arch = "64";
+                break;
+            }
+        }
+        return arch;
+    }
+    var $appVersion = $('.app-version');
+    var $osVersion = $('.os-version');
+    var $appLink = $('.app-link');
+    var $appDist = $('.app-dist');
+    var $download = $('.download');
+    var $caption = $('.caption');
+    var platform = {
+        os: detectOS(),
+        arch: detectArch(),
+        toString: function() {
+            switch(this.os) {
+                case 'win': return 'Windows (' + this.arch + ' бита)';
+                case 'osx': return 'OS X (' + this.arch + ' бита)';
+                case 'linux': return 'Linux (' + this.arch + ' бита)';
+                default: return 'не поддерживается';
+            }
+        }};
+    $.getJSON("/dist/metadata.json", function(data) {
+        if (data) {
+            $osVersion.html(platform.toString());
+            $appVersion.html(data.version + " (" + moment(data.date).format('YYYY.MM.DD HH:mm:ss') + ")");
+            $appDist.html('');
+            for (var k in data.md5) {
+                $appDist.append('<li><a href="/dist/' + k + '" title="md5: ' + data.md5[k] + '">' + k + '</a></li>');
+                if (k.indexOf(platform.os) != -1 && k.indexOf(platform.arch) != -1) {
+                    $appLink.html('<a href="/dist/' + k + '" title="md5: ' + data.md5[k] + '">' + k + '</a>');
+                    $download.show();
+                }
+            }
+            $caption.fadeIn("slow");
+        }
+    });
+</script>
+</body>
+</html>

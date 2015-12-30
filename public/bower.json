@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "description": "System of distant supervision",
   "licenses": "GPL-3.0",
-  "authors": [{
-    "name": "Anton Skshidlevsky",
-    "email": "meefik@gmail.com"
-  }],
+  "authors": [
+    {
+      "name": "Anton Skshidlevsky",
+      "email": "meefik@gmail.com"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/meefik/ITMOproctor.git"

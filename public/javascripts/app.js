@@ -3254,12 +3254,12 @@ var SettingsView = Backbone.View.extend({
     },
     doUpdate: function(version) {
         var self = this;
-        $.getJSON("dist/metadata.json", function(data) {
+        $.getJSON("/dist/metadata.json", function(data) {
             if (data && data.version != version) {
                 self._Update.html(data.version + " (" + moment(data.date).format('YYYY.MM.DD HH:mm:ss') + ")");
                 self._Dist.html('');
                 for (var k in data.md5) {
-                    self._Dist.append('<li><a href="dist/' + k + '">' + k + '</a></li>');
+                    self._Dist.append('<li><a href="/dist/' + k + '">' + k + '</a></li>');
                     self._Dist.append('<li>[MD5: ' + data.md5[k] + ']</li>');
                 }
             }
