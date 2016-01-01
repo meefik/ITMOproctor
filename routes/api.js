@@ -91,123 +91,138 @@ router.fetchExams = function(req, res, next) {
 };
 /**
  * Start exam request to provider
- * @param req.body.provider
- * @param req.body.examCode
+ * @param req.params.examId
  */
 router.startExam = function(req, res, next) {
-    switch (req.body.provider) {
-        case 'openedu':
-            var url = config.get('api:openedu:startExam').replace('{examCode}', req.body.examCode);
-            var apiKey = config.get('api:openedu:apiKey');
-            var request = require('request');
-            logger.debug('API request: ' + url);
-            request.get({
-                url: url,
-                headers: {
-                    'X-Edx-Api-Key': apiKey
-                }
-            }, function(error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    next();
-                }
-                else {
-                    logger.warn("API response: %s", response.statusCode);
-                    res.status(400).end();
-                }
-            });
-            break;
-        default:
-            next();
-    }
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, exam) {
+        if (err || !exam) return res.status(400).end();
+        var verified = exam.verified || {};
+        if (!verified.submit) return next();
+        var student = exam.student || {};
+        switch (student.provider) {
+            case 'openedu':
+                var url = config.get('api:openedu:startExam').replace('{examCode}', exam.examCode);
+                var apiKey = config.get('api:openedu:apiKey');
+                var request = require('request');
+                logger.debug('API request: ' + url);
+                request.get({
+                    url: url,
+                    headers: {
+                        'X-Edx-Api-Key': apiKey
+                    }
+                }, function(error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        next();
+                    }
+                    else {
+                        logger.warn("API response: %s", response.statusCode);
+                        res.status(400).end();
+                    }
+                });
+                break;
+            default:
+                next();
+        }
+    });
 };
 /**
  * Stop exam request to provider
- * @param req.body.provider
- * @param req.body.examCode
- * @param req.body._id
- * @param req.body.resolution
- * @param req.body.comment
- * @param req.body.startDate
- * @param req.body.stopDate
+ * @param req.params.examId
  */
 router.stopExam = function(req, res, next) {
-    switch (req.body.provider) {
-        case 'openedu':
-            var data = {
-                examMetaData: {
-                    examCode: req.body.examCode,
-                    ssiRecordLocator: req.body._id,
-                    reviewedExam: req.body.resolution,
-                    reviewerNotes: req.body.comment
-                },
-                examApiData: {
-                    orgExtra: {
-                        examStartDate: req.body.startDate,
-                        examEndDate: req.body.stopDate
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, exam) {
+        if (err || !exam) return res.status(400).end();
+        var student = exam.student || {};
+        switch (student.provider) {
+            case 'openedu':
+                var data = {
+                    examMetaData: {
+                        examCode: exam.examCode,
+                        ssiRecordLocator: exam._id,
+                        reviewedExam: exam.resolution,
+                        reviewerNotes: exam.comment
+                    },
+                    examApiData: {
+                        orgExtra: {
+                            examStartDate: exam.startDate,
+                            examEndDate: exam.stopDate
+                        }
+                    },
+                    // reviewStatus: 'Clean', 'Rules Violation', 'Not Reviewed', 'Suspicious'
+                    reviewStatus: exam.resolution ? 'Clean' : 'Suspicious',
+                    videoReviewLink: ''
+                };
+                var url = config.get('api:openedu:stopExam');
+                var apiKey = config.get('api:openedu:apiKey');
+                var request = require('request');
+                logger.debug('API request: ' + url);
+                request.post({
+                    url: url,
+                    json: data,
+                    headers: {
+                        'X-Edx-Api-Key': apiKey
                     }
-                },
-                // reviewStatus: 'Clean', 'Rules Violation', 'Not Reviewed', 'Suspicious'
-                reviewStatus: req.body.resolution ? 'Clean' : 'Suspicious',
-                videoReviewLink: ''
-            };
-            var url = config.get('api:openedu:stopExam');
-            var apiKey = config.get('api:openedu:apiKey');
-            var request = require('request');
-            logger.debug('API request: ' + url);
-            request.post({
-                url: url,
-                json: data,
-                headers: {
-                    'X-Edx-Api-Key': apiKey
-                }
-            }, function(error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    next();
-                }
-                else {
-                    logger.warn("API response: %s", response.statusCode);
-                    res.status(400).end();
-                }
-            });
-            break;
-        default:
-            next();
-    }
+                }, function(error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        next();
+                    }
+                    else {
+                        logger.warn("API response: %s", response.statusCode);
+                        res.status(400).end();
+                    }
+                });
+                break;
+            default:
+                next();
+        }
+    });
 };
 /**
  * Get exam status from provider
- * @param req.body.provider
- * @param req.body.examCode
+ * @param req.params.examId
  */
 router.examStatus = function(req, res, next) {
-    switch (req.body.provider) {
-        case 'openedu':
-            var url = config.get('api:openedu:examStatus').replace('{examCode}', req.body.examCode);
-            var apiKey = config.get('api:openedu:apiKey');
-            var request = require('request');
-            logger.debug('API request: ' + url);
-            request.get({
-                url: url,
-                headers: {
-                    'X-Edx-Api-Key': apiKey
-                }
-            }, function(error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    var data = JSON.parse(body);
-                    if (data) {
-                        req.body.examStatus = data.status;
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.info(args, function(err, exam) {
+        if (err || !exam) return res.status(400).end();
+        var student = exam.student || {};
+        switch (student.provider) {
+            case 'openedu':
+                var url = config.get('api:openedu:examStatus').replace('{examCode}', exam.examCode);
+                var apiKey = config.get('api:openedu:apiKey');
+                var request = require('request');
+                logger.debug('API request: ' + url);
+                request.get({
+                    url: url,
+                    headers: {
+                        'X-Edx-Api-Key': apiKey
                     }
-                    next();
-                }
-                else {
-                    logger.warn("API response: %s", response.statusCode);
-                    res.status(400).end();
-                }
-            });
-            break;
-        default:
-            next();
-    }
+                }, function(error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        var data = JSON.parse(body);
+                        if (data) {
+                            req.body.examStatus = data.status;
+                        }
+                        next();
+                    }
+                    else {
+                        logger.warn("API response: %s", response.statusCode);
+                        res.status(400).end();
+                    }
+                });
+                break;
+            default:
+                next();
+        }
+    });
 };
 // Initialize session from edX
 router.post('/edx/init', function(req, res) {

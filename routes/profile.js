@@ -54,16 +54,6 @@ passport.deserializeUser(function(user, done) {
     done(null, user);
 });
 
-
-router.get('/', function(req, res) {
-    req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
-});
-
-router.get('/logout', function(req, res) {
-    req.logout();
-    res.end();
-});
-
 // Local strategy
 passport.use('local', new LocalStrategy(db.profile.auth.local));
 router.post('/login', passport.authenticate('local', {
@@ -110,6 +100,62 @@ router.get('/openedu/callback', passport.authenticate('openedu', {
     failureRedirect: '/#login'
 }), router.logUserIP, function(req, res, next) {
     res.redirect('/');
+});
+
+// Get user profile
+router.get('/', function(req, res) {
+    req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
+});
+// User logout
+router.get('/logout', function(req, res) {
+    req.logout();
+    res.end();
+});
+// Get user profile by id
+router.get('/:userId', router.isInspectorOrMyself, function(req, res) {
+    var args = {
+        userId: req.params.userId
+    };
+    db.profile.info(args, function(err, data) {
+        if (!err && data) {
+            res.json(data);
+        }
+        else {
+            res.status(400).end();
+        }
+    });
+});
+// Update user profile by id
+router.put('/:userId', router.isMyself, function(req, res) {
+    var args = {
+        userId: req.params.userId,
+        data: {
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            middlename: req.body.middlename,
+            gender: req.body.gender,
+            birthday: req.body.birthday,
+            email: req.body.email,
+            citizenship: req.body.citizenship,
+            documentType: req.body.documentType,
+            documentNumber: req.body.documentNumber,
+            documentIssueDate: req.body.documentIssueDate,
+            address: req.body.address,
+            description: req.body.description,
+            attach: req.body.attach
+        }
+    };
+    db.profile.update(args, function(err, data) {
+        if (!err && data) {
+            req.login(data, function(error) {
+                if (error) res.status(400).end();
+                else res.json(data);
+            });
+        }
+        else {
+            res.status(400).end();
+        }
+    });
 });
 
 module.exports = router;

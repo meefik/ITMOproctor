@@ -41,21 +41,5 @@
         <td><strong>Дополнительно:</strong></td>
         <td><%- user.description %></td>
     </tr>
-    <tr>
-        <td style="vertical-align:top;"><strong>Приложенные файлы:</strong></td>
-        <td>
-            <% if(user.attach.length > 0) { %>
-                <% _.each(user.attach, function(element, index, list){ 
-                    var filename = element.filename;
-                    var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';
-                    if (filename.length > 30) {
-                        filename = filename.substring(0, 30) + '...' + extension;
-                    }
-                    %>
-                    <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="/storage/<%- element.fileId %>" title="<%- element.description %>"><%- filename %></a><br/>
-                <% }); %>
-            <% } %>
-        </td>
-    </tr>
 </table>
 </script>

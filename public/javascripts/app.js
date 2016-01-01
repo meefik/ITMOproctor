@@ -6,7 +6,6 @@ var SINGLE_MODE = false;
 var UPLOAD_LIMIT = 10; // MB
 var TX_MIN = 1; // Mbps
 var RX_MIN = 1; // Mbps
-var OFFSET = 0; // hours
 var REQUEST_INTERVAL = 60; // seconds
 //
 // Profile model
@@ -658,13 +657,13 @@ var MonitorView = Backbone.View.extend({
                             concurrent: element.concurrent
                         }, {
                             success: function(model) {
-                                self._DialogGrid.datagrid('reload');
+                                self._Dialog.dialog('close');
                             }
                         });
                     });
                 }
             }, {
-                text: 'Закрыть',
+                text: 'Отменить',
                 iconCls: 'fa fa-times',
                 handler: function() {
                     self._Dialog.dialog('close');
@@ -672,7 +671,7 @@ var MonitorView = Backbone.View.extend({
             }],
             onOpen: function() {
                 self._DialogGrid.datagrid({
-                    url: '/schedule'
+                    url: '/inspector/schedule'
                 });
                 $(this).dialog('center');
             }
@@ -760,18 +759,18 @@ var MonitorView = Backbone.View.extend({
         }, 30000);
         */
         this.timers = [t1, t2];
-        // Monitor model
-        var Monitor = Backbone.Model.extend({
+        // Exam model
+        var Exam = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/inspector'
+            urlRoot: '/inspector/exam'
         });
-        this.monitor = new Monitor();
+        this.monitor = new Exam();
         // Schedule model
         var Schedule = Backbone.Model.extend({
             idAttribute: "_id"
         });
         var ScheduleList = Backbone.Collection.extend({
-            url: '/schedule',
+            url: '/inspector/schedule',
             model: Schedule
         });
         this.schedules = new ScheduleList();
@@ -839,7 +838,7 @@ var MonitorView = Backbone.View.extend({
             ],
             rownumbers: true,
             remoteSort: false,
-            url: '/inspector',
+            url: '/inspector/exam',
             method: 'get',
             queryParams: {
                 from: now.startOf('day').toJSON(),
@@ -1046,7 +1045,6 @@ var VisionView = Backbone.View.extend({
         this._ExamComment = this._DialogConfirm.find('.exam-comment');
         this._ApplyText = this._DialogConfirm.find('.apply-text');
         this._RejectText = this._DialogConfirm.find('.reject-text');
-        this._VerifyBtn = this.$('.verify-btn');
         this._DialogVerify = $("#verify-dlg");
         this._Video = this.$('.panel-webcam > .video-output');
         this._StudentPhoto = this._DialogVerify.find('.student-photo');
@@ -1129,7 +1127,7 @@ var VisionView = Backbone.View.extend({
         // Vision model
         var Vision = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/inspector'
+            urlRoot: '/inspector/exam'
         });
         this.model = new Vision({
             _id: this.options.examId
@@ -1225,7 +1223,6 @@ var VisionView = Backbone.View.extend({
         var subject = this.model.get('subject');
         this._ExamWidget.text(subject);
         this._DurationWidget.css('color', '');
-        if (this.model.get('verified')) this._VerifyBtn.linkbutton('disable');
     },
     destroy: function() {
         this.timers.forEach(function(element, index, array) {
@@ -1263,7 +1260,7 @@ var VisionView = Backbone.View.extend({
     },
     getExamStatus: function() {
         var self = this;
-        $.getJSON('/inspector/' + this.options.examId + '/status',
+        $.getJSON('/inspector/exam/' + this.options.examId + '/status',
             function(data) {
                 if (!data) return;
                 if (!self.examStatus) self.examStatus = data.status;
@@ -1279,7 +1276,6 @@ var VisionView = Backbone.View.extend({
             });
     },
     doVerify: function() {
-        if (this.model.get('verified')) return;
         var self = this;
         var timer;
         var paused = false;
@@ -1372,7 +1368,7 @@ var VisionView = Backbone.View.extend({
             };
             self.model.set('verified', verified);
             $.ajax({
-                url: "/inspector/" + self.options.examId,
+                url: "/inspector/exam/" + self.options.examId,
                 type: "post",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -1389,7 +1385,6 @@ var VisionView = Backbone.View.extend({
                         editable: false
                     });
                     self._DialogVerify.dialog('close');
-                    self._VerifyBtn.linkbutton('disable');
                 });
             });
         }
@@ -2184,12 +2179,12 @@ var ScheduleView = Backbone.View.extend({
         this._PlanTo = this._Dialog.find('.plan-to');
         this._PlanDuration = this._Dialog.find('.plan-duration');
         this._PlanGrid = this._Dialog.find('.plan-table');
-        // Model
+        // Exam model
         var Exam = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/exam'
+            urlRoot: '/student/exam'
         });
-        this.model = new Exam();
+        this.exam = new Exam();
         // Dialog
         this._Dialog.dialog({
             buttons: [{
@@ -2204,7 +2199,7 @@ var ScheduleView = Backbone.View.extend({
                 handler: function() {
                     var selectedDate = self._PlanGrid.datagrid('getSelected');
                     if (selectedDate) {
-                        self.model.save({
+                        self.exam.save({
                             beginDate: selectedDate
                         }, {
                             success: function(model) {
@@ -2223,10 +2218,10 @@ var ScheduleView = Backbone.View.extend({
             }],
             onOpen: function() {
                 $(this).dialog('center');
-                var subject = self.model.get('subject');
-                var duration = self.model.get('duration');
-                var leftDate = moment(self.model.get('leftDate')).format('DD.MM.YYYY');
-                var rightDate = moment(self.model.get('rightDate')).format('DD.MM.YYYY');
+                var subject = self.exam.get('subject');
+                var duration = self.exam.get('duration');
+                var leftDate = moment(self.exam.get('leftDate')).format('DD.MM.YYYY');
+                var rightDate = moment(self.exam.get('rightDate')).format('DD.MM.YYYY');
                 self._PlanSubject.text(subject);
                 self._PlanFrom.text(leftDate);
                 self._PlanTo.text(rightDate);
@@ -2315,11 +2310,11 @@ var ScheduleView = Backbone.View.extend({
                     formatter: self.formatStatus
                 }]
             ],
-            url: '/student',
+            url: '/student/exam',
             method: 'get',
             onSelect: function(index, row) {
                 if (!row) return;
-                self.model.set(row);
+                self.exam.set(row);
                 var rightDate = moment(row.rightDate);
                 var beginDate = moment(row.beginDate);
                 var endDate = moment(row.endDate);
@@ -2331,7 +2326,8 @@ var ScheduleView = Backbone.View.extend({
                 else if (!row.beginDate || !row.endDate) {
                     self._PlanBtn.show();
                 }
-                else if (beginDate > moment(now).add(OFFSET, 'hours')) {
+                else if (beginDate > now &&
+                    beginDate >= now.add(self.offset, 'hours').startOf('hour')) {
                     self._CancelBtn.show();
                 }
                 else if (beginDate <= now && !row.stopDate &&
@@ -2341,6 +2337,7 @@ var ScheduleView = Backbone.View.extend({
             },
             onLoadSuccess: function(data) {
                 var now = app.now();
+                self.offset = data.offset;
                 self.nextExam = null;
                 for (var k in data.rows) {
                     if (!data.rows[k].beginDate || !data.rows[k].endDate) continue;
@@ -2428,7 +2425,7 @@ var ScheduleView = Backbone.View.extend({
         if (selected && !disabled) {
             this._Dialog.dialog('open');
             this._PlanGrid.datagrid({
-                url: '/exam?leftDate=' + selected.leftDate + '&rightDate=' +
+                url: '/student/schedule?leftDate=' + selected.leftDate + '&rightDate=' +
                     selected.rightDate + '&duration=' + selected.duration
             });
         }
@@ -2437,7 +2434,7 @@ var ScheduleView = Backbone.View.extend({
         var self = this;
         $.messager.confirm('Подтверждение', 'Вы действительно хотите отменить выбранный экзамен?', function(r) {
             if (r) {
-                self.model.destroy({
+                self.exam.destroy({
                     success: function(model) {
                         self.refreshTable();
                     }
@@ -2617,14 +2614,14 @@ var ExamView = Backbone.View.extend({
         var t1 = setInterval(function() {
             var now = app.now();
             self._TimeWidget.text(now.format('HH:mm:ss'));
-            var startDate = self.model.get('startDate');
+            var startDate = self.exam.get('startDate');
             if (startDate) {
                 var diff = now.diff(startDate);
                 if (diff < 0) diff = 0;
                 var timer = moment(diff);
                 self._DurationWidget.text(timer.utc().format('HH:mm:ss'));
             }
-            var endDate = self.model.get('endDate');
+            var endDate = self.exam.get('endDate');
             if (endDate) {
                 if (moment(endDate).diff(now, 'minutes') <= 5)
                     self._DurationWidget.css('color', 'red');
@@ -2633,28 +2630,28 @@ var ExamView = Backbone.View.extend({
             }
         }, 1000);
         this.timers = [t1];
-        // Student model
-        var Student = Backbone.Model.extend({
+        // Exam model
+        var Exam = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/student'
+            urlRoot: '/student/exam'
         });
-        this.model = new Student({
+        this.exam = new Exam({
             _id: this.options.examId
         });
-        this.listenTo(this.model, 'change', this.render);
+        this.listenTo(this.exam, 'change', this.render);
         // Socket notification
         app.io.notify.on('exam-' + this.options.examId, function(data) {
             if (!app.profile.isMe(data.userId)) {
-                self.model.fetch();
+                self.exam.fetch();
             }
         });
         // Start exam
-        this.model.fetch();
+        this.exam.fetch();
     },
     render: function() {
-        var resolution = this.model.get("resolution");
+        var resolution = this.exam.get("resolution");
         if (resolution != null) {
-            var comment = this.model.get("comment");
+            var comment = this.exam.get("comment");
             var message = "";
             if (resolution === true) {
                 message += 'Инспектор <strong style="color:green">подписал</strong> экзамен:';
@@ -2675,7 +2672,7 @@ var ExamView = Backbone.View.extend({
             });
             return;
         }
-        var subject = this.model.get("subject");
+        var subject = this.exam.get("subject");
         this._ExamWidget.text(subject);
         this._DurationWidget.css('color', '');
     },
@@ -2779,7 +2776,7 @@ var PassportView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль студента',
             width: 500,
-            height: 450,
+            height: 410,
             closed: true,
             modal: true,
             cache: false,
@@ -2835,7 +2832,7 @@ var PassportView = Backbone.View.extend({
         // Dialog model
         var DialogModel = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/passport'
+            urlRoot: '/profile'
         });
         this.model = new DialogModel();
         //this.listenTo(this.model, 'change', this.render);
@@ -2869,11 +2866,6 @@ var PassportView = Backbone.View.extend({
 //
 var PassportEditorView = Backbone.View.extend({
     tagName: 'div',
-    events: {
-        "change .passport-attach-input": "onFileChange",
-        "click .passport-delete-file": "removeAttach",
-        "click .attach-link": "doDownload"
-    },
     initialize: function(options) {
         var self = this;
         this.options = options || {};
@@ -2881,7 +2873,7 @@ var PassportEditorView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль студента',
             width: 500,
-            height: 530,
+            height: 470,
             closed: true,
             modal: true,
             cache: false,
@@ -2904,12 +2896,6 @@ var PassportEditorView = Backbone.View.extend({
                 $(this).dialog('center');
             },
             buttons: [{
-                text: 'Прикрепить',
-                iconCls: 'fa fa-paperclip',
-                handler: function() {
-                    self.doAttach();
-                }
-            }, {
                 text: 'Сохранить',
                 iconCls: 'fa fa-check',
                 handler: function() {
@@ -2928,7 +2914,7 @@ var PassportEditorView = Backbone.View.extend({
         // Dialog model
         var DialogModel = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/passport'
+            urlRoot: '/profile'
         });
         this.model = new DialogModel();
         //this.listenTo(this.model, 'change', this.render);
@@ -2938,96 +2924,9 @@ var PassportEditorView = Backbone.View.extend({
     },
     render: function() {
         // Variables
-        this.attachedFile = false;
-        this._AttachInput = this.$(".passport-attach-input");
-        this._Progress = this.$(".passport-progress");
-        this._AttachList = this.$(".passport-files");
-        this._AttachForm = this.$(".passport-attach-form");
         this._EditForm = this.$('.passport-form');
         // Load form data
         this._EditForm.form('load', this.model.toJSON());
-        // Display files
-        this.drawAttachList();
-    },
-    removeAttach: function(event) {
-        var attachId = $(event.currentTarget).attr("data-id");
-        var attach = this.model.get('attach');
-        if (attach[attachId].fileId) {
-            attach[attachId].removed = 1;
-        }
-        else {
-            attach.splice(attachId, 1);
-        }
-        //this.model.trigger('change');
-        this.drawAttachList();
-    },
-    drawAttachList: function() {
-        this._AttachList.html('');
-        var attach = this.model.get('attach');
-        for (var i = 0, l = attach.length; i < l; i++) {
-            if (attach[i].removed) continue;
-            var html = '<div><i class="fa fa-paperclip"></i> ';
-            if (attach[i].fileId) {
-                html += '<a class="attach-link" href="/storage/' + attach[i].fileId + '" title="' +
-                    attach[i].filename + '">' + _.truncateFilename(attach[i].filename, 25) +
-                    '</a>';
-            }
-            else {
-                html += '<span title="' + attach[i].filename + '">' +
-                    _.truncateFilename(attach[i].filename, 25) + '</span>';
-            }
-            html += ' <i data-id="' + i +
-                '" class="fa fa-times passport-delete-file" title="Удалить" style="cursor:pointer;"></i></div>';
-            this._AttachList.append(html);
-        }
-    },
-    doAttach: function() {
-        if (this.attachedFile) return;
-        this._AttachInput.trigger('click');
-    },
-    onFileChange: function() {
-        var self = this;
-        var limitSize = UPLOAD_LIMIT * 1024 * 1024; // 10 MB
-        var data = new FormData(this._AttachForm);
-        var files = self._AttachInput[0].files;
-        if (files.length === 0 || files[0].size > limitSize) {
-            return;
-        }
-        $.each(files, function(key, value) {
-            data.append(key, value);
-        });
-        var filename = files['0'].name;
-        self.attachedFile = true;
-        self._Progress.show();
-        self._Progress.progressbar({
-            value: 0,
-            text: _.truncateFilename(filename, 15)
-        });
-        $.ajax({
-            type: 'post',
-            url: '/storage',
-            data: data,
-            xhr: function() {
-                var xhr = $.ajaxSettings.xhr();
-                xhr.upload.onprogress = function(progress) {
-                    var percentage = Math.floor((progress.loaded / progress.total) * 100);
-                    self._Progress.progressbar('setValue', percentage);
-                };
-                return xhr;
-            },
-            processData: false,
-            contentType: false
-        }).done(function(respond) {
-            var attach = self.model.get('attach');
-            attach.push({
-                fileId: respond.fileId,
-                filename: respond.originalname,
-                uploadname: respond.name
-            });
-            self._Progress.hide();
-            self.drawAttachList();
-            self.attachedFile = false;
-        });
     },
     doSave: function() {
         var self = this;
@@ -3043,7 +2942,6 @@ var PassportEditorView = Backbone.View.extend({
                 config[item.name] = item.value;
             }
         });
-        config.attach = this.model.get('attach');
         this.model.save(config, {
             success: function(model) {
                 app.profile.clear().set(model.attributes);
@@ -3058,9 +2956,6 @@ var PassportEditorView = Backbone.View.extend({
     },
     doClose: function() {
         this._Dialog.dialog('close');
-    },
-    doDownload: function(e) {
-        return _.isHttpStatusOK(e.currentTarget.href);
     }
 });
 //
@@ -3110,7 +3005,7 @@ var ProfileView = Backbone.View.extend({
         // Dialog model
         var DialogModel = Backbone.Model.extend({
             idAttribute: '_id',
-            urlRoot: '/passport'
+            urlRoot: '/profile'
         });
         this.model = new DialogModel();
     },

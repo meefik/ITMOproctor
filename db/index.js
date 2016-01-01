@@ -127,12 +127,12 @@ var db = {
             var attach = args.data.attach || [];
             var attachAdd = [];
             var attachDel = [];
-            for (var i = 0; i < attach.length; i++) {
+            for (var i = 0, l = attach.length; i < l; i++) {
                 if (!attach[i].fileId) {
                     attach[i].fileId = mongoose.Types.ObjectId();
                     attachAdd.push(attach[i]);
                 }
-                if (attach[i].removed) {
+                else if (attach[i].removed) {
                     attachDel.push(attach[i]);
                     attach.splice(i, 1);
                 }
@@ -356,19 +356,9 @@ var db = {
             var duration = Math.ceil((Number(args.duration) + interval) / 60);
             var offset = Number(config.get('schedule:offset'));
             var now = moment().add(offset, 'hours');
-            var leftDate = moment.max(now, moment(args.leftDate));
-            var rightDate = moment(args.rightDate);
+            var leftDate = moment.max(now, moment(args.leftDate)).startOf('hour');
+            var rightDate = moment(args.rightDate).add(1, 'hours').startOf('hour');
             var timetable = {};
-            leftDate.set({
-                'minute': 0,
-                'second': 0,
-                'millisecond': 0
-            });
-            rightDate.add(1, 'hours').set({
-                'minute': 0,
-                'second': 0,
-                'millisecond': 0
-            });
             Schedule.find({
                 '$and': [{
                     beginDate: {
@@ -457,12 +447,12 @@ var db = {
         cancel: function(args, callback) {
             var Exam = require('./models/exam');
             var offset = Number(config.get('schedule:offset'));
-            var now = moment().add(offset, 'hours');
+            var now = moment().add(offset, 'hours').startOf('hour');
             Exam.findOneAndUpdate({
                 _id: args.examId,
                 student: args.userId,
                 beginDate: {
-                    '$gt': now
+                    '$gte': now
                 }
             }, {
                 '$set': {
@@ -563,10 +553,6 @@ var db = {
         },
         finish: function(args, callback) {
             var Exam = require('./models/exam');
-            var opts = [{
-                path: 'student',
-                select: 'provider'
-            }];
             Exam.findOneAndUpdate({
                 _id: args.examId,
                 inspector: args.userId
@@ -576,17 +562,11 @@ var db = {
                     resolution: args.resolution,
                     comment: args.comment
                 }
-            }, {
-                'new': true
-            }).populate(opts).exec(callback);
+            }).exec(callback);
         },
         verify: function(args, callback) {
             if (!args.verified) return callback();
             var Exam = require('./models/exam');
-            var opts = [{
-                path: 'student',
-                select: 'provider'
-            }];
             var hash = crypto.createHash('md5').update(JSON.stringify(args.verified.data)).digest('hex');
             Exam.findOneAndUpdate({
                 _id: args.examId,
@@ -597,9 +577,7 @@ var db = {
                     'verified.data': args.verified.data,
                     'verified.hash': hash
                 }
-            }, {
-                'new': true
-            }).populate(opts).exec(callback);
+            }).exec(callback);
         }
     },
     schedule: {
@@ -614,14 +592,8 @@ var db = {
         },
         add: function(args, callback) {
             var Schedule = require('./models/schedule');
-            var beginDate = moment(args.beginDate).set({
-                'minutes': 0,
-                'seconds': 0
-            });
-            var endDate = moment(args.endDate).set({
-                'minutes': 0,
-                'seconds': 0
-            });
+            var beginDate = moment(args.beginDate).startOf('hour');
+            var endDate = moment(args.endDate).startOf('hour');
             if (beginDate >= endDate || args.concurrent < 1 ||
                 beginDate < moment() || endDate < moment()) return callback();
             var schedule = new Schedule({
