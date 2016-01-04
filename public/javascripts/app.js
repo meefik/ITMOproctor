@@ -615,7 +615,7 @@ var MonitorView = Backbone.View.extend({
                         self._Dialog.dialog('open');
                         break;
                     case "profile":
-                        self.view.profile.doOpen();
+                        self.view.profileEditor.doOpen();
                         break;
                     case "settings":
                         self.view.settings.doOpen();
@@ -710,6 +710,7 @@ var MonitorView = Backbone.View.extend({
         this.view = {
             settings: new SettingsView(),
             profile: new ProfileView(),
+            profileEditor: new ProfileEditorView(),
             info: new InfoView(),
             demo: new DemoView(),
             passport: new PassportView()
@@ -3017,6 +3018,185 @@ var ProfileView = Backbone.View.extend({
         var tpl = _.template($("#profile-tpl").html());
         var html = tpl(this.model.toJSON());
         view.html(html);
+    },
+    doOpen: function(userId) {
+        if (userId) this.options.userId = userId;
+        else this.options.userId = null;
+        this._Dialog.dialog('open');
+    },
+    doClose: function() {
+        this._Dialog.dialog('close');
+    }
+});
+//
+// ProfileEditor view
+//
+var ProfileEditorView = Backbone.View.extend({
+    events: {
+        "click .avatar": "doAttach",
+        "change .attach-file": "onFileChange",
+        "click .remove-attach": "doRemoveAttach"
+    },
+    tagName: 'div',
+    initialize: function(options) {
+        var self = this;
+        this.options = options || {};
+        // Dialog
+        var dialog = $(this.el).dialog({
+            title: 'Профиль проктора',
+            width: 500,
+            height: 280,
+            closed: true,
+            modal: true,
+            cache: false,
+            href: '/templates/profile-editor.html',
+            onLoad: function() {
+                self.model.clear();
+                if (self.options.userId) {
+                    self.model.set('_id', self.options.userId);
+                }
+                else {
+                    self.model.set('_id', app.profile.get('_id'));
+                }
+                self.model.fetch({
+                    success: function() {
+                        self.render();
+                    }
+                });
+            },
+            onOpen: function() {
+                $(this).dialog('center');
+            },
+            buttons: [{
+                text: 'Сохранить',
+                iconCls: 'fa fa-check',
+                handler: function() {
+                    self.doSave();
+                }
+            }, {
+                text: 'Отменить',
+                iconCls: 'fa fa-times',
+                handler: function() {
+                    self.doClose();
+                }
+            }],
+            loadingMessage: 'Загрузка...'
+        });
+        this._Dialog = $(dialog);
+        // Dialog model
+        var DialogModel = Backbone.Model.extend({
+            idAttribute: '_id',
+            urlRoot: '/profile'
+        });
+        this.model = new DialogModel();
+        //this.listenTo(this.model, 'change', this.render);
+    },
+    destroy: function() {
+        this.remove();
+    },
+    render: function() {
+        // Variables
+        this.attachedFile = false;
+        this._EditForm = this.$('.profile-form');
+        this._AttachForm = this.$('.attach-form');
+        this._Avatar = this.$('.avatar');
+        this._Attach = this.$('.attach-file');
+        this._Progress = this.$('.attach-progress');
+        // Load form data
+        this._EditForm.form('load', this.model.toJSON());
+        // Load image
+        var image = this.model.get('attach')[0];
+        if (image) this._Avatar.attr('src', '/storage/' + image.fileId);
+    },
+    doSave: function() {
+        var self = this;
+        var config = {};
+        this._EditForm.serializeArray().map(function(item) {
+            if (config[item.name]) {
+                if (typeof(config[item.name]) === "string") {
+                    config[item.name] = [config[item.name]];
+                }
+                config[item.name].push(item.value);
+            }
+            else {
+                config[item.name] = item.value;
+            }
+        });
+        config.attach = this.model.get('attach');
+        this.model.save(config, {
+            success: function(model) {
+                app.profile.clear().set(model.attributes);
+                self.doClose();
+            }
+        });
+    },
+    onFileChange: function() {
+        var self = this;
+        var limitSize = UPLOAD_LIMIT * 1024 * 1024; // MB
+        var data = new FormData(this._AttachForm);
+        var files = self._Attach[0].files;
+        if (files.length === 0 || files[0].size > limitSize) {
+            return;
+        }
+        $.each(files, function(key, value) {
+            data.append(key, value);
+        });
+        var file = files['0'];
+        self.attachedFile = true;
+        // show progress
+        self._Progress.show();
+        self._Progress.progressbar({
+            value: 0,
+            text: _.truncateFilename(file.name, 15)
+        });
+        // show image
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            self._Avatar.attr('src', event.target.result);
+        };
+        reader.readAsDataURL(file);
+        $.ajax({
+            type: 'post',
+            url: '/storage',
+            data: data,
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
+                xhr.upload.onprogress = function(progress) {
+                    var percentage = Math.floor((progress.loaded / progress.total) * 100);
+                    self._Progress.progressbar('setValue', percentage);
+                };
+                return xhr;
+            },
+            processData: false,
+            contentType: false
+        }).done(function(respond) {
+            var attach = self.model.get('attach');
+            // remove old attaches
+            for (var i = 0, l = attach.length; i < l; i++) {
+                attach[i].removed = true;
+            }
+            // add new attach
+            attach.push({
+                fileId: respond.fileId,
+                filename: respond.originalname,
+                uploadname: respond.name
+            });
+            self._Progress.hide();
+            self.attachedFile = false;
+        });
+    },
+    doAttach: function() {
+        if (this.attachedFile) return;
+        this._Attach.trigger('click');
+    },
+    doRemoveAttach: function() {
+        this._Avatar.attr('src', '/images/avatar.png');
+        this._AttachForm.trigger('reset');
+        // remove old attaches
+        var attach = this.model.get('attach');
+        for (var i = 0, l = attach.length; i < l; i++) {
+            attach[i].removed = true;
+        }
     },
     doOpen: function(userId) {
         if (userId) this.options.userId = userId;

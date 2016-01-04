@@ -1,0 +1,57 @@
+<div class="profile-view" style="margin:5px;">
+    <div style="position:relative;margin:5px;float:left;">
+        <img class="avatar" src="/images/avatar.png" alt="Фотография" style="border:1px solid lightgray;width:120px;height:160px;object-position:center;object-fit:cover;cursor:pointer;">
+        <div style="position:absolute;top:1px;right:1px;background-color:black;padding:4px;background:rgba(0,0,0,0.5);">
+            <a class="remove-attach" href="javascript:void(0)" style="color:white" title="Удалить">X</a>
+        </div>
+        <div style="font-size:6pt;text-align:center;">
+            120 x 160 [png, jpeg]
+        </div>
+    </div>
+    <form class="profile-form">
+        <table cellpadding="5">
+            <tr>
+                <td colspan="2">
+                    ФИО:
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="width:107,prompt:'Фамилия'" />
+                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="width:107,prompt:'Имя'" />
+                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:107,prompt:'Отчество'" />
+                </td>
+            </tr>
+            <tr>
+                <td>Пол:</td>
+                <td>
+                    <select name="gender" class="gender" style="width:200px;">
+                        <option selected disabled>...</option>
+                        <option value="Мужской">Мужской</option>
+                        <option value="Женский">Женский</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Дата рождения:
+                </td>
+                <td>
+                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="prompt:'Дата рождения'">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Электронный адрес:
+                </td>
+                <td>
+                    <input type="text" name="email" class="easyui-textbox email" data-options="width:200,prompt:'Электронный адрес'" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <form class="attach-form" method="post" enctype="multipart/form-data" style="display:none;">
+        <input class="attach-file" type="file" name="attachFile" accept="image/jpeg,image/png" />
+    </form>
+    <div class="easyui-progressbar attach-progress" data-options="width:150,height:18" style="display:none;position:absolute;left:15px;bottom:16px;z-index:10;"></div>
+</div>

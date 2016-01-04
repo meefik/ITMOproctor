@@ -127,7 +127,7 @@ var db = {
             var attach = args.data.attach || [];
             var attachAdd = [];
             var attachDel = [];
-            for (var i = 0, l = attach.length; i < l; i++) {
+            for (var i = 0; i < attach.length; i++) {
                 if (!attach[i].fileId) {
                     attach[i].fileId = mongoose.Types.ObjectId();
                     attachAdd.push(attach[i]);
@@ -135,6 +135,7 @@ var db = {
                 else if (attach[i].removed) {
                     attachDel.push(attach[i]);
                     attach.splice(i, 1);
+                    i--;
                 }
             }
             User.findByIdAndUpdate(args.userId, {
