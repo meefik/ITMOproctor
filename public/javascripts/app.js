@@ -804,7 +804,7 @@ var MonitorView = Backbone.View.extend({
                     formatter: self.formatStudent
                 }, {
                     field: 'inspector',
-                    title: 'Инспектор',
+                    title: 'Проктор',
                     width: 150,
                     formatter: self.formatInspector
                 }, {
@@ -2654,10 +2654,10 @@ var ExamView = Backbone.View.extend({
             var comment = this.exam.get("comment");
             var message = "";
             if (resolution === true) {
-                message += 'Инспектор <strong style="color:green">подписал</strong> экзамен:';
+                message += 'Проктор <strong style="color:green">подписал</strong> экзамен:';
             }
             else {
-                message += 'Инспектор <strong style="color:red">прервал</strong> экзамен:';
+                message += 'Проктор <strong style="color:red">прервал</strong> экзамен:';
             }
             if (comment) {
                 message += '<p>' + comment + '</p>';
@@ -2967,7 +2967,7 @@ var ProfileView = Backbone.View.extend({
         var self = this;
         this.options = options || {};
         var dialog = $(this.el).dialog({
-            title: 'Профиль инспектора',
+            title: 'Профиль проктора',
             width: 500,
             height: 270,
             closed: true,

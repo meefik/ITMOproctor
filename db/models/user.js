@@ -124,7 +124,7 @@ User.virtual('genderId').set(function(genderId) {
 User.virtual('roleName').get(function() {
     var role = {
         "1": "Студент",
-        "2": "Инспектор",
+        "2": "Проктор",
         "3": "Администратор"
     };
     return role[this.role];
