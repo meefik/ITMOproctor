@@ -2776,7 +2776,7 @@ var PassportView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль студента',
             width: 500,
-            height: 410,
+            height: 440,
             closed: true,
             modal: true,
             cache: false,
@@ -2969,7 +2969,7 @@ var ProfileView = Backbone.View.extend({
         var dialog = $(this.el).dialog({
             title: 'Профиль проктора',
             width: 500,
-            height: 270,
+            height: 280,
             closed: true,
             modal: true,
             cache: false,
