@@ -38,7 +38,7 @@
     },
     "api": {
         "local": {
-            "template": "db/data.json"
+            "template": "db/exams.json"
         },
         "openedu": {
             "cryptoKey": "its-a-secret",
