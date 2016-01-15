@@ -41,10 +41,8 @@
             "template": "db/data.json"
         },
         "openedu": {
-            "cryptoKey": "its-a-secret",
-            "secretKey": "its-a-secret",
-            "secretKeyId": "its-a-secret",
             "apiKey": "its-a-secret",
+            "coursePattern": ":ITMOUniversity",
             "requestExams": "https://courses.openedu.ru/api/extended/user_proctored_exams/{username}/?format=json",
             "startExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
             "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}?format=json",

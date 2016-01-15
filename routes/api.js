@@ -55,8 +55,10 @@ router.fetchExams = function(req, res, next) {
                         return next();
                     }
                     //console.log(json);
+                    var coursePattern = config.get('api:openedu:coursePattern');
                     var arr = [];
                     for (var k in json) {
+                        if (!k.match(coursePattern)) continue;
                         var exams = json[k].exams || [];
                         for (var i = 0, li = exams.length; i < li; i++) {
                             if (exams[i].is_active && exams[i].is_proctored) {
