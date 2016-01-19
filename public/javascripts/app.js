@@ -2639,8 +2639,7 @@ var ExamView = Backbone.View.extend({
             if (startDate) {
                 var diff = now.diff(startDate);
                 if (diff < 0) diff = 0;
-                var timer = moment(diff);
-                self._DurationWidget.text(timer.utc().format('HH:mm:ss'));
+                self._DurationWidget.text(moment(diff).utc().format('HH:mm:ss'));
             }
             var endDate = self.exam.get('endDate');
             if (endDate) {

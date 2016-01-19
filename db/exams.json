@@ -5,18 +5,18 @@
         "subject": "Тестовый экзамен 1",
         "leftDate": "2015-12-01T21:00:00.000Z",
         "rightDate": "2016-03-01T21:00:00.000Z",
-        "duration": 60
+        "duration": 30
     }, {
         "examId": 2,
         "subject": "Тестовый экзамен 2",
         "leftDate": "2015-12-01T21:00:00.000Z",
         "rightDate": "2016-03-01T21:00:00.000Z",
-        "duration": 60
+        "duration": 30
     }, {
         "examId": 3,
         "subject": "Тестовый экзамен 3",
         "leftDate": "2015-12-01T21:00:00.000Z",
         "rightDate": "2016-03-01T21:00:00.000Z",
-        "duration": 60
+        "duration": 30
     }]
 }

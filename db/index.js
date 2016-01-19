@@ -595,8 +595,10 @@ var db = {
             var Schedule = require('./models/schedule');
             var beginDate = moment(args.beginDate).startOf('hour');
             var endDate = moment(args.endDate).startOf('hour');
-            if (beginDate >= endDate || args.concurrent < 1 ||
-                beginDate < moment() || endDate < moment()) return callback();
+            var offset = Number(config.get('schedule:offset'));
+            var now = moment().add(offset, 'hours').startOf('hour');
+            if (beginDate >= endDate || beginDate < now ||
+                args.concurrent < 1) return callback();
             var schedule = new Schedule({
                 inspector: args.inspector,
                 beginDate: beginDate,
