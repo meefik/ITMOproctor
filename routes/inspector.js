@@ -138,4 +138,20 @@ router.post('/schedule',
             }
         });
     });
+// Delete time
+router.delete('/schedule/:scheduleId',
+    function(req, res) {
+        var args = {
+            inspector: req.user._id,
+            scheduleId: req.params.scheduleId
+        };
+        db.schedule.remove(args, function(err, data) {
+            if (!err && data) {
+                res.json(data);
+            }
+            else {
+                res.status(400).end();
+            }
+        });
+    });
 module.exports = router;

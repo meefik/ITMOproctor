@@ -604,6 +604,13 @@ var db = {
                 concurrent: args.concurrent
             });
             schedule.save(callback);
+        },
+        remove: function(args, callback) {
+            var Schedule = require('./models/schedule');
+            Schedule.findOneAndRemove({
+                inspector: args.inspector,
+                _id: args.scheduleId
+            }, callback);
         }
     },
     notes: {

@@ -97,8 +97,7 @@ var ServerTime = Backbone.Model.extend({
             },
             success: function(model, response, options) {
                 self._ticker = model.get("serverTime");
-                var delay = Math.floor((Date.now() - clientTime) / 2);
-                self._ticker += delay;
+                console.log('Time diff: ' + model.get("diff") + ' ms');
             }
         });
     },
@@ -646,20 +645,40 @@ var MonitorView = Backbone.View.extend({
                     }
                 }
             }, {
+                text: 'Удалить',
+                iconCls: 'fa fa-trash-o',
+                handler: function() {
+                    var selected = self._DialogGrid.datagrid('getSelected');
+                    if (selected) {
+                        var index = self._DialogGrid.datagrid('getRowIndex', selected);
+                        self._DialogGrid.datagrid('deleteRow', index);
+                    }
+                }
+            }, {
                 text: 'Сохранить',
                 iconCls: 'fa fa-floppy-o',
                 handler: function() {
-                    var addedRows = self._DialogGrid.datagrid('getChanges');
-                    addedRows.forEach(function(element, index, array) {
-                        self.schedules.create({
-                            beginDate: element.beginDate,
-                            endDate: element.endDate,
-                            concurrent: element.concurrent
-                        }, {
-                            success: function(model) {
-                                self._Dialog.dialog('close');
-                            }
-                        });
+                    var chengedRows = self._DialogGrid.datagrid('getChanges');
+                    chengedRows.forEach(function(element, index, array) {
+                        if (element._id) {
+                            var model = self.schedules.get(element._id);
+                            model.destroy({
+                                success: function(model) {
+                                    self._Dialog.dialog('close');
+                                }
+                            });
+                        }
+                        else {
+                            self.schedules.create({
+                                beginDate: element.beginDate,
+                                endDate: element.endDate,
+                                concurrent: element.concurrent
+                            }, {
+                                success: function(model) {
+                                    self._Dialog.dialog('close');
+                                }
+                            });
+                        }
                     });
                 }
             }, {
@@ -670,8 +689,10 @@ var MonitorView = Backbone.View.extend({
                 }
             }],
             onOpen: function() {
-                self._DialogGrid.datagrid({
-                    url: '/inspector/schedule'
+                self.schedules.fetch({
+                    success: function(collection) {
+                        self._DialogGrid.datagrid('loadData', collection.toJSON());
+                    }
                 });
                 $(this).dialog('center');
             }
@@ -866,8 +887,7 @@ var MonitorView = Backbone.View.extend({
                     title: 'Кол-во сессий',
                     width: 150
                 }]
-            ],
-            method: 'get'
+            ]
         });
         this._LoguserWidget.text(app.profile.get("lastname") + " " + app.profile.get("firstname") + " " + app.profile.get("middlename") + " (" + app.profile.get("roleName") + ")");
     },
@@ -898,7 +918,7 @@ var MonitorView = Backbone.View.extend({
             case 3:
                 return '<span style="color:red;">Идет</span>';
             case 4:
-                return '<span style="color:green;">Сдан</span>';
+                return '<span style="color:green;">Принят</span>';
             case 5:
                 return '<span style="color:purple;">Прерван</span>';
             case 6:
@@ -2487,7 +2507,7 @@ var ScheduleView = Backbone.View.extend({
             case 3:
                 return '<span style="color:red;">Идет</span>';
             case 4:
-                return '<span style="color:green;">Сдан</span>';
+                return '<span style="color:green;">Принят</span>';
             case 5:
                 return '<span style="color:purple;">Прерван</span>';
             case 6:
