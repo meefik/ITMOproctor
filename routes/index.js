@@ -1,5 +1,6 @@
 var dist = require('./dist');
 var api = require('./api');
+var rest = require('./rest');
 var profile = require('./profile');
 var storage = require('./storage');
 var exam = require('./exam');
@@ -12,6 +13,7 @@ var tools = require('./tools');
 module.exports = function(app) {
     app.use('/dist', dist);
     app.use('/api', api);
+    app.use('/rest', rest);
     app.use('/profile', profile);
     app.use('/storage', profile.isAuth, storage);
     app.use('/tools', profile.isAuth, tools);

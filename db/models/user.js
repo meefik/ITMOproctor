@@ -121,18 +121,8 @@ User.virtual('genderId').set(function(genderId) {
     };
     this.gender = gender[genderId];
 });
-User.virtual('roleName').get(function() {
-    var role = {
-        "1": "Студент",
-        "2": "Проктор",
-        "3": "Администратор"
-    };
-    return role[this.role];
-});
 User.set('toJSON', {
-    virtuals: true,
     transform: function(doc, ret, options) {
-        delete ret.password;
         delete ret.hashedPassword;
         delete ret.salt;
         return ret;

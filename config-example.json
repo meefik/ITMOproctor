@@ -48,5 +48,33 @@
             "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}?format=json",
             "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/"
         }
+    },
+    "rest": {
+        "access_token": {
+            "exam": {
+                "read": {
+                    "populate": [{
+                        "path": "inspector",
+                        "select": "username firstname lastname middlename"
+                    }, {
+                        "path": "student",
+                        "select": "username firstname lastname middlename birthday"
+                    }],
+                    "select": "-verified"
+                }
+            },
+            "schedule": {
+                "read": {
+                    "populate": [{
+                        "path": "inspector",
+                        "select": "firstname lastname middlename"
+                    }],
+                    "select": false
+                },
+                "create": true,
+                "update": true,
+                "delete": true
+            }
+        }
     }
 }

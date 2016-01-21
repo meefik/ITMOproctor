@@ -188,6 +188,7 @@ router.stopExam = function(req, res, next) {
 /**
  * Get exam status from provider
  * @param req.params.examId
+ * @return examStatus
  */
 router.examStatus = function(req, res, next) {
     var args = {
@@ -210,11 +211,15 @@ router.examStatus = function(req, res, next) {
                     }
                 }, function(error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        var data = JSON.parse(body);
-                        if (data) {
-                            req.body.examStatus = data.status;
+                        try {
+                            var json = JSON.parse(body);
+                            if (json) req.body.examStatus = json.status;
+                            next();
                         }
-                        next();
+                        catch (err) {
+                            logger.warn("Incorrect JSON format.");
+                            res.status(400).end();
+                        }
                     }
                     else {
                         logger.warn("API response: %s", response.statusCode);
@@ -227,7 +232,13 @@ router.examStatus = function(req, res, next) {
         }
     });
 };
-// Initialize session from edX
+/**
+ * Initialize session from edX
+ * @param req.body.examCode
+ * @param req.body.orgExtra.username
+ * @param req.body.orgExtra.examID
+ * @return sessionId
+ */
 router.post('/edx/init', function(req, res) {
     var orgExtra = req.body.orgExtra || {};
     var args = {

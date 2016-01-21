@@ -12,6 +12,9 @@ var REQUEST_INTERVAL = 60; // seconds
 //
 var Profile = Backbone.Model.extend({
     initialize: function() {
+        this.on("change:role", function(model, value, options) {
+            model.set('roleName', _.roleName(value));
+        });
         this.update();
     },
     update: function() {
@@ -3619,6 +3622,14 @@ _.mixin({
             }
         });
         return status;
+    },
+    roleName: function(role) {
+        var roles = {
+            "1": "Студент",
+            "2": "Проктор",
+            "3": "Администратор"
+        };
+        return roles[role];
     }
 });
 //
