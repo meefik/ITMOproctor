@@ -174,7 +174,7 @@
 </script>
 <script type="text/template" id="members-item-tpl">
 <div class="members-view">
-    <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- user.lastname %> <%- user.firstname %> <%- user.middlename %> (<%- user.roleName %>)</div>
+    <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- user.lastname %> <%- user.firstname %> <%- user.middlename %> (<%- _.roleName(user.role) %>)</div>
     <div style="color:gray"><%- country || "-" %>, <%- city || "-" %> [IP: <%- ip %>]</div>
 </div>
 </script>
