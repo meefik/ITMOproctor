@@ -1,22 +1,30 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.app-dist {
+    font-family: monospace;
+    list-style-type: none;
+    padding-left: 0;
+}
+</style>
 <div id="settings-view">
     <form class="settings-form">
         <div class="easyui-tabs" data-options="border:false">
-            <div title="Веб-камера" style="padding:10px">
+            <div title="<%- i18n.t('settings.webcamera.title') %>" style="padding:10px">
                 <table cellpadding="5">
                     <tr>
-                        <td>Микрофон:</td>
+                        <td><%- i18n.t('settings.webcamera.audio') %>:</td>
                         <td>
                             <input class="easyui-combobox webcamera-audio" name="webcamera-audio" data-options="width:300,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
                         </td>
                     </tr>
                     <tr>
-                        <td>Видео:</td>
+                        <td><%- i18n.t('settings.webcamera.video') %>:</td>
                         <td>
                             <input class="easyui-combobox webcamera-video" name="webcamera-video" data-options="width:300,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
                         </td>
                     </tr>
                     <tr>
-                        <td>Разрешение:</td>
+                        <td><%- i18n.t('settings.webcamera.resolution') %>:</td>
                         <td>
                             <select class="easyui-combobox webcamera-resolution" name="webcamera-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
                                 <option value="1280x720">1280 x 720</option>
@@ -27,24 +35,24 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Частота кадров:</td>
+                        <td><%- i18n.t('settings.webcamera.fps') %>:</td>
                         <td>
                             <input class="easyui-numberspinner webcamera-fps" name="webcamera-fps" data-options="width:120,min:1,max:30" value="15">
                         </td>
                     </tr>
                 </table>
             </div>
-            <div title="Экран" style="padding:10px">
+            <div title="<%- i18n.t('settings.screen.title') %>" style="padding:10px">
                 <table cellpadding="5">
                     <tr>
-                        <td>Номер экрана:</td>
+                        <td><%- i18n.t('settings.screen.id') %>:</td>
                         <td>
                             <input class="easyui-textbox screen-id" type="text" name="screen-id" readonly="true" value="screen:0" data-options="width:230"></input>
-                            <button class="easyui-linkbutton screen-btn" type="button" data-options="plain:true">Выбрать</button>
+                            <button class="easyui-linkbutton screen-btn" type="button" data-options="plain:true"><%- i18n.t('settings.screen.select') %></button>
                         </td>
                     </tr>
                     <tr>
-                        <td>Разрешение:</td>
+                        <td><%- i18n.t('settings.screen.resolution') %>:</td>
                         <td>
                             <select class="easyui-combobox screen-resolution" name="screen-resolution" data-options="width:120,editable:false,panelHeight:'auto',valueField:'name',textField:'value'">
                                 <option value="1280x720">1280 x 720</option>
@@ -55,20 +63,21 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Частота кадров:</td>
+                        <td><%- i18n.t('settings.screen.fps') %>:</td>
                         <td>
                             <input class="easyui-numberspinner screen-fps" name="screen-fps" data-options="width:120,min:1,max:30" value="5">
                         </td>
                     </tr>
                 </table>
             </div>
-            <div title="Cистема" style="padding:10px 15px">
-                <p><strong>ITMOproctor</strong></p>
-                <p>Система дистанционного надзора</p>
-                <p>Версия: <span class="app-version">0.0.0</span></p>
-                <p>Обновление: <span class="app-update">нет</p>
+            <div title="<%- i18n.t('settings.app.title') %>" style="padding:10px 15px">
+                <p><strong><%- i18n.t('settings.app.name') %></strong></p>
+                <p><%- i18n.t('settings.app.description') %></p>
+                <p><%- i18n.t('settings.app.version') %>: <span class="app-version">0.0.0</span></p>
+                <p><%- i18n.t('settings.app.update') %>: <span class="app-update"><%- i18n.t('settings.app.no') %></p>
                 <ul class="app-dist"></ul>
             </div>
         </div>
     </form>
 </div>
+</script>

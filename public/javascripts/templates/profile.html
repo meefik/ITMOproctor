@@ -1,0 +1,27 @@
+<script type="text/template" id="main-tpl">
+<div class="dialog-container" style="padding: 5px"><%- i18n.t('loading') %></div>
+</script>
+<script type="text/template" id="dialog-tpl">
+<div style="padding:15px">
+    <% var photo = user.attach.length > 0 ? 'storage/' + user.attach[0].fileId : 'images/avatar.png'; %>
+    <img src="<%- photo %>" alt="<%- i18n.t('profile.photo') %>" style="border:1px solid lightgray;width:120px;height:160px;object-position:center;object-fit:cover;float:left;margin-right:10px;">
+    <table cellpadding="5" style="float:clear">
+    <tr>
+        <td><strong><%- i18n.t('profile.fullname') %>:</strong></td>
+        <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('profile.gender') %>:</strong></td>
+        <td><%- user.gender %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('profile.birthday') %>:</strong></td>
+        <td><%- user.birthday %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('profile.email') %>:</strong></td>
+        <td style="word-break:break-all;"><%- user.email %></td>
+    </tr>
+    </table>
+</div>
+</script>

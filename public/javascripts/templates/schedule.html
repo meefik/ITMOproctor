@@ -1,0 +1,10 @@
+<script type="text/template" id="main-tpl">
+<table class="easyui-datagrid schedule-table" data-options="fit:true,border:false,rownumbers:true,singleSelect:true,fitColumns:true,rownumbers:true,toolbar:'#schedule-toolbar'"></table>
+<div id="schedule-toolbar" style="padding:8px;">
+    <%- i18n.t('schedule.dates') %>:
+    <input class="easyui-datetimebox schedule-from" style="width:150px;" data-options="prompt:'<%- i18n.t('schedule.beginDate') %>'"/>
+    <input class="easyui-datetimebox schedule-to" style="width:150px;margin-bottom:3px;"  data-options="prompt:'<%- i18n.t('schedule.endDate') %>'"/>
+    &nbsp;<%- i18n.t('schedule.sessions') %>:
+    <input class="easyui-numberspinner schedule-concurrent" style="width:60px;" data-options="min:1,value:1"/>
+</div>
+</script>

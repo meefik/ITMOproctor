@@ -1,0 +1,51 @@
+<script type="text/template" id="main-tpl">
+<div class="dialog-container" style="padding: 5px"><%- i18n.t('loading') %></div>
+</script>
+<script type="text/template" id="dialog-tpl">
+<table cellpadding="5" style="width:100%;">
+    <tr>
+        <td><strong><%- i18n.t('passport.login') %>:</strong></td>
+        <td><%- user.username %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.fullname') %>:</strong></td>
+        <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.gender') %>:</strong></td>
+        <td><%- user.gender %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.birthday') %>:</strong></td>
+        <td><%- user.birthday %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.email') %>:</strong></td>
+        <td style="word-break:break-all;"><%- user.email %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.citizenship') %>:</strong></td>
+        <td><%- user.citizenship %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.documentType') %>:</strong></td>
+        <td><%- user.documentType %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.documentNumber') %>:</strong></td>
+        <td><%- user.documentNumber %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.documentIssueDate') %>:</strong></td>
+        <td><%- user.documentIssueDate %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.address') %>:</strong></td>
+        <td><%- user.address %></td>
+    </tr>
+    <tr>
+        <td><strong><%- i18n.t('passport.description') %>:</strong></td>
+        <td><%- user.description %></td>
+    </tr>
+</table>
+</script>

@@ -56,11 +56,12 @@ passport.deserializeUser(function(user, done) {
 
 // Local strategy
 passport.use('local', new LocalStrategy(db.profile.auth.local));
-router.post('/login', passport.authenticate('local', {
+router.post('/', passport.authenticate('local', {
     failureRedirect: '/#login'
 }), router.logUserIP, function(req, res, next) {
     res.json(req.user);
 });
+
 
 // IfmoSSO strategy
 passport.use('ifmosso', new IfmoSSOStrategy({
@@ -107,9 +108,9 @@ router.get('/', function(req, res) {
     req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
 });
 // User logout
-router.get('/logout', function(req, res) {
+router.delete('/:userId', function(req, res) {
     req.logout();
-    res.end();
+    res.json({});
 });
 // Get user profile by id
 router.get('/:userId', router.isInspectorOrMyself, function(req, res) {

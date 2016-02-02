@@ -1,0 +1,112 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.panel-webcam, 
+.panel-screen {
+    overflow: hidden;
+    text-align: center;
+    position: relative;
+}
+</style>
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-tags"></i><span class="exam-subject">...</span></span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+            <a href="javascript:void(0)" class="easyui-linkbutton screenshot-btn" data-options="plain:true,iconCls:'fa fa-camera'" style="float:right"><%- i18n.t('vision.screenshotBtn') %></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton verify-btn" data-options="plain:true,iconCls:'fa fa-unlock'" style="float:right"><%- i18n.t('vision.identificationBtn') %></a>
+        </div>
+    </div>
+    <div class="ws-content" data-options="region:'center',border:false">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'west',border:false" style="width:40%">
+                <div class="easyui-layout" data-options="fit:true">
+                    <div data-options="region:'north',border:false" class="ws-widget" style="height:55%">
+                        <div class="easyui-panel ws-panel panel-webcam" title="<%- i18n.t('vision.webcamera') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true"></div>
+                    </div>
+                    <div data-options="region:'center',border:false" class="ws-widget" style="height:45%">
+                        <div class="easyui-panel ws-panel panel-chat" title="<%- i18n.t('vision.chat') %>" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true"></div>
+                    </div>
+                </div>
+            </div>
+            <div data-options="region:'center',border:false" style="width:60%">
+                <div class="easyui-layout" data-options="fit:true">
+                    <div data-options="region:'north',border:false" class="ws-widget" style="height:65%">
+                        <div class="easyui-panel ws-panel panel-screen" title="<%- i18n.t('vision.screen') %>" data-options="fit:true,iconCls:'fa fa-desktop',maximizable:true"></div>
+                    </div>
+                    <div data-options="region:'center',border:false">
+                        <div class="easyui-layout" data-options="fit:true">
+                            <div data-options="region:'center',border:false" class="ws-widget">
+                                <div class="easyui-panel ws-panel panel-notes" title="<%- i18n.t('vision.notes') %>" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true"></div>
+                            </div>
+                            <div data-options="region:'east',border:false" class="ws-widget" style="width:35%">
+                                <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('vision.members') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-options="region:'south',border:false" style="margin-top:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="easyui-tooltip text-item" title="<%- i18n.t('vision.connection') %>"><i class="fa fa-exchange"></i><span class="panel-widget network-widget" style="color:green">В сети</span></span>
+            <span class="easyui-tooltip text-item" title="<%- i18n.t('vision.time') %>"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">00:00:00</span></span>
+            <span class="easyui-tooltip text-item" title="<%- i18n.t('vision.duration') %>"><i class="fa fa-play"></i><span class="panel-widget duration-time">00:00:00</span></span>
+            <a href="javascript:void(0)" class="easyui-linkbutton exam-stop-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;margin-left:5px;width:100px;"><%- i18n.t('vision.stopBtn') %></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton exam-apply-btn" data-options="iconCls:'fa fa-check'" style="float:right;color:green;width:100px;"><%- i18n.t('vision.applyBtn') %></a>
+        </div>
+    </div>
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="exam" data-options="iconCls:'fa fa-tags'"><%- i18n.t('vision.exam') %></div>
+    <div name="passport" data-options="iconCls:'fa fa-graduation-cap'"><%- i18n.t('vision.passport') %></div>
+    <div class="menu-sep"></div>
+    <div name="automute" data-options="iconCls:'fa fa-circle-o'"><%- i18n.t('vision.automute') %></div>
+    <div name="profile" data-options="iconCls:'fa fa-user'"><%- i18n.t('vision.profile') %></div>
+    <div class="menu-sep"></div>
+    <div name="disconnect" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('vision.disconnect') %></div>
+</div>
+<div id="screenshot-dlg" class="easyui-dialog" title="<%- i18n.t('vision.screenshot.title') %>" style="padding:5px;width:500px;height:415px;text-align:center;" data-options="modal:true,closed:true">
+    <img alt="Снимок экрана" style="height:240px;width:auto;max-width:100%;max-height:240px;margin-bottom:5px;">
+    <input type="text" class="easyui-textbox screenshot-comment" data-options="width:'100%',height:80,multiline:true,prompt:'<%- i18n.t('vision.screenshot.commentPrompt') %>'">
+</div>
+<div id="exam-confirm-dlg" style="padding:5px" title="<%- i18n.t('vision.submit.title') %>" data-options="width:350,height:245,modal:true,closed:true">
+    <div class="confirm-message" style="padding-bottom:10px">...</div> 
+    <div style="padding-bottom:5px"><%- i18n.t('vision.submit.inputProtectionCode') %>: <span class="protection-code" style="font-weight:bold;letter-spacing:1px;"></span></div>
+    <input class="easyui-validatebox textbox protection-code-input" style="width:80px;font-size:12px;font-weight:bold;padding:3px;text-align:center;letter-spacing:2px;" maxlength="4">
+    <div style="padding-top:10px;padding-bottom:3px"><%- i18n.t('vision.submit.comment') %>:</div>
+    <input class="easyui-textbox exam-comment" data-options="multiline:true,prompt:'<%- i18n.t('vision.submit.commentPrompt') %>'" style="width:100%;height:50px;">
+</div>
+</script>
+<script type="text/template" id="verify-tpl">
+<table cellpadding="0">
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.fullname') %>:</td>
+        <td style="font-weight:bold"><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.gender') %>:</td>
+        <td style="font-weight:bold"><%- user.gender %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.birthday') %>:</td>
+        <td style="font-weight:bold"><%- user.birthday %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.citizenship') %>:</td>
+        <td style="font-weight:bold"><%- user.citizenship %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.documentType') %>:</td>
+        <td style="font-weight:bold"><%- user.documentType %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.documentNumber') %>:</td>
+        <td style="font-weight:bold"><%- user.documentNumber %></td>
+    </tr>
+    <tr>
+        <td style="padding-right:4px"><%- i18n.t('vision.verify.documentIssueDate') %>:</td>
+        <td style="font-weight:bold"><%- user.documentIssueDate %></td>
+    </tr>
+</table>
+</script>

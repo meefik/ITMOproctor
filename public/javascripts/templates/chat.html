@@ -1,0 +1,47 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.chat-view {
+    height: inherit;
+    width: inherit;
+}
+.chat-input[placeholder]:empty:before {
+    content: attr(placeholder);
+    color: #555; 
+}
+.chat-input[placeholder]:empty:focus:before {
+    content: "";
+}
+</style>
+<div class="easyui-layout" data-options="fit:true">
+    <div class="chat-panel" data-options="region:'center',border:false" style="overflow-x:hidden;word-wrap:break-word;">
+        <ul class="chat-output" style="list-style-type:none;padding:.3em;margin:0"></ul>
+    </div>
+    <div data-options="region:'south',border:false,minHeight:60" style="height:35%;">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'north',border:false">
+                <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
+                    <button class="easyui-linkbutton chat-file-btn" data-options="plain:true,iconCls:'fa fa-download'" style="float:left;display:none;">
+                        <div class="easyui-progressbar chat-progress" data-options="width:150,height:18" style="margin:3px 0 3px 0"></div>
+                    </button>
+                    <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right"><%- i18n.t('chat.send') %></button>
+                    <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right"><%- i18n.t('chat.attach') %></button>
+                    <form method="post" enctype="multipart/form-data" style="display:none;">
+                        <input type="file" name="chatFile" class="chat-attach-input" />
+                    </form>
+                </div>
+            </div>
+            <div class="chat-input" data-options="region:'center',border:false" placeholder="<%- i18n.t('chat.inputPrompt') %>" contenteditable="true" style="height:100%;overflow-x:hidden;padding:.3em"></div>
+        </div>
+    </div>
+</div>
+</script>
+<script type="text/template" id="chat-item-tpl">
+<% var color = app.isMe(message.author._id) ? 'red' : 'blue'; %>
+<span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(message.time).format('HH:mm') %> <%- message.author.lastname || i18n.t('chat.unknown') %> <%- message.author.firstname ? message.author.firstname.charAt(0) + '.' : '' %><%- message.author.middlename ? message.author.middlename.charAt(0) + '.' : '' %>:</span><span><%= message.text %>
+    <% if(message.attach.length > 0) { %>
+        <% _.each(message.attach, function(element, index, list){ %>
+            <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="storage/<%- element.fileId %>"><%- element.filename %></a>
+        <% }); %>
+    <% } %>
+</span>
+</script>

@@ -1,0 +1,46 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.notes-view {
+    height: inherit;
+    width: inherit;
+}
+</style>
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="height:33px;border-bottom-width: 1px;">
+        <button class="easyui-linkbutton note-add-btn" data-options="plain:true,iconCls:'fa fa-plus'" style="float:right;margin:.2em"><%- i18n.t('notes.add') %></button>
+        <div style="overflow: hidden; padding: .4em;">
+            <input class="easyui-textbox note-input" style="width:100%;" data-options="prompt:'<%- i18n.t('notes.inputPrompt') %>'">
+        </div>
+    </div>
+    <div data-options="region:'center',border:false">
+        <div class="easyui-panel notes-panel" data-options="fit:true,border:false">
+            <ul class="notes-list" style="list-style-type:none;padding:.3em;margin:0"></ul>
+        </div>
+    </div>
+</div>
+<div id="note-dlg" class="easyui-dialog" style="padding:0 5px 5px 5px;width:400px;height:270px;" data-options="closed:true,modal:true">
+    <form>
+        <p><%- i18n.t('notes.onDate') %> <strong class="note-time"></strong></p>
+        <input type="text" name="text" class="easyui-textbox note-text" data-options="width:'100%',height:150,multiline:true,prompt:'<%- i18n.t('notes.inputPrompt') %>'">
+    </form>
+</div>
+</script>
+<script type="text/template" id="note-item-tpl">
+<div class="note-view" style="border-bottom:1px solid #efefef;width:100%;position:relative;" onmouseover="javascript:$(this).find('.edit-buttons').show();" onmouseout="javascript:$(this).find('.edit-buttons').hide();">
+    <div style="padding:5px;">
+            <span style="font-weight:bold;padding-right:.5em;"><%- moment(note.time).format('HH:mm') %></span>            
+            <span style="white-space:pre-wrap;"><%= note.text %></span>        
+            <% if(note.attach.length > 0) { %>
+                <% _.each(note.attach, function(element, index, list){ %>
+                    <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="storage/<%- element.fileId %>"><%- element.filename %></a>
+                <% }); %>
+            <% } %>
+    </div>
+    <% if (note.editable) { %>
+    <div class="edit-buttons" style="padding:0 5px 3px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
+        <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="<%- i18n.t('notes.edit') %>"><i class="fa fa-pencil"></i></a>
+        <a href="javascript:void(0);" class="note-remove" style="font-size:1.4em;color:gray;" title="<%- i18n.t('notes.remove') %>"><i class="fa fa-close"></i></a>
+    </div>
+    <% } %>
+</div>
+</script>

@@ -1,0 +1,8 @@
+<script type="text/template" id="main-tpl">
+<table class="easyui-datagrid plan-table" data-options="fit:true,border:false,rownumbers:true,singleSelect:true,fitColumns:true,rownumbers:true,toolbar:'#schedule-toolbar'"></table>
+<div id="schedule-toolbar" style="padding: 8px;">
+    <b><%- i18n.t('planner.subject') %></b>: <span class="subject">...</span><br>
+    <b><%- i18n.t('planner.dates') %></b>: <%- i18n.t('planner.from') %> <span class="left-date">...</span> <%- i18n.t('planner.to') %> <span class="right-date">...</span><br>
+    <b><%- i18n.t('planner.duration') %></b>: <span class="duration">...</span> мин.
+</div>
+</script>

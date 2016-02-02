@@ -1,6 +1,6 @@
 {
   "name": "proctor-web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "System of distant supervision",
   "licenses": "GPL-3.0",
   "authors": [
@@ -21,13 +21,19 @@
     "tests"
   ],
   "dependencies": {
-    "moment": "~2.10.2",
-    "font-awesome": "~4.4.0",
-    "jeasyui": "~1.4.3",
-    "backbone": "~1.2.1",
     "adapter.js": "~0.1.1",
     "kurento-utils": "~5.1.0",
-    "Backbone.localStorage": "~1.1.16"
+    "moment": "~2.10.2",
+    "font-awesome": "~4.4.0",
+    "jquery": "~1.10.2",
+    "jeasyui": "~1.4.3",
+    "backbone": "~1.2.1",
+    "Backbone.localStorage": "~1.1.16",
+    "backbone.stickit": "~0.9.2",
+    "polyglot": "~1.0.0",
+    "requirejs": "~2.1.22",
+    "text": "~2.0.14",
+    "require.replace": "~0.3.0"
   },
   "private": true
 }
