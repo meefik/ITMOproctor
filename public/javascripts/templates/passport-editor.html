@@ -39,6 +39,12 @@
                 </td>
             </tr>
             <tr>
+                <td><%- i18n.t('passport.address') %>:</td>
+                <td>
+                    <input name="address" class="easyui-textbox address" style="width:310px;" data-options="prompt:'<%- i18n.t('passport.addressPrompt') %>'">
+                </td>
+            </tr>
+            <tr>
                 <td><%- i18n.t('passport.documentType') %>:</td>
                 <td>
                     <select name="documentType" class="documentType" style="width:200px;">
@@ -65,12 +71,6 @@
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.address') %>:</td>
-                <td>
-                    <input name="address" class="easyui-textbox address" style="width:310px;" data-options="prompt:'<%- i18n.t('passport.addressPrompt') %>'">
-                </td>
-            </tr>
-            <tr>
                 <td><%- i18n.t('passport.description') %>:</td>
                 <td>
                     <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:50,multiline:true,prompt:'<%- i18n.t('passport.descriptionPrompt') %>'">
@@ -79,4 +79,14 @@
         </table>
     </form>
 </div>
+<style type="text/css">
+@import url("bower_components/jquery.kladr/jquery.kladr.min.css");
+#kladr_autocomplete li {
+    padding: 3px 5px;
+}
+#kladr_autocomplete a {
+    font-size: 10px;
+}
+</style>
+<script src="bower_components/jquery.kladr/jquery.kladr.min.js"></script>
 </script>

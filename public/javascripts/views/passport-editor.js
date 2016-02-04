@@ -47,6 +47,10 @@ define([
             });
             this.$Dialog = $(dialog);
             this.$EditForm = this.$('.passport-form');
+            this.$Address = this.$('.address').parent().find('input[type="text"]');
+            this.$Address.kladr({
+                oneString: true
+            });
             return this;
         },
         doSave: function() {

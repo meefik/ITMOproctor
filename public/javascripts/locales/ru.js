@@ -150,7 +150,7 @@ define({
         "documentIssueDate": "Дата выдачи",
         "documentIssueDatePrompt": "Выберите дату...",
         "address": "Адрес",
-        "addressPrompt": "Индекс, страна, город, адрес",
+        "addressPrompt": "Город, улица, дом, квартира...",
         "description": "Дополнительно",
         "descriptionPrompt": "Введите описание..."
     },
