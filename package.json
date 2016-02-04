@@ -24,35 +24,35 @@
   "scripts": {
     "start": "node ./bin/www",
     "build-app": "./nw-pack.sh",
-    "postinstall": "cd public && bower install"
+    "postinstall": "cd ./public && ../node_modules/bower/bin/bower install"
   },
   "dependencies": {
     "body-parser": "^1.14.2",
-    "bower": "^1.6.5",
+    "bower": "^1.7.7",
     "connect-mongo": "^0.8.2",
-    "cookie-parser": "^1.4.0",
+    "cookie-parser": "^1.4.1",
     "crypto": "0.0.3",
     "ejs": "^0.8.8",
-    "express": "^4.13.3",
-    "express-session": "^1.12.1",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
     "geoip-lite": "^1.1.6",
     "gridfs-stream": "^1.1.1",
-    "kurento-client": "^5.1.0",
-    "moment": "^2.10.6",
-    "mongoose": "^4.2.6",
+    "kurento-client": "^6.2.0",
+    "moment": "^2.11.2",
+    "mongoose": "^4.4.1",
     "morgan": "^1.6.1",
-    "multer": "^0.1.8",
-    "nconf": "^0.7.2",
+    "multer": "^1.1.0",
+    "nconf": "^0.8.4",
     "passport": "^0.3.2",
     "passport-ifmosso": "^1.0.2",
     "passport-local": "^1.0.0",
     "passport-oauth": "^1.0.0",
     "passport.socketio": "^3.6.1",
-    "request": "^2.66.0",
+    "request": "^2.69.0",
     "serve-favicon": "^2.3.0",
-    "socket.io": "^1.3.7",
+    "socket.io": "^1.4.5",
     "urlify": "^0.3.6",
-    "winston": "^1.1.2"
+    "winston": "^2.1.1"
   },
   "engines": {
     "node": ">= 0.12.0"

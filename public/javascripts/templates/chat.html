@@ -25,8 +25,8 @@
                     </button>
                     <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right"><%- i18n.t('chat.send') %></button>
                     <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right"><%- i18n.t('chat.attach') %></button>
-                    <form method="post" enctype="multipart/form-data" style="display:none;">
-                        <input type="file" name="chatFile" class="chat-attach-input" />
+                    <form class="attach-form" method="post" enctype="multipart/form-data" style="display:none;">
+                        <input type="file" name="attach" class="chat-attach-input" />
                     </form>
                 </div>
             </div>

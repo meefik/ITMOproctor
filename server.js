@@ -6,8 +6,6 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
-var multer = require('multer');
-var fs = require('fs');
 var config = require('nconf').file('./config.json');
 var logger = require('./common/logger');
 var db = require('./db');
@@ -31,17 +29,6 @@ app.use(morgan("short", {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
-}));
-// uploads
-app.use(multer({
-    dest: './uploads/',
-    limits: {
-        fileSize: config.get("upload:limit") * 1024 * 1024, // MB
-    },
-    onFileSizeLimit: function(file) {
-        fs.unlink('./' + file.path); // delete the partially written file
-        file.failed = true;
-    }
 }));
 app.use(cookieParser());
 app.use(session({

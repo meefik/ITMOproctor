@@ -1,16 +1,24 @@
 var express = require('express');
 var router = express.Router();
-var fs = require('fs');
-var path = require('path');
-var urlify = require('urlify').create();
+var config = require('nconf');
 var db = require('../db');
+var multer = require('multer');
+var fs = require('fs');
+var upload = multer({
+    dest: './uploads/',
+    limits: {
+        fileSize: config.get("upload:limit") * 1024 * 1024, // MB
+        files: 1
+    },
+    onFileSizeLimit: function(file) {
+        fs.unlink('./' + file.path); // delete the partially written file
+        file.failed = true;
+    }
+});
 // Upload file
-router.post('/', function(req, res, next) {
+router.post('/', upload.any(), function(req, res, next) {
     var file = req.files[0];
-    var extension = file.extension ? '.' + file.extension : '';
-    var filename = path.basename(file.originalname, extension);
-    file.originalname = urlify(filename) + extension;
-    if (!file) return res.status(404).end();
+    if (!file) return res.status(400).end();
     res.json(file);
 });
 // Download file

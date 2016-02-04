@@ -10,6 +10,7 @@ module.exports = function(io, targets) {
     var kurentoClient = null;
     var userRegistry = new UserRegistry();
     var pipelines = {};
+    var candidatesQueue = {};
     var idCounter = 0;
 
     function nextUniqueId() {
@@ -37,7 +38,7 @@ module.exports = function(io, targets) {
         catch (exception) {
             return exception;
         }
-    }
+    };
 
     // Represents registrar of users
     function UserRegistry() {
@@ -47,37 +48,36 @@ module.exports = function(io, targets) {
     UserRegistry.prototype.register = function(user) {
         this.usersById[user.id] = user;
         this.usersByName[user.name] = user;
-    }
+    };
     UserRegistry.prototype.unregister = function(id) {
         var user = this.getById(id);
-        if (user) delete this.usersById[id]
+        if (user) delete this.usersById[id];
         if (user && this.getByName(user.name)) delete this.usersByName[user.name];
-    }
+    };
     UserRegistry.prototype.getById = function(id) {
         return this.usersById[id];
-    }
+    };
     UserRegistry.prototype.getByName = function(name) {
         return this.usersByName[name];
-    }
+    };
     UserRegistry.prototype.removeById = function(id) {
         var userSession = this.usersById[id];
         if (!userSession) return;
         delete this.usersById[id];
         delete this.usersByName[userSession.name];
-    }
+    };
 
     // Represents a B2B active call
     function CallMediaPipeline(callerName, calleeName) {
         var recorderUri = config.get('recorder:uri');
         var timestamp = Date.now();
-        this._loopback = arguments.length > 0 ? false : true;
-        this._callerRecorderUri = recorderUri + timestamp + '_' + callerName + '.webm';
-        this._calleeRecorderUri = recorderUri + timestamp + '_' + calleeName + '.webm';
-        this._pipeline = null;
-        this._callerWebRtcEndpoint = null;
-        this._calleeWebRtcEndpoint = null;
+        this.loopback = arguments.length > 0 ? false : true;
+        this.callerRecorderUri = recorderUri + timestamp + '_' + callerName + '.webm';
+        this.calleeRecorderUri = recorderUri + timestamp + '_' + calleeName + '.webm';
+        this.pipeline = null;
+        this.webRtcEndpoint = {};
     }
-    CallMediaPipeline.prototype.createPipeline = function(callback) {
+    CallMediaPipeline.prototype.createPipeline = function(caller, callee, callback) {
         var self = this;
         getKurentoClient(function(error, kurentoClient) {
             if (error) {
@@ -92,20 +92,33 @@ module.exports = function(io, targets) {
                         pipeline.release();
                         return callback(error);
                     }
-                    if (self._loopback) {
+                    if (candidatesQueue[caller.id]) {
+                        while (candidatesQueue[caller.id].length) {
+                            var candidate = candidatesQueue[caller.id].shift();
+                            callerWebRtcEndpoint.addIceCandidate(candidate);
+                        }
+                    }
+                    callerWebRtcEndpoint.on('OnIceCandidate', function(event) {
+                        var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
+                        caller.sendMessage({
+                            id: 'iceCandidate',
+                            candidate: candidate
+                        });
+                    });
+                    if (self.loopback) {
                         callerWebRtcEndpoint.connect(callerWebRtcEndpoint, function(error) {
                             if (error) {
                                 pipeline.release();
                                 return callback(error);
                             }
-                            self._pipeline = pipeline;
-                            self._callerWebRtcEndpoint = callerWebRtcEndpoint;
+                            self.pipeline = pipeline;
+                            self.webRtcEndpoint[caller.id] = callerWebRtcEndpoint;
                             callback(null);
                         });
                     }
                     else {
                         pipeline.create('RecorderEndpoint', {
-                            uri: self._callerRecorderUri
+                            uri: self.callerRecorderUri
                         }, function(error, callerRecorder) {
                             if (error) {
                                 pipeline.release();
@@ -116,8 +129,21 @@ module.exports = function(io, targets) {
                                     pipeline.release();
                                     return callback(error);
                                 }
+                                if (candidatesQueue[callee.id]) {
+                                    while (candidatesQueue[callee.id].length) {
+                                        var candidate = candidatesQueue[callee.id].shift();
+                                        calleeWebRtcEndpoint.addIceCandidate(candidate);
+                                    }
+                                }
+                                calleeWebRtcEndpoint.on('OnIceCandidate', function(event) {
+                                    var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
+                                    callee.sendMessage({
+                                        id: 'iceCandidate',
+                                        candidate: candidate
+                                    });
+                                });
                                 pipeline.create('RecorderEndpoint', {
-                                    uri: self._calleeRecorderUri
+                                    uri: self.calleeRecorderUri
                                 }, function(error, calleeRecorder) {
                                     if (error) {
                                         pipeline.release();
@@ -154,11 +180,11 @@ module.exports = function(io, targets) {
                                                                 pipeline.release();
                                                                 return callback(error);
                                                             }
-                                                            self._pipeline = pipeline;
-                                                            self._callerRecorder = callerRecorder;
-                                                            self._calleeRecorder = calleeRecorder;
-                                                            self._callerWebRtcEndpoint = callerWebRtcEndpoint;
-                                                            self._calleeWebRtcEndpoint = calleeWebRtcEndpoint;
+                                                            self.pipeline = pipeline;
+                                                            self.callerRecorder = callerRecorder;
+                                                            self.calleeRecorder = calleeRecorder;
+                                                            self.webRtcEndpoint[caller.id] = callerWebRtcEndpoint;
+                                                            self.webRtcEndpoint[callee.id] = calleeWebRtcEndpoint;
                                                             callback(null);
                                                         });
                                                     });
@@ -172,20 +198,22 @@ module.exports = function(io, targets) {
                     }
                 });
             });
-        })
-    }
-    CallMediaPipeline.prototype.generateSdpAnswerForCaller = function(sdpOffer, callback) {
-        this._callerWebRtcEndpoint.processOffer(sdpOffer, callback);
-    }
-    CallMediaPipeline.prototype.generateSdpAnswerForCallee = function(sdpOffer, callback) {
-        this._calleeWebRtcEndpoint.processOffer(sdpOffer, callback);
-    }
+        });
+    };
+    CallMediaPipeline.prototype.generateSdpAnswer = function(id, sdpOffer, callback) {
+        this.webRtcEndpoint[id].processOffer(sdpOffer, callback);
+        this.webRtcEndpoint[id].gatherCandidates(function(error) {
+            if (error) {
+                return callback(error);
+            }
+        });
+    };
     CallMediaPipeline.prototype.release = function() {
-        if (this._callerRecorder) this._callerRecorder.stop();
-        if (this._calleeRecorder) this._calleeRecorder.stop();
-        if (this._pipeline) this._pipeline.release();
-        this._pipeline = null;
-    }
+        if (this.callerRecorder) this.callerRecorder.stop();
+        if (this.calleeRecorder) this.calleeRecorder.stop();
+        if (this.pipeline) this.pipeline.release();
+        this.pipeline = null;
+    };
 
     /*
      * Definition of functions
@@ -222,6 +250,9 @@ module.exports = function(io, targets) {
                         stop(sessionId);
                         if (message.unregister) userRegistry.unregister(sessionId);
                         break;
+                    case 'onIceCandidate':
+                        onIceCandidate(sessionId, message.candidate);
+                        break;
                     default:
                         ws.send(JSON.stringify({
                             id: 'error',
@@ -257,7 +288,7 @@ module.exports = function(io, targets) {
         var message = {
             id: 'registerResponse',
             response: 'accepted'
-        }
+        };
         user.sendMessage(message);
         return user.id;
     }
@@ -275,10 +306,11 @@ module.exports = function(io, targets) {
         if (to == from) {
             return loopbackCallResponce(callerId, sdpOffer);
         }
+        clearCandidatesQueue(callerId);
         var caller = userRegistry.getById(callerId);
         if (userRegistry.getByName(to)) {
             var callee = userRegistry.getByName(to);
-            caller.sdpOffer = sdpOffer
+            caller.sdpOffer = sdpOffer;
             callee.peer = from;
             caller.peer = to;
             var message = {
@@ -311,10 +343,11 @@ module.exports = function(io, targets) {
                 var message = {
                     id: 'stopCommunication',
                     message: 'remote user hanged out'
-                }
-                stoppedUser.sendMessage(message)
+                };
+                stoppedUser.sendMessage(message);
             }
         }
+        clearCandidatesQueue(sessionId);
     }
 
     // Loopback call responce
@@ -331,13 +364,14 @@ module.exports = function(io, targets) {
             }
             if (error) logger.error('Pipeline error: ' + error);
         }
+        clearCandidatesQueue(callerId);
         var caller = userRegistry.getById(callerId);
         var pipeline = new CallMediaPipeline();
-        pipeline.createPipeline(function(error) {
+        pipeline.createPipeline(caller, caller, function(error) {
             if (error) {
                 return onError(error);
             }
-            pipeline.generateSdpAnswerForCaller(sdpOffer, function(error, callerSdpAnswer) {
+            pipeline.generateSdpAnswer(caller.id, sdpOffer, function(error, callerSdpAnswer) {
                 if (error) {
                     return onError(error);
                 }
@@ -374,6 +408,7 @@ module.exports = function(io, targets) {
             if (callerReason) logger.error('Pipeline error: ' + callerReason);
             if (calleeReason) logger.error('Pipeline error: ' + calleeReason);
         }
+        clearCandidatesQueue(calleeId);
         var callee = userRegistry.getById(calleeId);
         if (!from || !userRegistry.getByName(from)) {
             return onError(null, 'Unknown from = ' + from);
@@ -381,20 +416,20 @@ module.exports = function(io, targets) {
         var caller = userRegistry.getByName(from);
         if (callResponse === 'accept') {
             var pipeline = new CallMediaPipeline(caller.name, callee.name);
-            pipeline.createPipeline(function(error) {
+            pipelines[caller.id] = pipeline;
+            pipelines[callee.id] = pipeline;
+            pipeline.createPipeline(caller, callee, function(error) {
                 if (error) {
                     return onError(error, error);
                 }
-                pipeline.generateSdpAnswerForCaller(caller.sdpOffer, function(error, callerSdpAnswer) {
+                pipeline.generateSdpAnswer(caller.id, caller.sdpOffer, function(error, callerSdpAnswer) {
                     if (error) {
                         return onError(error, error);
                     }
-                    pipeline.generateSdpAnswerForCallee(calleeSdp, function(error, calleeSdpAnswer) {
+                    pipeline.generateSdpAnswer(callee.id, calleeSdp, function(error, calleeSdpAnswer) {
                         if (error) {
                             return onError(error, error);
                         }
-                        pipelines[caller.id] = pipeline;
-                        pipelines[callee.id] = pipeline;
                         var message = {
                             id: 'startCommunication',
                             sdpAnswer: calleeSdpAnswer
@@ -413,6 +448,27 @@ module.exports = function(io, targets) {
         else {
             var error = 'user declined';
             return onError(error, null);
+        }
+    }
+
+    function clearCandidatesQueue(sessionId) {
+        if (candidatesQueue[sessionId]) {
+            delete candidatesQueue[sessionId];
+        }
+    }
+
+    function onIceCandidate(sessionId, _candidate) {
+        var candidate = kurento.register.complexTypes.IceCandidate(_candidate);
+        var pipeline = pipelines[sessionId];
+        if (pipeline && pipeline.webRtcEndpoint && pipeline.webRtcEndpoint[sessionId]) {
+            var webRtcEndpoint = pipeline.webRtcEndpoint[sessionId];
+            webRtcEndpoint.addIceCandidate(candidate);
+        }
+        else {
+            if (!candidatesQueue[sessionId]) {
+                candidatesQueue[sessionId] = [];
+            }
+            candidatesQueue[sessionId].push(candidate);
         }
     }
 

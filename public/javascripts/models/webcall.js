@@ -31,43 +31,70 @@ define([], function() {
             var self = this;
             this.audio = true;
             this.video = true;
-            this.setCallState('NO_CALL');
-            kurentoUtils.WebRtcPeer.prototype.server.iceServers = this.get("iceServers");
-            this.get("socket").on('message', function(message) {
-                var parsedMessage = JSON.parse(message);
-                console.info('Received message: ' + message);
-                switch (parsedMessage.id) {
-                    case 'registerResponse':
-                        self.resgisterResponse(parsedMessage);
-                        break;
-                    case 'callResponse':
-                        self.callResponse(parsedMessage);
-                        break;
-                    case 'incomingCall':
-                        self.incomingCall(parsedMessage);
-                        break;
-                    case 'startCommunication':
-                        self.startCommunication(parsedMessage);
-                        break;
-                    case 'stopCommunication':
-                        console.info("Communication ended by remote peer");
-                        self.stop(false);
-                        break;
-                    default:
-                        console.error('Unrecognized message', parsedMessage);
-                }
-            });
-            this.register();
             this.get("socket").on('connect', function() {
                 if (self.registerState != 'REGISTERING') {
                     self.register();
                 }
             });
+            this.get("socket").on('message', this.parseMessage.bind(this));
+            this.register();
         },
         destroy: function() {
             this.stop(true);
             this.get("socket").removeListener('connect');
             this.get("socket").removeListener('message');
+        },
+        getOptions: function() {
+            return {
+                localVideo: this.get("input"),
+                remoteVideo: this.get("output"),
+                onicecandidate: this.onIceCandidate.bind(this),
+                mediaConstraints: this.get("constraints"),
+                configuration: {
+                    iceServers: this.get('iceServers')
+                }
+            };
+        },
+        onIceCandidate: function(candidate) {
+            console.log('Local candidate ' + JSON.stringify(candidate));
+            var message = {
+                id: 'onIceCandidate',
+                candidate: candidate
+            };
+            this.sendMessage(message);
+        },
+        onError: function(error) {
+            if (error) {
+                console.error(error);
+                this.setCallState('NO_CALL');
+            }
+        },
+        parseMessage: function(message) {
+            console.info('Received message: ' + message);
+            var parsedMessage = JSON.parse(message);
+            switch (parsedMessage.id) {
+                case 'registerResponse':
+                    this.resgisterResponse(parsedMessage);
+                    break;
+                case 'callResponse':
+                    this.callResponse(parsedMessage);
+                    break;
+                case 'incomingCall':
+                    this.incomingCall(parsedMessage);
+                    break;
+                case 'startCommunication':
+                    this.startCommunication(parsedMessage);
+                    break;
+                case 'stopCommunication':
+                    console.info("Communication ended by remote peer");
+                    this.stop(false);
+                    break;
+                case 'iceCandidate':
+                    this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
+                    break;
+                default:
+                    console.error('Unrecognized message', parsedMessage);
+            }
         },
         setRegisterState: function(nextState) {
             console.log('setRegisterState: ' + nextState);
@@ -79,7 +106,7 @@ define([], function() {
                     // ...
                     break;
                 case 'REGISTERED':
-                    // ...
+                    this.setCallState('NO_CALL');
                     break;
                 default:
                     return;
@@ -110,15 +137,14 @@ define([], function() {
             else {
                 this.setRegisterState('NOT_REGISTERED');
                 var errorMessage = message.message ? message.message : 'Unknown reason for register rejection.';
-                console.log(errorMessage);
-                console.error('Error registering user. See console for further information.');
+                console.error(errorMessage);
             }
         },
         callResponse: function(message) {
             if (message.response != 'accepted') {
                 console.info('Call not accepted by peer. Closing call');
                 var errorMessage = message.message ? message.message : 'Unknown reason for call rejection.';
-                console.log(errorMessage);
+                console.error(errorMessage);
                 this.stop(false);
             }
             else {
@@ -138,21 +164,25 @@ define([], function() {
                 return this.sendMessage(response);
             }
             this.setCallState('PROCESSING_CALL');
-            this.webRtcPeer = kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), function(sdp, wp) {
-                var response = {
-                    id: 'incomingCallResponse',
-                    from: message.from,
-                    callResponse: 'accept',
-                    sdpOffer: sdp
-                };
-                self.sendMessage(response);
-            }, function(error) {
-                self.setCallState('NO_CALL');
-            }, self.get("constraints"));
+            kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(this.getOptions(),
+                function(error) {
+                    if (error) return self.onError(error);
+                    this.generateOffer(function(error, sdpOffer) {
+                        if (error) return self.onError(error);
+                        var response = {
+                            id: 'incomingCallResponse',
+                            from: message.from,
+                            callResponse: 'accept',
+                            sdpOffer: sdpOffer
+                        };
+                        self.webRtcPeer = this;
+                        self.sendMessage(response);
+                    });
+                });
         },
         startCommunication: function(message) {
             this.setCallState('IN_CALL');
-            this.webRtcPeer.processSdpAnswer(message.sdpAnswer);
+            this.webRtcPeer.processAnswer(message.sdpAnswer);
         },
         sendMessage: function(message) {
             var jsonMessage = JSON.stringify(message);
@@ -173,35 +203,41 @@ define([], function() {
             this.setCallState('PROCESSING_CALL');
             var self = this;
 
-            function onSdp(offerSdp, wp) {
+            function onOffer(error, sdpOffer) {
+                if (error) return self.onError(error);
                 if (self.callState == 'NO_CALL') {
-                    wp.dispose();
+                    this.dispose();
                 }
                 else {
-                    self.webRtcPeer = wp;
                     console.log('Invoking SDP offer callback function');
                     var message = {
                         id: 'call',
                         from: self.get("userid"),
                         to: peer,
-                        sdpOffer: offerSdp
+                        sdpOffer: sdpOffer
                     };
+                    self.webRtcPeer = this;
                     self.sendMessage(message);
                 }
             }
 
-            function onError(error) {
-                console.log(error);
-                self.setCallState('NO_CALL');
-            }
             if (this.get("input") && this.get("output")) {
-                kurentoUtils.WebRtcPeer.startSendRecv(this.get("input"), this.get("output"), onSdp, onError, self.get("constraints"));
+                kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(this.getOptions(), function(error) {
+                    if (error) return self.onError(error);
+                    this.generateOffer(onOffer);
+                });
             }
             if (this.get("input") && !this.get("output")) {
-                kurentoUtils.WebRtcPeer.startSendOnly(this.get("input"), onSdp, onError, self.get("constraints"));
+                kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(this.getOptions(), function(error) {
+                    if (error) return self.onError(error);
+                    this.generateOffer(onOffer);
+                });
             }
             if (!this.get("input") && this.get("output")) {
-                kurentoUtils.WebRtcPeer.startRecvOnly(this.get("output"), onSdp, onError, self.get("constraints"));
+                kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(this.getOptions(), function(error) {
+                    if (error) return self.onError(error);
+                    this.generateOffer(onOffer);
+                });
             }
         },
         stop: function(flag) {
@@ -241,7 +277,7 @@ define([], function() {
                 this.audio = !this.audio;
             }
             if (this.webRtcPeer) {
-                var audioTracks = this.webRtcPeer.pc.getLocalStreams()[0].getAudioTracks();
+                var audioTracks = this.webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks();
                 audioTracks[0].enabled = this.audio;
             }
             return this.audio;
@@ -254,7 +290,7 @@ define([], function() {
                 this.video = !this.video;
             }
             if (this.webRtcPeer) {
-                var videoTracks = this.webRtcPeer.pc.getLocalStreams()[0].getVideoTracks();
+                var videoTracks = this.webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks();
                 videoTracks[0].enabled = this.video;
             }
             return this.video;

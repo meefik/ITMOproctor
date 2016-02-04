@@ -71,7 +71,7 @@ define([
             $.parser.parse(this.$el);
             // jQuery selectors
             this.$Panel = this.$(".chat-panel");
-            this.$Form = this.$("form");
+            this.$Form = this.$(".attach-form");
             this.$Input = this.$(".chat-input");
             this.$Output = this.$(".chat-output");
             this.$FileBtn = this.$(".chat-file-btn");
@@ -135,9 +135,8 @@ define([
         doFileChange: function() {
             var self = this;
             var limitSize = UPLOAD_LIMIT * 1024 * 1024; // bytes
-            var formdata = new FormData();
-            var files = self.$AttachInput.get(0).files;
-            if (files.length === 0) return;
+            var files = this.$AttachInput.get(0).files;
+            if (!files.length) return;
             if (files[0].size > limitSize) {
                 $.messager.show({
                     title: i18n.t('chat.limitMessage.title'),
@@ -152,18 +151,18 @@ define([
                 });
                 return;
             }
-            formdata.append(0, files[0]);
-            self.$Progress.progressbar('setColor', null);
-            self.$FileBtn.show();
-            self.$AttachBtn.linkbutton('disable');
-            self.$Progress.progressbar({
+            var fd = new FormData(this.$Form.get(0));
+            this.$Progress.progressbar('setColor', null);
+            this.$FileBtn.show();
+            this.$AttachBtn.linkbutton('disable');
+            this.$Progress.progressbar({
                 value: 0,
                 text: _.truncateFilename(files[0].name, 15)
             });
             $.ajax({
                 type: 'post',
                 url: 'storage',
-                data: formdata,
+                data: fd,
                 xhr: function() {
                     var xhr = $.ajaxSettings.xhr();
                     xhr.upload.onprogress = function(progress) {
@@ -179,7 +178,7 @@ define([
                 self.attach.push({
                     fileId: respond.fileId,
                     filename: respond.originalname,
-                    uploadname: respond.name
+                    uploadname: respond.filename
                 });
                 self.$Progress.progressbar('setColor', 'green');
             });

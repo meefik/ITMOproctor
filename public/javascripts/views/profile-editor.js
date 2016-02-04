@@ -54,6 +54,7 @@ define([
                     if (self.attach[0]) self.$Avatar.attr('src', 'storage/' + self.attach[0].fileId);
                 },
                 onClose: function() {
+                    self.$Progress.hide();
                     self.$Avatar.attr('src', 'images/avatar.png');
                     self.$AttachForm.trigger('reset');
                 }
@@ -96,31 +97,27 @@ define([
         onFileChange: function() {
             var self = this;
             var limitSize = UPLOAD_LIMIT * 1024 * 1024; // MB
-            var data = new FormData(this.$AttachForm);
-            var files = self.$Attach[0].files;
-            if (files.length === 0 || files[0].size > limitSize) {
-                return;
-            }
-            $.each(files, function(key, value) {
-                data.append(key, value);
-            });
-            var file = files['0'];
+            var files = self.$Attach[0].files || [];
+            if (!files.length || files[0].size > limitSize) return;
+            var attach = files[0];
+            var fd = new FormData(this.$AttachForm.get(0));
+            //fd.append('attach', attach);
             // show progress
             self.$Progress.show();
             self.$Progress.progressbar({
                 value: 0,
-                text: _.truncateFilename(file.name, 15)
+                text: _.truncateFilename(attach.name, 15)
             });
             // show image
             var reader = new FileReader();
             reader.onload = function(event) {
                 self.$Avatar.attr('src', event.target.result);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(attach);
             $.ajax({
                 type: 'post',
                 url: 'storage',
-                data: data,
+                data: fd,
                 xhr: function() {
                     var xhr = $.ajaxSettings.xhr();
                     xhr.upload.onprogress = function(progress) {
@@ -137,7 +134,7 @@ define([
                 self.attach.push({
                     fileId: respond.fileId,
                     filename: respond.originalname,
-                    uploadname: respond.name
+                    uploadname: respond.filename
                 });
                 self.$Progress.hide();
             });
