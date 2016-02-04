@@ -342,7 +342,8 @@ var db = {
                             // для честного распределения времени инспекторов
                             inspector: data.inspectors[Math.floor(Math.random() * amount)],
                             beginDate: beginDate,
-                            endDate: endDate
+                            endDate: endDate,
+                            planDate: moment()
                         }
                     }, function(err, data) {
                         callback(err, data);

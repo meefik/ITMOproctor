@@ -73,6 +73,10 @@ var Exam = new Schema({
     stopDate: {
         type: Date
     },
+    // Время, когда студент записался на сеанс
+    planDate: {
+        type: Date
+    },
     // Заключение: true - сдан, false - прерван, null - не завершен или не начат
     resolution: {
         type: Boolean
