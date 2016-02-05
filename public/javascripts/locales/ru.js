@@ -84,8 +84,7 @@ define({
             "name": "ITMOproctor",
             "description": "Система дистанционного надзора",
             "version": "Версия",
-            "update": "Обновление",
-            "no": "нет"
+            "update": "Обновление"
         }
     },
     "planner": {
@@ -223,7 +222,14 @@ define({
         "duration": "Продолжительность экзамена",
         "exam": "Об экзамене",
         "profile": "Профиль",
-        "disconnect": "Отключиться"
+        "disconnect": "Отключиться",
+        "submit": {
+            "title": "Экзамен завершен",
+            "message": "Проктор %{resolution} экзамен",
+            "true": "принял",
+            "false": "прервал",
+            "nocomment": "Без комментария"
+        }
     },
     "chat": {
         "connect": "подключился к экзамену...",

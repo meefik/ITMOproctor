@@ -21,8 +21,8 @@ define([
                         }
                         break;
                     case 'version':
-                        self.$Version.text(message.data.app + ' [nw.js ' + message.data.nw + ']');
-                        self.doUpdate(message.data.app);
+                        self.$Version.text(message.data.version + ' [' + message.data.engine + '/' + message.data.release + ']');
+                        self.doUpdate(message.data);
                         break;
                 }
             };
@@ -130,17 +130,20 @@ define([
         doClose: function() {
             this.$Dialog.dialog('close');
         },
-        doUpdate: function(version) {
+        doUpdate: function(app) {
             var self = this;
             $.getJSON("dist/metadata.json", function(data) {
-                if (data && data.version != version) {
-                    self.$Update.html(data.version + " (" + moment(data.date).format('YYYY.MM.DD HH:mm:ss') + ")");
-                    self.$Dist.html('');
-                    for (var k in data.md5) {
-                        self.$Dist.append('<li><a href="dist/' + k + '">' + k + '</a></li>');
-                        self.$Dist.append('<li>[MD5: ' + data.md5[k] + ']</li>');
+                if (!data) return;
+                if (app.engine == 'node-webkit') {
+                    if (data.version != app.version) {
+                        self.$Update.html(i18n.t('settings.app.update') + ': ' +
+                            data.version + " (" + moment(data.date).format('YYYY.MM.DD HH:mm:ss') + ")");
+                        for (var k in data.md5) {
+                            self.$Dist.append('<li><a href="dist/' + k + '" title="md5: ' + data.md5[k] + '">' + k + '</a></li>');
+                        }
                     }
                 }
+
             });
         }
     });

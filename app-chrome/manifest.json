@@ -1,15 +1,29 @@
 {
-  "manifest_version": 2,
-  "name": "Proctor",
-  "version": "1",
-  "icons": {
-    "128": "icon_128.png"
-  },
-  "permissions": ["webview","audioCapture","videoCapture","desktopCapture"],
-  "app": {
+    "name": "proctor-client",
+    "author": "Anton Skshidlevsky",
+    "version": "0.1.0",
+    "manifest_version": 2,
+    "minimum_chrome_version": "34",
+    "description": "System of distant supervision",
+    "homepage_url": "https://github.com/meefik/ITMOproctor",
     "background": {
-      "scripts": ["main.js"]
-    }
-  },
-  "minimum_chrome_version": "43"
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [{
+        "js": ["content.js"],
+        "all_frames": true,
+        "run_at": "document_start",
+        "matches": ["*://proctor-meefik.c9users.io/*"]
+    }],
+    "icons": {
+        "128": "icon.png"
+    },
+    "permissions": [
+        "desktopCapture",
+        "<all_urls>"
+    ],
+    "web_accessible_resources": [
+        "icon.png"
+    ]
 }

@@ -17,33 +17,6 @@ define([
             '.exam-subject': {
                 observe: 'subject'
             },
-            '.resolution': {
-                observe: 'resolution',
-                onGet: function(val) {
-                    if (val != null) {
-                        var comment = this.exam.get("comment");
-                        var message = "";
-                        if (val === true) {
-                            message += 'Проктор <strong style="color:green">принял</strong> экзамен:';
-                        }
-                        else {
-                            message += 'Проктор <strong style="color:red">прервал</strong> экзамен:';
-                        }
-                        if (comment) {
-                            message += '<p>' + comment + '</p>';
-                        }
-                        else {
-                            message += '<p>Без комментария.</p>';
-                        }
-                        $.messager.alert('Экзамен завершен', message, null, function() {
-                            app.router.navigate("schedule", {
-                                trigger: true
-                            });
-                        });
-                    }
-                    return val;
-                }
-            },
             '.server-time': {
                 observe: 'time',
                 onGet: function(val) {
@@ -115,7 +88,7 @@ define([
             this.exam = new Exam({
                 _id: this.options.examId
             });
-            //this.listenTo(this.exam, 'change', this.render);
+            this.listenTo(this.exam, 'sync', this.submitDlg.bind(this));
             // Socket notification
             app.io.notify.on('exam-' + this.options.examId, function(data) {
                 if (!app.isMe(data.userId)) {
@@ -212,6 +185,31 @@ define([
             app.io.notify.removeListener('connect', this.connectHandler);
             app.io.notify.removeListener('disconnect', this.disconnectHandler);
             this.remove();
+        },
+        submitDlg: function() {
+            var resolution = this.exam.get("resolution");
+            if (resolution == null) return;
+            if (resolution) {
+                resolution = '<strong style="color:green">' + i18n.t('talk.submit.true') + '</strong>';
+            }
+            else {
+                resolution = '<strong style="color:red">' + i18n.t('talk.submit.false') + '</strong>';
+            }
+            var message = i18n.t('talk.submit.message', {
+                resolution: resolution
+            }) + '.';
+            var comment = this.exam.get("comment");
+            if (comment) {
+                message += '<p>' + comment + '</p>';
+            }
+            else {
+                message += '<p>' + i18n.t('talk.submit.nocomment') + '.</p>';
+            }
+            $.messager.alert(i18n.t('talk.submit.title'), message, null, function() {
+                app.router.navigate("schedule", {
+                    trigger: true
+                });
+            });
         },
         disconnect: function() {
             app.router.navigate("student", {

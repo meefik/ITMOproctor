@@ -60,8 +60,8 @@ _.mixin({
         return templates;
     },
     postMessage: function(message, targetOrigin, transfer) {
-        var win = window.win;
-        if (win) win.window.postMessage(message, targetOrigin, transfer);
+        var win = window.win || window;
+        win.window.postMessage(message, targetOrigin, transfer);
     },
     truncateFilename: function(filename, length) {
         var extension = filename.indexOf('.') > -1 ? filename.split('.').pop() : '';

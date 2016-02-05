@@ -13,7 +13,8 @@ function parseArgs(argv) {
 function eventHandler(event) {
     switch (event.data) {
         case 'chooseSourceId':
-            gui.Screen.chooseDesktopMedia(["screen"], function(sourceId) {
+            var session = ['screen'];
+            gui.Screen.chooseDesktopMedia(session, function(sourceId) {
                 var message = {
                     id: 'sourceId',
                     data: sourceId
@@ -35,8 +36,9 @@ function eventHandler(event) {
             break;
         case 'getVersion':
             var version = {
-                app: gui.App.manifest.version,
-                nw: process.versions['node-webkit']
+                version: gui.App.manifest.version,
+                engine: 'node-webkit',
+                release: process.versions['node-webkit']
             };
             var message = {
                 id: 'version',
