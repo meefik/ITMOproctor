@@ -205,14 +205,10 @@ define([
             else {
                 message += '<p>' + i18n.t('talk.submit.nocomment') + '.</p>';
             }
-            $.messager.alert(i18n.t('talk.submit.title'), message, null, function() {
-                app.router.navigate("schedule", {
-                    trigger: true
-                });
-            });
+            $.messager.alert(i18n.t('talk.submit.title'), message, null, this.disconnect.bind(this));
         },
         disconnect: function() {
-            app.router.navigate("student", {
+            app.router.navigate("study", {
                 trigger: true
             });
         }

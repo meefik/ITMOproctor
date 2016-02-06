@@ -11,7 +11,7 @@
         "limit": 10
     },
     "schedule": {
-        "offset": -1,
+        "offset": 0,
         "interval": 15
     },
     "mongoose": {

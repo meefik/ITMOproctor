@@ -1,0 +1,35 @@
+<script type="text/template" id="main-tpl">
+<div id="schedule-view" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-calendar"></i><%- i18n.t('study.title') %></span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+        </div>
+    </div>
+    <div class="ws-content" data-options="region:'center',border:false">
+        <table class="easyui-datagrid exams-table" data-options="singleSelect:true,border:false,fitColumns:true,fit:true,rownumbers:true"></table>
+    </div>
+    <div data-options="region:'south',border:false" style="margin-top:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="easyui-tooltip text-item" title="<%- i18n.t('study.time') %>"><i class="fa fa-clock-o"></i><span class="server-time" style="font-weight:bold">00:00:00</span></span>
+            <span class="easyui-tooltip text-item" title="<%- i18n.t('study.countdown') %>"><i class="fa fa-history"></i><span class="countdown-time" style="font-weight:bold">0.00:00:00</span></span>
+            <a href="javascript:void(0)" class="easyui-linkbutton start-btn" data-options="iconCls:'fa fa-play'" style="float:right;color:green;display:none"><%- i18n.t('study.start') %></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton plan-btn" data-options="iconCls:'fa fa-bell-o'" style="float:right;display:none"><%- i18n.t('study.plan') %></a>
+            <a href="javascript:void(0)" class="easyui-linkbutton revoke-btn" data-options="iconCls:'fa fa-ban'" style="float:right;color:red;display:none"><%- i18n.t('study.revoke') %></a>
+        </div>
+    </div>
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="refresh" data-options="iconCls:'fa fa-refresh'"><%- i18n.t('study.refresh') %></div>
+    <div name="history" data-options="iconCls:'fa fa-circle-o'"><%- i18n.t('study.history') %></div>
+    <div class="menu-sep"></div>
+    <div name="passport" data-options="iconCls:'fa fa-user'"><%- i18n.t('study.passport') %></div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'"><%- i18n.t('study.settings') %></div>
+    <div name="demo" data-options="iconCls:'fa fa-exchange'"><%- i18n.t('study.demo') %></div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('study.logout') %></div>
+</div>
+</script>
+<script type="text/template" id="subject-item-tpl">
+<a href="javascript:void(0);" class="exam-btn" data-id="<%- examId %>" href="javascript:void(0);"><%- subject %></a>
+</script>

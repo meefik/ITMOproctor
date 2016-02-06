@@ -3,7 +3,7 @@
 //
 define([
     "i18n",
-    "text!templates/inspector.html",
+    "text!templates/monitor.html",
     "views/exam",
     "views/profile",
     "views/profile-editor",
@@ -12,7 +12,7 @@ define([
     "views/settings",
     "views/demo"
 ], function(i18n, template, ExamView, ProfileView, ProfileEditorView, PassportView, ScheduleView, SettingsView, DemoView) {
-    console.log('views/inspector.js');
+    console.log('views/monitor.js');
     var View = Backbone.View.extend({
         events: {
             "click .status-btn1": "doSearch",
@@ -161,7 +161,7 @@ define([
                 columns: [
                     [{
                         field: 'student',
-                        title: i18n.t('inspector.student'),
+                        title: i18n.t('monitor.student'),
                         width: 150,
                         sortable: true,
                         sorter: function(a, b) {
@@ -175,7 +175,7 @@ define([
                         }
                     }, {
                         field: 'inspector',
-                        title: i18n.t('inspector.inspector'),
+                        title: i18n.t('monitor.inspector'),
                         width: 150,
                         sortable: true,
                         sorter: function(a, b) {
@@ -189,7 +189,7 @@ define([
                         }
                     }, {
                         field: 'subject',
-                        title: i18n.t('inspector.subject'),
+                        title: i18n.t('monitor.subject'),
                         width: 200,
                         sortable: true,
                         formatter: function(value, row, index) {
@@ -197,7 +197,7 @@ define([
                         }
                     }, {
                         field: 'beginDate',
-                        title: i18n.t('inspector.beginDate'),
+                        title: i18n.t('monitor.beginDate'),
                         width: 150,
                         sortable: true,
                         formatter: function(value, row, index) {
@@ -205,7 +205,7 @@ define([
                         }
                     }, {
                         field: 'duration',
-                        title: i18n.t('inspector.duration'),
+                        title: i18n.t('monitor.duration'),
                         width: 100,
                         sortable: true,
                         formatter: function(value, row, index) {
@@ -213,7 +213,7 @@ define([
                         }
                     }, {
                         field: 'status',
-                        title: i18n.t('inspector.status'),
+                        title: i18n.t('monitor.status'),
                         width: 100,
                         sortable: true,
                         formatter: function(value, row, index) {
@@ -355,7 +355,7 @@ define([
         },
         formatDuration: function(val, row) {
             if (!val) return;
-            return i18n.t('inspector.durationValue', {
+            return i18n.t('monitor.durationValue', {
                 duration: val
             });
         },
@@ -432,12 +432,12 @@ define([
             var element = e.currentTarget;
             var examId = $(element).attr('data-id');
             if (SINGLE_MODE) {
-                app.router.navigate("inspector/" + examId, {
+                app.router.navigate("vision/" + examId, {
                     trigger: true
                 });
             }
             else {
-                window.open("#inspector/" + examId, examId);
+                window.open("#vision/" + examId, examId);
             }
         }
     });

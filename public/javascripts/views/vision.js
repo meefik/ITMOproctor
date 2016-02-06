@@ -475,7 +475,7 @@ define([
         },
         disconnect: function() {
             if (SINGLE_MODE) {
-                app.router.navigate("inspector", {
+                app.router.navigate("monitor", {
                     trigger: true
                 });
             }

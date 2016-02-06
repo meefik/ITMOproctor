@@ -8,10 +8,10 @@ define([], function() {
     var Router = Backbone.Router.extend({
         routes: {
             "login": "login",
-            "student": "student",
-            "student/:examId": "talk",
-            "inspector": "inspector",
-            "inspector/:examId": "vision",
+            "study": "study",
+            "talk/:examId": "talk",
+            "monitor": "monitor",
+            "vision/:examId": "vision",
             "*path": "main"
         },
         render: function(View, options, auth) {
@@ -42,10 +42,10 @@ define([], function() {
                 var navigate = "login";
                 switch (role) {
                     case 1:
-                        navigate = "student";
+                        navigate = "study";
                         break;
                     case 2:
-                        navigate = "inspector";
+                        navigate = "monitor";
                         break;
                     case 3:
                         navigate = "admin";
@@ -69,10 +69,10 @@ define([], function() {
                 self.render(View, null, true);
             });
         },
-        student: function() {
+        study: function() {
             var self = this;
             require([
-                "views/student"
+                "views/study"
             ], function(View) {
                 self.render(View);
             });
@@ -87,10 +87,10 @@ define([], function() {
                 });
             });
         },
-        inspector: function() {
+        monitor: function() {
             var self = this;
             require([
-                "views/inspector"
+                "views/monitor"
             ], function(View) {
                 self.render(View);
             });

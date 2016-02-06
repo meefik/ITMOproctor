@@ -21,7 +21,7 @@ define({
         "submit": "Войти",
         "from": "войти через"
     },
-    "student": {
+    "study": {
         "title": "Расписание экзаменов",
         "menu": "Меню",
         "refresh": "Обновить",
@@ -187,7 +187,7 @@ define({
         "beginDate": "Дата начала",
         "endDate": "Дата окончания"
     },
-    "inspector": {
+    "monitor": {
         "title": "Расписание экзаменов",
         "my": "Мои",
         "all": "Все",

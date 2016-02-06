@@ -3,14 +3,14 @@
 //
 define([
     "i18n",
-    "text!templates/student.html",
+    "text!templates/study.html",
     "views/exam",
     "views/settings",
     "views/planner",
     "views/passport-editor",
     "views/demo"
 ], function(i18n, template, ExamView, SettingsView, PlannerView, PassportEditorView, DemoView) {
-    console.log('views/student.js');
+    console.log('views/study.js');
     var View = Backbone.View.extend({
         events: {
             "click .start-btn": "doStart",
@@ -103,28 +103,28 @@ define([
                 columns: [
                     [{
                         field: 'subject',
-                        title: i18n.t('student.subject'),
+                        title: i18n.t('study.subject'),
                         width: 200,
                         formatter: function(value, row, index) {
                             return self.formatSubject(value, row, index);
                         }
                     }, {
                         field: 'beginDate',
-                        title: i18n.t('student.begin'),
+                        title: i18n.t('study.begin'),
                         width: 150,
                         formatter: function(value, row, index) {
                             return self.formatDate(value, row, index);
                         }
                     }, {
                         field: 'duration',
-                        title: i18n.t('student.duration'),
+                        title: i18n.t('study.duration'),
                         width: 100,
                         formatter: function(value, row, index) {
                             return self.formatDuration(value, row, index);
                         }
                     }, {
                         field: 'status',
-                        title: i18n.t('student.status'),
+                        title: i18n.t('study.status'),
                         width: 100,
                         formatter: function(value, row, index) {
                             return self.formatStatus(value, row, index);
@@ -217,7 +217,7 @@ define([
             var selected = this.$Grid.datagrid('getSelected');
             var disabled = this.$StartBtn.linkbutton('options').disabled;
             if (selected && !disabled) {
-                app.router.navigate("student/" + selected._id, {
+                app.router.navigate("talk/" + selected._id, {
                     trigger: true
                 });
             }
@@ -240,7 +240,7 @@ define([
         },
         doRevoke: function() {
             var self = this;
-            $.messager.confirm(i18n.t('student.confirm'), i18n.t('student.revokeMessage'), function(r) {
+            $.messager.confirm(i18n.t('study.confirm'), i18n.t('study.revokeMessage'), function(r) {
                 if (r) {
                     self.exam.destroy({
                         success: function(model) {
@@ -252,7 +252,7 @@ define([
         },
         formatDuration: function(val, row) {
             if (!val) return;
-            return i18n.t('student.durationValue', {
+            return i18n.t('study.durationValue', {
                 duration: val
             });
         },
