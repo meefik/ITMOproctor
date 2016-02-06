@@ -18,13 +18,18 @@ define([
             "click .status-btn1": "doSearch",
             "click .status-btn2": "doSearch",
             "click .status-btn3": "doSearch",
-            "click .grid-reload": "doReload",
             "click .student-btn": "doStudentInfo",
             "click .inspector-btn": "doInspectorInfo",
             "click .exam-btn": "doExamInfo",
             "click .start-btn": "doStart"
         },
         bindings: {
+            '.server-date': {
+                observe: 'time',
+                onGet: function(val) {
+                    return moment(val).format('DD.MM.YYYY');
+                }
+            },
             '.server-time': {
                 observe: 'time',
                 onGet: function(val) {
@@ -94,7 +99,6 @@ define([
         },
         render: function() {
             var self = this;
-            var now = app.now();
             var tpl = _.template(this.templates['main-tpl']);
             var data = {
                 i18n: i18n
@@ -104,12 +108,11 @@ define([
             // jQuery selectors
             this.$Menu = $('#main-menu');
             this.$Grid = this.$(".easyui-datagrid");
-            this.$DateSearch = this.$(".date-search");
+            this.$FromDate = this.$(".date-from");
+            this.$ToDate = this.$(".date-to");
             this.$TextSearch = this.$(".text-search");
             this.$StatusBtn1 = this.$(".status-btn1");
             this.$StatusBtn2 = this.$(".status-btn2");
-            this.$TimeWidget = this.$(".time-widget");
-            this.$LoguserWidget = this.$(".loguser-widget");
             // Event handlers
             this.$Menu.menu({
                 onClick: function(item) {
@@ -132,8 +135,17 @@ define([
                     }
                 }
             });
-            this.$DateSearch.datebox({
+            this.$FromDate.datebox({
                 value: app.now().format("DD.MM.YYYY"),
+                delay: 0,
+                onChange: function(date) {
+                    var valid = moment(date, "DD.MM.YYYY", true).isValid();
+                    if (!date || valid) self.doSearch();
+                }
+            });
+            this.$ToDate.datebox({
+                value: app.now().format("DD.MM.YYYY"),
+                delay: 0,
                 onChange: function(date) {
                     var valid = moment(date, "DD.MM.YYYY", true).isValid();
                     if (!date || valid) self.doSearch();
@@ -144,12 +156,20 @@ define([
                     self.doSearch();
                 }
             });
+            var dates = this.getDates();
             this.$Grid.datagrid({
                 columns: [
                     [{
                         field: 'student',
                         title: i18n.t('inspector.student'),
                         width: 150,
+                        sortable: true,
+                        sorter: function(a, b) {
+                            if (!a || !b) return 0;
+                            var fa = a.lastname + ' ' + a.firstname + ' ' + a.middlename;
+                            var fb = b.lastname + ' ' + b.firstname + ' ' + b.middlename;
+                            return fa.localeCompare(fb);
+                        },
                         formatter: function(value, row, index) {
                             return self.formatStudent(value, row, index);
                         }
@@ -157,6 +177,13 @@ define([
                         field: 'inspector',
                         title: i18n.t('inspector.inspector'),
                         width: 150,
+                        sortable: true,
+                        sorter: function(a, b) {
+                            if (!a || !b) return 0;
+                            var fa = a.lastname + ' ' + a.firstname + ' ' + a.middlename;
+                            var fb = b.lastname + ' ' + b.firstname + ' ' + b.middlename;
+                            return fa.localeCompare(fb);
+                        },
                         formatter: function(value, row, index) {
                             return self.formatInspector(value, row, index);
                         }
@@ -180,6 +207,7 @@ define([
                         field: 'duration',
                         title: i18n.t('inspector.duration'),
                         width: 100,
+                        sortable: true,
                         formatter: function(value, row, index) {
                             return self.formatDuration(value, row, index);
                         }
@@ -187,6 +215,7 @@ define([
                         field: 'status',
                         title: i18n.t('inspector.status'),
                         width: 100,
+                        sortable: true,
                         formatter: function(value, row, index) {
                             return self.formatStatus(value, row, index);
                         }
@@ -199,23 +228,75 @@ define([
                         }
                     }]
                 ],
-                rownumbers: true,
                 remoteSort: false,
+                pageNumber: 1,
+                pageSize: 50,
+                pageList: [10, 50, 100, 250, 500],
+                rownumbers: true,
                 url: 'inspector/exam',
                 method: 'get',
                 queryParams: {
-                    from: now.startOf('day').toJSON(),
-                    to: now.startOf('day').add(1, 'days').toJSON()
+                    myself: true,
+                    from: dates.from,
+                    to: dates.to
                 },
                 onLoadSuccess: function() {
                     self.lastUpdated = {};
+                },
+                loadFilter: function(data) {
+                    var text = self.$TextSearch.textbox('getValue').trim();
+                    if (!text.length) return data;
+                    var objectToString = function(obj) {
+                        var result = "";
+                        if (obj instanceof Array) {
+                            for (var i = 0; i < obj.length; i++) {
+                                result += objectToString(obj[i]);
+                            }
+                        }
+                        else {
+                            for (var prop in obj) {
+                                if (obj[prop] instanceof Object || obj[prop] instanceof Array) {
+                                    result += objectToString(obj[prop]);
+                                }
+                                if (typeof obj[prop] === 'string') result += obj[prop] + " ";
+                            }
+                        }
+                        return result;
+                    };
+                    var phrases = text.toLowerCase().split(' ');
+                    var rows = data.rows || [];
+                    var out = {
+                        rows: [],
+                        total: 0
+                    };
+                    for (var i = 0, li = rows.length; i < li; i++) {
+                        var str = objectToString(rows[i]).toLowerCase();
+                        var cond = true;
+                        for (var j = 0, lj = phrases.length; j < lj; j++) {
+                            if (str.search(phrases[j]) === -1) {
+                                cond = false;
+                                break;
+                            }
+                        }
+                        if (cond) out.rows.push(rows[i]);
+                    }
+                    out.total = out.rows.length;
+                    return out;
                 }
             });
-            this.$LoguserWidget.text(app.profile.get("lastname") + " " +
-                app.profile.get("firstname") + " " + app.profile.get("middlename") +
-                " (" + i18n.t('roles.' + app.profile.get("role")) + ")");
             this.stickit(app.time);
             return this;
+        },
+        getDates: function() {
+            var fromVal = this.$FromDate.datebox('getValue');
+            var toVal = this.$ToDate.datebox('getValue');
+            var fromDate = fromVal ? moment(fromVal, 'DD.MM.YYYY').toJSON() : null;
+            var toDate = toVal ? moment(toVal, 'DD.MM.YYYY').toJSON() : null;
+            console.log(fromDate);
+            return {
+                from: fromDate,
+                to: toDate
+            };
         },
         formatStatus: function(val, row) {
             var status = 0;
@@ -234,6 +315,7 @@ define([
                 if (row.resolution === true) status = 4;
                 if (row.resolution === false) status = 5;
             }
+            row.status = status;
             switch (status) {
                 case 0:
                     return '<span style="color:olive;">' + i18n.t('examStatus.0') + '</span>';
@@ -273,7 +355,9 @@ define([
         },
         formatDuration: function(val, row) {
             if (!val) return;
-            return val + ' мин.';
+            return i18n.t('inspector.durationValue', {
+                duration: val
+            });
         },
         formatDate: function(val, row) {
             if (!val) return;
@@ -313,28 +397,21 @@ define([
             return tpl(data);
         },
         doSearch: function() {
-            var any = 0;
+            var myself = true;
             switch (true) {
                 case this.$StatusBtn1.linkbutton('options').selected:
-                    any = 0;
+                    myself = true;
                     break;
                 case this.$StatusBtn2.linkbutton('options').selected:
-                    any = 1;
+                    myself = false;
                     break;
             }
-            var text = this.$TextSearch.textbox('getValue');
-            var date = this.$DateSearch.datebox('getValue');
-            var fromDate = date ? moment(date, 'DD.MM.YYYY').toJSON() : null;
-            var toDate = date ? moment(date, 'DD.MM.YYYY').add(1, 'days').toJSON() : null;
+            var dates = this.getDates();
             this.$Grid.datagrid('load', {
-                any: any,
-                from: fromDate,
-                to: toDate,
-                text: text
+                myself: myself,
+                from: dates.from,
+                to: dates.to
             });
-        },
-        doReload: function() {
-            this.$Grid.datagrid('reload');
         },
         doExamInfo: function(e) {
             var element = e.currentTarget;

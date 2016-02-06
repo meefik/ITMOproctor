@@ -231,10 +231,9 @@ var db = {
         search: function(args, callback) {
             var rows = args.rows ? Number(args.rows) : 100;
             var page = args.page ? Number(args.page) - 1 : 0;
-            var any = args.any === '1' ? true : false;
+            var myself = args.myself === 'false' ? false : true;
             var fromDate = args.from ? moment(args.from) : null;
             var toDate = args.to ? moment(args.to) : null;
-            var text = args.text ? args.text.trim().split(' ') : null;
             var query = {};
             // Date
             if (fromDate && toDate) {
@@ -246,63 +245,25 @@ var db = {
                 };
             }
             // If myself
-            if (!any) {
+            if (myself) {
                 query.inspector = args.userId;
             }
             // Populate options
             var opts = [{
                 path: 'student',
-                select: 'firstname lastname middlename'
+                select: 'username firstname lastname middlename'
             }, {
                 path: 'inspector',
-                select: 'firstname lastname middlename'
+                select: 'username firstname lastname middlename'
             }];
             // Query
             var Exam = require('./models/exam');
-            if (text) {
-                // Full text search
-                Exam.find(query).sort('beginDate').populate(opts).exec(function(err, data) {
-                    if (err || !data) return callback(err);
-                    var out = [];
-                    var dl = data.length;
-                    for (var i = 0; i < dl; i++) {
-                        var item = data[i];
-                        var student = item.student ? item.student : {};
-                        var inspector = item.inspector ? item.inspector : {};
-                        var arr = [
-                            item.subject,
-                            student.lastname, student.firstname, student.middlename,
-                            inspector.lastname, inspector.firstname, inspector.middlename
-                        ];
-                        var cond = true;
-                        for (var k = 0; k < text.length; k++) {
-                            var match = false;
-                            for (var j = 0; j < arr.length; j++) {
-                                var str = String(arr[j]).toLowerCase();
-                                var sub = String(text[k]).toLowerCase();
-                                if (str.indexOf(sub) > -1) {
-                                    match = true;
-                                    break;
-                                }
-                            }
-                            cond = cond && match;
-                            if (!cond) break;
-                        }
-                        if (cond) out.push(item);
-                    }
-                    var begin = rows * page;
-                    var end = begin + rows;
-                    callback(err, out.slice(begin, end), out.length);
+            Exam.count(query, function(err, count) {
+                if (err || !count) return callback(err);
+                Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
+                    callback(err, data, count);
                 });
-            }
-            else {
-                Exam.find(query).count(function(err, count) {
-                    if (err) return callback(err);
-                    Exam.find(query).sort('beginDate').skip(rows * page).limit(rows).populate(opts).exec(function(err, data) {
-                        callback(err, data, count);
-                    });
-                });
-            }
+            });
         },
         info: function(args, callback) {
             var Exam = require('./models/exam');

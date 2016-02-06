@@ -10,7 +10,7 @@ router.get('/exam',
             userId: req.user._id,
             rows: req.query.rows,
             page: req.query.page,
-            any: req.query.any,
+            myself: req.query.myself,
             from: req.query.from,
             to: req.query.to,
             text: req.query.text

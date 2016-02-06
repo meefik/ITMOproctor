@@ -190,10 +190,10 @@ define({
     "inspector": {
         "title": "Расписание экзаменов",
         "my": "Мои",
-        "any": "Все",
-        "searchDatePrompt": "Показать на...",
-        "searchTextPrompt": "Введите текст для поиска...",
-        "time": "Текущее время",
+        "all": "Все",
+        "fromDatePrompt": "Начало...",
+        "toDatePrompt": "Окончание...",
+        "searchTextPrompt": "Поиск...",
         "schedule": "Планирование",
         "profile": "Профиль",
         "settings": "Настройки",
@@ -209,7 +209,8 @@ define({
         "subject": "Экзамен",
         "beginDate": "Начало",
         "duration": "Длительность",
-        "status": "Статус"
+        "status": "Статус",
+        "durationValue": "%{duration} мин."
     },
     "talk": {
         "online": "В сети",

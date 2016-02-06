@@ -7,20 +7,16 @@
         </div>
     </div>
     <div data-options="region:'center',border:false">
-        <table class="easyui-datagrid" data-options="view:bufferview,toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true,fit:true">
+        <table class="easyui-datagrid" data-options="toolbar:'#toolbar',pageSize:100,singleSelect:true,border:false,fitColumns:true,fit:true,pagination:true">
         </table>
         <div id="toolbar">
             <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true"><%- i18n.t('inspector.my') %></a> |
-            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'"><%- i18n.t('inspector.any') %></a>
-            <input name="date-search" class="easyui-datebox date-search" style="width:110px;" data-options="prompt:'<%- i18n.t('inspector.searchDatePrompt') %>'">
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'"><%- i18n.t('inspector.all') %></a>
+            <input name="date-from" class="easyui-datebox date-from" style="width:110px;" data-options="prompt:'<%- i18n.t('inspector.fromDatePrompt') %>'">
+            <input name="date-to" class="easyui-datebox date-to" style="width:110px;" data-options="prompt:'<%- i18n.t('inspector.toDatePrompt') %>'">
             <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt:'<%- i18n.t('inspector.searchTextPrompt') %>'">
-            <button class="easyui-linkbutton grid-reload" data-options="iconCls:'pagination-load',plain:true"></button>
-        </div>
-    </div>
-    <div data-options="region:'south',border:false">
-        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="easyui-tooltip text-item" title="<%- i18n.t('inspector.time') %>"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">00:00:00</span></span>
-            <span class="text-item" style="float:right"><i class="fa fa-user"></i><span class="loguser-widget">...</span></span>
+            <span class="text-item" style="float:right;padding-right:10px;"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">...</span></span>
+            <span class="text-item" style="float:right;padding-right:10px;"><i class="fa fa-sun-o"></i><span class="panel-widget server-date">...</span></span>
         </div>
     </div>
 </div>
