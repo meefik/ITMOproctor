@@ -10,7 +10,7 @@ router.get('/exam',
             userId: req.user._id,
             rows: req.query.rows,
             page: req.query.page,
-            myself: req.query.myself,
+            myself: req.query.myself === 'false' ? false : true,
             from: req.query.from,
             to: req.query.to,
             text: req.query.text

@@ -37,6 +37,9 @@ define([
                             var times = moment(diff).utc().format('HH:mm:ss');
                             out = days + '.' + times;
                         }
+                        if (diff <= 0 && diff > -1000 && this.nextExam.resolution == null) {
+                            if (this.$Grid) this.$Grid.datagrid('reload');
+                        }
                     }
                     return out;
                 }
@@ -209,7 +212,7 @@ define([
         refreshTable: function() {
             this.$Grid.datagrid({
                 queryParams: {
-                    history: this.historyFlag ? '1' : '0'
+                    history: this.historyFlag
                 }
             });
         },

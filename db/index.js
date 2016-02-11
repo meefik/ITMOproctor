@@ -231,7 +231,7 @@ var db = {
         search: function(args, callback) {
             var rows = args.rows ? Number(args.rows) : 100;
             var page = args.page ? Number(args.page) - 1 : 0;
-            var myself = args.myself === 'false' ? false : true;
+            var myself = args.myself;
             var fromDate = args.from ? moment(args.from) : null;
             var toDate = args.to ? moment(args.to) : null;
             var query = {};

@@ -15,13 +15,13 @@ var upload = multer({
         file.failed = true;
     }
 });
-// Upload file
+// Upload attach
 router.post('/', upload.any(), function(req, res, next) {
     var file = req.files[0];
     if (!file) return res.status(400).end();
     res.json(file);
 });
-// Download file
+// Download attach
 router.get('/:fileId', function(req, res, next) {
     var fileId = req.params.fileId;
     db.storage.download(fileId, function(data) {

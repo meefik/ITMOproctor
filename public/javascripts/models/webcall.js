@@ -1,5 +1,5 @@
 //
-// Exam model
+// Webcall model
 //
 define([], function() {
     console.log('models/webcall.js');

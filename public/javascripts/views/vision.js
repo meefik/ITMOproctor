@@ -91,7 +91,8 @@ define([
                 }),
                 screen: new ScreenView({
                     examId: this.options.examId,
-                    userId: app.profile.get('_id')
+                    userId: app.profile.get('_id'),
+                    capture: false
                 })
             };
             // Window events

@@ -144,7 +144,7 @@ define([
                 }
             });
             this.$ToDate.datebox({
-                value: app.now().format("DD.MM.YYYY"),
+                value: app.now().add(1, 'days').format("DD.MM.YYYY"),
                 delay: 0,
                 onChange: function(date) {
                     var valid = moment(date, "DD.MM.YYYY", true).isValid();
@@ -292,7 +292,6 @@ define([
             var toVal = this.$ToDate.datebox('getValue');
             var fromDate = fromVal ? moment(fromVal, 'DD.MM.YYYY').toJSON() : null;
             var toDate = toVal ? moment(toVal, 'DD.MM.YYYY').toJSON() : null;
-            console.log(fromDate);
             return {
                 from: fromDate,
                 to: toDate

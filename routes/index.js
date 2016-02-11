@@ -3,6 +3,7 @@ var api = require('./api');
 var rest = require('./rest');
 var profile = require('./profile');
 var storage = require('./storage');
+var stream = require('./stream');
 var exam = require('./exam');
 var student = require('./student');
 var inspector = require('./inspector');
@@ -23,4 +24,5 @@ module.exports = function(app) {
     app.use('/members', profile.isStudent, members);
     app.use('/notes', profile.isInspector, notes);
     app.use('/inspector', profile.isInspector, inspector);
+    app.use('/stream', profile.isInspector, stream);
 };

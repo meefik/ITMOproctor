@@ -14,7 +14,7 @@ define([
             this.templates = _.parseTemplate(template);
             this.webcall = new WebcallModel({
                 socket: app.io.call,
-                userid: "webcam-" + this.options.examId + "-" + this.options.userId
+                userid: "camera-" + this.options.examId + "-" + this.options.userId
             });
         },
         destroy: function() {
@@ -132,7 +132,7 @@ define([
             this.webcall.toggleVideo(!state);
         },
         play: function(userId) {
-            var peer = "webcam-" + this.options.examId + "-" + userId;
+            var peer = "camera-" + this.options.examId + "-" + userId;
             this.webcall.set('constraints', this.constraints());
             this.webcall.toggleAudio(true);
             this.webcall.toggleVideo(true);

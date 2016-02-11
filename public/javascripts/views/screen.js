@@ -29,27 +29,29 @@ define([
             this.$el.html(tpl(data));
             this.$VideoInput = this.$(".video-input");
             this.$VideoOutput = this.$(".video-output");
-            this.videoInput = this.$VideoInput.get(0);
             this.videoOutput = this.$VideoOutput.get(0);
-            this.$VideoInput.draggable({
-                onDrag: function(e) {
-                    var d = e.data;
-                    var parent = $(d.parent);
-                    var target = $(d.target);
-                    if (d.left < 0) {
-                        d.left = 0;
+            if (this.options.capture) {
+                this.videoInput = this.$VideoInput.get(0);
+                this.$VideoInput.draggable({
+                    onDrag: function(e) {
+                        var d = e.data;
+                        var parent = $(d.parent);
+                        var target = $(d.target);
+                        if (d.left < 0) {
+                            d.left = 0;
+                        }
+                        if (d.top < 0) {
+                            d.top = 0;
+                        }
+                        if (d.left + target.outerWidth() > parent.width()) {
+                            d.left = parent.width() - target.outerWidth();
+                        }
+                        if (d.top + target.outerHeight() > parent.height()) {
+                            d.top = parent.height() - target.outerHeight();
+                        }
                     }
-                    if (d.top < 0) {
-                        d.top = 0;
-                    }
-                    if (d.left + target.outerWidth() > parent.width()) {
-                        d.left = parent.width() - target.outerWidth();
-                    }
-                    if (d.top + target.outerHeight() > parent.height()) {
-                        d.top = parent.height() - target.outerHeight();
-                    }
-                }
-            });
+                });
+            }
             this.webcall.set({
                 input: this.videoInput,
                 output: this.videoOutput,
@@ -79,7 +81,7 @@ define([
                 audio: false,
                 video: true
             };
-            if (this.videoInput) {
+            if (this.options.capture) {
                 var resolution = app.settings.get('screen-resolution');
                 resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
                 var fps = app.settings.get('screen-fps');
