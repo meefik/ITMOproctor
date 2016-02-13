@@ -1,9 +1,31 @@
-* {
-    font-size: 12px;
+@font-face {
+    font-family: "Verdana";
+    src: url("fonts/Verdana.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Verdana";
+    src: url("fonts/Verdana_Bold.ttf");
+    font-weight: bold;
+}
+@font-face {
+    font-family: "Verdana";
+    src: url("fonts/Verdana_Italic.ttf");
+    font-style: italic;
+}
+@font-face {
+    font-family: "Verdana";
+    src: url("fonts/Verdana_Bold_Italic.ttf");
+    font-weight: bold;
+    font-style: italic;
 }
 
+* {
+    font-size: 12px;
+    font-family: 'Verdana', sans-serif;
+}
+
+html,
 body {
-    font-family: verdana, helvetica, arial, sans-serif;
     padding: 0;
     margin: 0;
     height: 100%;
@@ -33,13 +55,13 @@ a {
 }
 
 .text-item {
-    padding: 0 5px;
+    padding: 0 0.5em;
     line-height: 26px;
     color: #444;
 }
 
 .text-item>i {
-    padding-right: 10px;
+    padding-right: 0.5em;
 }
 
 .panel-widget {

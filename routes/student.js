@@ -8,7 +8,7 @@ var config = require('nconf');
 router.get('/exam', api.fetchExams, function(req, res) {
     var args = {
         userId: req.user._id,
-        history: req.query.history === 'true' ? true : false
+        history: req.query.history === 'true'
     };
     db.exam.list(args, function(err, data) {
         if (!err && data) {

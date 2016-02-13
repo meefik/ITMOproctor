@@ -148,10 +148,10 @@ define({
         "documentNumberPrompt": "Серия и номер документа",
         "documentIssueDate": "Дата выдачи",
         "documentIssueDatePrompt": "Выберите дату...",
-        "address": "Адрес",
-        "addressPrompt": "Город, улица, дом, квартира...",
-        "description": "Дополнительно",
-        "descriptionPrompt": "Введите описание..."
+        "address": "Почтовый адрес",
+        "addressPrompt": "Район, город, населенный пункт, улица...",
+        "description": "Образование",
+        "descriptionPrompt": "Уровень образования, степень, квалификация, образовательная организация"
     },
     "profile": {
         "title": "Профиль проктора",

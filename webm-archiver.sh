@@ -27,7 +27,7 @@ get_video_resolution()
         echo 320 240
     ;;
     *screen*)
-        echo 640 480
+        echo 768 480
     ;;
     esac
 }
@@ -58,7 +58,7 @@ scale_video_file()
     local out_file="$2"
     local width="$3"
     local height="$4"
-    ffmpeg_exec -i "$in_file" -c:v vp8 -r:v ${FRAME_RATE} -filter:v "scale=${width}:-1,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2" -c:a libvorbis -q:a 0 "${out_file}"
+    ffmpeg_exec -i "$in_file" -c:v vp8 -r:v ${FRAME_RATE} -filter:v scale="'if(gte(a,4/3),${width},-1)':'if(gt(a,4/3),-1,${height})'",pad="${width}:${height}:(${width}-iw)/2:(${height}-ih)/2" -c:a libvorbis -q:a 0 "${out_file}"
 }
 
 # создания файла-загрушки для заполнения пропусков между видеофайлами
@@ -93,13 +93,13 @@ encode_video_complex()
         -i "${OUTPUT_DIR%/}/${camera3}" \
         -threads ${NCPU} -c:v vp8 -r:v ${FRAME_RATE} -c:a libvorbis -q:a 0 \
         -filter_complex "
-	        pad=960:480 [base];
-	        [0:v] setpts=PTS-STARTPTS, scale=320:240 [camera1];
-	        [1:v] setpts=PTS-STARTPTS, scale=320:240 [camera2];
-	        [2:v] setpts=PTS-STARTPTS, scale=640:480 [camera3];
-	        [base][camera1] overlay=x=0:y=0 [tmp1];
-	        [tmp1][camera2] overlay=x=0:y=240 [tmp2];
-	        [tmp2][camera3] overlay=x=320:y=0;
+            pad=1088:480 [base];
+            [0:v] setpts=PTS-STARTPTS, scale=320:240 [camera1];
+            [1:v] setpts=PTS-STARTPTS, scale=320:240 [camera2];
+            [2:v] setpts=PTS-STARTPTS, scale=768:480 [camera3];
+            [base][camera1] overlay=x=0:y=0 [tmp1];
+            [tmp1][camera2] overlay=x=0:y=240 [tmp2];
+            [tmp2][camera3] overlay=x=320:y=0;
             [0:a][1:a] amix" "${OUTPUT_DIR%/}/${video_file}"
     ls "${OUTPUT_DIR}" | grep -v "${video_file}" | xargs -I FILE rm "${OUTPUT_DIR%/}/FILE"
 }
@@ -201,55 +201,51 @@ write_fragments()
 }
 
 # загрузить файл на сервер webdav
-# input: session_id
+# input: video_file
 upload()
 {
-    local session_id="$1"
-    [ -n "${session_id}" ] || return 1
+    local video_file="$1"
+    [ -n "${video_file}" ] || return 1
     [ -z "${STORAGE_URL}" ] && return 0
-    local video_file="${session_id}.webm"
     local http_code=$(curl -o /dev/null -w "%{http_code}" --digest --user ${STORAGE_USER}:${STORAGE_PASS} -T "${STORAGE_DIR%/}/${video_file}" "${STORAGE_URL%/}/${video_file}")
     # если файл создан, то код ответа 201, если обновлен - 204
     test "${http_code}" = "201" -o "${http_code}" = "204"
 }
 
 # проверить существование файла на сервере webdav
-# input: session_id
+# input: video_file
 is_uploaded()
 {
-    local session_id="$1"
-    [ -n "${session_id}" ] || return 1
+    local video_file="$1"
+    [ -n "${video_file}" ] || return 1
     [ -z "${STORAGE_URL}" ] && return 0
-    local video_file="${session_id}.webm"
     local http_code=$(curl -I -o /dev/null -w "%{http_code}" --digest --user ${STORAGE_USER}:${STORAGE_PASS} "${STORAGE_URL%/}/${video_file}")
     # если файл существует, то код ответа 200
     test "${http_code}" = "200"
 }
 
 # проверить существование файла
-# input: session_id
+# input: video_file
 is_exist()
 {
-    local session_id="$1"
-    [ -n "${session_id}" ] || return 1
-    local video_file="${session_id}.webm"
+    local video_file="$1"
+    [ -n "${video_file}" ] || return 1
     test -e "${STORAGE_DIR%/}/${video_file}"
 }
 
 # функция кодирования видеосессии
-# input: session_id
-# output: ${STORAGE_DIR}/${session_id}.webm
+# input: video_file
+# output: ${STORAGE_DIR}/${video_file}
 encode_video_session()
 {
-    local session_id="$1"
-    [ -n "${session_id}" ] || return 1
-    local output_file="${session_id}.webm"
+    local output_file="$1"
+    [ -n "${output_file}" ] || return 1
     # создать временную директорию
     OUTPUT_DIR=$(mktemp -d)
     # удалить пустые файлы из исходного каталога
     find "${STORAGE_DIR}" -empty -type f -exec rm {} \;
     # перекодировать видео по заданному формату
-    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${session_id}.*\.webm$" | while read video_file
+    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${video_file}$" | while read video_file
     do
         scale_video_file "${STORAGE_DIR%/}/${video_file}" "${OUTPUT_DIR%/}/${video_file}" $(get_video_resolution "${video_file}")
     done
@@ -274,33 +270,33 @@ encode_video_session()
     fi
 }
 
-# архивирование и загрузка на сервер
-# input: session_id
+# архивирование видеофрагментов и загрузка на сервер
+# input: pipe
 archiver()
 {
-    echo ">>> Processing: ${session_id}"
-    # проверить существование файла
-    if ! is_exist "${session_id}"
-    then
-        # запустить перекодирование видеофайлов сессии
-        encode_video_session "${session_id}"
-        # загрузить или обновить файл на сервере
-        upload "${session_id}"
-    else
-        # загрузить файл на сервер, если еще не загружен
-        is_uploaded "${session_id}" || upload "${session_id}"
-    fi
-    # записать результат в лог
-    if [ $? -eq 0 ]
-    then
-        write_log "${session_id} ok"
-    else
-        write_log "${session_id} fail"
-    fi
+    while read video_file
+    do
+        echo ">>> Processing: ${video_file}"
+        # проверить существование файла
+        if ! is_exist "${video_file}"
+        then
+            # запустить перекодирование видеофайлов сессии
+            encode_video_session "${video_file}"
+            # загрузить или обновить файл на сервере
+            upload "${video_file}"
+        else
+            # загрузить файл на сервер, если еще не загружен
+            is_uploaded "${video_file}" || upload "${video_file}"
+        fi
+        # записать результат в лог
+        if [ $? -eq 0 ]
+        then
+            write_log "${video_file} ok"
+        else
+            write_log "${video_file} fail"
+        fi
+    done
 }
 
-# получение списка идентификаторов сессий и запуск архивирования
-ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-.*\.webm$" | cut -f2 -d- | sort -u | while read session_id
-do
-    archiver "${session_id}"
-done
+# получение списка сессий и запуск архивирования
+ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}\.webm$" | cut -f2 -d- | sort -u | archiver

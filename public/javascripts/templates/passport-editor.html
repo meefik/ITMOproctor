@@ -13,7 +13,7 @@
             <tr>
                 <td><%- i18n.t('passport.gender') %>:</td>
                 <td>
-                    <select name="gender" class="gender" style="width:200px;">
+                    <select name="gender" class="easyui-combobox gender" data-options="width:200,panelHeight:'auto',editable:false">
                         <option selected disabled>...</option>
                         <option value="<%- i18n.t('passport.genders.male') %>"><%- i18n.t('passport.genders.male') %></option>
                         <option value="<%- i18n.t('passport.genders.female') %>"><%- i18n.t('passport.genders.female') %></option>
@@ -33,21 +33,21 @@
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.citizenship') %>:</td>
-                <td>
-                    <input type="text" name="citizenship" class="easyui-textbox citizenship" data-options="width:310,prompt:'<%- i18n.t('passport.citizenshipPrompt') %>'" />
-                </td>
-            </tr>
-            <tr>
                 <td><%- i18n.t('passport.address') %>:</td>
                 <td>
                     <input name="address" class="easyui-textbox address" style="width:310px;" data-options="prompt:'<%- i18n.t('passport.addressPrompt') %>'">
                 </td>
             </tr>
             <tr>
+                <td><%- i18n.t('passport.citizenship') %>:</td>
+                <td>
+                    <input type="text" name="citizenship" class="easyui-textbox citizenship" data-options="width:310,prompt:'<%- i18n.t('passport.citizenshipPrompt') %>'" />
+                </td>
+            </tr>
+            <tr>
                 <td><%- i18n.t('passport.documentType') %>:</td>
                 <td>
-                    <select name="documentType" class="documentType" style="width:200px;">
+                    <select name="documentType" class="easyui-combobox documentType" data-options="width:200,panelHeight:'auto',editable:false">
                         <option selected disabled>...</option>
                         <option value="<%- i18n.t('passport.documentTypes.passport') %>"><%- i18n.t('passport.documentTypes.passport') %></option>
                         <option value="<%- i18n.t('passport.documentTypes.internationalPassport') %>"><%- i18n.t('passport.documentTypes.internationalPassport') %></option>
@@ -73,7 +73,7 @@
             <tr>
                 <td><%- i18n.t('passport.description') %>:</td>
                 <td>
-                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:50,multiline:true,prompt:'<%- i18n.t('passport.descriptionPrompt') %>'">
+                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('passport.descriptionPrompt') %>'">
                 </td>
             </tr>
         </table>
@@ -85,7 +85,7 @@
     padding: 3px 5px;
 }
 #kladr_autocomplete a {
-    font-size: 10px;
+    font-size: 12px;
 }
 </style>
 <script src="bower_components/jquery.kladr/jquery.kladr.min.js"></script>

@@ -6,7 +6,7 @@
 }
 </style>
 <div class="easyui-layout" data-options="fit:true">
-    <div data-options="region:'north',border:false" style="height:33px;border-bottom-width: 1px;">
+    <div data-options="region:'north',border:false" style="height:33px;border-bottom-width:1px;overflow:hidden;">
         <button class="easyui-linkbutton note-add-btn" data-options="plain:true,iconCls:'fa fa-plus'" style="float:right;margin:.2em"><%- i18n.t('notes.add') %></button>
         <div style="overflow: hidden; padding: .4em;">
             <input class="easyui-textbox note-input" style="width:100%;" data-options="prompt:'<%- i18n.t('notes.inputPrompt') %>'">
@@ -38,8 +38,8 @@
     </div>
     <% if (note.editable) { %>
     <div class="edit-buttons" style="padding:0 5px 3px 8px;right:0;top:0;position:absolute;display:none;background-color:white;">
-        <a href="javascript:void(0);" class="note-edit" style="font-size:1.3em;color:gray;padding-right:5px" title="<%- i18n.t('notes.edit') %>"><i class="fa fa-pencil"></i></a>
-        <a href="javascript:void(0);" class="note-remove" style="font-size:1.4em;color:gray;" title="<%- i18n.t('notes.remove') %>"><i class="fa fa-close"></i></a>
+        <a href="javascript:void(0);" class="note-edit" style="font-size:16px;color:gray;padding-right:5px" title="<%- i18n.t('notes.edit') %>"><i class="fa fa-pencil"></i></a>
+        <a href="javascript:void(0);" class="note-remove" style="font-size:16px;color:gray;" title="<%- i18n.t('notes.remove') %>"><i class="fa fa-close"></i></a>
     </div>
     <% } %>
 </div>
