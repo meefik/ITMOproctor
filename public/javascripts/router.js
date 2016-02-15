@@ -12,6 +12,7 @@ define([], function() {
             "talk/:examId": "talk",
             "monitor": "monitor",
             "vision/:examId": "vision",
+            "play/:examId": "play",
             "*path": "main"
         },
         render: function(View, options, auth) {
@@ -99,6 +100,16 @@ define([], function() {
             var self = this;
             require([
                 "views/vision"
+            ], function(View) {
+                self.render(View, {
+                    examId: examId
+                });
+            });
+        },
+        play: function(examId) {
+            var self = this;
+            require([
+                "views/play"
             ], function(View) {
                 self.render(View, {
                     examId: examId

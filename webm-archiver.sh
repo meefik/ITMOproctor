@@ -7,7 +7,7 @@
 #
 # Формат входных файлов: <timestamp>_<camera>-<session>.webm (^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}\.webm$)
 # timestamp - отметка времени создания файла в миллисекундах
-# camera - идентификатор камеры (камеры отображаются на комплексном экране в алфавитном порядке)
+# camera - идентификатор камеры (camera1, camera2, screen)
 # session - идентификатор видеосессии по которому идет объединение в группы
 
 STORAGE_URL="http://192.168.0.10/webdav"
@@ -76,7 +76,7 @@ write_blank_file()
 concat_video_group()
 {
     local video_group="$1"
-    ffmpeg_exec -f concat -i <(ls "${OUTPUT_DIR}" | grep -oe "^[0-9]\+_${video_group}$" | xargs -I FILE echo "file ${OUTPUT_DIR%/}/FILE") -c copy "${OUTPUT_DIR}/${video_group}"
+    ffmpeg_exec -f concat -i <(ls "${OUTPUT_DIR}"| grep -oe "^[0-9]\+_${video_group}$" | sort -n | xargs -I FILE echo "file ${OUTPUT_DIR%/}/FILE") -c copy "${OUTPUT_DIR}/${video_group}"
     ls "${OUTPUT_DIR}" | grep -oe "^[0-9]\+_${video_group}$" | xargs -I FILE rm "${OUTPUT_DIR%/}/FILE"
 }
 
@@ -96,10 +96,10 @@ encode_video_complex()
             pad=1088:480 [base];
             [0:v] setpts=PTS-STARTPTS, scale=320:240 [camera1];
             [1:v] setpts=PTS-STARTPTS, scale=320:240 [camera2];
-            [2:v] setpts=PTS-STARTPTS, scale=768:480 [camera3];
+            [2:v] setpts=PTS-STARTPTS, scale=768:480 [screen];
             [base][camera1] overlay=x=0:y=0 [tmp1];
             [tmp1][camera2] overlay=x=0:y=240 [tmp2];
-            [tmp2][camera3] overlay=x=320:y=0;
+            [tmp2][screen] overlay=x=320:y=0;
             [0:a][1:a] amix" "${OUTPUT_DIR%/}/${video_file}"
     ls "${OUTPUT_DIR}" | grep -v "${video_file}" | xargs -I FILE rm "${OUTPUT_DIR%/}/FILE"
 }
@@ -245,12 +245,12 @@ encode_video_session()
     # удалить пустые файлы из исходного каталога
     find "${STORAGE_DIR}" -empty -type f -exec rm {} \;
     # перекодировать видео по заданному формату
-    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${video_file}$" | while read video_file
+    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${output_file}$" | while read video_file
     do
         scale_video_file "${STORAGE_DIR%/}/${video_file}" "${OUTPUT_DIR%/}/${video_file}" $(get_video_resolution "${video_file}")
     done
-    # получить видеогруппы
-    VIDEO_GROUPS=$(ls "${OUTPUT_DIR}" | grep "^[0-9]\+_" | cut -f2- -d_ | sort -u)
+    # составить видеогруппы
+    VIDEO_GROUPS="camera1-${output_file} camera2-${output_file} screen-${output_file}"
     # воссоздать недостающие видеофрагменты
     generate_marks | fragments_by_groups | write_fragments
     # объединить видеофрагменты по группам

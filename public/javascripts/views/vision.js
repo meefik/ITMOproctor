@@ -387,7 +387,7 @@ define([
                     attach.push({
                         fileId: respond.fileId,
                         filename: respond.originalname,
-                        uploadname: respond.name
+                        uploadname: respond.filename
                     });
                     self.view.notes.collection.create({
                         time: app.now(),
