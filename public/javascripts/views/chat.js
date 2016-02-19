@@ -83,6 +83,7 @@ define([
                     self.createMessage(i18n.t('chat.connect'));
                 }
             });
+            return this;
         },
         destroy: function() {
             app.io.notify.removeListener('chat-' + this.options.examId);

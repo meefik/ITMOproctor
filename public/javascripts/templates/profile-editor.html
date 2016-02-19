@@ -26,8 +26,7 @@
             <tr>
                 <td><%- i18n.t('profile.gender') %>:</td>
                 <td>
-                    <select name="gender" class="easyui-combobox gender" data-options="width:200,panelHeight:'auto',editable:false">
-                        <option selected disabled>...</option>
+                    <select name="gender" class="easyui-combobox gender" data-options="width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('passport.genderPrompt') %>'">
                         <option value="<%- i18n.t('profile.genders.male') %>"><%- i18n.t('profile.genders.male') %></option>
                         <option value="<%- i18n.t('profile.genders.female') %>"><%- i18n.t('profile.genders.female') %></option>
                     </select>

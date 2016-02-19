@@ -23,7 +23,7 @@ define([
             var dialog = $(this.el).dialog({
                 title: i18n.t('passport.title'),
                 width: 500,
-                height: 470,
+                height: 480,
                 closed: true,
                 modal: true,
                 content: tpl(data),
@@ -43,6 +43,9 @@ define([
                 onOpen: function() {
                     $(this).dialog('center');
                     self.$EditForm.form('load', app.profile.toJSON());
+                },
+                onClose: function() {
+                    self.$EditForm.form('clear');
                 }
             });
             this.$Dialog = $(dialog);

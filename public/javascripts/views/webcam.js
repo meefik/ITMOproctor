@@ -27,8 +27,8 @@ define([
                 i18n: i18n
             };
             this.$el.html(tpl(data));
-            this.$VideoInput = this.$(".video-input");
-            this.$VideoOutput = this.$(".video-output");
+            this.$VideoInput = this.$(".webcam-input");
+            this.$VideoOutput = this.$(".webcam-output");
             this.videoInput = this.$VideoInput.get(0);
             this.videoOutput = this.$VideoOutput.get(0);
             this.$VideoInput.draggable({

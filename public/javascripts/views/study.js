@@ -1,5 +1,5 @@
 //
-// Student view
+// Study view
 //
 define([
     "i18n",

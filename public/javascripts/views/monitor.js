@@ -1,5 +1,5 @@
 //
-// Inspector view
+// Monitor view
 //
 define([
     "i18n",

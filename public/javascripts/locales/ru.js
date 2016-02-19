@@ -121,21 +121,24 @@ define({
         "close": "Закрыть",
         "login": "Логин",
         "fullname": "ФИО",
+        "footnote": "заполняется на русском языке",
         "lastname": "Фамилия",
         "firstname": "Имя",
         "middlename": "Отчество",
         "gender": "Пол",
+        "genderPrompt": "Ваш пол",
         "genders": {
             "male": "Мужской",
             "female": "Женский"
         },
         "birthday": "Дата рождения",
-        "birthdayPrompt": "Выберите дату...",
+        "birthdayPrompt": "Дата рождения",
         "email": "Электронный адрес",
-        "emailPrompt": "E-Mail",
+        "emailPrompt": "Электронный адрес",
         "citizenship": "Гражданство",
         "citizenshipPrompt": "Гражданство",
         "documentType": "Тип документа",
+        "documentTypePrompt": "Тип документа",
         "documentTypes": {
             "passport": "Паспорт",
             "internationalPassport": "Заграничный паспорт",
@@ -147,7 +150,7 @@ define({
         "documentNumber": "Серия и номер",
         "documentNumberPrompt": "Серия и номер документа",
         "documentIssueDate": "Дата выдачи",
-        "documentIssueDatePrompt": "Выберите дату...",
+        "documentIssueDatePrompt": "Дата выдачи документа",
         "address": "Почтовый адрес",
         "addressPrompt": "Район, город, населенный пункт, улица...",
         "description": "Образование",
@@ -164,6 +167,7 @@ define({
         "firstname": "Имя",
         "middlename": "Отчество",
         "gender": "Пол",
+        "genderPrompt": "Ваш пол",
         "genders": {
             "male": "Мужской",
             "female": "Женский"

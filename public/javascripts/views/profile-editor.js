@@ -54,6 +54,7 @@ define([
                     if (self.attach[0]) self.$Avatar.attr('src', 'storage/' + self.attach[0].fileId);
                 },
                 onClose: function() {
+                    self.$EditForm.form('clear');
                     self.$Progress.hide();
                     self.$Avatar.attr('src', 'images/avatar.png');
                     self.$AttachForm.trigger('reset');

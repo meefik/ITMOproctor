@@ -27,8 +27,8 @@ define([
                 i18n: i18n
             };
             this.$el.html(tpl(data));
-            this.$VideoInput = this.$(".video-input");
-            this.$VideoOutput = this.$(".video-output");
+            this.$VideoInput = this.$(".screen-input");
+            this.$VideoOutput = this.$(".screen-output");
             this.videoOutput = this.$VideoOutput.get(0);
             if (this.options.capture) {
                 this.videoInput = this.$VideoInput.get(0);
