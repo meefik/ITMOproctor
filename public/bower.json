@@ -34,8 +34,7 @@
     "polyglot": "~1.0.0",
     "requirejs": "~2.1.22",
     "text": "~2.0.14",
-    "require.replace": "~0.3.0",
-    "jquery.kladr": "~2.2.1"
+    "require.replace": "~0.3.0"
   },
   "private": true
 }

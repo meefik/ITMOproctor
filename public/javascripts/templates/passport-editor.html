@@ -3,7 +3,7 @@
     <form class="passport-form">
         <table cellpadding="5" style="width:100%;">
             <tr>
-                <td style="width:40%"><%- i18n.t('passport.fullname') %>: <sup style="color:red">*</sup></td>
+                <td style="width:40%"><%- i18n.t('passport.fullname') %><sup style="color:red">*</sup>:</td>
                 <td>
                     <input type="text" name="lastname" class="easyui-textbox lastname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('passport.lastname') %>'" />
                     <input type="text" name="firstname" class="easyui-textbox firstname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('passport.firstname') %>'" />
@@ -328,14 +328,4 @@
         </table>
     </form>
 </div>
-<style type="text/css">
-@import url("bower_components/jquery.kladr/jquery.kladr.min.css");
-#kladr_autocomplete li {
-    padding: 3px 5px;
-}
-#kladr_autocomplete a {
-    font-size: 10px;
-}
-</style>
-<script src="bower_components/jquery.kladr/jquery.kladr.min.js"></script>
 </script>
