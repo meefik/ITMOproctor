@@ -35,10 +35,6 @@ define([], function() {
         },
         main: function() {
             if (app.isAuth()) {
-                app.time.syncTime();
-                app.connect({
-                    'forceNew': true
-                });
                 var role = app.profile.get("role");
                 var navigate = "login";
                 switch (role) {

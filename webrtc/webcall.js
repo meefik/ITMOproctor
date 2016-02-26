@@ -203,11 +203,7 @@ function bind(socket) {
     socket.on('connection', function(ws) {
         var sessionId = nextUniqueId();
         logger.debug('Connection received with sessionId ' + sessionId);
-        ws.on('error', function(error) {
-            logger.debug('Connection ' + sessionId + ' error');
-            stop(sessionId);
-        });
-        ws.on('close', function() {
+        ws.on('disconnect', function() {
             logger.debug('Connection ' + sessionId + ' closed');
             stop(sessionId);
             userRegistry.unregister(sessionId);

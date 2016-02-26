@@ -150,6 +150,8 @@ require([
                 password: password
             }, {
                 success: function() {
+                    self.time.syncTime();
+                    self.connect();
                     self.router.navigate("", {
                         trigger: true
                     });
@@ -164,6 +166,7 @@ require([
                 success: function(model) {
                     model.clear();
                     self.time.stop();
+                    self.disconnect();
                     self.router.navigate("login", {
                         trigger: true
                     });
@@ -171,12 +174,19 @@ require([
             });
         },
         connect: function(options) {
+            if (this.io) return;
             var url = window.location.host;
             this.io = {
                 notify: io.connect(url + '/notify', options),
                 call: io.connect(url + '/call', options),
                 screen: io.connect(url + '/screen', options)
             };
+        },
+        disconnect: function() {
+            for (var k in this.io) {
+                if (this.io[k]) this.io[k].disconnect();
+            }
+            this.io = null;
         },
         isAuth: function() {
             return this.profile.has("username");
