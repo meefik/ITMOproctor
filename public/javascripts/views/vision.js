@@ -4,6 +4,7 @@
 define([
     "i18n",
     "text!templates/vision.html",
+    "views/settings",
     "views/exam",
     "views/passport",
     "views/profile",
@@ -13,7 +14,7 @@ define([
     "views/chat",
     "views/webcam",
     "views/screen"
-], function(i18n, template, ExamView, PassportView, ProfileView, VerifyView, MembersView, NotesView, ChatView, WebcamView, ScreenView) {
+], function(i18n, template, SettingsView, ExamView, PassportView, ProfileView, VerifyView, MembersView, NotesView, ChatView, WebcamView, ScreenView) {
     console.log('views/vision.js');
     var View = Backbone.View.extend({
         events: {
@@ -72,6 +73,7 @@ define([
             //this.listenTo(this.exam, 'change', this.render);
             // Sub views
             this.view = {
+                settings: new SettingsView(),
                 profile: new ProfileView(),
                 passport: new PassportView(),
                 exam: new ExamView(),
@@ -186,6 +188,9 @@ define([
                             break;
                         case "profile":
                             self.view.profile.doOpen();
+                            break;
+                        case "settings":
+                            self.view.settings.doOpen();
                             break;
                         case "disconnect":
                             self.disconnect();

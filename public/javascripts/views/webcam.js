@@ -14,7 +14,8 @@ define([
             this.templates = _.parseTemplate(template);
             this.webcall = new WebcallModel({
                 socket: app.io.call,
-                userid: "camera-" + this.options.examId + "-" + this.options.userId
+                userid: "camera-" + this.options.examId + "-" + this.options.userId,
+                constraints: this.constraints.bind(this)
             });
         },
         destroy: function() {
@@ -52,8 +53,7 @@ define([
             });
             this.webcall.set({
                 input: this.videoInput,
-                output: this.videoOutput,
-                constraints: this.constraints()
+                output: this.videoOutput
             });
             return this;
         },
@@ -99,6 +99,7 @@ define([
             });
         },
         constraints: function() {
+            app.settings.refresh();
             var audioSource = app.settings.get('webcamera-audio');
             audioSource = audioSource ? audioSource.get('value') : null;
             var videoSource = app.settings.get('webcamera-video');
@@ -133,9 +134,7 @@ define([
         },
         play: function(userId) {
             var peer = "camera-" + this.options.examId + "-" + userId;
-            this.webcall.set('constraints', this.constraints());
-            this.webcall.toggleAudio(true);
-            this.webcall.toggleVideo(true);
+            this.mute(false);
             this.webcall.call(peer);
         },
         stop: function() {

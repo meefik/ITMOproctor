@@ -6,6 +6,9 @@
     text-align: center;
     position: relative;
 }
+.panel-screen {
+    display: none;
+}
 </style>
 <div class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north',border:false" style="margin-bottom:1px;">
@@ -20,7 +23,7 @@
                 <div class="easyui-layout" data-options="fit:true">
                     <div data-options="region:'center',border:false" class="ws-widget">
                         <div class="easyui-panel ws-panel panel-webcam" title="<%- i18n.t('talk.webcamera') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true"></div>
-                        <div class="panel-screen" style="display:none"></div>
+                        <div class="panel-screen"></div>
                     </div>
                     <div data-options="region:'east',border:false" class="ws-widget" style="width:35%">
                         <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('talk.members') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true"></div>
@@ -44,6 +47,7 @@
     <div name="exam" data-options="iconCls:'fa fa-tags'"><%- i18n.t('talk.exam') %></div>
     <div class="menu-sep"></div>
     <div name="passport" data-options="iconCls:'fa fa-user'"><%- i18n.t('talk.profile') %></div>
+    <div name="settings" data-options="iconCls:'fa fa-wrench'"><%- i18n.t('talk.settings') %></div>
     <div class="menu-sep"></div>
     <div name="disconnect" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('talk.disconnect') %></div>
 </div>

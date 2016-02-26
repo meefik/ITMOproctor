@@ -14,7 +14,8 @@ define([
             this.templates = _.parseTemplate(template);
             this.webcall = new WebcallModel({
                 socket: app.io.screen,
-                userid: "screen-" + this.options.examId + "-" + this.options.userId
+                userid: "screen-" + this.options.examId + "-" + this.options.userId,
+                constraints: this.constraints.bind(this)
             });
         },
         destroy: function() {
@@ -54,8 +55,7 @@ define([
             }
             this.webcall.set({
                 input: this.videoInput,
-                output: this.videoOutput,
-                constraints: this.constraints()
+                output: this.videoOutput
             });
             return this;
         },
@@ -82,6 +82,7 @@ define([
                 video: true
             };
             if (this.options.capture) {
+                app.settings.refresh();
                 var resolution = app.settings.get('screen-resolution');
                 resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
                 var fps = app.settings.get('screen-fps');
@@ -103,7 +104,6 @@ define([
         },
         play: function(userId) {
             var peer = "screen-" + this.options.examId + "-" + userId;
-            this.webcall.set('constraints', this.constraints());
             this.webcall.call(peer);
         },
         stop: function() {

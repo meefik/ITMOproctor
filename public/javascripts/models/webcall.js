@@ -45,11 +45,12 @@ define([], function() {
             this.get("socket").removeListener('message');
         },
         getOptions: function() {
+            var constraints = this.get("constraints");
             return {
                 localVideo: this.get("input"),
                 remoteVideo: this.get("output"),
                 onicecandidate: this.onIceCandidate.bind(this),
-                mediaConstraints: this.get("constraints"),
+                mediaConstraints: typeof constraints === 'function' ? constraints() : constraints,
                 configuration: {
                     iceServers: this.get('iceServers')
                 }
@@ -66,7 +67,7 @@ define([], function() {
         onError: function(error) {
             if (error) {
                 console.error(error);
-                this.setCallState('NO_CALL');
+                this.stop();
             }
         },
         parseMessage: function(message) {

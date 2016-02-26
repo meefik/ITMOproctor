@@ -52,7 +52,8 @@ define([
                         }),
                         screen: new ScreenView({
                             examId: 'loopback',
-                            userId: app.profile.get('_id')
+                            userId: app.profile.get('_id'),
+                            capture: true
                         })
                     };
                     $(this).find('.panel-webcam').html(self.view.webcam.render().el);

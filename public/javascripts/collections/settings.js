@@ -10,6 +10,11 @@ define([], function() {
             });
             this.fetch();
         },
+        refresh: function() {
+            this.fetch({
+                async: false
+            });
+        },
         save: function(items) {
             var self = this;
             items.forEach(function(item, i, arr) {
@@ -20,6 +25,7 @@ define([], function() {
             });
         },
         load: function() {
+            this.refresh();
             var items = {};
             this.toJSON().forEach(function(item, i, arr) {
                 items[item.name] = item.value;

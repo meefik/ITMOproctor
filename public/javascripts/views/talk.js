@@ -4,13 +4,14 @@
 define([
     "i18n",
     "text!templates/talk.html",
+    "views/settings",
     "views/exam",
     "views/passport",
     "views/members",
     "views/chat",
     "views/webcam",
     "views/screen"
-], function(i18n, template, ExamView, PassportView, MembersView, ChatView, WebcamView, ScreenView) {
+], function(i18n, template, SettingsView, ExamView, PassportView, MembersView, ChatView, WebcamView, ScreenView) {
     console.log('views/talk.js');
     var View = Backbone.View.extend({
         bindings: {
@@ -64,6 +65,7 @@ define([
             app.io.notify.on('disconnect', this.disconnectHandler);
             // Sub views
             this.view = {
+                settings: new SettingsView(),
                 passport: new PassportView(),
                 exam: new ExamView(),
                 members: new MembersView({
@@ -167,6 +169,9 @@ define([
                             break;
                         case "passport":
                             self.view.passport.doOpen();
+                            break;
+                        case "settings":
+                            self.view.settings.doOpen();
                             break;
                         case "disconnect":
                             self.disconnect();
