@@ -1,6 +1,13 @@
-//
-// Webcall model
-//
+/**
+ * Webcall model
+ *
+ * Параметры модели:
+ * @param userid - идентификатор камеры
+ * @param input - локальная камера (DOM Element, тэг <video>)
+ * @param output - удаленная камера (DOM Element, тэг <video>)
+ * @param constraints - функция, возвращающая параметры видео и аудио
+ * @param iceServers - список ICE-серверов
+ */
 define([], function() {
     console.log('models/webcall.js');
     var Model = Backbone.Model.extend({
@@ -31,18 +38,20 @@ define([], function() {
             var self = this;
             this.audio = true;
             this.video = true;
-            this.get("socket").on('connect', function() {
+            this.ws = io.connect(window.location.host + '/webcall');
+            this.ws.on('connect', function() {
                 if (self.registerState != 'REGISTERING') {
                     self.register();
                 }
             });
-            this.get("socket").on('message', this.parseMessage.bind(this));
+            this.ws.on('message', this.parseMessage.bind(this));
             this.register();
         },
         destroy: function() {
             this.stop(true);
-            this.get("socket").removeListener('connect');
-            this.get("socket").removeListener('message');
+            this.ws.removeListener('connect');
+            this.ws.removeListener('message');
+            this.ws.disconnect();
         },
         getOptions: function() {
             var constraints = this.get("constraints");
@@ -188,7 +197,7 @@ define([], function() {
         sendMessage: function(message) {
             var jsonMessage = JSON.stringify(message);
             console.log('Senging message: ' + jsonMessage);
-            this.get("socket").send(jsonMessage);
+            this.ws.send(jsonMessage);
         },
         register: function() {
             this.setRegisterState('REGISTERING');

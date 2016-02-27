@@ -177,9 +177,7 @@ require([
             if (this.io) return;
             var url = window.location.host;
             this.io = {
-                notify: io.connect(url + '/notify', options),
-                call: io.connect(url + '/call', options),
-                screen: io.connect(url + '/screen', options)
+                notify: io.connect(url + '/notify', options)
             };
         },
         disconnect: function() {

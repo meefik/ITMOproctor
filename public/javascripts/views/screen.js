@@ -13,7 +13,6 @@ define([
             this.options = options || {};
             this.templates = _.parseTemplate(template);
             this.webcall = new WebcallModel({
-                socket: app.io.screen,
                 userid: "screen-" + this.options.examId + "-" + this.options.userId,
                 constraints: this.constraints.bind(this)
             });
