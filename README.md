@@ -108,6 +108,7 @@ npm start
 
 Сборка приложения под все архитектуры, архивы для загрузки приложения будут размещены в public/dist:
 ```
+apt-get install tar zip unzip wget upx-ucl
 npm run-script build-app
 ```
 
