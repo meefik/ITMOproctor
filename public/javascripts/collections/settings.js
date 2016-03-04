@@ -1,6 +1,7 @@
 //
 // Settings collection
 //
+/* global Backbone */
 define([], function() {
     var Collection = Backbone.Collection.extend({
         localStorage: new Backbone.LocalStorage("settings"),

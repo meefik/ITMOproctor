@@ -1,10 +1,12 @@
 //
 // Chat view
 //
+/* global _, Backbone, app */
 define([
     "i18n",
-    "text!templates/chat.html"
-], function(i18n, template) {
+    "text!templates/chat.html",
+    "collections/attach"
+], function(i18n, template, AttachCollection) {
     console.log('views/chat.js');
     var View = Backbone.View.extend({
         className: "chat-view",
@@ -13,14 +15,12 @@ define([
             "click .chat-attach-btn": "doAttach",
             "click .chat-file-btn": "doReset",
             "keyup .chat-input": "doInputKeyup",
-            "change .chat-attach-input": "doFileChange",
             "click .attach-link": "doDownload"
         },
         initialize: function(options) {
             // Variables
             var self = this;
             this.options = options || {};
-            this.attach = [];
             // Templates
             this.templates = _.parseTemplate(template);
             // Single item view
@@ -41,6 +41,44 @@ define([
                     return this;
                 }
             });
+            // Attach
+            this.attach = new AttachCollection();
+            this.attach.callback = function(action, args) {
+                switch (action) {
+                    case 'limit':
+                        $.messager.show({
+                            title: i18n.t('chat.limitMessage.title'),
+                            msg: i18n.t('chat.limitMessage.message', {
+                                num: args.uploadLimit
+                            }),
+                            showType: 'fade',
+                            style: {
+                                right: '',
+                                bottom: ''
+                            }
+                        });
+                        break;
+                    case 'start':
+                        self.$Progress.progressbar('setColor', null);
+                        self.$AttachBtn.hide();
+                        self.$FileBtn.show();
+                        self.$Progress.progressbar({
+                            value: 0,
+                            text: _.truncateFilename(args.file.name, 15)
+                        });
+                        break;
+                    case 'progress':
+                        var percentage = Math.floor((args.progress.loaded / args.progress.total) * 100);
+                        self.$Progress.progressbar('setValue', percentage);
+                        break;
+                    case 'done':
+                        self.$Progress.progressbar('setColor', 'green');
+                        break;
+                    case 'fail':
+                        self.$Progress.progressbar('setColor', 'red');
+                        break;
+                }
+            };
             // Chat collection
             var Chat = Backbone.Collection.extend({
                 url: 'chat/' + this.options.examId,
@@ -78,6 +116,15 @@ define([
             this.$AttachInput = this.$(".chat-attach-input");
             this.$AttachBtn = this.$(".chat-attach-btn");
             this.$Progress = this.$(".chat-progress");
+            this.$Templates = this.$(".chat-templates");
+            this.$Templates.combo({
+                onChange: function(newValue, oldValue) {
+                    if (!newValue) return;
+                    self.$Input.html(newValue);
+                    self.$Templates.combobox("clear");
+                }
+            });
+            this.$Templates.combobox("clear");
             this.collection.fetch({
                 success: function(model, response, options) {
                     self.createMessage(i18n.t('chat.connect'));
@@ -100,7 +147,7 @@ define([
                 time: app.now(),
                 author: author,
                 text: text,
-                attach: this.attach
+                attach: this.attach.toJSON()
             });
         },
         doSend: function() {
@@ -124,65 +171,13 @@ define([
         },
         doAttach: function() {
             if (this.attach.length > 0) return;
-            this.$AttachInput.trigger('click');
+            this.attach.create();
         },
         doReset: function() {
-            this.attach = [];
+            this.attach.reset();
             this.$Input.html('');
             this.$FileBtn.hide();
-            this.$AttachBtn.linkbutton('enable');
-            this.$Form.trigger('reset');
-        },
-        doFileChange: function() {
-            var self = this;
-            var limitSize = UPLOAD_LIMIT * 1024 * 1024; // bytes
-            var files = this.$AttachInput.get(0).files;
-            if (!files.length) return;
-            if (files[0].size > limitSize) {
-                $.messager.show({
-                    title: i18n.t('chat.limitMessage.title'),
-                    msg: i18n.t('chat.limitMessage.message', {
-                        num: UPLOAD_LIMIT
-                    }),
-                    showType: 'fade',
-                    style: {
-                        right: '',
-                        bottom: ''
-                    }
-                });
-                return;
-            }
-            var fd = new FormData(this.$Form.get(0));
-            this.$Progress.progressbar('setColor', null);
-            this.$FileBtn.show();
-            this.$AttachBtn.linkbutton('disable');
-            this.$Progress.progressbar({
-                value: 0,
-                text: _.truncateFilename(files[0].name, 15)
-            });
-            $.ajax({
-                type: 'post',
-                url: 'storage',
-                data: fd,
-                xhr: function() {
-                    var xhr = $.ajaxSettings.xhr();
-                    xhr.upload.onprogress = function(progress) {
-                        var percentage = Math.floor((progress.loaded / progress.total) * 100);
-                        self.$Progress.progressbar('setValue', percentage);
-                    };
-                    return xhr;
-                },
-                processData: false,
-                contentType: false
-            }).done(function(respond) {
-                //console.log(respond);
-                self.attach.push({
-                    fileId: respond.fileId,
-                    filename: respond.originalname,
-                    uploadname: respond.filename
-                });
-                self.$Progress.progressbar('setColor', 'green');
-            });
+            this.$AttachBtn.show();
         },
         doDownload: function(e) {
             return _.isHttpStatusOK(e.currentTarget.href);

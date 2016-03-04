@@ -68,7 +68,8 @@ a {
     font-weight: bold;
 }
 
-.datagrid-row-selected {
+.datagrid-row-selected,
+.tree-node-selected {
     background: #ddddff;
     color: inherit;
 }

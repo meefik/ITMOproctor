@@ -19,18 +19,22 @@
     <div data-options="region:'south',border:false,minHeight:60" style="height:35%;">
         <div class="easyui-layout" data-options="fit:true">
             <div data-options="region:'north',border:false">
-                <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;">
+                <div class="easyui-panel" data-options="fit:true" style="padding:3px;border-left:0;border-right:0;height:28px;text-align:right">
                     <button class="easyui-linkbutton chat-file-btn" data-options="plain:true,iconCls:'fa fa-download'" style="float:left;display:none;">
                         <div class="easyui-progressbar chat-progress" data-options="width:150,height:18" style="margin:3px 0 3px 0"></div>
                     </button>
-                    <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'" style="float:right"><%- i18n.t('chat.send') %></button>
-                    <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'" style="float:right"><%- i18n.t('chat.attach') %></button>
-                    <form class="attach-form" method="post" enctype="multipart/form-data" style="display:none;">
-                        <input type="file" name="attach" class="chat-attach-input" />
-                    </form>
+                    <button class="easyui-linkbutton chat-attach-btn" data-options="plain:true,iconCls:'fa fa-paperclip'"><%- i18n.t('chat.attach') %></button>
+                    <button class="easyui-linkbutton chat-send-btn" data-options="plain:true,iconCls:'fa fa-paper-plane-o'"><%- i18n.t('chat.send') %></button>
                 </div>
             </div>
             <div class="chat-input" data-options="region:'center',border:false" placeholder="<%- i18n.t('chat.inputPrompt') %>" contenteditable="true" style="height:100%;overflow-x:hidden;padding:.3em"></div>
+            <div data-options="region:'south',border:false" style="overflow:hidden">
+                <select class="easyui-combobox chat-templates" data-options="panelHeight:'auto',editable:false,prompt:'<%- i18n.t('chat.templatesPrompt') %>'" style="width:100%">
+                    <option><%- i18n.t('chat.templates.0') %></option>
+                    <option><%- i18n.t('chat.templates.1') %></option>
+                    <option><%- i18n.t('chat.templates.2') %></option>
+                </select>
+            </div>
         </div>
     </div>
 </div>

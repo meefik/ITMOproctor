@@ -12,7 +12,7 @@ define([], function() {
             "talk/:examId": "talk",
             "monitor": "monitor",
             "vision/:examId": "vision",
-            "play/:examId": "play",
+            "admin": "admin",
             "*path": "main"
         },
         render: function(View, options, auth) {
@@ -102,10 +102,10 @@ define([], function() {
                 });
             });
         },
-        play: function(examId) {
+        admin: function(examId) {
             var self = this;
             require([
-                "views/play"
+                "views/admin/main"
             ], function(View) {
                 self.render(View, {
                     examId: examId

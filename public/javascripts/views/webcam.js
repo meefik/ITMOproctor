@@ -104,7 +104,7 @@ define([
             var videoSource = app.settings.get('webcamera-video');
             videoSource = videoSource ? videoSource.get('value') : null;
             var resolution = app.settings.get('webcamera-resolution');
-            resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
+            resolution = resolution ? resolution.get('value').split('x') : [640, 480];
             var fps = app.settings.get('webcamera-fps');
             fps = fps ? fps.get('value') : 15;
             var constraints = {

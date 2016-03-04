@@ -85,7 +85,7 @@ define([
                 var resolution = app.settings.get('screen-resolution');
                 resolution = resolution ? resolution.get('value').split('x') : [1280, 720];
                 var fps = app.settings.get('screen-fps');
-                fps = fps ? fps.get('value') : 15;
+                fps = fps ? fps.get('value') : 5;
                 var sourceId = app.settings.get('screen-id');
                 sourceId = sourceId ? sourceId.get('value') : 'screen:0';
                 constraints.video = {

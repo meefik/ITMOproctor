@@ -279,9 +279,9 @@ define([], function() {
                 arguments[i].style.background = '';
             }
         },
-        toggleAudio: function(audio) {
+        toggleAudio: function(flag) {
             if (typeof audio != 'undefined') {
-                this.audio = audio;
+                this.audio = flag;
             }
             else {
                 this.audio = !this.audio;
@@ -292,9 +292,9 @@ define([], function() {
             }
             return this.audio;
         },
-        toggleVideo: function(video) {
+        toggleVideo: function(flag) {
             if (typeof video != 'undefined') {
-                this.video = video;
+                this.video = flag;
             }
             else {
                 this.video = !this.video;
