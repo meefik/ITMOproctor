@@ -42,8 +42,7 @@ define([
                 }
             });
             // Attach
-            this.attach = new AttachCollection();
-            this.attach.callback = function(action, args) {
+            this.attach = new AttachCollection(null, null, function(action, args) {
                 switch (action) {
                     case 'limit':
                         $.messager.show({
@@ -78,7 +77,7 @@ define([
                         self.$Progress.progressbar('setColor', 'red');
                         break;
                 }
-            };
+            });
             // Chat collection
             var Chat = Backbone.Collection.extend({
                 url: 'chat/' + this.options.examId,

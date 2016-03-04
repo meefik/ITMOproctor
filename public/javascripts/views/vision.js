@@ -13,8 +13,9 @@ define([
     "views/notes",
     "views/chat",
     "views/webcam",
-    "views/screen"
-], function(i18n, template, SettingsView, ExamView, PassportView, ProfileView, VerifyView, MembersView, NotesView, ChatView, WebcamView, ScreenView) {
+    "views/screen",
+    "collections/attach"
+], function(i18n, template, SettingsView, ExamView, PassportView, ProfileView, VerifyView, MembersView, NotesView, ChatView, WebcamView, ScreenView, AttachCollection) {
     console.log('views/vision.js');
     var View = Backbone.View.extend({
         events: {
@@ -171,7 +172,7 @@ define([
             this.$ExamComment = this.$DialogConfirm.find('.exam-comment');
             this.$ApplyText = this.$DialogConfirm.find('.apply-text');
             this.$RejectText = this.$DialogConfirm.find('.reject-text');
-            this.$Video = this.$('.panel-webcam > .video-output');
+            this.$Video = this.$('.panel-webcam > .webcam-output');
             // Event handlers
             this.$Menu.menu({
                 onClick: function(item) {
@@ -314,25 +315,21 @@ define([
                 for (var i = 0; i < blobBin.length; i++) {
                     array.push(blobBin.charCodeAt(i));
                 }
-                var file = new Blob([new Uint8Array(array)], {
-                    type: 'image/png'
+                var file = {
+                    name: 'document.png',
+                    blob: new Blob([new Uint8Array(array)], {
+                        type: 'image/png'
+                    })
+                };
+                var attach = new AttachCollection(null, null, function(action, args) {
+                    switch (action) {
+                        case 'done':
+                            callback(this);
+                            break;
+                    }
                 });
-                var formdata = new FormData();
-                formdata.append(0, file, "document.png");
-                $.ajax({
-                    url: "storage",
-                    type: "post",
-                    data: formdata,
-                    processData: false,
-                    contentType: false,
-                }).done(function(respond) {
-                    var attach = [];
-                    attach.push({
-                        fileId: respond.fileId,
-                        filename: respond.originalname,
-                        uploadname: respond.name
-                    });
-                    callback(attach);
+                attach.create({
+                    file: file
                 });
             }
 
@@ -352,7 +349,7 @@ define([
                         self.view.notes.collection.create({
                             time: app.now(),
                             text: message,
-                            attach: attach,
+                            attach: attach.toJSON(),
                             editable: false
                         });
                     });
@@ -375,32 +372,28 @@ define([
                 for (var i = 0; i < blobBin.length; i++) {
                     array.push(blobBin.charCodeAt(i));
                 }
-                var file = new Blob([new Uint8Array(array)], {
-                    type: 'image/png'
+                var file = {
+                    name: 'screenshot.png',
+                    blob: new Blob([new Uint8Array(array)], {
+                        type: 'image/png'
+                    })
+                };
+                var attach = new AttachCollection(null, null, function(action, args) {
+                    switch (action) {
+                        case 'done':
+                            var comment = self.$ScreenshotComment.textbox('getValue');
+                            self.view.notes.collection.create({
+                                time: app.now(),
+                                text: comment,
+                                attach: this.toJSON(),
+                                editable: true
+                            });
+                            closeBtn();
+                            break;
+                    }
                 });
-                var formdata = new FormData();
-                formdata.append(0, file, "screenshot.png");
-                $.ajax({
-                    url: "storage",
-                    type: "post",
-                    data: formdata,
-                    processData: false,
-                    contentType: false,
-                }).done(function(respond) {
-                    var comment = self.$ScreenshotComment.textbox('getValue');
-                    var attach = [];
-                    attach.push({
-                        fileId: respond.fileId,
-                        filename: respond.originalname,
-                        uploadname: respond.filename
-                    });
-                    self.view.notes.collection.create({
-                        time: app.now(),
-                        text: comment,
-                        attach: attach,
-                        editable: true
-                    });
-                    closeBtn();
+                attach.create({
+                    file: file
                 });
             };
             self.$ScreenshotPreview.attr({
