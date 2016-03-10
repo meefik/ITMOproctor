@@ -21,7 +21,8 @@ define([
             "click .student-btn": "doStudentInfo",
             "click .inspector-btn": "doInspectorInfo",
             "click .exam-btn": "doExamInfo",
-            "click .start-btn": "doStart"
+            "click .start-btn": "doStart",
+            "click .play-btn": "doPlay"
         },
         bindings: {
             '.server-date': {
@@ -339,18 +340,23 @@ define([
             var tpl = _.template(this.templates['action-item-tpl']);
             var now = app.now();
             var beginDate = moment(row.beginDate);
-            var isAllow = function() {
+            var isStart = function() {
                 var allow = false;
                 if (beginDate <= now && row.startDate && !row.stopDate) {
                     allow = true;
                 }
                 return allow;
             };
+            var isPlay = function() {
+                return row.resolution === true || row.resolution === false;
+            };
             var data = {
                 i18n: i18n,
-                examId: row._id
+                examId: row._id,
+                isStart: isStart(),
+                isPlay: isPlay()
             };
-            return isAllow() ? tpl(data) : null;
+            return tpl(data);
         },
         formatDuration: function(val, row) {
             if (!val) return;
@@ -438,6 +444,16 @@ define([
             else {
                 window.open("#vision/" + examId, examId);
             }
+        },
+        doPlay: function(e) {
+            var element = e.currentTarget;
+            var examId = $(element).attr('data-id');
+            var href = window.location.protocol + '//' + window.location.host + '/stream/' + examId + '.webm';
+            var w = 1088;
+            var h = 480;
+            var left = (screen.width/2)-(w/2);
+            var top = (screen.height/2)-(h/2);
+            window.open(href, i18n.t('exam.video'), "width="+w+",height="+h+",top="+top+",left="+left);
         }
     });
     return View;

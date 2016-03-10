@@ -23,6 +23,12 @@
     "recorder": {
         "uri": "file:///tmp/"
     },
+    "storage": {
+        "uri": "http://localhost/webdav/",
+        "timeout": 10000,
+        "username": "proctor",
+        "password": "proctor"
+    },
     "auth": {
         "openedu": {
             "authorizationURL": "https://sso.openedu.ru/oauth2/authorize",

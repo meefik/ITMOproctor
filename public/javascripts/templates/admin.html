@@ -1,0 +1,34 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.admin-notice {
+    width: 500px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+</style>
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-user-secret"></i><%- i18n.t('admin.title') %></span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+            <span class="text-item" style="padding-right:15px;float:right"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">...</span></span>
+            <span class="text-item" style="padding-right:10px;float:right"><i class="fa fa-sun-o"></i><span class="panel-widget server-date">...</span></span>
+        </div>
+    </div>
+    <div data-options="region:'center',border:false">
+        <div class="admin-notice">
+            <div class="easyui-panel" data-options="fit:true,iconCls:'fa fa-exclamation-triangle'" title="Ограниченная версия" style="padding:20px 40px 20px 40px;">
+                <p>Данная версия программного обеспечения поставляется с открытым исходным кодом, но имеет ограниченный функционал. Вы можете ее дорабатывать и использовать для собственных нужд.</p>
+                <p>О расширенном функционале и способах распространиния расширенной версии данного программного обеспечения можно узнать у разработчиков по адресу meefik[at]gmail.com</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'"><%- i18n.t('admin.profile') %></div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('admin.logout') %></div>
+</div>
+</script>

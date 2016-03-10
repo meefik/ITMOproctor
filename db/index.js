@@ -732,8 +732,8 @@ var db = {
             try {
                 var model = require('./models/' + args.collection);
                 var transaction = model.find(args.query);
-                if (args.skip) transaction.skip(Number(args.skip));
-                if (args.limit) transaction.limit(Number(args.limit));
+                if (args.skip) transaction.skip(args.skip);
+                if (args.limit) transaction.limit(args.limit);
                 if (args.sort) transaction.sort(args.sort);
                 if (args.select) transaction.select(args.select);
                 if (args.populate) transaction.populate(args.populate);
@@ -746,7 +746,7 @@ var db = {
         update: function(args, callback) {
             try {
                 var model = require('./models/' + args.collection);
-                model.findByIdAndUpdate(args.documentId, args.query, {
+                model.findByIdAndUpdate(args.documentId, args.data, {
                     'new': true
                 }, callback);
             }

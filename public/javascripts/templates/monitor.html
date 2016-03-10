@@ -31,7 +31,8 @@
 </div>
 </script>
 <script type="text/template" id="action-item-tpl">
-<a href="javascript:void(0);" class="start-btn" data-id="<%- examId %>" title="<%- i18n.t('monitor.start') %>"><i class="fa fa-play-circle fa-lg"></i></a>
+<% if(isStart) %><a href="javascript:void(0);" class="start-btn" data-id="<%- examId %>" title="<%- i18n.t('monitor.start') %>"><i class="fa fa-play-circle fa-lg"></i></a>
+<% if(isPlay) %><a href="javascript:void(0);" class="play-btn" data-id="<%- examId %>" title="<%- i18n.t('monitor.play') %>"><i class="fa fa-file-video-o fa-lg"></i></a>
 </script>
 <script type="text/template" id="student-item-tpl">
 <a href="javascript:void(0);" class="student-btn" data-id="<%- userId %>" title="<%- i18n.t('monitor.studentProfile') %>"><%- lastname || i18n.t('monitor.unknown') %> <%- firstname %> <%- middlename %></a>

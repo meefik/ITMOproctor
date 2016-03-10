@@ -29,12 +29,12 @@ router.checkPermissions = function(req, res, next) {
     switch (req.method) {
         case 'GET':
             if (!params.read) return res.status(403).end();
-            if (typeof params.read.query !== 'undefined') req.query.query = params.read.query;
-            if (typeof params.read.skip !== 'undefined') req.query.skip = params.read.skip;
-            if (typeof params.read.limit !== 'undefined') req.query.limit = params.read.limit;
-            if (typeof params.read.sort !== 'undefined') req.query.sort = params.read.sort;
-            if (typeof params.read.select !== 'undefined') req.query.select = params.read.select;
-            if (typeof params.read.populate !== 'undefined') req.query.populate = params.read.populate;
+            if (typeof params.read.query !== 'undefined') res.locals.query = params.read.query;
+            if (typeof params.read.skip !== 'undefined') res.locals.skip = params.read.skip;
+            if (typeof params.read.limit !== 'undefined') res.locals.limit = params.read.limit;
+            if (typeof params.read.sort !== 'undefined') res.locals.sort = params.read.sort;
+            if (typeof params.read.select !== 'undefined') res.locals.select = params.read.select;
+            if (typeof params.read.populate !== 'undefined') res.locals.populate = params.read.populate;
             break;
         case 'POST':
             if (!params.create) return res.status(403).end();
@@ -86,9 +86,12 @@ router.post('/:collection',
  * Read documents from collection
  * 
  * @param req.params.collection
+ * @param req.query.query
  * @param req.query.skip
  * @param req.query.limit
  * @param req.query.sort
+ * @param req.query.select
+ * @param req.query.populate
  * @return Array
  */
 router.get('/:collection',
@@ -96,15 +99,33 @@ router.get('/:collection',
     function(req, res) {
         var args = {
             collection: req.params.collection,
-            skip: req.query.skip,
-            limit: req.query.limit,
-            sort: req.query.sort,
-            select: req.query.select,
-            populate: req.query.populate
+            query: res.locals.query,
+            skip: res.locals.skip,
+            limit: res.locals.limit,
+            sort: res.locals.sort,
+            select: res.locals.select,
+            populate: res.locals.populate
         };
         // parse query
         try {
-            if (req.query.query) args.query = JSON.parse(req.query.query);
+            if (typeof args.query === 'undefined' && req.query.query) {
+                args.query = JSON.parse(req.query.query);
+            }
+            if (typeof args.skip === 'undefined' && req.query.skip) {
+                args.skip = Number(req.query.skip);
+            }
+            if (typeof args.limit === 'undefined' && req.query.limit) {
+                args.limit = Number(req.query.limit);
+            }
+            if (typeof args.sort === 'undefined' && req.query.sort) {
+                args.sort = JSON.parse(req.query.sort);
+            }
+            if (typeof args.select === 'undefined' && req.query.select) {
+                args.select = JSON.parse(req.query.select);
+            }
+            if (typeof args.populate === 'undefined' && req.query.populate) {
+                args.populate = JSON.parse(req.query.populate);
+            }
         }
         catch (err) {
             return res.status(400).json(error(err));
@@ -130,7 +151,7 @@ router.put('/:collection/:documentId',
         var args = {
             collection: req.params.collection,
             documentId: req.params.documentId,
-            query: req.body
+            data: req.body
         };
         // update document
         db.rest.update(args, function(err, data) {

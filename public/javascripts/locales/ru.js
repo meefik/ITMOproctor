@@ -214,7 +214,8 @@ define({
         "beginDate": "Начало",
         "duration": "Длительность",
         "status": "Статус",
-        "durationValue": "%{duration} мин."
+        "durationValue": "%{duration} мин.",
+        "play": "Видеозапись"
     },
     "talk": {
         "online": "В сети",
@@ -319,5 +320,10 @@ define({
         "documentType": "Тип документа",
         "documentNumber": "Номер док-та",
         "documentIssueDate": "Дата выдачи"
+    },
+    "admin": {
+        "title": "Администрирование",
+        "profile": "Профиль",
+        "logout": "Выход"
     }
 });

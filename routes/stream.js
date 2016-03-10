@@ -4,11 +4,9 @@ var config = require('nconf');
 var request = require('request');
 var url = require('url');
 // Video stream
-router.get('/:examId/:userId/:fileId', function(req, res, next) {
+router.get('/:fileName', function(req, res, next) {
     var uri = url.resolve(config.get("storage:uri"),
-        req.params.examId + '/' +
-        req.params.userId + '/' +
-        req.params.fileId);
+        req.params.fileName);
     request.get(uri, {
             'timeout': config.get("storage:timeout"),
             //'headers': req.headers,
@@ -22,8 +20,7 @@ router.get('/:examId/:userId/:fileId', function(req, res, next) {
             }
         }).on('error', function(err) {
             res.status(404).end();
-        })
-        .on('response', function(response) {
+        }).on('response', function(response) {
             //res.set(response.headers);
             res.set({
                 'Content-Type': 'video/webm',
