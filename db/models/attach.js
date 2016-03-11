@@ -1,5 +1,5 @@
 /**
- * Модель файлов вложений, которые загружаются во время экзамена
+ * Модель файлов вложений
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
@@ -15,7 +15,7 @@ var Attach = new Schema({
         type: String
     },
     // Время загрузки
-    timestamp: {
+    created: {
         type: Date,
         default: Date.now
     },

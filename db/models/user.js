@@ -9,7 +9,6 @@ var User = new Schema({
     // Логин
     username: {
         type: String,
-        unique: true,
         required: true
     },
     // Хэш пароля
@@ -29,9 +28,10 @@ var User = new Schema({
         type: Date,
         default: Date.now
     },
-    // Провайдер SSO-аккаунта
+    // Провайдер авторизации
     provider: {
-        type: String
+        type: String,
+        required: true
     },
     // Имя
     firstname: {
@@ -91,8 +91,7 @@ var User = new Schema({
     description: {
         type: String
     },
-    // Связанные с пользователем файлы
-    // Первый элемент массива - фотография пользователя
+    // Связанные с пользователем файлы (фотография пользователя)
     attach: [Attach]
 });
 User.methods.encryptPassword = function(password) {
@@ -127,5 +126,11 @@ User.set('toJSON', {
         delete ret.salt;
         return ret;
     }
+});
+User.index({
+    username: 1,
+    provider: 1
+}, {
+    unique: true
 });
 module.exports = mongoose.model('User', User);

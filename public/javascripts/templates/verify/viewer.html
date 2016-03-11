@@ -1,14 +1,14 @@
 <script type="text/template" id="main-tpl">
-<div style="position:relative;margin:5px;">
+<div style="position:relative;margin:5px">
     <div style="position:absolute;top:1px;left:1px;background:rgba(0,0,0,0.5);">
-        <img class="verify-photo" style="width:160px;height:120px;border:1px solid lightgray;float:left;"/>
-        <div class="verify-data" style="margin:0 5px;float:right;max-width:460px;color:white"></div>
+        <img class="verify-photo" style="width:160px;height:120px;border:1px solid lightgray;float:left;" src="images/webrtc.png"/>
+        <div class="verify-data" style="float:right;max-width:460px;color:white"></div>
     </div>
-    <canvas class="verify-video" style="border:1px solid lightgray;width:640px;height:480px;"></canvas>
+    <img class="verify-document" style="border:1px solid lightgray;width:640px;height:480px;" src="images/webrtc.png"/>
 </div>
 </script>
 <script type="text/template" id="verify-tpl">
-<table cellpadding="0">
+<table cellpadding="0" style="padding:0 5px">
     <tr>
         <td style="padding-right:4px"><%- i18n.t('verify.fullname') %>:</td>
         <td style="font-weight:bold"><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>

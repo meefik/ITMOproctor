@@ -55,7 +55,7 @@ define([
             return this;
         },
         destroy: function() {
-            app.io.notify.removeListener('members-' + this.options.examId);
+            if (app.io) app.io.notify.removeListener('members-' + this.options.examId);
             this.remove();
         },
         appendItem: function(model) {

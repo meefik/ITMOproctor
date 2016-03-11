@@ -4,9 +4,14 @@
 define([], function() {
     var Collection = Backbone.Collection.extend({
         url: 'storage',
-        initialize: function(models, options, callback) {
+        initialize: function(models, options) {
             var self = this;
-            this.callback = callback || function() {};
+            this.options = options || {};
+            this.onStart = this.options.onStart || function() {};
+            this.onLimit = this.options.onLimit || function() {};
+            this.onProgress = this.options.onProgress || function() {};
+            this.onDone = this.options.onDone || function() {};
+            this.onFail = this.options.onFail || function() {};
             this.model = function(attrs, options) {
                 var AttachModel = Backbone.Model.extend({
                     idAttribute: 'id',
@@ -16,9 +21,11 @@ define([], function() {
                                 var data = model.toJSON();
                                 if (_.isEmpty(data)) {
                                     model.destroy();
-                                    self.$Attach = $('<input type="file" name="attach"/>');
-                                    self.$Attach.one('change', function() {
-                                        self.onChange();
+                                    self.$Attach = $('<input type="file" name="attach" style="display:none"/>');
+                                    self.$Attach.one('change', function(e) {
+                                        var files = e.currentTarget.files;
+                                        self.$Attach.remove();
+                                        self.selectFile(files);
                                     });
                                     self.$Attach.trigger('click');
                                 } else {
@@ -26,6 +33,9 @@ define([], function() {
                                     model.destroy();
                                     self.upload(json.file);
                                 }
+                                break;
+                            case 'delete':
+                                model.set('removed', true);
                                 break;
                         }
                     }
@@ -35,16 +45,9 @@ define([], function() {
         },
         upload: function(file) {
             var self = this;
-            this.callback('start', {
-                file: file
-            });
+            this.onStart(file);
             var fd = new FormData();
-            if (file instanceof File) {
-                fd.append('attach', file);
-            }
-            else {
-                fd.append('attach', file.blob, file.name);
-            }
+            fd.append('attach', file);
             $.ajax({
                 type: 'post',
                 url: this.url,
@@ -52,10 +55,7 @@ define([], function() {
                 xhr: function() {
                     var xhr = $.ajaxSettings.xhr();
                     xhr.upload.onprogress = function(progress) {
-                        self.callback('progress', {
-                            file: file,
-                            progress: progress
-                        });
+                        self.onProgress(file, progress);
                     };
                     return xhr;
                 },
@@ -67,26 +67,17 @@ define([], function() {
                     filename: respond.originalname,
                     uploadname: respond.filename
                 });
-                self.callback('done', {
-                    model: model
-                });
+                self.onDone(model);
             }).fail(function() {
-                self.callback('fail', {
-                    file: file
-                });
+                self.onFail(file);
             });
         },
-        onChange: function() {
-            var files = this.$Attach.get(0).files;
-            this.$Attach.remove();
+        selectFile: function(files) {
             if (!files.length) return;
             var file = files[0];
             // check limit
             if (file.size > UPLOAD_LIMIT * 1024 * 1024) {
-                return this.callback('limit', {
-                    file: file,
-                    uploadLimit: UPLOAD_LIMIT
-                });
+                return this.onLimit(file, UPLOAD_LIMIT);
             }
             this.upload(file);
         }

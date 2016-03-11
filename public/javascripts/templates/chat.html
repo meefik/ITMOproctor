@@ -6,7 +6,7 @@
 }
 .chat-input[placeholder]:empty:before {
     content: attr(placeholder);
-    color: #555; 
+    color: #aaa; 
 }
 .chat-input[placeholder]:empty:focus:before {
     content: "";
@@ -28,6 +28,7 @@
                 </div>
             </div>
             <div class="chat-input" data-options="region:'center',border:false" placeholder="<%- i18n.t('chat.inputPrompt') %>" contenteditable="true" style="height:100%;overflow-x:hidden;padding:.3em"></div>
+            <% if (templates) { %>
             <div data-options="region:'south',border:false" style="overflow:hidden">
                 <select class="easyui-combobox chat-templates" data-options="panelHeight:'auto',editable:false,prompt:'<%- i18n.t('chat.templatesPrompt') %>'" style="width:100%">
                     <option><%- i18n.t('chat.templates.0') %></option>
@@ -35,13 +36,14 @@
                     <option><%- i18n.t('chat.templates.2') %></option>
                 </select>
             </div>
+            <% } %>
         </div>
     </div>
 </div>
 </script>
 <script type="text/template" id="chat-item-tpl">
 <% var color = app.isMe(message.author._id) ? 'red' : 'blue'; %>
-<span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(message.time).format('HH:mm') %> <%- message.author.lastname || i18n.t('chat.unknown') %> <%- message.author.firstname ? message.author.firstname.charAt(0) + '.' : '' %><%- message.author.middlename ? message.author.middlename.charAt(0) + '.' : '' %>:</span><span><%= message.text %>
+<span style="font-weight: bold;padding-right:.5em;color:<%- color %>"><%- moment(message.time).format('HH:mm') %> <%- message.author.lastname || i18n.t('user.unknown') %> <%- message.author.firstname ? message.author.firstname.charAt(0) + '.' : '' %><%- message.author.middlename ? message.author.middlename.charAt(0) + '.' : '' %>:</span><span><%= message.text %>
     <% if(message.attach.length > 0) { %>
         <% _.each(message.attach, function(element, index, list){ %>
             <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="storage/<%- element.fileId %>"><%- element.filename %></a>

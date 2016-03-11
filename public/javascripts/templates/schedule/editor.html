@@ -1,0 +1,32 @@
+<script type="text/template" id="main-tpl">
+<div class="schedule-view" style="margin:5px;">
+    <form class="schedule-form">
+        <table width="100%" height="100%" cellpadding="5">
+            <tr>
+                <td><strong><%- i18n.t('schedule.inspector') %>:</strong></td>
+                <td>
+                    <input name="inspector" class="easyui-combobox inspector-list" data-options="panelHeight:'auto',required:true,tipPosition:'bottom',width:310">
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('schedule.beginDate') %>:</strong></td>
+                <td>
+                    <input name="beginDate" class="easyui-datetimebox schedule-from" style="width:150px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('schedule.beginDate') %>'"/>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('schedule.endDate') %>:</strong></td>
+                <td>
+                     <input name="endDate" class="easyui-datetimebox schedule-to" style="width:150px;margin-bottom:3px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('schedule.endDate') %>'"/>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('schedule.sessions') %>:</strong></td>
+                <td>
+                    <input name="concurrent" class="easyui-numberspinner schedule-concurrent" style="width:60px;" data-options="required:true,tipPosition:'bottom',min:1,value:1"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</script>

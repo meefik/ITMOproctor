@@ -3,9 +3,9 @@
 //
 define([
     "i18n",
-    "text!templates/schedule.html"
+    "text!templates/schedule/planner.html"
 ], function(i18n, template) {
-    console.log('views/schedule.js');
+    console.log('views/schedule/planner.js');
     var View = Backbone.View.extend({
         initialize: function() {
             this.templates = _.parseTemplate(template);

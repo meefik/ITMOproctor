@@ -4,12 +4,12 @@
 define([
     "i18n",
     "text!templates/study.html",
-    "views/exam",
+    "views/exam/viewer",
+    "views/exam/planner",
+    "views/passport/editor",
     "views/settings",
-    "views/planner",
-    "views/passport-editor",
     "views/demo"
-], function(i18n, template, ExamView, SettingsView, PlannerView, PassportEditorView, DemoView) {
+], function(i18n, template, ExamViewer, ExamPlanner, PassportEditor, SettingsView, DemoView) {
     console.log('views/study.js');
     var View = Backbone.View.extend({
         events: {
@@ -58,10 +58,10 @@ define([
             // Sub views
             this.view = {
                 settings: new SettingsView(),
-                passport: new PassportEditorView(),
-                exam: new ExamView(),
+                passport: new PassportEditor(),
+                exam: new ExamViewer(),
                 demo: new DemoView(),
-                planner: new PlannerView()
+                planner: new ExamPlanner()
             };
         },
         render: function() {
@@ -134,7 +134,7 @@ define([
                         }
                     }]
                 ],
-                url: 'student/exam',
+                url: 'student/exams',
                 method: 'get',
                 onSelect: function(index, row) {
                     if (!row) return;
@@ -290,19 +290,19 @@ define([
             }
             switch (status) {
                 case 0:
-                    return '<span style="color:olive;">' + i18n.t('examStatus.0') + '</span>';
+                    return '<span style="color:olive;">' + i18n.t('exam.status.0') + '</span>';
                 case 1:
-                    return '<span style="color:teal;">' + i18n.t('examStatus.1') + '</span>';
+                    return '<span style="color:teal;">' + i18n.t('exam.status.1') + '</span>';
                 case 2:
-                    return '<span style="color:orange;">' + i18n.t('examStatus.2') + '</span>';
+                    return '<span style="color:orange;">' + i18n.t('exam.status.2') + '</span>';
                 case 3:
-                    return '<span style="color:red;">' + i18n.t('examStatus.3') + '</span>';
+                    return '<span style="color:red;">' + i18n.t('exam.status.3') + '</span>';
                 case 4:
-                    return '<span style="color:green;">' + i18n.t('examStatus.4') + '</span>';
+                    return '<span style="color:green;">' + i18n.t('exam.status.4') + '</span>';
                 case 5:
-                    return '<span style="color:purple;">' + i18n.t('examStatus.5') + '</span>';
+                    return '<span style="color:purple;">' + i18n.t('exam.status.5') + '</span>';
                 case 6:
-                    return '<span style="color:gray;">' + i18n.t('examStatus.6') + '</span>';
+                    return '<span style="color:gray;">' + i18n.t('exam.status.6') + '</span>';
                 default:
                     return null;
             }

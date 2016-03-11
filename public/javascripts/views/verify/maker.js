@@ -1,15 +1,22 @@
 //
-// Verify view
+// VerifyMaker view
 //
 define([
     "i18n",
-    "text!templates/verify.html"
-], function(i18n, template) {
-    console.log('views/verify.js');
+    "text!templates/verify/maker.html",
+    "collections/attach"
+], function(i18n, template, Attach) {
+    console.log('views/verify/maker.js');
     var View = Backbone.View.extend({
-        initialize: function() {
+        initialize: function(options) {
+            this.options = options || {};
             this.templates = _.parseTemplate(template);
             this.timer = null;
+            var Verify = Backbone.Model.extend({
+                urlRoot: 'verify'
+            });
+            this.model = new Verify();
+            this.attach = new Attach();
             this.render();
         },
         destroy: function() {
@@ -41,9 +48,10 @@ define([
                     text: i18n.t('verify.rejectBtn'),
                     iconCls: 'fa fa-times',
                     handler: this.doReject.bind(this)
-                }, ],
+                }],
                 onOpen: function() {
                     $(this).dialog('center');
+                    self.model.clear();
                     self.paused = false;
                     var tpl = _.template(self.templates['verify-tpl']);
                     var html = tpl({
@@ -51,79 +59,94 @@ define([
                         user: self.user
                     });
                     self.$Data.html(html);
+                    self.takePhoto();
                     self.playVideo();
                 },
                 onClose: function() {
                     self.stopVideo();
+                    self.attach.reset();
                 }
             });
             this.$Dialog = $(dialog);
             this.$Photo = this.$('.verify-photo');
-            this.$Video = this.$('.verify-video');
+            this.$Document = this.$('.verify-document');
             this.$Data = this.$('.verify-data');
             return this;
         },
-        playVideo: function() {
-            var self = this;
-            var canvas = this.$Video.get(0);
-            var photo = this.$Photo.get(0);
+        canvasToContext: function(canvas) {
             var context = canvas.getContext('2d');
-            var cw = this.$Video.width();
-            var ch = this.$Video.height();
+            var cw = canvas.width;
+            var ch = canvas.height;
             var proportion = ch / cw;
-            //console.log(cw + 'x' + ch);
-            cw = 640;
-            ch = Math.floor(640 * proportion);
+            ch = Math.floor(cw * proportion);
             canvas.width = cw;
             canvas.height = ch;
+            return context;
+        },
+        playVideo: function() {
+            var context = this.canvasToContext(this.$Document.get(0));
+            var self = this;
             this.timer = setInterval(function() {
                 if (self.paused) return false;
-                if (self.video.paused || self.video.ended) {
-                    return self.$Photo.attr('src', self.video.poster);
-                }
-                context.drawImage(self.video, 0, 0, cw, ch);
-                if (!self.$Photo.attr('src')) {
-                    self.$Photo.attr('src', canvas.toDataURL());
-                }
+                context.drawImage(self.video, 0, 0, context.canvas.width, context.canvas.height);
             }, 20);
         },
         stopVideo: function() {
             clearInterval(this.timer);
-            this.$Photo.attr('src', '');
+        },
+        takePhoto: function() {
+            var context = this.canvasToContext(this.$Photo.get(0));
+            context.drawImage(this.video, 0, 0, context.canvas.width, context.canvas.height);
         },
         toggleVideo: function() {
             this.paused = !this.paused;
+            if (this.paused) this.saveAttach();
+        },
+        saveAttach: function() {
+            this.attach.reset();
+            this.attach.create({
+                file: _.dataUrlToFile(this.$Photo.get(0).toDataURL(), 'photo.png', 'image/png')
+            });
+            this.attach.create({
+                file: _.dataUrlToFile(this.$Document.get(0).toDataURL(), 'document.png', 'image/png')
+            });
         },
         submitData: function(submit) {
-            var verified = {
+            var verifiedData = {
+                examId: this.examId,
+                studentId: this.user._id,
                 submit: submit,
-                data: {
-                    firstname: this.user.firstname,
-                    lastname: this.user.lastname,
-                    middlename: this.user.middlename,
-                    gender: this.user.gender,
-                    birthday: this.user.birthday,
-                    citizenship: this.user.citizenship,
-                    documentType: this.user.documentType,
-                    documentNumber: this.user.documentNumber,
-                    documentIssueDate: this.user.documentIssueDate
-                }
+                firstname: this.user.firstname,
+                lastname: this.user.lastname,
+                middlename: this.user.middlename,
+                gender: this.user.gender,
+                birthday: this.user.birthday,
+                citizenship: this.user.citizenship,
+                documentType: this.user.documentType,
+                documentNumber: this.user.documentNumber,
+                documentIssueDate: this.user.documentIssueDate,
+                address: this.user.address,
+                description: this.user.description,
+                attach: this.attach.toJSON()
             };
-            var dataUrl = this.$Video.get(0).toDataURL();
-            return this.callback(verified, dataUrl);
+            this.model.save(verifiedData, this.options);
         },
         doAccept: function() {
+            if (!this.paused) return;
             this.submitData(true);
             this.doClose();
         },
         doReject: function() {
+            if (!this.paused) return;
             this.submitData(false);
             this.doClose();
         },
-        doOpen: function(video, user, callback) {
+        doOpen: function(video, examId, user, options) {
+            //if (video.paused || video.ended) return;
             this.video = video;
             this.user = user;
-            this.callback = callback;
+            this.examId = examId;
+            this.options = options;
             this.$Dialog.dialog('open');
         },
         doClose: function() {

@@ -10,6 +10,7 @@
         "birthday": "11.03.1982",
         "email": "inspector1@example.com",
         "role": 2,
+        "provider": "local",
         "attach": [{
             "fileId": "55a16f039d67a11969642654",
             "filename": "avatar_boy.png"
@@ -25,6 +26,7 @@
         "birthday": "02.07.1981",
         "email": "inspector2@example.com",
         "role": 2,
+        "provider": "local",
         "attach": [{
             "fileId": "55a16f039d67a11969642655",
             "filename": "avatar_girl.png"
@@ -40,6 +42,7 @@
         "birthday": "02.07.1981",
         "email": "inspector3@example.com",
         "role": 2,
+        "provider": "local",
         "attach": [{
             "fileId": "55a16f039d67a11969642656",
             "filename": "avatar_girl.png"
@@ -55,6 +58,7 @@
         "birthday": "11.03.1982",
         "email": "inspector4@example.com",
         "role": 2,
+        "provider": "local",
         "attach": [{
             "fileId": "55a16f039d67a11969642657",
             "filename": "avatar_boy.png"
@@ -70,6 +74,7 @@
         "birthday": "11.03.1982",
         "email": "inspector5@example.com",
         "role": 2,
+        "provider": "local",
         "attach": [{
             "fileId": "55a16f039d67a11969642658",
             "filename": "avatar_boy.png"
@@ -147,13 +152,14 @@
         "username": "admin",
         "password": "admin",
         "salt": "secret",
-        "lastname": "Админ",
-        "firstname": "",
+        "lastname": "Админинстратор",
+        "firstname": "Системы",
         "middlename": "",
         "gender": "Мужской",
         "birthday": "19.11.1986",
         "email": "admin@example.com",
         "role": 3,
+        "provider": "local",
         "attach": []
     }]
 }

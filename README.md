@@ -1,14 +1,11 @@
 # ITMOproctor
 
-(с) [Университет ИТМО](http://www.ifmo.ru), 2015
-
 Система дистанционного надзора ITMOproctor предназначена для сопровождения процесса территориально удаленного прохождения экзаменов, подтверждения личности испытуемого и подтверждения результатов его аттестации.
 
 Система поддежрививает интеграцию на уровне API со следующими LMS:
+
 * [Национальная платформа открытого образования](https://openedu.ru)
 * [Система управления обучением Университета ИТМО](http://de.ifmo.ru)
-
-Проект опубликован под лицензией [GPL версии 3](http://www.gnu.org/licenses/gpl-3.0.html).
 
 ### Клиентская часть
 
@@ -26,6 +23,7 @@
 | Разрешение экрана монитора   | 1280x720                        |
 
 Инструкции:
+
 * [Инструкция по использованию системы для студентов](https://docs.google.com/document/d/15fsEL3sHCGuJ9_rSuFprQXP--WXb9Ct-PzayBXvxWp0/edit?usp=sharing)
 * [Инструкция по использованию системы для инспекторов](https://docs.google.com/document/d/1EbW52RQLdgwkRwJa_HgzP-nqU_860bPQuMZZ-ns1Hmc/edit?usp=sharing)
 
@@ -47,8 +45,10 @@
 | Сетевое соединение            | 1.5 Мбит/c / сессия                              |
 | Запись на диск                | 150 КБ/c / сессия                                |
 | Дисковое пространство         | 500 МБ/час / сессия                              |
+| Архивирование                 | 100 МБ/час / сессия                              |
 
 Документация:
+
 * [Структурная схема системы](https://drive.google.com/file/d/0B7YdZbqVWxzeSlFWZUl4S1RiaVE/view?usp=sharing)
 * [Диаграмма взаимодействия компонентов системы](https://drive.google.com/file/d/0B7YdZbqVWxzeRVVBanVFWlVNQ2M/view?usp=sharing)
 
@@ -67,7 +67,9 @@ vagrant init itmo/itmoproctor
 vagrant up
 vagrant ssh
 ```
-Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)<br>На гостевой машине: [localhost:3000](http://localhost:3000)
+Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)
+
+На гостевой машине: [localhost:3000](http://localhost:3000)
 
 #### Развертывание системы на Ubuntu 14.04
 
@@ -108,6 +110,7 @@ npm start
 
 Сборка приложения под все архитектуры, архивы для загрузки приложения будут размещены в public/dist:
 ```
+apt-get install tar zip unzip wget upx-ucl
 npm run-script build-app
 ```
 

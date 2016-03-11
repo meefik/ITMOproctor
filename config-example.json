@@ -23,6 +23,31 @@
     "recorder": {
         "uri": "file:///tmp/"
     },
+    "storage": {
+        "uri": "http://localhost:8889/webdav/",
+        "timeout": 10000,
+        "username": "proctor",
+        "password": "proctor"
+    },
+    "email": {
+        "from": {
+            "name": "Администрация",
+            "address": "admin@domain.org"
+        },
+        "options": {
+            "host": "localhost",
+            "port": 465,
+            "secure": true,
+            "tls": {
+                "rejectUnauthorized": false
+            },
+            "authMethod": "PLAIN",
+            "auth": {
+                "user": "username",
+                "pass": "password"
+            }
+        }
+    },
     "auth": {
         "openedu": {
             "authorizationURL": "https://sso.openedu.ru/oauth2/authorize",
@@ -60,7 +85,9 @@
                         "path": "student",
                         "select": "username firstname lastname middlename birthday"
                     }],
-                    "select": "-verified"
+                    "select": {
+                        "verified": 0
+                    }
                 }
             },
             "schedule": {

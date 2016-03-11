@@ -1,20 +1,20 @@
 //
-// Profile view
+// ExamViewer view
 //
 define([
     "i18n",
-    "text!templates/passport.html"
+    "text!templates/exam/viewer.html"
 ], function(i18n, template) {
-    console.log('views/passport.js');
+    console.log('views/exam/viewer.js');
     var View = Backbone.View.extend({
         initialize: function() {
             // Templates
             this.templates = _.parseTemplate(template);
             // Exam model
-            var Profile = Backbone.Model.extend({
-                urlRoot: 'profile'
+            var Exam = Backbone.Model.extend({
+                urlRoot: 'student/info'
             });
-            this.model = new Profile();
+            this.model = new Exam();
             this.render();
         },
         destroy: function() {
@@ -28,14 +28,14 @@ define([
             };
             this.loadingMsg = tpl(data);
             var dialog = $(this.el).dialog({
-                title: i18n.t('passport.title'),
+                title: i18n.t('exam.title'),
                 width: 500,
-                height: 440,
+                height: 400,
                 closed: true,
                 modal: true,
                 content: this.loadingMsg,
                 buttons: [{
-                    text: i18n.t('passport.close'),
+                    text: i18n.t('exam.close'),
                     iconCls: 'fa fa-times',
                     handler: function() {
                         self.doClose();
@@ -49,16 +49,18 @@ define([
             this.$Container = this.$Dialog.find('.dialog-container');
             return this;
         },
-        doOpen: function(userId) {
+        doOpen: function(examId) {
             var self = this;
             this.$Container.html(this.loadingMsg);
             var tpl = _.template(this.templates['dialog-tpl']);
-            this.model.set('_id', userId);
+            this.model.clear();
+            this.model.set('_id', examId);
             this.model.fetch({
                 success: function(model) {
                     var data = {
                         i18n: i18n,
-                        user: model.toJSON()
+                        user: app.profile.toJSON(),
+                        exam: model.toJSON()
                     };
                     self.$Container.html(tpl(data));
                 }

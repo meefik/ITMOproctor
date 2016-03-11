@@ -3,9 +3,9 @@
 //
 define([
     "i18n",
-    "text!templates/planner.html"
+    "text!templates/exam/planner.html"
 ], function(i18n, template) {
-    console.log('views/planner.js');
+    console.log('views/exam/planner.js');
     var View = Backbone.View.extend({
         bindings: {
             '.subject': {

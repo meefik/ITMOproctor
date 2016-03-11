@@ -126,7 +126,7 @@ define([
             return this;
         },
         destroy: function() {
-            app.io.notify.removeListener('notes-' + this.options.examId);
+            if (app.io) app.io.notify.removeListener('notes-' + this.options.examId);
             this.remove();
         },
         add: function() {

@@ -1,0 +1,380 @@
+<script type="text/template" id="main-tpl">
+<form class="user-form" style="height:inherit;width:inherit">
+<div class="easyui-tabs" data-options="fit:true,border:false">
+    <div title="<%- i18n.t('admin.users.parameters') %>">
+        <table cellpadding="5" style="width:100%;">
+            <tr>
+                <td style="width:40%"><strong><%- i18n.t('user.login') %>:</strong></td>
+                <td>
+                    <input type="text" name="username" class="easyui-textbox username" data-options="width:310,required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.loginPrompt') %>'" />
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.password') %>:</strong></td>
+                <td>
+                    <input type="password" name="password" class="easyui-textbox password" data-options="width:310,required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.passwordPrompt') %>'" />
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.provider.title') %>:</strong></td>
+                <td>
+                    <select name="provider" class="easyui-combobox provider" data-options="width:310,required:true,tipPosition:'bottom',panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.provider.prompt') %>'">
+                        <option value="local"><%- i18n.t('user.provider.local') %></option>
+                        <option value="openedu"><%- i18n.t('user.provider.openedu') %></option>
+                        <option value="ifmosso"><%- i18n.t('user.provider.ifmosso') %></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.role.title') %>:</strong></td>
+                <td>
+                    <select name="role" class="easyui-combobox role" data-options="width:310,required:true,tipPosition:'bottom',panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.role.prompt') %>'">
+                        <option value="1"><%- i18n.t('user.role.1') %></option>
+                        <option value="2"><%- i18n.t('user.role.2') %></option>
+                        <option value="3"><%- i18n.t('user.role.3') %></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.active.title') %>:</strong></td>
+                <td>
+                    <select name="active" class="easyui-combobox active" data-options="width:310,required:true,tipPosition:'bottom',panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.active.prompt') %>'">
+                        <option value="true"><%- i18n.t('user.active.true') %></option>
+                        <option value="false"><%- i18n.t('user.active.false') %></option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div title="<%- i18n.t('admin.users.profile') %>">
+        <table cellpadding="5" style="width:100%;">
+            <tr>
+                <td style="width:40%"><strong><%- i18n.t('user.fullname') %>:</strong> <sup style="color:red">*</sup></td>
+                <td>
+                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('user.lastname') %>'" />
+                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('user.firstname') %>'" />
+                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:100,prompt:'<%- i18n.t('user.middlename') %>'" />
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:0 5px"></td>
+                <td style="padding:0 5px;font-size:0.8em;margin-top:-5px"><span style="color:red">*</span> <%- i18n.t('user.footnote') %></td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.gender') %>:</strong></td>
+                <td>
+                    <select name="gender" class="easyui-combobox gender" data-options="required:true,tipPosition:'bottom',width:310,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.genderPrompt') %>'">
+                        <option value="<%- i18n.t('user.genders.male') %>"><%- i18n.t('user.genders.male') %></option>
+                        <option value="<%- i18n.t('user.genders.female') %>"><%- i18n.t('user.genders.female') %></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.birthday') %>:</strong></td>
+                <td>
+                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.birthdayPrompt') %>'">
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.email') %>:</strong></td>
+                <td>
+                    <input type="text" name="email" class="easyui-textbox email" data-options="width:310,required:true,validType:'email',tipPosition:'bottom',prompt:'<%- i18n.t('user.emailPrompt') %>'" />
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.address') %>:</strong></td>
+                <td>
+                    <input name="address" class="easyui-textbox address" style="width:310px;" data-options="prompt:'<%- i18n.t('user.addressPrompt') %>'">
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.citizenship') %>:</strong></td>
+                <td>
+                    <select name="citizenship" class="easyui-combobox citizenship" data-options="width:310,editable:false,prompt:'<%- i18n.t('user.citizenshipPrompt') %>'">
+                        <option value="null">Не выбрано</option>
+                        <option value="Абхазия">Абхазия</option>
+                        <option value="Австралия">Австралия</option>
+                        <option value="Австрия">Австрия</option>
+                        <option value="Азербайджан">Азербайджан</option>
+                        <option value="Албания">Албания</option>
+                        <option value="Алжир">Алжир</option>
+                        <option value="Ангилья">Ангилья</option>
+                        <option value="Ангола">Ангола</option>
+                        <option value="Андорра">Андорра</option>
+                        <option value="Антарктида">Антарктида</option>
+                        <option value="Антигуа И Барбуда">Антигуа И Барбуда</option>
+                        <option value="Антильские Острова">Антильские Острова</option>
+                        <option value="Аомынь (Макао)">Аомынь (Макао)</option>
+                        <option value="Аргентина">Аргентина</option>
+                        <option value="Армения">Армения</option>
+                        <option value="Аруба">Аруба</option>
+                        <option value="Афганистан">Афганистан</option>
+                        <option value="Багамские Острова">Багамские Острова</option>
+                        <option value="Бангладеш">Бангладеш</option>
+                        <option value="Барбадос">Барбадос</option>
+                        <option value="Бахрейн">Бахрейн</option>
+                        <option value="Без гражданства">Без гражданства</option>
+                        <option value="Белиз">Белиз</option>
+                        <option value="Белоруссия">Белоруссия</option>
+                        <option value="Бельгия">Бельгия</option>
+                        <option value="Бенин">Бенин</option>
+                        <option value="Бермудские Острова (Брит.)">Бермудские Острова (Брит.)</option>
+                        <option value="Болгария">Болгария</option>
+                        <option value="Боливия">Боливия</option>
+                        <option value="Босния и Герцеговина">Босния и Герцеговина</option>
+                        <option value="Ботсвана">Ботсвана</option>
+                        <option value="Бразилия">Бразилия</option>
+                        <option value="Британская Территория В Индийском Океане">Британская Территория В Индийском Океане</option>
+                        <option value="Бруней">Бруней</option>
+                        <option value="Буве">Буве</option>
+                        <option value="Буркина-Фасо">Буркина-Фасо</option>
+                        <option value="Бурунди">Бурунди</option>
+                        <option value="Бутан">Бутан</option>
+                        <option value="Вануату">Вануату</option>
+                        <option value="Ватикан">Ватикан</option>
+                        <option value="Великобритания">Великобритания</option>
+                        <option value="Венгрия">Венгрия</option>
+                        <option value="Венесуэла">Венесуэла</option>
+                        <option value="Виргинские Острова (Брит.)">Виргинские Острова (Брит.)</option>
+                        <option value="Виргинские Острова (Сша)">Виргинские Острова (Сша)</option>
+                        <option value="Восточное Cамоа (Сша)">Восточное Cамоа (Сша)</option>
+                        <option value="Восточный Тимор">Восточный Тимор</option>
+                        <option value="Вьетнам">Вьетнам</option>
+                        <option value="Габон">Габон</option>
+                        <option value="Гаити">Гаити</option>
+                        <option value="Гайана">Гайана</option>
+                        <option value="Гамбия">Гамбия</option>
+                        <option value="Гана">Гана</option>
+                        <option value="Гваделупа">Гваделупа</option>
+                        <option value="Гватемала">Гватемала</option>
+                        <option value="Гвиана">Гвиана</option>
+                        <option value="Гвинея-Бисау">Гвинея-Бисау</option>
+                        <option value="Гвинея">Гвинея</option>
+                        <option value="Германия">Германия</option>
+                        <option value="Гибралтар">Гибралтар</option>
+                        <option value="Гондурас">Гондурас</option>
+                        <option value="Гренада">Гренада</option>
+                        <option value="Гренландия">Гренландия</option>
+                        <option value="Греция">Греция</option>
+                        <option value="Грузия">Грузия</option>
+                        <option value="Гуам">Гуам</option>
+                        <option value="Дания">Дания</option>
+                        <option value="Демократическая Республика Конго">Демократическая Республика Конго</option>
+                        <option value="Джибути">Джибути</option>
+                        <option value="Доминика">Доминика</option>
+                        <option value="Доминиканская Республика">Доминиканская Республика</option>
+                        <option value="Европа">Европа</option>
+                        <option value="Египет">Египет</option>
+                        <option value="Замбия">Замбия</option>
+                        <option value="Западная Сахара">Западная Сахара</option>
+                        <option value="Западное Самоа">Западное Самоа</option>
+                        <option value="Зимбабве">Зимбабве</option>
+                        <option value="Израиль">Израиль</option>
+                        <option value="Индия">Индия</option>
+                        <option value="Индонезия">Индонезия</option>
+                        <option value="Иордания">Иордания</option>
+                        <option value="Ирак">Ирак</option>
+                        <option value="Иран">Иран</option>
+                        <option value="Ирландия">Ирландия</option>
+                        <option value="Исландия">Исландия</option>
+                        <option value="Испания">Испания</option>
+                        <option value="Италия">Италия</option>
+                        <option value="Йемен">Йемен</option>
+                        <option value="Кабо-Верде">Кабо-Верде</option>
+                        <option value="Казахстан">Казахстан</option>
+                        <option value="Кайман">Кайман</option>
+                        <option value="Камбоджа">Камбоджа</option>
+                        <option value="Камерун">Камерун</option>
+                        <option value="Канада">Канада</option>
+                        <option value="Катар">Катар</option>
+                        <option value="Кения">Кения</option>
+                        <option value="Кипр">Кипр</option>
+                        <option value="Киргизия">Киргизия</option>
+                        <option value="Кирибати">Кирибати</option>
+                        <option value="КНДР">КНДР</option>
+                        <option value="КНР">КНР</option>
+                        <option value="Кокосовые Острова">Кокосовые Острова</option>
+                        <option value="Колумбия">Колумбия</option>
+                        <option value="Коморские Острова">Коморские Острова</option>
+                        <option value="Конго">Конго</option>
+                        <option value="Корея, Республика">Корея, Республика</option>
+                        <option value="Коста-Рика">Коста-Рика</option>
+                        <option value="Кот д'Ивуар">Кот д'Ивуар</option>
+                        <option value="Куба">Куба</option>
+                        <option value="Кувейт">Кувейт</option>
+                        <option value="Кыргызская Республика">Кыргызская Республика</option>
+                        <option value="Лаос">Лаос</option>
+                        <option value="Латвия">Латвия</option>
+                        <option value="Лесото">Лесото</option>
+                        <option value="Либерия">Либерия</option>
+                        <option value="Ливан">Ливан</option>
+                        <option value="Ливия">Ливия</option>
+                        <option value="Литва">Литва</option>
+                        <option value="Лихтенштейн">Лихтенштейн</option>
+                        <option value="Люксембург">Люксембург</option>
+                        <option value="Маврикий">Маврикий</option>
+                        <option value="Мавритания">Мавритания</option>
+                        <option value="Мадагаскар">Мадагаскар</option>
+                        <option value="Майотта">Майотта</option>
+                        <option value="Малави">Малави</option>
+                        <option value="Малайзия">Малайзия</option>
+                        <option value="Мали">Мали</option>
+                        <option value="Малые Тихоокеанские Острова">Малые Тихоокеанские Острова</option>
+                        <option value="Мальдивы">Мальдивы</option>
+                        <option value="Мальта">Мальта</option>
+                        <option value="Марокко">Марокко</option>
+                        <option value="Мартиника">Мартиника</option>
+                        <option value="Маршалловы Острова">Маршалловы Острова</option>
+                        <option value="Мексика">Мексика</option>
+                        <option value="Микронезия">Микронезия</option>
+                        <option value="Мозамбик">Мозамбик</option>
+                        <option value="Молдова">Молдова</option>
+                        <option value="Монако">Монако</option>
+                        <option value="Монголия">Монголия</option>
+                        <option value="Монтсеррат">Монтсеррат</option>
+                        <option value="Мьянма">Мьянма</option>
+                        <option value="Намибия">Намибия</option>
+                        <option value="Науру">Науру</option>
+                        <option value="Непал">Непал</option>
+                        <option value="Нигерия">Нигерия</option>
+                        <option value="Нигер">Нигер</option>
+                        <option value="Нидерланды">Нидерланды</option>
+                        <option value="Никарагуа">Никарагуа</option>
+                        <option value="Ниуэ">Ниуэ</option>
+                        <option value="Новая Зеландия">Новая Зеландия</option>
+                        <option value="Новая Каледония">Новая Каледония</option>
+                        <option value="Норвегия">Норвегия</option>
+                        <option value="Норфолк">Норфолк</option>
+                        <option value="Объединенные Арабские Эмираты">Объединенные Арабские Эмираты</option>
+                        <option value="Оман">Оман</option>
+                        <option value="Острова Кука">Острова Кука</option>
+                        <option value="Остров Рождества">Остров Рождества</option>
+                        <option value="Остров Святой Елены">Остров Святой Елены</option>
+                        <option value="Пакистан">Пакистан</option>
+                        <option value="Палау">Палау</option>
+                        <option value="Палестина">Палестина</option>
+                        <option value="Панама">Панама</option>
+                        <option value="Папуа-Новая Гвинея">Папуа-Новая Гвинея</option>
+                        <option value="Парагвай">Парагвай</option>
+                        <option value="Перу">Перу</option>
+                        <option value="Питкэрн">Питкэрн</option>
+                        <option value="Польша">Польша</option>
+                        <option value="Португалия">Португалия</option>
+                        <option value="Пуэрто-Рико">Пуэрто-Рико</option>
+                        <option value="Республика Македония">Республика Македония</option>
+                        <option value="Реюньон">Реюньон</option>
+                        <option value="Российская Федерация">Российская Федерация</option>
+                        <option value="Руанда">Руанда</option>
+                        <option value="Румыния">Румыния</option>
+                        <option value="Сальвадор">Сальвадор</option>
+                        <option value="Сан-Марино">Сан-Марино</option>
+                        <option value="Сан-Томе И Принсипи">Сан-Томе И Принсипи</option>
+                        <option value="Саудовская Аравия">Саудовская Аравия</option>
+                        <option value="Свазиленд">Свазиленд</option>
+                        <option value="Северные Марианские Острова">Северные Марианские Острова</option>
+                        <option value="Сейшельские Острова">Сейшельские Острова</option>
+                        <option value="Сенегал">Сенегал</option>dialogTitle
+                        <option value="Сен-Пьер И Микелон">Сен-Пьер И Микелон</option>
+                        <option value="Сент-Винсент И Гренадины">Сент-Винсент И Гренадины</option>
+                        <option value="Сент-Китс И Невис">Сент-Китс И Невис</option>
+                        <option value="Сент-Люсия">Сент-Люсия</option>
+                        <option value="Сербия">Сербия</option>
+                        <option value="Сингапур">Сингапур</option>
+                        <option value="Сирия">Сирия</option>
+                        <option value="Словакия">Словакия</option>
+                        <option value="Словения">Словения</option>
+                        <option value="Соломоновы Острова">Соломоновы Острова</option>
+                        <option value="Сомали">Сомали</option>
+                        <option value="Союз Советских Социалистических Республик">Союз Советских Социалистических Республик</option>
+                        <option value="Судан">Судан</option>
+                        <option value="Суринам">Суринам</option>
+                        <option value="США">США</option>
+                        <option value="Сьерра-Леоне">Сьерра-Леоне</option>
+                        <option value="Сянган (Гонконг)">Сянган (Гонконг)</option>
+                        <option value="Таджикистан">Таджикистан</option>
+                        <option value="Таиланд">Таиланд</option>
+                        <option value="Тайвань">Тайвань</option>
+                        <option value="Танзания">Танзания</option>
+                        <option value="Теркс И Кайкос">Теркс И Кайкос</option>
+                        <option value="Того">Того</option>
+                        <option value="Токелау (Юнион)">Токелау (Юнион)</option>
+                        <option value="Тонга">Тонга</option>
+                        <option value="Тринидад И Тобаго">Тринидад И Тобаго</option>
+                        <option value="Тувалу">Тувалу</option>
+                        <option value="Тунис">Тунис</option>
+                        <option value="Туркмения">Туркмения</option>
+                        <option value="Турция">Турция</option>
+                        <option value="Уганда">Уганда</option>
+                        <option value="Узбекистан">Узбекистан</option>
+                        <option value="Украина">Украина</option>
+                        <option value="Уоллис И Футуна">Уоллис И Футуна</option>
+                        <option value="Уругвай">Уругвай</option>
+                        <option value="Фарерские Острова">Фарерские Острова</option>
+                        <option value="Фиджи">Фиджи</option>
+                        <option value="Филиппины">Филиппины</option>
+                        <option value="Финляндия">Финляндия</option>
+                        <option value="Фолклендские Острова">Фолклендские Острова</option>
+                        <option value="Франция">Франция</option>
+                        <option value="Французская Полинезия">Французская Полинезия</option>
+                        <option value="Французские Южные Территории">Французские Южные Территории</option>
+                        <option value="Херд И Макдональд">Херд И Макдональд</option>
+                        <option value="Хорватия">Хорватия</option>
+                        <option value="Центральноафриканская Республика">Центральноафриканская Республика</option>
+                        <option value="Чад">Чад</option>
+                        <option value="Черногория">Черногория</option>
+                        <option value="Чешская Республика">Чешская Республика</option>
+                        <option value="Чили">Чили</option>
+                        <option value="Швейцария">Швейцария</option>
+                        <option value="Швеция">Швеция</option>
+                        <option value="Шпицберген Острова">Шпицберген Острова</option>
+                        <option value="Шри-Ланка">Шри-Ланка</option>
+                        <option value="Эквадор">Эквадор</option>
+                        <option value="Экваториальная Гвинея">Экваториальная Гвинея</option>
+                        <option value="Эритрея">Эритрея</option>
+                        <option value="Эстония">Эстония</option>
+                        <option value="Эфиопия">Эфиопия</option>
+                        <option value="Югославия">Югославия</option>
+                        <option value="Южная Африка">Южная Африка</option>
+                        <option value="Южная Осетия">Южная Осетия</option>
+                        <option value="Ямайка">Ямайка</option>
+                        <option value="Япония">Япония</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.documentType') %>:</strong></td>
+                <td>
+                    <select name="documentType" class="easyui-combobox documentType" data-options="width:310,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.documentTypePrompt') %>'">
+                        <option value="null">Не выбран</option>
+                        <option value="<%- i18n.t('user.documentTypes.passport') %>"><%- i18n.t('user.documentTypes.passport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.internationalPassport') %>"><%- i18n.t('user.documentTypes.internationalPassport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.foreignDocument') %>"><%- i18n.t('user.documentTypes.foreignDocument') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.seamanPassport') %>"><%- i18n.t('user.documentTypes.seamanPassport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.birthCertificate') %>"><%- i18n.t('user.documentTypes.birthCertificate') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.militaryID') %>"><%- i18n.t('user.documentTypes.militaryID') %></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.documentNumber') %>:</strong></td>
+                <td>
+                    <input type="text" name="documentNumber" class="easyui-textbox documentNumber" data-options="width:310,prompt:'<%- i18n.t('user.documentNumberPrompt') %>'" />
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.documentIssueDate') %>:</strong></td>
+                <td>
+                    <input name="documentIssueDate" class="easyui-datebox documentIssueDate" style="width:200px;" data-options="prompt:'<%- i18n.t('user.documentIssueDatePrompt') %>'">
+                </td>
+            </tr>
+            <tr>
+                <td><strong><%- i18n.t('user.description') %>:</strong></td>
+                <td>
+                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('user.descriptionPrompt') %>'">
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</form>
+</script>

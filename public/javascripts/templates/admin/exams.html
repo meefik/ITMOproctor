@@ -1,0 +1,36 @@
+<script type="text/template" id="main-tpl">
+<table id="exams-grid" class="easyui-datagrid" data-options="toolbar:'#exams-toolbar',border:false,fitColumns:true,fit:true">
+</table>
+<div id="exams-toolbar" style="padding-left:5px;">
+    <input name="date-from" class="easyui-datebox date-from" style="width:110px;" data-options="prompt:'<%- i18n.t('admin.exams.fromDatePrompt') %>'">
+    <input name="date-to" class="easyui-datebox date-to" style="width:110px;" data-options="prompt:'<%- i18n.t('admin.exams.toDatePrompt') %>'">
+    <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt: '<%- i18n.t('admin.exams.searchTextPrompt') %>'">
+    <span class="easyui-menubutton" data-options="menu:'#exams-menu'"><%- i18n.t('admin.actions.title') %></span>
+</div>
+<div id="exams-menu" style="width:150px;">
+    <div name="add" data-options="iconCls:'fa fa-plus'"><%- i18n.t('admin.actions.add') %></div>
+    <div name="edit" data-options="iconCls:'fa fa-pencil'"><%- i18n.t('admin.actions.edit') %></div>
+    <div name="remove" data-options="iconCls:'fa fa-trash-o'"><%- i18n.t('admin.actions.remove') %></div>
+</div>
+</script>
+<script type="text/template" id="subject-item-tpl">
+<a href="javascript:void(0);" class="exam-btn" data-id="<%- row._id %>" title="<%- i18n.t('admin.exams.examInfo') %>">
+    <%- row.subject %>
+</a>
+</script>
+<script type="text/template" id="student-item-tpl">
+<a href="javascript:void(0);" class="student-btn" data-id="<%- row.student._id %>" title="<%- i18n.t('admin.exams.studentProfile') %>">
+    <%- row.student.lastname || i18n.t('user.unknown') %> <%- row.student.firstname %> <%- row.student.middlename %>
+</a>
+</script>
+<script type="text/template" id="inspector-item-tpl">
+<a href="javascript:void(0);" class="inspector-btn" data-id="<%- row.inspector._id %>" title="<%- i18n.t('admin.exams.inspectorProfile') %>">
+    <%- row.inspector.lastname || i18n.t('user.unknown') %> <%- row.inspector.firstname %> <%- row.inspector.middlename %>
+</a>
+</script>
+<script type="text/template" id="action-item-tpl">
+<a href="javascript:void(0);" class="play-btn" data-id="<%- row._id %>" title="<%- i18n.t('admin.exams.play') %>"><i class="fa fa-file-video-o fa-lg"></i></a>
+</script>
+<script type="text/template" id="export-dialog-tpl">
+<ul class="easyui-datalist" data-options="checkbox:true,singleSelect:false,fit:true,border:false"></ul>
+</script>

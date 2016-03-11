@@ -3,14 +3,14 @@
 //
 define([
     "i18n",
-    "text!templates/profile.html"
+    "text!templates/passport/viewer.html"
 ], function(i18n, template) {
-    console.log('views/profile.js');
+    console.log('views/passport/viewer.js');
     var View = Backbone.View.extend({
         initialize: function() {
             // Templates
             this.templates = _.parseTemplate(template);
-            // Exam model
+            // Profile model
             var Profile = Backbone.Model.extend({
                 urlRoot: 'profile'
             });
@@ -28,14 +28,14 @@ define([
             };
             this.loadingMsg = tpl(data);
             var dialog = $(this.el).dialog({
-                title: i18n.t('profile.title'),
+                title: i18n.t('user.title'),
                 width: 500,
-                height: 280,
+                height: 440,
                 closed: true,
                 modal: true,
                 content: this.loadingMsg,
                 buttons: [{
-                    text: i18n.t('profile.close'),
+                    text: i18n.t('user.close'),
                     iconCls: 'fa fa-times',
                     handler: function() {
                         self.doClose();
@@ -53,6 +53,7 @@ define([
             var self = this;
             this.$Container.html(this.loadingMsg);
             var tpl = _.template(this.templates['dialog-tpl']);
+            this.model.clear();
             this.model.set('_id', userId);
             this.model.fetch({
                 success: function(model) {

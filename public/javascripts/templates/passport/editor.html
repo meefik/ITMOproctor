@@ -1,50 +1,50 @@
 <script type="text/template" id="main-tpl">
-<div class="passport-view" style="margin:5px;">
+<div style="margin:5px;">
     <form class="passport-form">
         <table cellpadding="5" style="width:100%;">
             <tr>
-                <td style="width:40%"><%- i18n.t('passport.fullname') %><sup style="color:red">*</sup>:</td>
+                <td style="width:40%"><%- i18n.t('user.fullname') %><sup style="color:red">*</sup>:</td>
                 <td>
-                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('passport.lastname') %>'" />
-                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('passport.firstname') %>'" />
-                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:100,prompt:'<%- i18n.t('passport.middlename') %>'" />
+                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('user.lastname') %>'" />
+                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="required:true,tipPosition:'bottom',width:100,prompt:'<%- i18n.t('user.firstname') %>'" />
+                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:100,prompt:'<%- i18n.t('user.middlename') %>'" />
                 </td>
             </tr>
             <tr>
                 <td style="padding:0 5px"></td>
-                <td style="padding:0 5px;font-size:0.8em;margin-top:-5px"><span style="color:red">*</span> <%- i18n.t('passport.footnote') %></td>
+                <td style="padding:0 5px;font-size:0.8em;margin-top:-5px"><span style="color:red">*</span> <%- i18n.t('user.footnote') %></td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.gender') %>:</td>
+                <td><%- i18n.t('user.gender') %>:</td>
                 <td>
-                    <select name="gender" class="easyui-combobox gender" data-options="required:true,tipPosition:'bottom',width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('passport.genderPrompt') %>'">
-                        <option value="<%- i18n.t('passport.genders.male') %>"><%- i18n.t('passport.genders.male') %></option>
-                        <option value="<%- i18n.t('passport.genders.female') %>"><%- i18n.t('passport.genders.female') %></option>
+                    <select name="gender" class="easyui-combobox gender" data-options="required:true,tipPosition:'bottom',width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.genderPrompt') %>'">
+                        <option value="<%- i18n.t('user.genders.male') %>"><%- i18n.t('user.genders.male') %></option>
+                        <option value="<%- i18n.t('user.genders.female') %>"><%- i18n.t('user.genders.female') %></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.birthday') %>:</td>
+                <td><%- i18n.t('user.birthday') %>:</td>
                 <td>
-                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('passport.birthdayPrompt') %>'">
+                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.birthdayPrompt') %>'">
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.email') %>:</td>
+                <td><%- i18n.t('user.email') %>:</td>
                 <td>
-                    <input type="text" name="email" class="easyui-textbox email" data-options="width:310,required:true,validType:'email',tipPosition:'bottom',prompt:'<%- i18n.t('passport.emailPrompt') %>'" />
+                    <input type="text" name="email" class="easyui-textbox email" data-options="width:310,required:true,validType:'email',tipPosition:'bottom',prompt:'<%- i18n.t('user.emailPrompt') %>'" />
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.address') %>:</td>
+                <td><%- i18n.t('user.address') %>:</td>
                 <td>
-                    <input name="address" class="easyui-textbox address" style="width:310px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('passport.addressPrompt') %>'">
+                    <input name="address" class="easyui-textbox address" style="width:310px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.addressPrompt') %>'">
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.citizenship') %>:</td>
+                <td><%- i18n.t('user.citizenship') %>:</td>
                 <td>
-                    <select name="citizenship" class="easyui-combobox citizenship" data-options="required:true,tipPosition:'bottom',width:310,editable:false,prompt:'<%- i18n.t('passport.citizenshipPrompt') %>'">
+                    <select name="citizenship" class="easyui-combobox citizenship" data-options="required:true,tipPosition:'bottom',width:310,editable:false,prompt:'<%- i18n.t('user.citizenshipPrompt') %>'">
                         <option value="Абхазия">Абхазия</option>
                         <option value="Австралия">Австралия</option>
                         <option value="Австрия">Австрия</option>
@@ -295,34 +295,34 @@
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.documentType') %>:</td>
+                <td><%- i18n.t('user.documentType') %>:</td>
                 <td>
-                    <select name="documentType" class="easyui-combobox documentType" data-options="required:true,tipPosition:'bottom',width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('passport.documentTypePrompt') %>'">
-                        <option value="<%- i18n.t('passport.documentTypes.passport') %>"><%- i18n.t('passport.documentTypes.passport') %></option>
-                        <option value="<%- i18n.t('passport.documentTypes.internationalPassport') %>"><%- i18n.t('passport.documentTypes.internationalPassport') %></option>
-                        <option value="<%- i18n.t('passport.documentTypes.foreignDocument') %>"><%- i18n.t('passport.documentTypes.foreignDocument') %></option>
-                        <option value="<%- i18n.t('passport.documentTypes.seamanPassport') %>"><%- i18n.t('passport.documentTypes.seamanPassport') %></option>
-                        <option value="<%- i18n.t('passport.documentTypes.birthCertificate') %>"><%- i18n.t('passport.documentTypes.birthCertificate') %></option>
-                        <option value="<%- i18n.t('passport.documentTypes.militaryID') %>"><%- i18n.t('passport.documentTypes.militaryID') %></option>
+                    <select name="documentType" class="easyui-combobox documentType" data-options="required:true,tipPosition:'bottom',width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.documentTypePrompt') %>'">
+                        <option value="<%- i18n.t('user.documentTypes.passport') %>"><%- i18n.t('user.documentTypes.passport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.internationalPassport') %>"><%- i18n.t('user.documentTypes.internationalPassport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.foreignDocument') %>"><%- i18n.t('user.documentTypes.foreignDocument') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.seamanPassport') %>"><%- i18n.t('user.documentTypes.seamanPassport') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.birthCertificate') %>"><%- i18n.t('user.documentTypes.birthCertificate') %></option>
+                        <option value="<%- i18n.t('user.documentTypes.militaryID') %>"><%- i18n.t('user.documentTypes.militaryID') %></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.documentNumber') %>:</td>
+                <td><%- i18n.t('user.documentNumber') %>:</td>
                 <td>
-                    <input type="text" name="documentNumber" class="easyui-textbox documentNumber" data-options="required:true,tipPosition:'bottom',width:310,prompt:'<%- i18n.t('passport.documentNumberPrompt') %>'" />
+                    <input type="text" name="documentNumber" class="easyui-textbox documentNumber" data-options="required:true,tipPosition:'bottom',width:310,prompt:'<%- i18n.t('user.documentNumberPrompt') %>'" />
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.documentIssueDate') %>:</td>
+                <td><%- i18n.t('user.documentIssueDate') %>:</td>
                 <td>
-                    <input name="documentIssueDate" class="easyui-datebox documentIssueDate" style="width:200px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('passport.documentIssueDatePrompt') %>'">
+                    <input name="documentIssueDate" class="easyui-datebox documentIssueDate" style="width:200px;" data-options="required:true,tipPosition:'bottom',prompt:'<%- i18n.t('user.documentIssueDatePrompt') %>'">
                 </td>
             </tr>
             <tr>
-                <td><%- i18n.t('passport.description') %>:</td>
+                <td><%- i18n.t('user.description') %>:</td>
                 <td>
-                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('passport.descriptionPrompt') %>'">
+                    <input type="text" name="description" class="easyui-textbox description" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('user.descriptionPrompt') %>'">
                 </td>
             </tr>
         </table>

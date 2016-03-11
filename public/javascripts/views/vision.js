@@ -5,17 +5,17 @@ define([
     "i18n",
     "text!templates/vision.html",
     "views/settings",
-    "views/exam",
-    "views/passport",
-    "views/profile",
-    "views/verify",
+    "views/exam/viewer",
+    "views/passport/viewer",
+    "views/profile/viewer",
+    "views/verify/maker",
     "views/members",
     "views/notes",
     "views/chat",
     "views/webcam",
     "views/screen",
     "collections/attach"
-], function(i18n, template, SettingsView, ExamView, PassportView, ProfileView, VerifyView, MembersView, NotesView, ChatView, WebcamView, ScreenView, AttachCollection) {
+], function(i18n, template, SettingsView, ExamViewer, PassportViewer, ProfileViewer, VerifyMaker, MembersView, NotesView, ChatView, WebcamView, ScreenView, Attach) {
     console.log('views/vision.js');
     var View = Backbone.View.extend({
         events: {
@@ -75,15 +75,16 @@ define([
             // Sub views
             this.view = {
                 settings: new SettingsView(),
-                profile: new ProfileView(),
-                passport: new PassportView(),
-                exam: new ExamView(),
-                verify: new VerifyView(),
+                profile: new ProfileViewer(),
+                passport: new PassportViewer(),
+                exam: new ExamViewer(),
+                verify: new VerifyMaker(),
                 notes: new NotesView({
                     examId: this.options.examId
                 }),
                 chat: new ChatView({
-                    examId: this.options.examId
+                    examId: this.options.examId,
+                    templates: true
                 }),
                 members: new MembersView({
                     examId: this.options.examId
@@ -289,7 +290,7 @@ define([
         },
         getExamStatus: function() {
             var self = this;
-            $.getJSON('inspector/exam/' + this.options.examId + '/status',
+            $.getJSON('inspector/status/' + this.options.examId,
                 function(data) {
                     if (!data) return;
                     if (!self.examStatus) self.examStatus = data.status;
@@ -308,54 +309,17 @@ define([
         },
         doVerify: function() {
             var self = this;
-
-            function saveAttach(dataUrl, callback) {
-                var blobBin = atob(dataUrl.split(',')[1]);
-                var array = [];
-                for (var i = 0; i < blobBin.length; i++) {
-                    array.push(blobBin.charCodeAt(i));
-                }
-                var file = {
-                    name: 'document.png',
-                    blob: new Blob([new Uint8Array(array)], {
-                        type: 'image/png'
-                    })
-                };
-                var attach = new AttachCollection(null, null, function(action, args) {
-                    switch (action) {
-                        case 'done':
-                            callback(this);
-                            break;
-                    }
-                });
-                attach.create({
-                    file: file
-                });
-            }
-
-            function submitData(verified, dataUrl) {
-                this.exam.set('verified', verified);
-                $.ajax({
-                    url: "inspector/exam/" + self.exam.get('_id'),
-                    type: "post",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: JSON.stringify({
-                        verified: verified
-                    })
-                }).done(function(respond) {
-                    var message = verified.submit ? i18n.t('vision.verify.success') : i18n.t('vision.verify.fail');
-                    saveAttach(dataUrl, function(attach) {
-                        self.view.notes.collection.create({
-                            time: app.now(),
-                            text: message,
-                            attach: attach.toJSON(),
-                            editable: false
-                        });
+            this.view.verify.doOpen(this.$Video.get(0), this.exam.get('_id'), this.exam.get('student'), {
+                success: function(model) {
+                    var message = model.get('submit') ? i18n.t('vision.verify.success') : i18n.t('vision.verify.fail');
+                    self.view.notes.collection.create({
+                        time: app.now(),
+                        text: message,
+                        attach: model.get('attach'),
+                        editable: false
                     });
-                });
-            }
-            this.view.verify.doOpen(this.$Video.get(0), this.exam.get('student'), submitData.bind(this));
+                }
+            });
         },
         doScreenshot: function() {
             _.postMessage('takeScreenshot', '*');
@@ -367,33 +331,20 @@ define([
                 self.$ScreenshotComment.textbox('setValue', '');
             };
             var saveBtn = function() {
-                var blobBin = atob(dataUrl.split(',')[1]);
-                var array = [];
-                for (var i = 0; i < blobBin.length; i++) {
-                    array.push(blobBin.charCodeAt(i));
-                }
-                var file = {
-                    name: 'screenshot.png',
-                    blob: new Blob([new Uint8Array(array)], {
-                        type: 'image/png'
-                    })
-                };
-                var attach = new AttachCollection(null, null, function(action, args) {
-                    switch (action) {
-                        case 'done':
-                            var comment = self.$ScreenshotComment.textbox('getValue');
-                            self.view.notes.collection.create({
-                                time: app.now(),
-                                text: comment,
-                                attach: this.toJSON(),
-                                editable: true
-                            });
-                            closeBtn();
-                            break;
+                var attach = new Attach([], {
+                    onDone: function(model) {
+                        var comment = self.$ScreenshotComment.textbox('getValue');
+                        self.view.notes.collection.create({
+                            time: app.now(),
+                            text: comment,
+                            attach: this.toJSON(),
+                            editable: true
+                        });
+                        closeBtn();
                     }
                 });
                 attach.create({
-                    file: file
+                    file: _.dataUrlToFile(dataUrl, 'screenshot.png', 'image/png')
                 });
             };
             self.$ScreenshotPreview.attr({

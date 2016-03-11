@@ -5,13 +5,13 @@ define([
     "i18n",
     "text!templates/talk.html",
     "views/settings",
-    "views/exam",
-    "views/passport",
+    "views/exam/viewer",
+    "views/passport/viewer",
     "views/members",
     "views/chat",
     "views/webcam",
     "views/screen"
-], function(i18n, template, SettingsView, ExamView, PassportView, MembersView, ChatView, WebcamView, ScreenView) {
+], function(i18n, template, SettingsView, ExamViewer, PassportViewer, MembersView, ChatView, WebcamView, ScreenView) {
     console.log('views/talk.js');
     var View = Backbone.View.extend({
         bindings: {
@@ -66,8 +66,8 @@ define([
             // Sub views
             this.view = {
                 settings: new SettingsView(),
-                passport: new PassportView(),
-                exam: new ExamView(),
+                passport: new PassportViewer(),
+                exam: new ExamViewer(),
                 members: new MembersView({
                     examId: this.options.examId
                 }),

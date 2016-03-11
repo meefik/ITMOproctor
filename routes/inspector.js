@@ -4,16 +4,11 @@ var db = require('../db');
 var members = require('./members');
 var api = require('./api');
 // Get list of exams by search
-router.get('/exam',
+router.get('/exams',
     function(req, res) {
         var args = {
             userId: req.user._id,
-            rows: req.query.rows,
-            page: req.query.page,
-            myself: req.query.myself === 'false' ? false : true,
-            from: req.query.from,
-            to: req.query.to,
-            text: req.query.text
+            data: req.query
         };
         db.exam.search(args, function(err, data, count) {
             if (!err && data) {
@@ -45,27 +40,8 @@ router.get('/exam/:examId',
                     userId: args.userId
                 });
             }
-            else {
-                res.status(400).end();
-            }
-        });
-    });
-// Verify exam (passport)
-router.post('/exam/:examId',
-    function(req, res, next) {
-        var args = {
-            verified: req.body.verified,
-            userId: req.user._id,
-            examId: req.params.examId
-        };
-        db.exam.verify(args, function(err, data) {
-            if (!err && data) next();
             else res.status(400).end();
         });
-    },
-    api.startExam,
-    function(req, res) {
-        res.json({});
     });
 // Stop exam
 router.put('/exam/:examId',
@@ -73,85 +49,69 @@ router.put('/exam/:examId',
         var args = {
             examId: req.params.examId,
             userId: req.user._id,
-            resolution: req.body.resolution,
-            comment: req.body.comment
+            data: req.body
         };
         db.exam.finish(args, function(err, data) {
             if (!err && data) {
+                res.locals.examId = args.examId;
                 next();
                 req.notify('exam-' + args.examId, {
                     userId: args.userId
                 });
+                res.json(data);
             }
-            else {
-                res.status(400).end();
-            }
+            else res.status(400).end();
         });
     },
-    api.stopExam,
-    function(req, res) {
-        res.json({});
-    });
+    api.stopExam);
 // Exam status
-router.get('/exam/:examId/status',
+router.get('/status/:examId',
+    function(req, res, next) {
+        res.locals.examId = req.params.examId;
+        next();
+    },
     api.examStatus,
     function(req, res) {
-        if (req.body.examStatus) {
+        if (res.locals.examStatus) {
             res.json({
-                status: req.body.examStatus
+                status: res.locals.examStatus
             });
         }
-        else {
-            res.end();
-        }
+        else res.end();
     });
 // List all times for inspector
 router.get('/schedule',
     function(req, res) {
         var args = {
-            inspector: req.user._id
+            userId: req.user._id
         };
         db.schedule.list(args, function(err, data) {
-            if (!err && data) {
-                res.json(data);
-            }
-            else {
-                res.status(400).end();
-            }
+            if (!err && data) res.json(data);
+            else res.status(400).end();
         });
     });
 // Create time
 router.post('/schedule',
     function(req, res) {
         var args = {
-            inspector: req.user._id,
-            beginDate: req.body.beginDate,
-            endDate: req.body.endDate,
-            concurrent: req.body.concurrent
+            userId: req.user._id,
+            data: req.body
         };
         db.schedule.add(args, function(err, data) {
-            if (!err && data) {
-                res.json(data);
-            }
-            else {
-                res.status(400).end();
-            }
+            if (!err && data) res.json(data);
+            else res.status(400).end();
         });
     });
 // Delete time
 router.delete('/schedule/:scheduleId',
     function(req, res) {
         var args = {
-            inspector: req.user._id,
+            userId: req.user._id,
             scheduleId: req.params.scheduleId
         };
         db.schedule.remove(args, function(err, data) {
-            if (!err && data) {
-                res.json(data);
-            }
-            else {
-                res.status(400).end();
-            }
+            if (!err && data) res.json(data);
+            else res.status(400).end();
         });
     });
 module.exports = router;

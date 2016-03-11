@@ -8,6 +8,6 @@
 <ul class="members-output" style="list-style-type:none;padding:.3em;margin:0"></ul>
 </script>
 <script type="text/template" id="member-item-tpl">
-<div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- member.user.lastname %> <%- member.user.firstname %> <%- member.user.middlename %> (<%- i18n.t('roles.' + member.user.role) %>)</div>
+<div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- member.user.lastname || i18n.t('user.unknown') %> <%- member.user.firstname %> <%- member.user.middlename %> (<%- i18n.t('user.role.' + member.user.role) %>)</div>
 <div style="color:gray"><%- member.country || "-" %>, <%- member.city || "-" %> [IP: <%- member.ip %>]</div>
 </script>

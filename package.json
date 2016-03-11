@@ -1,6 +1,6 @@
 {
   "name": "proctor-server",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "System of distant supervision",
   "contributors": [
     {
@@ -24,10 +24,10 @@
   "scripts": {
     "start": "node ./bin/www",
     "build-app": "./nw-pack.sh",
-    "postinstall": "cd ./public && ../node_modules/bower/bin/bower install"
+    "postinstall": "cd ./public && bower install"
   },
   "dependencies": {
-    "body-parser": "^1.14.2",
+    "body-parser": "^1.15.0",
     "bower": "^1.7.7",
     "connect-mongo": "^0.8.2",
     "cookie-parser": "^1.4.1",
@@ -35,14 +35,15 @@
     "ejs": "^0.8.8",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
-    "geoip-lite": "^1.1.6",
+    "geoip-lite": "^1.1.7",
     "gridfs-stream": "^1.1.1",
     "kurento-client": "^6.2.0",
-    "moment": "^2.11.2",
-    "mongoose": "^4.4.1",
-    "morgan": "^1.6.1",
+    "moment": "^2.12.0",
+    "mongoose": "^4.4.7",
+    "morgan": "^1.7.0",
     "multer": "^1.1.0",
     "nconf": "^0.8.4",
+    "nodemailer": "^2.3.0",
     "passport": "^0.3.2",
     "passport-ifmosso": "^1.0.2",
     "passport-local": "^1.0.0",
@@ -51,7 +52,7 @@
     "request": "^2.69.0",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.4.5",
-    "winston": "^2.1.1"
+    "winston": "^2.2.0"
   },
   "engines": {
     "node": ">= 0.12.0"

@@ -1,0 +1,32 @@
+<script type="text/template" id="main-tpl">
+<style type="text/css">
+.tab-content {
+    padding: 5px
+}
+</style>
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
+            <span class="text-item"><i class="fa fa-user-secret"></i><%- i18n.t('admin.title') %></span>
+            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+            <span class="text-item" style="padding-right:15px;float:right"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">...</span></span>
+            <span class="text-item" style="padding-right:10px;float:right"><i class="fa fa-sun-o"></i><span class="panel-widget server-date">...</span></span>
+        </div>
+    </div>
+    <div data-options="region:'center',border:false">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'west',title:'Меню',width:180,split:true">
+                <ul class="easyui-tree admin-tree"></ul>
+            </div>
+            <div data-options="region:'center',border:false">
+                <div class="easyui-tabs admin-tabs" data-options="fit:true"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="main-menu" style="width:150px;">
+    <div name="profile" data-options="iconCls:'fa fa-user'"><%- i18n.t('admin.profile') %></div>
+    <div class="menu-sep"></div>
+    <div name="logout" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('admin.logout') %></div>
+</div>
+</script>

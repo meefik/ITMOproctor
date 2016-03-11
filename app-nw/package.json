@@ -1,6 +1,6 @@
 {
   "name": "proctor-client",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "System of distant supervision",
   "contributors": [{
     "name": "Anton Skshidlevsky",
@@ -18,7 +18,7 @@
       "url": "http://opensource.org/licenses/GPL-3.0"
   }],
   "main": "index.html",
-  "homepage": "https://proctor-meefik.c9users.io",
+  "homepage": "https://proctor.ifmo.ru",
   "window": {
     "title": "ITMOproctor",
     "icon": "icon.png",

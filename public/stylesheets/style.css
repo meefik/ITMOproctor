@@ -73,3 +73,7 @@ a {
     background: #ddddff;
     color: inherit;
 }
+
+.menu-icon {
+    padding-left: 0.3em;
+}

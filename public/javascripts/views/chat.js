@@ -6,7 +6,7 @@ define([
     "i18n",
     "text!templates/chat.html",
     "collections/attach"
-], function(i18n, template, AttachCollection) {
+], function(i18n, template, Attach) {
     console.log('views/chat.js');
     var View = Backbone.View.extend({
         className: "chat-view",
@@ -42,40 +42,38 @@ define([
                 }
             });
             // Attach
-            this.attach = new AttachCollection(null, null, function(action, args) {
-                switch (action) {
-                    case 'limit':
-                        $.messager.show({
-                            title: i18n.t('chat.limitMessage.title'),
-                            msg: i18n.t('chat.limitMessage.message', {
-                                num: args.uploadLimit
-                            }),
-                            showType: 'fade',
-                            style: {
-                                right: '',
-                                bottom: ''
-                            }
-                        });
-                        break;
-                    case 'start':
-                        self.$Progress.progressbar('setColor', null);
-                        self.$AttachBtn.hide();
-                        self.$FileBtn.show();
-                        self.$Progress.progressbar({
-                            value: 0,
-                            text: _.truncateFilename(args.file.name, 15)
-                        });
-                        break;
-                    case 'progress':
-                        var percentage = Math.floor((args.progress.loaded / args.progress.total) * 100);
-                        self.$Progress.progressbar('setValue', percentage);
-                        break;
-                    case 'done':
-                        self.$Progress.progressbar('setColor', 'green');
-                        break;
-                    case 'fail':
-                        self.$Progress.progressbar('setColor', 'red');
-                        break;
+            this.attach = new Attach(null, {
+                onLimit: function(file, limit) {
+                    $.messager.show({
+                        title: i18n.t('chat.limitMessage.title'),
+                        msg: i18n.t('chat.limitMessage.message', {
+                            num: limit
+                        }),
+                        showType: 'fade',
+                        style: {
+                            right: '',
+                            bottom: ''
+                        }
+                    });
+                },
+                onStart: function(file) {
+                    self.$Progress.progressbar('setColor', null);
+                    self.$AttachBtn.hide();
+                    self.$FileBtn.show();
+                    self.$Progress.progressbar({
+                        value: 0,
+                        text: _.truncateFilename(file.name, 15)
+                    });
+                },
+                onProgress: function(file, progress) {
+                    var percentage = Math.floor((progress.loaded / progress.total) * 100);
+                    self.$Progress.progressbar('setValue', percentage);
+                },
+                onDone: function(model) {
+                    self.$Progress.progressbar('setColor', 'green');
+                },
+                onFail: function(file) {
+                    self.$Progress.progressbar('setColor', 'red');
                 }
             });
             // Chat collection
@@ -102,7 +100,8 @@ define([
             var self = this;
             var tpl = _.template(this.templates['main-tpl']);
             var data = {
-                i18n: i18n
+                i18n: i18n,
+                templates: this.options.templates
             };
             this.$el.html(tpl(data));
             $.parser.parse(this.$el);
@@ -132,7 +131,7 @@ define([
             return this;
         },
         destroy: function() {
-            app.io.notify.removeListener('chat-' + this.options.examId);
+            if (app.io) app.io.notify.removeListener('chat-' + this.options.examId);
             this.remove();
         },
         createMessage: function(text) {

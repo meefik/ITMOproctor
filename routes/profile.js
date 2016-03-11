@@ -37,6 +37,10 @@ router.isInspectorOrMyself = function(req, res, next) {
     if (req.user.role > 1 || req.params.userId === req.user._id) next();
     else res.status(403).end();
 };
+router.isAdministratorOrMyself = function(req, res, next) {
+    if (req.user.role > 2 || req.params.userId === req.user._id) next();
+    else res.status(403).end();
+};
 router.logUserIP = function(req, res, next) {
     if (req.isAuthenticated()) {
         db.profile.log({
@@ -103,7 +107,7 @@ router.get('/openedu/callback', passport.authenticate('openedu', {
     res.redirect('/');
 });
 
-// Get user profile
+// Get user profile from session
 router.get('/', function(req, res) {
     req.isAuthenticated() ? res.json(req.user) : res.status(401).end();
 });
@@ -117,7 +121,7 @@ router.get('/:userId', router.isInspectorOrMyself, function(req, res) {
     var args = {
         userId: req.params.userId
     };
-    db.profile.info(args, function(err, data) {
+    db.profile.get(args, function(err, data) {
         if (!err && data) {
             res.json(data);
         }
@@ -126,25 +130,11 @@ router.get('/:userId', router.isInspectorOrMyself, function(req, res) {
         }
     });
 });
-// Update user profile by id
+// Update user profile and session by id
 router.put('/:userId', router.isMyself, function(req, res) {
     var args = {
         userId: req.params.userId,
-        data: {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            middlename: req.body.middlename,
-            gender: req.body.gender,
-            birthday: req.body.birthday,
-            email: req.body.email,
-            citizenship: req.body.citizenship,
-            documentType: req.body.documentType,
-            documentNumber: req.body.documentNumber,
-            documentIssueDate: req.body.documentIssueDate,
-            address: req.body.address,
-            description: req.body.description,
-            attach: req.body.attach
-        }
+        data: req.body
     };
     db.profile.update(args, function(err, data) {
         if (!err && data) {

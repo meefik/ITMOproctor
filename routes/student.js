@@ -5,10 +5,10 @@ var members = require('./members');
 var api = require('./api');
 var config = require('nconf');
 // Get list of exams
-router.get('/exam', api.fetchExams, function(req, res) {
+router.get('/exams', api.fetchExams, function(req, res) {
     var args = {
         userId: req.user._id,
-        history: req.query.history === 'true'
+        data: req.query
     };
     db.exam.list(args, function(err, data) {
         if (!err && data) {
@@ -23,6 +23,20 @@ router.get('/exam', api.fetchExams, function(req, res) {
                 "total": 0,
                 "rows": []
             });
+        }
+    });
+});
+// Get exam info by id
+router.get('/info/:examId', function(req, res) {
+    var args = {
+        examId: req.params.examId
+    };
+    db.exam.get(args, function(err, data) {
+        if (!err && data) {
+            res.json(data);
+        }
+        else {
+            res.status(400).end();
         }
     });
 });
@@ -47,9 +61,9 @@ router.put('/exam/:examId', function(req, res) {
     var args = {
         examId: req.params.examId,
         userId: req.user._id,
-        beginDate: req.body.beginDate
+        data: req.body
     };
-    if (!args.beginDate) {
+    if (!args.data.beginDate) {
         return res.status(400).end();
     }
     db.exam.plan(args, function(err, data) {
@@ -79,11 +93,9 @@ router.delete('/exam/:examId', function(req, res) {
 // Get free dates for planning
 router.get('/schedule', function(req, res) {
     var args = {
-        leftDate: req.query.leftDate,
-        rightDate: req.query.rightDate,
-        duration: req.query.duration
+        data: req.query
     };
-    if (!args.leftDate || !args.rightDate || !args.duration) {
+    if (!args.data.leftDate || !args.data.rightDate || !args.data.duration) {
         return res.status(400).end();
     }
     db.exam.schedule(args, function(err, data) {

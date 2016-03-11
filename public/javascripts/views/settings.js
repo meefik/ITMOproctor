@@ -103,16 +103,12 @@ define([
         updateMediaSources: function() {
             var self = this;
             this.getMediaSources('audioinput', function(sources) {
-                self.$WebcameraAudio.combobox({
-                    data: sources
-                });
+                self.$WebcameraAudio.combobox('loadData', sources);
                 var model = app.settings.get('webcamera-audio');
                 if (model) self.$WebcameraAudio.combobox('setValue', model.get('value'));
             });
             this.getMediaSources('videoinput', function(sources) {
-                self.$WebcameraVideo.combobox({
-                    data: sources
-                });
+                self.$WebcameraVideo.combobox('loadData', sources);
                 var model = app.settings.get('webcamera-video');
                 if (model) self.$WebcameraVideo.combobox('setValue', model.get('value'));
             });

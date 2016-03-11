@@ -18,17 +18,15 @@ router.get('/:examId', function(req, res) {
 // Create new note
 router.post('/:examId', function(req, res) {
     var args = {
-        author: req.user._id,
+        userId: req.user._id,
         examId: req.params.examId,
-        text: req.body.text,
-        attach: req.body.attach,
-        editable: req.body.editable
+        data: req.body
     };
     db.notes.add(args, function(err, data) {
         if (!err && data) {
             res.json(data);
             req.notify('notes-' + args.examId, {
-                userId: args.author
+                userId: args.userId
             });
         }
         else {
@@ -41,14 +39,14 @@ router.put('/:examId/:noteId', function(req, res) {
     var args = {
         noteId: req.params.noteId,
         examId: req.params.examId,
-        author: req.user._id,
-        text: req.body.text
+        userId: req.user._id,
+        data: req.body
     };
     db.notes.update(args, function(err, data) {
         if (!err && data) {
             res.json(data);
             req.notify('notes-' + args.examId, {
-                userId: args.author
+                userId: args.userId
             });
         }
         else {
@@ -61,13 +59,13 @@ router.delete('/:examId/:noteId', function(req, res) {
     var args = {
         noteId: req.params.noteId,
         examId: req.params.examId,
-        author: req.user._id
+        userId: req.user._id
     };
     db.notes.remove(args, function(err, data) {
         if (!err && data) {
             res.json(data);
             req.notify('notes-' + args.examId, {
-                userId: args.author
+                userId: args.userId
             });
         }
         else {

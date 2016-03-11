@@ -4,6 +4,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var User = require('./user').schema;
+var Verify = require('./verify').schema;
 var Exam = new Schema({
     // Идентификатор экзамена в LMS
     examId: {
@@ -24,23 +25,15 @@ var Exam = new Schema({
         ref: 'User',
         required: true
     },
-    // Контрольная сумма проверенных данных студента
-    verified: {
-        // Результат проверки данных
-        submit: {
-            type: Boolean
-        },
-        // Персональные данные студента
-        data: {},
-        // Контрольная сумма проверенных данных
-        hash: {
-            type: String
-        }
-    },
     // Инспектор
     inspector: {
         type: Schema.Types.ObjectId,
         ref: 'User'
+    },
+    // Идентификатор результатов идентификации
+    verified: {
+        type: Schema.Types.ObjectId,
+        ref: 'Verify'
     },
     // Плановая продолжительность экзамена в минутах
     duration: {

@@ -1,19 +1,5 @@
 define({
     "loading": "Ждите, идет загрузка данных...",
-    "examStatus": {
-        "0": "Не запланирован",
-        "1": "Запланирован",
-        "2": "Ожидает",
-        "3": "Идет",
-        "4": "Принят",
-        "5": "Прерван",
-        "6": "Пропущен"
-    },
-    "roles": {
-        "1": "Слушатель",
-        "2": "Проктор",
-        "3": "Администратор"
-    },
     "login": {
         "title": "Вход в систему",
         "username": "Логин",
@@ -47,7 +33,9 @@ define({
         "title": "Карточка экзамена",
         "close": "Закрыть",
         "subject": "Экзамен",
+        "subjectPrompt": "Название экзамена",
         "code": "Код",
+        "codePrompt": "Код экзамена в LMS",
         "dates": "Сроки",
         "duration": "Длительность",
         "begin": "Начало",
@@ -56,9 +44,40 @@ define({
         "inspector": "Проктор",
         "resolution": "Заключение",
         "comment": "Комментарий",
-        "unknown": "неизвестно",
-        "noplan": "не запланировано",
-        "noset": "не назначен"
+        "unknown": "Неизвестно",
+        "noplan": "Не запланировано",
+        "unset": "Не назначен",
+        "assigned": "Назначен",
+        "no": "Нет",
+        "durationMinutes": "%{num} мин.",
+        "datesBetween": "с %{from} по %{to}",
+        "missing": "Отсутствует",
+        "reset": "Cброс",
+        "identificator": "Идентификатор",
+        "examIdPrompt": "Идентификатор экзамена в LMS",
+        "leftDatePrompt": "Дата начала",
+        "rightDatePrompt": "Дата окончания",
+        "beginDatePrompt": "Дата начала",
+        "endDatePrompt": "Дата окончания",
+        "startDatePrompt": "Дата начала",
+        "stopDatePrompt": "Дата окончания",
+        "durationPrompt": "Мин.",
+        "studentPrompt": "Укажите слушателя...",
+        "inspectorPrompt": "Укажите проктора...",
+        "resolutionPrompt": "Заключение проктора",
+        "commentPrompt": "Введите комментарий...",
+        "planDates": "Плановые даты",
+        "factDates": "Фактические даты",
+        "save": "Сохранить",
+        "status": {
+            "0": "Не запланирован",
+            "1": "Запланирован",
+            "2": "Ожидает",
+            "3": "Идет",
+            "4": "Принят",
+            "5": "Прерван",
+            "6": "Пропущен"
+        }
     },
     "settings": {
         "title": "Настройки",
@@ -115,18 +134,21 @@ define({
         "tx": "Скорость передачи",
         "rx": "Скорость получения"
     },
-    "passport": {
-        "title": "Профиль слушателя",
+    "user": {
+        "title": "Профиль пользователя",
         "save": "Сохранить",
         "close": "Закрыть",
         "login": "Логин",
-        "fullname": "Слушатель",
+        "loginPrompt": "Логин",
+        "password": "Пароль",
+        "passwordPrompt": "Пароль",
+        "fullname": "Полное имя",
         "footnote": "заполняется на русском языке",
         "lastname": "Фамилия",
         "firstname": "Имя",
         "middlename": "Отчество",
         "gender": "Пол",
-        "genderPrompt": "Ваш пол",
+        "genderPrompt": "Пол",
         "genders": {
             "male": "Мужской",
             "female": "Женский"
@@ -154,28 +176,31 @@ define({
         "address": "Почтовый адрес",
         "addressPrompt": "Страна, индекс, город, улица, ...",
         "description": "Образование",
-        "descriptionPrompt": "Уровень образования, степень, квалификация, образовательная организация"
-    },
-    "profile": {
-        "title": "Профиль проктора",
-        "save": "Сохранить",
-        "close": "Закрыть",
-        "remove": "Удалить",
+        "descriptionPrompt": "Уровень образования, степень, квалификация, образовательная организация",
         "photo": "Фотография",
-        "fullname": "ФИО",
-        "lastname": "Фамилия",
-        "firstname": "Имя",
-        "middlename": "Отчество",
-        "gender": "Пол",
-        "genderPrompt": "Ваш пол",
-        "genders": {
-            "male": "Мужской",
-            "female": "Женский"
+        "noset": "Не назначен",
+        "remove": "Удалить",
+        "unknown": "Неизвестный",
+        "provider": {
+            "title": "Провайдер",
+            "prompt": "Провайдер авторизации",
+            "local": "Внутрисистемный (local)",
+            "openedu": "Открытое образование (openedu)",
+            "ifmosso": "Университет ИТМО (ifmosso)"
         },
-        "birthday": "Дата рождения",
-        "birthdayPrompt": "Выберите дату...",
-        "email": "Электронный адрес",
-        "emailPrompt": "E-Mail",
+        "role": {
+            "title": "Роль в системе",
+            "prompt": "Роль пользователя в системе",
+            "1": "Слушатель",
+            "2": "Проктор",
+            "3": "Администратор"
+        },
+        "active": {
+            "title": "Статус",
+            "prompt": "Статус пользователя",
+            "true": "Активен",
+            "false": "Заблокирован"
+        }
     },
     "schedule": {
         "title": "Планирование расписания",
@@ -189,7 +214,9 @@ define({
         "dates": "Даты",
         "sessions": "Сессии",
         "beginDate": "Дата начала",
-        "endDate": "Дата окончания"
+        "endDate": "Дата окончания",
+        "unknown": "Неизвестный",
+        "inspector": "Проктор"
     },
     "monitor": {
         "title": "Расписание экзаменов",
@@ -219,9 +246,6 @@ define({
     "talk": {
         "online": "В сети",
         "offline": "Не в сети",
-        "webcamera": "Веб-камера",
-        "members": "Участники",
-        "chat": "Сообщения",
         "connection": "Статус соединения",
         "time": "Текущее время",
         "duration": "Продолжительность экзамена",
@@ -238,6 +262,7 @@ define({
         }
     },
     "chat": {
+        "title": "Сообщения",
         "connect": "подключился к экзамену...",
         "limitMessage": {
             "title": "Ошибка загрузки файла",
@@ -245,7 +270,6 @@ define({
         },
         "send": "Отправить",
         "attach": "Прикрепить",
-        "unknown": "Неизвестный",
         "inputPrompt": "Текст сообщения...",
         "templatesPrompt": "Шаблон сообщения...",
         "templates": {
@@ -255,6 +279,7 @@ define({
         }
     },
     "notes": {
+        "title": "Заметки",
         "editorTitle": "Редактирование заметки",
         "save": "Сохранить",
         "close": "Закрыть",
@@ -268,14 +293,18 @@ define({
         "inputPrompt": "Введите текст заметки...",
         "onDate": "Заметка на"
     },
+    "members": {
+        "title": "Участники"
+    },
+    "webcamera": {
+        "title": "Веб-камера"
+    },
+    "screen": {
+        "title": "Рабочий стол"
+    },
     "vision": {
         "online": "В сети",
         "offline": "Не в сети",
-        "webcamera": "Веб-камера",
-        "screen": "Рабочий стол",
-        "members": "Участники",
-        "chat": "Сообщения",
-        "notes": "Заметки",
         "connection": "Статус соединения",
         "time": "Текущее время",
         "duration": "Продолжительность экзамена",
@@ -315,6 +344,7 @@ define({
     },
     "verify": {
         "title": "Идентификация личности",
+        "closeBtn": "Закрыть",
         "scanBtn": "Cнимок документа",
         "acceptBtn": "Подтвердить",
         "rejectBtn": "Отклонить",
@@ -325,5 +355,77 @@ define({
         "documentType": "Тип документа",
         "documentNumber": "Номер док-та",
         "documentIssueDate": "Дата выдачи"
+    },
+    "play": {
+        "title": "Протокол",
+        "video": "Видеозапись"
+    },
+    "admin": {
+        "title": "Администрирование",
+        "management": "Управление",
+        "settings": "Настройки",
+        "help": "Справка",
+        "users": {
+            "title": "Пользователи",
+            "parameters": "Параметры",
+            "profile": "Профиль",
+            "searchTextPrompt": "Поиск пользователя...",
+            "username": "Логин",
+            "provider": "Провайдер",
+            "fullname": "Пользователь",
+            "role": "Роль в системе",
+            "created": "Зарегистрирован",
+            "activeTitle": "Статус",
+            "studentProfile": "Профиль слушателя"
+        },
+        "exams": {
+            "title": "Экзамены",
+            "searchTextPrompt": "Поиск экзамена..",
+            "fromDatePrompt": "Начало...",
+            "toDatePrompt": "Окончание...",
+            "studentProfile": "Профиль слушателя",
+            "inspectorProfile": "Профиль проктора",
+            "examInfo": "Карточка экзамена",
+            "student": "Слушатель",
+            "inspector": "Проктор",
+            "subject": "Экзамен",
+            "beginDate": "Начало",
+            "duration": "Длительность",
+            "status": "Статус",
+            "durationValue": "%{duration} мин.",
+            "play": "Протокол экзамена"
+        },
+        "schedules": {
+            "title": "Расписание",
+            "searchTextPrompt": "Поиск расписания...",
+            "inspectorProfile": "Профиль проктора",
+            "fromDatePrompt": "Начало...",
+            "toDatePrompt": "Окончание...",
+            "student": "Слушатель",
+            "inspector": "Проктор",
+            "beginDate": "Начало работы",
+            "endDate": "Окончание работы",
+            "concurrent": "Кол-во сессий"
+        },
+        "about": {
+            "title": "О системе",
+            "app": "ITMOproctor",
+            "description": "Система дистанционного надзора"
+        },
+        "actions": {
+            "title": "Действия",
+            "add": "Добавить",
+            "edit": "Изменить",
+            "remove": "Удалить"
+        },
+        "remove": {
+            "progressMsg": "Удаление данных...",
+            "confirm": {
+                "title": "Подтверждение",
+                "message": "Вы действительно хотите удалить выбранные записи?"
+            }
+        },
+        "profile": "Профиль",
+        "logout": "Выход"
     }
 });

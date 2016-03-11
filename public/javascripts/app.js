@@ -84,6 +84,78 @@ _.mixin({
             }
         });
         return status;
+    },
+    dataUrlToFile: function(dataUrl, filename, type) {
+        var blobBin = atob(dataUrl.split(',')[1]);
+        var array = [];
+        for (var i = 0, l = blobBin.length; i < l; i++) {
+            array.push(blobBin.charCodeAt(i));
+        }
+        var blob = new Blob([new Uint8Array(array)], {
+            type: type
+        });
+        return new File([blob], filename, {
+            type: type
+        });
+    },
+    textSearch: function(data, text) {
+        if (!data || !(text || "").length) return data;
+        var objectToString = function(obj) {
+            var result = "";
+            if (obj instanceof Array) {
+                for (var i = 0; i < obj.length; i++) {
+                    result += objectToString(obj[i]);
+                }
+            }
+            else {
+                for (var prop in obj) {
+                    if (obj[prop] instanceof Object || obj[prop] instanceof Array) {
+                        result += objectToString(obj[prop]);
+                    }
+                    if (typeof obj[prop] === 'string') result += obj[prop] + " ";
+                }
+            }
+            return result;
+        };
+        var phrases = text.toLowerCase().split(' ');
+        var rows = [];
+        for (var i = 0, li = data.length; i < li; i++) {
+            var str = objectToString(data[i]).toLowerCase();
+            var cond = true;
+            for (var j = 0, lj = phrases.length; j < lj; j++) {
+                if (str.search(phrases[j]) === -1) {
+                    cond = false;
+                    break;
+                }
+            }
+            if (cond) rows.push(data[i]);
+        }
+        return rows;
+    },
+    // Generate a RFC4122 v4 (random) id
+    uuid: function() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    },
+    progressMessager: function(msg, total, callback) {
+        var messager = $.messager.progress({
+            msg: msg,
+            interval: 0
+        });
+        var $progress = $(messager).find('.progressbar');
+        var loaded = 0;
+        return function() {
+            loaded++;
+            var percentage = Math.floor((loaded / total) * 100);
+            $progress.progressbar('setValue', percentage);
+            if (loaded === total) {
+                $.messager.progress('close');
+                if (callback) callback();
+            }
+        };
     }
 });
 
@@ -135,13 +207,13 @@ require([
     "models/profile",
     "models/time",
     "collections/settings"
-], function(Router, ProfileModel, TimeModel, SettingsCollection) {
+], function(Router, ProfileModel, TimeModel, Settings) {
     console.log('app.js');
     // app
     window.app = {
         profile: new ProfileModel(),
         time: new TimeModel(),
-        settings: new SettingsCollection(),
+        settings: new Settings(),
         router: new Router(),
         login: function(username, password, error) {
             var self = this;

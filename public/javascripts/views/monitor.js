@@ -4,14 +4,14 @@
 define([
     "i18n",
     "text!templates/monitor.html",
-    "views/exam",
-    "views/profile",
-    "views/profile-editor",
-    "views/passport",
-    "views/schedule",
+    "views/exam/viewer",
+    "views/profile/viewer",
+    "views/profile/editor",
+    "views/passport/viewer",
+    "views/schedule/planner",
     "views/settings",
     "views/demo"
-], function(i18n, template, ExamView, ProfileView, ProfileEditorView, PassportView, ScheduleView, SettingsView, DemoView) {
+], function(i18n, template, ExamViewer, ProfileViewer, ProfileEditor, PassportViewer, SchedulePlanner, SettingsView, DemoView) {
     console.log('views/monitor.js');
     var View = Backbone.View.extend({
         events: {
@@ -44,11 +44,11 @@ define([
             this.templates = _.parseTemplate(template);
             // Sub views
             this.view = {
-                exam: new ExamView(),
-                profile: new ProfileView(),
-                profileEditor: new ProfileEditorView(),
-                passport: new PassportView(),
-                schedule: new ScheduleView(),
+                exam: new ExamViewer(),
+                profile: new ProfileViewer(),
+                profileEditor: new ProfileEditor(),
+                passport: new PassportViewer(),
+                schedule: new SchedulePlanner(),
                 settings: new SettingsView(),
                 demo: new DemoView()
             };
@@ -233,7 +233,7 @@ define([
                 pageSize: 50,
                 pageList: [10, 50, 100, 250, 500],
                 rownumbers: true,
-                url: 'inspector/exam',
+                url: 'inspector/exams',
                 method: 'get',
                 queryParams: {
                     myself: true,
@@ -244,44 +244,16 @@ define([
                     self.lastUpdated = {};
                 },
                 loadFilter: function(data) {
+                    data = data || [];
                     var text = self.$TextSearch.textbox('getValue').trim();
-                    if (!text.length) return data;
-                    var objectToString = function(obj) {
-                        var result = "";
-                        if (obj instanceof Array) {
-                            for (var i = 0; i < obj.length; i++) {
-                                result += objectToString(obj[i]);
-                            }
-                        }
-                        else {
-                            for (var prop in obj) {
-                                if (obj[prop] instanceof Object || obj[prop] instanceof Array) {
-                                    result += objectToString(obj[prop]);
-                                }
-                                if (typeof obj[prop] === 'string') result += obj[prop] + " ";
-                            }
-                        }
-                        return result;
-                    };
-                    var phrases = text.toLowerCase().split(' ');
-                    var rows = data.rows || [];
-                    var out = {
-                        rows: [],
-                        total: 0
-                    };
-                    for (var i = 0, li = rows.length; i < li; i++) {
-                        var str = objectToString(rows[i]).toLowerCase();
-                        var cond = true;
-                        for (var j = 0, lj = phrases.length; j < lj; j++) {
-                            if (str.search(phrases[j]) === -1) {
-                                cond = false;
-                                break;
-                            }
-                        }
-                        if (cond) out.rows.push(rows[i]);
+                    if (_.isEmpty(text)) return data;
+                    else {
+                        var rows = _.textSearch(data.rows, text);
+                        return {
+                            rows: rows,
+                            total: rows.length
+                        };
                     }
-                    out.total = out.rows.length;
-                    return out;
                 }
             });
             this.stickit(app.time);
@@ -317,19 +289,19 @@ define([
             row.status = status;
             switch (status) {
                 case 0:
-                    return '<span style="color:olive;">' + i18n.t('examStatus.0') + '</span>';
+                    return '<span style="color:olive;">' + i18n.t('exam.status.0') + '</span>';
                 case 1:
-                    return '<span style="color:teal;">' + i18n.t('examStatus.1') + '</span>';
+                    return '<span style="color:teal;">' + i18n.t('exam.status.1') + '</span>';
                 case 2:
-                    return '<span style="color:orange;">' + i18n.t('examStatus.2') + '</span>';
+                    return '<span style="color:orange;">' + i18n.t('exam.status.2') + '</span>';
                 case 3:
-                    return '<span style="color:red;">' + i18n.t('examStatus.3') + '</span>';
+                    return '<span style="color:red;">' + i18n.t('exam.status.3') + '</span>';
                 case 4:
-                    return '<span style="color:green;">' + i18n.t('examStatus.4') + '</span>';
+                    return '<span style="color:green;">' + i18n.t('exam.status.4') + '</span>';
                 case 5:
-                    return '<span style="color:purple;">' + i18n.t('examStatus.5') + '</span>';
+                    return '<span style="color:purple;">' + i18n.t('exam.status.5') + '</span>';
                 case 6:
-                    return '<span style="color:gray;">' + i18n.t('examStatus.6') + '</span>';
+                    return '<span style="color:gray;">' + i18n.t('exam.status.6') + '</span>';
                 default:
                     return null;
             }

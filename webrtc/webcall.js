@@ -470,4 +470,4 @@ for (var i in targets) {
     var socket = io.of(targets[i]);
     bind(socket);
 }
-}
+};
