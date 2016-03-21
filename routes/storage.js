@@ -4,6 +4,7 @@ var config = require('nconf');
 var db = require('../db');
 var multer = require('multer');
 var fs = require('fs');
+var urlify = require('urlify').create();
 var upload = multer({
     dest: './uploads/',
     limits: {
@@ -19,6 +20,10 @@ var upload = multer({
 router.post('/', upload.any(), function(req, res, next) {
     var file = req.files[0];
     if (!file) return res.status(400).end();
+    var fname = file.originalname;
+    var name = fname.slice(0, fname.lastIndexOf('.'));
+    var ext = fname.slice(fname.lastIndexOf('.') + 1);
+    file.originalname = urlify(name) + '.' + urlify(ext);
     res.json(file);
 });
 // Download attach

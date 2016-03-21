@@ -245,7 +245,7 @@ encode_video_session()
     # удалить пустые файлы из исходного каталога
     find "${STORAGE_DIR}" -empty -type f -exec rm {} \;
     # перекодировать видео по заданному формату
-    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${output_file}$" | while read video_file
+    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${output_file%*.webm}" | while read video_file
     do
         scale_video_file "${STORAGE_DIR%/}/${video_file}" "${OUTPUT_DIR%/}/${video_file}" $(get_video_resolution "${video_file}")
     done
@@ -276,6 +276,7 @@ archiver()
 {
     while read video_file
     do
+        video_file="${video_file%*.webm}.webm"
         echo ">>> Processing: ${video_file}"
         # проверить существование файла
         if ! is_exist "${video_file}"
@@ -299,4 +300,4 @@ archiver()
 }
 
 # получение списка сессий и запуск архивирования
-ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}\.webm$" | cut -f2 -d- | sort -u | archiver
+ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}.*\.webm$" | cut -f2 -d- | sort -u | archiver

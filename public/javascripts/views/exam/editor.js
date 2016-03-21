@@ -170,10 +170,15 @@ define([
                     if (students) {
                         var data = [];
                         students.forEach(function(item, ind, arr) {
-                            var info = " " + item.firstname + " " + item.middlename + " (" + (item.username) + ")";
+                            var info = "";
+                            info += item.lastname ? item.lastname : i18n.t('exam.unknown');
+                            info += " ";
+                            info += item.firstname ? item.firstname + " " : "";
+                            info += item.middlename ? item.middlename + " " : "";
+                            info += "(" + (item.username) + ")";
                             var student = {
                                 id: item._id,
-                                text: item.lastname ? item.lastname + info : i18n.t('exam.unknown') + info
+                                text: info
                             };
                             data.push(student);
                         });
@@ -198,10 +203,15 @@ define([
                             text: i18n.t('exam.unset')
                         });
                         inspectors.forEach(function(item, ind, arr) {
-                            var info = " " + item.firstname + " " + item.middlename + " (" + (item.username) + ")";
+                            var info = "";
+                            info += item.lastname ? item.lastname : i18n.t('exam.unknown');
+                            info += " ";
+                            info += item.firstname ? item.firstname + " " : "";
+                            info += item.middlename ? item.middlename + " " : "";
+                            info += "(" + (item.username) + ")";
                             var inspector = {
                                 id: item._id,
-                                text: item.lastname ? item.lastname + info : i18n.t('exam.unknown') + info
+                                text: info
                             };
                             data.push(inspector);
                         });

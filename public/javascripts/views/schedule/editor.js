@@ -109,10 +109,15 @@ define([
                     if (inspectors) {
                         var data = [];
                         inspectors.forEach(function(item, ind, arr) {
-                            var info = " " + item.firstname + " " + item.middlename + " (" + (item.username) + ")";
+                            var info = "";
+                            info += item.lastname ? item.lastname : i18n.t('exam.unknown');
+                            info += " ";
+                            info += item.firstname ? item.firstname + " " : "";
+                            info += item.middlename ? item.middlename + " " : "";
+                            info += "(" + (item.username) + ")";
                             var inspector = {
                                 id: item._id,
-                                text: item.lastname ? item.lastname + info : i18n.t('schedule.unknown') + info
+                                text: info
                             };
                             data.push(inspector);
                         });
