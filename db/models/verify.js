@@ -7,6 +7,11 @@ var Exam = require('./exam').schema;
 var User = require('./user').schema;
 var Attach = require('./attach').schema;
 var Verify = new Schema({
+    // Дата создания записи
+    created: {
+        type: Date,
+        default: Date.now
+    },
     // Студент
     student: {
         type: Schema.Types.ObjectId,
