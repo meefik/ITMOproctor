@@ -50,13 +50,13 @@
             <tr>
                 <td><strong><%- i18n.t('exam.student') %>:</strong></td>
                 <td>
-                    <input name="student" class="easyui-combobox student-list" data-options="panelHeight:'auto',required:true,width:310,tipPosition:'bottom',prompt:'<%- i18n.t('exam.studentPrompt') %>'">
+                    <input name="student" class="easyui-combobox student-list" data-options="panelHeight:'auto',panelMaxHeight:200,required:true,width:310,tipPosition:'bottom',prompt:'<%- i18n.t('exam.studentPrompt') %>'">
                 </td>
             </tr>
             <tr>
                 <td><strong><%- i18n.t('exam.inspector') %>:</strong></td>
                 <td>
-                    <select name="inspector" class="easyui-combobox inspector-list" data-options="panelHeight:'auto',width:310,prompt:'<%- i18n.t('exam.inspectorPrompt') %>'">
+                    <select name="inspector" class="easyui-combobox inspector-list" data-options="panelHeight:'auto',panelMaxHeight:200,width:310,prompt:'<%- i18n.t('exam.inspectorPrompt') %>'">
                         <option value="null"><%- i18n.t('exam.unset') %></option>
                     </select>
                 </td>
