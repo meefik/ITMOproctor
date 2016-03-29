@@ -314,7 +314,6 @@ var db = {
             var page = args.data.page ? Number(args.data.page) - 1 : 0;
             var fromDate = args.data.from ? moment(args.data.from) : null;
             var toDate = args.data.to ? moment(args.data.to) : null;
-            var myself = String(args.data.myself) === 'true';
             var query = {};
             // Dates
             if (fromDate && toDate) {
@@ -345,21 +344,9 @@ var db = {
                         }]
                     }]
                 };
-                // query.leftDate = {
-                //     "$lt": toDate
-                // };
-                // query.rightDate = {
-                //     "$gt": fromDate
-                // };                
-                // query.beginDate = {
-                //     "$lt": toDate
-                // };
-                // query.endDate = {
-                //     "$gt": fromDate
-                // };
             }
             // If myself
-            if (myself) {
+            if (args.userId) {
                 query.inspector = args.userId;
             }
             // Populate options

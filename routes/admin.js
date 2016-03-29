@@ -24,8 +24,6 @@ router.get('/users', function(req, res) {
 // Get list of exams
 router.get('/exams', function(req, res) {
     var args = {
-        userId: req.user._id,
-        myself: false,
         data: req.query
     };
     db.exam.search(args, function(err, data, count) {

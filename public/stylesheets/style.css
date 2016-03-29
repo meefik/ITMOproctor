@@ -2,16 +2,19 @@
     font-family: "Verdana";
     src: url("fonts/Verdana.ttf") format("truetype");
 }
+
 @font-face {
     font-family: "Verdana";
     src: url("fonts/Verdana_Bold.ttf");
     font-weight: bold;
 }
+
 @font-face {
     font-family: "Verdana";
     src: url("fonts/Verdana_Italic.ttf");
     font-style: italic;
 }
+
 @font-face {
     font-family: "Verdana";
     src: url("fonts/Verdana_Bold_Italic.ttf");
@@ -43,9 +46,17 @@ a {
 }
 
 .fa {
-    line-height: 1em;
-    padding-top: 0.2em;
+    line-height: 1.4em;
     text-decoration: none;
+    background: none;
+}
+
+.menu-item > .fa {
+    padding-left: 0.3em;
+}
+
+.tree-node > .fa {
+    line-height: 1.5em;
 }
 
 .panel-tool a {
@@ -60,7 +71,7 @@ a {
     color: #444;
 }
 
-.text-item>i {
+.text-item > i {
     padding-right: 0.5em;
 }
 
@@ -72,8 +83,4 @@ a {
 .tree-node-selected {
     background: #ddddff;
     color: inherit;
-}
-
-.menu-icon {
-    padding-left: 0.3em;
 }
