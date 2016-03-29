@@ -73,18 +73,15 @@ define([
             this.$Data = this.$('.verify-data');
             return this;
         },
-        canvasToContext: function(canvas) {
-            var context = canvas.getContext('2d');
-            var cw = canvas.width;
-            var ch = canvas.height;
-            var proportion = ch / cw;
-            ch = Math.floor(cw * proportion);
-            canvas.width = cw;
-            canvas.height = ch;
-            return context;
+        canvasToContext: function(video, $canvas) {
+            var canvas = $canvas.get(0);
+            var proportion = video.videoWidth / video.videoHeight;
+            canvas.width = Math.floor($canvas.height() * proportion);
+            canvas.height = $canvas.height();
+            return canvas.getContext('2d');
         },
         playVideo: function() {
-            var context = this.canvasToContext(this.$Document.get(0));
+            var context = this.canvasToContext(this.video, this.$Document);
             var self = this;
             this.timer = setInterval(function() {
                 if (self.paused) return false;
@@ -95,7 +92,7 @@ define([
             clearInterval(this.timer);
         },
         takePhoto: function() {
-            var context = this.canvasToContext(this.$Photo.get(0));
+            var context = this.canvasToContext(this.video, this.$Photo);
             context.drawImage(this.video, 0, 0, context.canvas.width, context.canvas.height);
         },
         toggleVideo: function() {

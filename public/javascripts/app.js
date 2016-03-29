@@ -91,10 +91,7 @@ _.mixin({
         for (var i = 0, l = blobBin.length; i < l; i++) {
             array.push(blobBin.charCodeAt(i));
         }
-        var blob = new Blob([new Uint8Array(array)], {
-            type: type
-        });
-        return new File([blob], filename, {
+        return new File([new Uint8Array(array)], filename, {
             type: type
         });
     },
