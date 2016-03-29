@@ -5,12 +5,13 @@
 # Перекодирование множества файлов от трех камер в один комлексный экран и передача его на webdav-сервер.
 # Требуется: bash, curl, ffmpeg
 #
-# Формат входных файлов: <timestamp>_<camera>-<session>.webm (^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}\.webm$)
+# Формат входных файлов: <timestamp>_<type>-<exam_id>-<user_id>.webm (^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}-[0-9a-f]\{24\}\.webm$)
 # timestamp - отметка времени создания файла в миллисекундах
-# camera - идентификатор камеры (camera1, camera2, screen)
-# session - идентификатор видеосессии по которому идет объединение в группы
+# type - тип видеопотока (camera или screen)
+# exam_id - идентификатор экзамена
+# user_id - идентификатор пользователя
 
-STORAGE_URL="http://192.168.0.10/webdav"
+STORAGE_URL="http://localhost/webdav/"
 STORAGE_USER="proctor"
 STORAGE_PASS="proctor"
 
@@ -76,7 +77,7 @@ write_blank_file()
 concat_video_group()
 {
     local video_group="$1"
-    ffmpeg_exec -f concat -i <(ls "${OUTPUT_DIR}"| grep -oe "^[0-9]\+_${video_group}$" | sort -n | xargs -I FILE echo "file ${OUTPUT_DIR%/}/FILE") -c copy "${OUTPUT_DIR}/${video_group}"
+    ffmpeg_exec -f concat -i <(ls "${OUTPUT_DIR}" | grep -oe "^[0-9]\+_${video_group}$" | sort -n | xargs -I FILE echo "file ${OUTPUT_DIR%/}/FILE") -c copy "${OUTPUT_DIR}/${video_group}"
     ls "${OUTPUT_DIR}" | grep -oe "^[0-9]\+_${video_group}$" | xargs -I FILE rm "${OUTPUT_DIR%/}/FILE"
 }
 
@@ -245,12 +246,20 @@ encode_video_session()
     # удалить пустые файлы из исходного каталога
     find "${STORAGE_DIR}" -empty -type f -exec rm {} \;
     # перекодировать видео по заданному формату
-    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${output_file%*.webm}" | while read video_file
+    ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-${output_file%*.webm}.*$" | while read video_file
     do
         scale_video_file "${STORAGE_DIR%/}/${video_file}" "${OUTPUT_DIR%/}/${video_file}" $(get_video_resolution "${video_file}")
     done
-    # составить видеогруппы
-    VIDEO_GROUPS="camera1-${output_file} camera2-${output_file} screen-${output_file}"
+    # получить видеогруппы
+    VIDEO_GROUPS=$(ls "${OUTPUT_DIR}" | grep "^[0-9]\+_" | cut -f2- -d_ | sort -u)
+    if [ $(echo ${VIDEO_GROUPS} | grep -c camera) -lt 2 ]
+    then
+        VIDEO_GROUPS="${VIDEO_GROUPS} camera-${output_file}"
+    fi
+    if [ $(echo ${VIDEO_GROUPS} | grep -c screen) -eq 0 ]
+    then
+        VIDEO_GROUPS="${VIDEO_GROUPS} screen-${output_file}"
+    fi
     # воссоздать недостающие видеофрагменты
     generate_marks | fragments_by_groups | write_fragments
     # объединить видеофрагменты по группам
@@ -274,9 +283,9 @@ encode_video_session()
 # input: pipe
 archiver()
 {
-    while read video_file
+    while read exam_id
     do
-        video_file="${video_file%*.webm}.webm"
+        video_file="${exam_id}.webm"
         echo ">>> Processing: ${video_file}"
         # проверить существование файла
         if ! is_exist "${video_file}"
@@ -300,4 +309,4 @@ archiver()
 }
 
 # получение списка сессий и запуск архивирования
-ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}.*\.webm$" | cut -f2 -d- | sort -u | archiver
+ls "${STORAGE_DIR}" | grep -e "^[0-9]\+_[a-z0-9]\+-[0-9a-f]\{24\}-[0-9a-f]\{24\}\.webm$" | cut -f2 -d- | sort -u | archiver
