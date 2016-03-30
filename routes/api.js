@@ -248,8 +248,8 @@ router.post('/edx/init', function(req, res) {
     });
 });
 /*
-// for tests
-router.all('/test', function(req, res) {
+// for debug
+router.all('/echo', function(req, res) {
     console.log(req.headers);
     console.log(req.body);
     res.json(req.body);

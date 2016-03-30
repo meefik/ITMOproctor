@@ -123,7 +123,7 @@ var db = {
         search: function(args, callback) {
             var query = {};
             if (args.data.role) query.role = Number(args.data.role);
-            var rows = args.data.rows ? Number(args.data.rows) : 50;
+            var rows = args.data.rows ? Number(args.data.rows) : 0;
             var page = args.data.page ? Number(args.data.page) - 1 : 0;
             // Query
             var User = require('./models/user');
@@ -310,7 +310,7 @@ var db = {
             Exam.find(query).sort('beginDate').exec(callback);
         },
         search: function(args, callback) {
-            var rows = args.data.rows ? Number(args.data.rows) : 50;
+            var rows = args.data.rows ? Number(args.data.rows) : 0;
             var page = args.data.page ? Number(args.data.page) - 1 : 0;
             var fromDate = args.data.from ? moment(args.data.from) : null;
             var toDate = args.data.to ? moment(args.data.to) : null;
@@ -749,7 +749,7 @@ var db = {
             }).sort('beginDate').exec(callback);
         },
         search: function(args, callback) {
-            var rows = args.data.rows ? Number(args.data.rows) : 50;
+            var rows = args.data.rows ? Number(args.data.rows) : 0;
             var page = args.data.page ? Number(args.data.page) - 1 : 0;
             var fromDate = args.data.from ? moment(args.data.from) : null;
             var toDate = args.data.to ? moment(args.data.to) : null;
