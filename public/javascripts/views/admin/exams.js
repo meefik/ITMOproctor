@@ -159,7 +159,7 @@ define([
                 pagination: true,
                 pageNumber: 1,
                 pageSize: 50,
-                pageList: [10, 50, 100, 250, 500, 1000],
+                pageList: [10, 50, 100, 250, 500, 1000, 10000],
                 rownumbers: true,
                 ctrlSelect: true,
                 url: 'admin/exams',
