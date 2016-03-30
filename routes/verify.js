@@ -22,7 +22,7 @@ router.post('/',
         };
         db.verify.submit(args, function(err, data) {
             if (!err && data) {
-                res.locals.examId = args.examId;
+                res.locals.examId = data.exam;
                 res.json(data);
                 next();
             }
