@@ -266,7 +266,7 @@ define([
             return tpl(data);
         },
         formatAction: function(val, row) {
-            if (row.resolution !== true && row.resolution !== false) return;
+            if (!row.startDate) return;
             var tpl = _.template(this.templates['action-item-tpl']);
             var data = {
                 i18n: i18n,
