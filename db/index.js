@@ -307,7 +307,7 @@ var db = {
                     }]
                 };
             }
-            Exam.find(query).sort('beginDate').exec(callback);
+            Exam.find(query).sort('beginDate subject').exec(callback);
         },
         search: function(args, callback) {
             var rows = args.data.rows ? Number(args.data.rows) : 0;
@@ -364,7 +364,7 @@ var db = {
             var Exam = require('./models/exam');
             Exam.count(query, function(err, count) {
                 if (err || !count) return callback(err);
-                Exam.find(query).sort('leftDate beginDate').skip(rows * page)
+                Exam.find(query).sort('leftDate beginDate subject').skip(rows * page)
                     .limit(rows).populate(opts).exec(function(err, data) {
                         callback(err, data, count);
                     });
