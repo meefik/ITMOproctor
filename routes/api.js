@@ -57,6 +57,15 @@ router.fetchExams = function(req, res, next) {
                         return next();
                     }
                     //console.log(json);
+                    var data = {};
+                    try {
+                        var path = require('path');
+                        data = require(path.join('..', config.get('api:openedu:data')));
+                    }
+                    catch (err) {
+                        logger.warn(err);
+                        //return next();
+                    }
                     var coursePattern = config.get('api:openedu:coursePattern');
                     var arr = [];
                     for (var k in json) {
@@ -64,12 +73,13 @@ router.fetchExams = function(req, res, next) {
                         var exams = json[k].exams || [];
                         for (var i = 0, li = exams.length; i < li; i++) {
                             if (exams[i].is_active && exams[i].is_proctored) {
+                                var tpl = data[exams[i].content_id] || {};
                                 arr.push({
                                     examId: exams[i].course_id + '#' + exams[i].id,
-                                    leftDate: json[k].start,
-                                    rightDate: json[k].end,
-                                    subject: json[k].name + ' (' + exams[i].exam_name + ')',
-                                    duration: exams[i].time_limit_mins
+                                    leftDate: tpl.leftDate || json[k].start,
+                                    rightDate: tpl.rightDate || json[k].end,
+                                    subject: tpl.subject || json[k].name + ' (' + exams[i].exam_name + ')',
+                                    duration: tpl.duration || exams[i].time_limit_mins
                                 });
                             }
                         }

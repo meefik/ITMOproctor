@@ -52,7 +52,8 @@
             "requestExams": "https://courses.openedu.ru/api/extended/user_proctored_exams/{username}/?format=json",
             "startExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
             "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}?format=json",
-            "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/"
+            "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/",
+            "data": "db/data.json"
         }
     },
     "rest": {
