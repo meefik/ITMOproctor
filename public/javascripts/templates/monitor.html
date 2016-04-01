@@ -10,11 +10,13 @@
         <table class="easyui-datagrid" data-options="toolbar:'#toolbar',singleSelect:true,border:false,fitColumns:true,fit:true,pagination:true">
         </table>
         <div id="toolbar">
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn1" data-options="plain:true,toggle:true,group:'g1',selected:true"><%- i18n.t('monitor.my') %></a> |
+            <a href="javascript:void(0);" class="easyui-linkbutton status-btn2" data-options="plain:true,toggle:true,group:'g1'"><%- i18n.t('monitor.all') %></a>
             <input name="date-from" class="easyui-datebox date-from" style="width:110px;" data-options="prompt:'<%- i18n.t('monitor.fromDatePrompt') %>'">
             <input name="date-to" class="easyui-datebox date-to" style="width:110px;" data-options="prompt:'<%- i18n.t('monitor.toDatePrompt') %>'">
             <input name="text-search" class="easyui-searchbox text-search" style="width:300px;" data-options="prompt:'<%- i18n.t('monitor.searchTextPrompt') %>'">
-            <span class="text-item" style="float:right;padding-right:10px;line-height:22px;"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">...</span></span>
-            <span class="text-item" style="float:right;padding-right:10px;line-height:22px;"><i class="fa fa-sun-o"></i><span class="panel-widget server-date">...</span></span>
+            <span class="text-item" style="float:right;padding-right:10px;"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">...</span></span>
+            <span class="text-item" style="float:right;padding-right:10px;"><i class="fa fa-sun-o"></i><span class="panel-widget server-date">...</span></span>
         </div>
     </div>
 </div>
@@ -33,6 +35,9 @@
 </script>
 <script type="text/template" id="student-item-tpl">
 <a href="javascript:void(0);" class="student-btn" data-id="<%- userId %>" title="<%- i18n.t('monitor.studentProfile') %>"><%- lastname || i18n.t('monitor.unknown') %> <%- firstname %> <%- middlename %></a>
+</script>
+<script type="text/template" id="inspector-item-tpl">
+<a href="javascript:void(0);" class="inspector-btn" data-id="<%- userId %>" title="<%- i18n.t('monitor.inspectorProfile') %>"><%- lastname || i18n.t('monitor.unknown') %> <%- firstname %> <%- middlename %></a>
 </script>
 <script type="text/template" id="subject-item-tpl">
 <a href="javascript:void(0);" class="exam-btn" data-id="<%- examId %>" title="<%- i18n.t('monitor.examInfo') %>"><%- subject %></a>

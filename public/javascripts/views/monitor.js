@@ -5,12 +5,13 @@ define([
     "i18n",
     "text!templates/monitor.html",
     "views/exam/viewer",
+    "views/profile/viewer",
     "views/profile/editor",
     "views/passport/viewer",
     "views/schedule/planner",
     "views/settings",
     "views/demo"
-], function(i18n, template, ExamViewer, ProfileEditor, PassportViewer, SchedulePlanner, SettingsView, DemoView) {
+], function(i18n, template, ExamViewer, ProfileViewer, ProfileEditor, PassportViewer, SchedulePlanner, SettingsView, DemoView) {
     console.log('views/monitor.js');
     var View = Backbone.View.extend({
         events: {
@@ -44,6 +45,7 @@ define([
             // Sub views
             this.view = {
                 exam: new ExamViewer(),
+                profile: new ProfileViewer(),
                 profileEditor: new ProfileEditor(),
                 passport: new PassportViewer(),
                 schedule: new SchedulePlanner(),
@@ -172,6 +174,20 @@ define([
                             return self.formatStudent(value, row, index);
                         }
                     }, {
+                        field: 'inspector',
+                        title: i18n.t('monitor.inspector'),
+                        width: 150,
+                        sortable: true,
+                        sorter: function(a, b) {
+                            if (!a || !b) return 0;
+                            var fa = a.lastname + ' ' + a.firstname + ' ' + a.middlename;
+                            var fb = b.lastname + ' ' + b.firstname + ' ' + b.middlename;
+                            return fa.localeCompare(fb);
+                        },
+                        formatter: function(value, row, index) {
+                            return self.formatInspector(value, row, index);
+                        }
+                    }, {
                         field: 'subject',
                         title: i18n.t('monitor.subject'),
                         width: 200,
@@ -296,7 +312,8 @@ define([
             var beginDate = moment(row.beginDate);
             var isAllow = function() {
                 var allow = false;
-                if (beginDate <= now && row.startDate && !row.stopDate) {
+                if (beginDate <= now && row.startDate && !row.stopDate &&
+                    app.isMe(row.inspector._id)) {
                     allow = true;
                 }
                 return allow;
@@ -338,9 +355,31 @@ define([
             var tpl = _.template(this.templates['student-item-tpl']);
             return tpl(data);
         },
+        formatInspector: function(val, row) {
+            if (!val) return;
+            var data = {
+                i18n: i18n,
+                userId: val._id,
+                lastname: val.lastname,
+                firstname: val.firstname,
+                middlename: val.middlename
+            };
+            var tpl = _.template(this.templates['inspector-item-tpl']);
+            return tpl(data);
+        },
         doSearch: function() {
+            var myself;
+            switch (true) {
+                case this.$StatusBtn1.linkbutton('options').selected:
+                    myself = true;
+                    break;
+                case this.$StatusBtn2.linkbutton('options').selected:
+                    myself = false;
+                    break;
+            }
             var dates = this.getDates();
             this.$Grid.datagrid('load', {
+                myself: myself,
                 from: dates.from,
                 to: dates.to
             });
@@ -354,6 +393,11 @@ define([
             var element = e.currentTarget;
             var userId = $(element).attr('data-id');
             this.view.passport.doOpen(userId);
+        },
+        doInspectorInfo: function(e) {
+            var element = e.currentTarget;
+            var userId = $(element).attr('data-id');
+            this.view.profile.doOpen(userId);
         },
         doStart: function(e) {
             var element = e.currentTarget;

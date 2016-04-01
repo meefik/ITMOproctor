@@ -346,7 +346,7 @@ var db = {
                 };
             }
             // If myself
-            if (args.userId) {
+            if (args.userId && String(args.data.myself) !== 'false') {
                 query.inspector = args.userId;
             }
             // Populate options
