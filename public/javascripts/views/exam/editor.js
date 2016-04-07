@@ -131,14 +131,14 @@ define([
             this.$BeginDate.datetimebox({
                 parser: parser,
                 formatter: function(date) {
-                    return moment(date).startOf('hour').format("DD.MM.YYYY HH:mm");
+                    return moment(date).startOf('minute').format("DD.MM.YYYY HH:mm");
                 }
             });
             this.$EndDate = this.$('.endDate');
             this.$EndDate.datetimebox({
                 parser: parser,
                 formatter: function(date) {
-                    return moment(date).startOf('hour').format("DD.MM.YYYY HH:mm");
+                    return moment(date).startOf('minute').format("DD.MM.YYYY HH:mm");
                 }
             });
             this.$StartDate = this.$('.startDate');
