@@ -234,8 +234,11 @@ define([
                 else {
                     if (item.value === "null" || item.value === "") item.value = null;
                     if (item.name == "duration" && item.value != null) item.value = parseInt(item.value);
-                    if (item.name == "leftDate" || item.name == "rightDate") {
+                    if (item.name == "leftDate") {
                         if (item.value) item.value = moment(item.value, 'DD.MM.YYYY');
+                    }
+                    if (item.name == "rightDate") {
+                        if (item.value) item.value = moment(item.value, 'DD.MM.YYYY').endOf('day');
                     }
                     if (item.name == "beginDate" || item.name == "endDate") {
                         if (item.value) item.value = moment(item.value, 'DD.MM.YYYY HH:mm');

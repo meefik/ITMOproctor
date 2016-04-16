@@ -480,7 +480,6 @@ var db = {
             });
         },
         schedule: function(args, callback) {
-            console.log(args);
             var Exam = require('./models/exam');
             var Schedule = require('./models/schedule');
             var interval = Number(config.get('schedule:interval'));
