@@ -52,25 +52,6 @@
 * [Структурная схема системы](https://drive.google.com/file/d/0B7YdZbqVWxzeSlFWZUl4S1RiaVE/view?usp=sharing)
 * [Диаграмма взаимодействия компонентов системы](https://drive.google.com/file/d/0B7YdZbqVWxzeRVVBanVFWlVNQ2M/view?usp=sharing)
 
-#### Запуск серверной части через Vagrant
-
-Необходимо установить:
-
-* [VirtualBox](https://www.virtualbox.org/)
-* [Vagrant](https://www.vagrantup.com/downloads.html)
-
-Выполнить команды для запуска бокса:
-```
-mkdir ~/itmoproctor
-cd ~/itmoproctor
-vagrant init itmo/itmoproctor
-vagrant up
-vagrant ssh
-```
-Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)
-
-На гостевой машине: [localhost:3000](http://localhost:3000)
-
 #### Развертывание системы на Ubuntu 14.04
 
 Установить MongoDB:
@@ -89,7 +70,7 @@ sudo apt-get install --yes nodejs
 
 Установить Kurento Media Server:
 ```
-echo "deb http://ubuntu.kurento.org trusty main" | sudo tee /etc/apt/sources.list.d/kurento.list
+echo "deb http://ubuntu.kurento.org trusty kms6" | sudo tee /etc/apt/sources.list.d/kurento.list
 wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install kurento-server
@@ -99,8 +80,14 @@ sudo apt-get install kurento-server
 ```
 git clone https://github.com/meefik/ITMOproctor.git
 cd ./ITMOproctor
-mv config-example.json config.json
+cp config-example.json config.json
 npm install
+```
+
+Добавление пользователей:
+```
+cd ./db
+node import.js users.json
 ```
 
 Запуск сервера, по умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000):
@@ -114,8 +101,21 @@ apt-get install tar zip unzip wget upx-ucl
 npm run-script build-app
 ```
 
-Добавление пользователей:
+#### Запуск серверной части через Vagrant
+
+Необходимо установить:
+
+* [VirtualBox](https://www.virtualbox.org/)
+* [Vagrant](https://www.vagrantup.com/downloads.html)
+
+Выполнить команды для запуска бокса:
 ```
-cd ./ITMOproctor/db
-node import.js users.json
+mkdir ~/itmoproctor
+cd ~/itmoproctor
+vagrant init itmo/itmoproctor
+vagrant up
+vagrant ssh
 ```
+Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)
+
+На гостевой машине: [localhost:3000](http://localhost:3000)

@@ -1,0 +1,10 @@
+{
+    "block-v1:University+ABCD+spring_2016+type@sequential+block@0123456789abcdef0123456789abcdef": {
+        "leftDate": "2016-04-04T00:00:00Z",
+        "rightDate": "2016-04-17T23:59:59Z"
+    },
+    "block-v1:University+ABCD+spring_2016+type@sequential+block@abcdef0123456789abcdef0123456789": {
+        "leftDate": "2016-04-11T00:00:00Z",
+        "rightDate": "2016-04-24T23:59:59Z"
+    }
+}
