@@ -64,8 +64,8 @@ sudo apt-get install -y mongodb-org
 
 Установить Node.js:
 ```
-curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash -
-sudo apt-get install --yes nodejs
+wget -O - https://deb.nodesource.com/setup_4.x | sudo bash -
+sudo apt-get install -y nodejs
 ```
 
 Установить Kurento Media Server:
