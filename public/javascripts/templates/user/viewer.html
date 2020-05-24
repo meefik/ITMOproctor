@@ -1,68 +1,68 @@
 <script type="text/template" id="main-tpl">
-<div class="dialog-container" style="padding: 5px"><%- i18n.t('loading') %></div>
+  <div class="dialog-container" style="padding: 5px"><%- i18n.t('loading') %></div>
 </script>
 <script type="text/template" id="dialog-tpl">
-<style type="text/css">
-.user-table td {
-    border-bottom: 1px solid #ddd;
-}
-</style>
-<table class="user-table" cellpadding="5" style="width:100%">
-    <tr>
-        <td style="width:35%"><strong><%- i18n.t('user.login') %>:</strong></td>
-        <td><%- user.username %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.provider.title') %>:</strong></td>
-        <td><%- i18n.t('user.provider.' + String(user.provider || null)) %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.role.title') %>:</strong></td>
-        <td><%- i18n.t('user.role.' + user.role) %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.active.title') %>:</strong></td>
-        <td><%- user.active ? i18n.t('user.active.true') : i18n.t('user.active.false') %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.fullname') %>:</strong></td>
-        <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.gender') %>:</strong></td>
-        <td><%- user.gender %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.birthday') %>:</strong></td>
-        <td><%- user.birthday %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.email') %>:</strong></td>
-        <td style="word-break:break-all;"><%- user.email %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.citizenship') %>:</strong></td>
-        <td><%- user.citizenship %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.documentType') %>:</strong></td>
-        <td><%- user.documentType %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.documentNumber') %>:</strong></td>
-        <td><%- user.documentNumber %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.documentIssueDate') %>:</strong></td>
-        <td><%- user.documentIssueDate %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.address') %>:</strong></td>
-        <td><%- user.address %></td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('user.description') %>:</strong></td>
-        <td><%- user.description %></td>
-    </tr>
-</table>
+  <style type="text/css">
+  .user-table td {
+      border-bottom: 1px solid #ddd;
+  }
+  </style>
+  <table class="user-table" cellpadding="5" style="width:100%">
+      <tr>
+          <td style="width:35%"><strong><%- i18n.t('user.login') %>:</strong></td>
+          <td><%- user.username %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.provider.title') %>:</strong></td>
+          <td><%- i18n.t('user.provider.' + String(user.provider || null)) %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.role.title') %>:</strong></td>
+          <td><%- i18n.t('user.role.' + user.role) %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.active.title') %>:</strong></td>
+          <td><%- user.active ? i18n.t('user.active.true') : i18n.t('user.active.false') %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.fullname') %>:</strong></td>
+          <td><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.gender') %>:</strong></td>
+          <td><%- user.gender %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.birthday') %>:</strong></td>
+          <td><%- user.birthday %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.email') %>:</strong></td>
+          <td style="word-break:break-all;"><%- user.email %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.citizenship') %>:</strong></td>
+          <td><%- user.citizenship %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.documentType') %>:</strong></td>
+          <td><%- user.documentType %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.documentNumber') %>:</strong></td>
+          <td><%- user.documentNumber %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.documentIssueDate') %>:</strong></td>
+          <td><%- user.documentIssueDate %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.address') %>:</strong></td>
+          <td><%- user.address %></td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('user.description') %>:</strong></td>
+          <td><%- user.description %></td>
+      </tr>
+  </table>
 </script>

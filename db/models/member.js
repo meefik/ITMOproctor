@@ -6,32 +6,32 @@ var Schema = mongoose.Schema;
 var User = require('./user').schema;
 var Exam = require('./exam').schema;
 var Member = new Schema({
-    // Экзамен
-    exam: {
-        type: Schema.Types.ObjectId,
-        ref: 'Exam'
-    },
-    // Пользователь
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    // Время подключения
-    time: {
-        type: Date
-    },
-    // IP-адрес
-    ip: {
-        type: String,
-        required: true
-    },
-    // Страна
-    country: {
-        type: String
-    },
-    // Город
-    city: {
-        type: String
-    }
+  // Экзамен
+  exam: {
+    type: Schema.Types.ObjectId,
+    ref: 'Exam'
+  },
+  // Пользователь
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  // Время подключения
+  time: {
+    type: Date
+  },
+  // IP-адрес
+  ip: {
+    type: String,
+    required: true
+  },
+  // Страна
+  country: {
+    type: String
+  },
+  // Город
+  city: {
+    type: String
+  }
 });
 module.exports = mongoose.model('Member', Member);

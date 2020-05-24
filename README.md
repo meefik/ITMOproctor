@@ -1,18 +1,20 @@
 # ITMOproctor
 
-Система дистанционного надзора ITMOproctor предназначена для сопровождения процесса территориально удаленного прохождения экзаменов, подтверждения личности испытуемого и подтверждения результатов его аттестации.
+Система дистанционного надзора ITMOproctor предназначена для сопровождения
+процесса территориально удаленного прохождения экзаменов, подтверждения личности
+испытуемого и подтверждения результатов его аттестации.
 
-Система поддежрививает интеграцию на уровне API со следующими LMS:
+Система поддерживает интеграцию на уровне API со следующими LMS:
 
-* [Национальная платформа открытого образования](https://openedu.ru)
-* [Система управления обучением Университета ИТМО](http://de.ifmo.ru)
+- [Национальная платформа открытого образования](https://openedu.ru)
+- [Система управления обучением Университета ИТМО](https://de.ifmo.ru)
 
-### Клиентская часть
+## Клиентская часть
 
 Системные требования:
 
 | Параметр                     | Минимальные требования          |
-|------------------------------|---------------------------------|
+| ---------------------------- | ------------------------------- |
 | Операционная система         | Windows XP+; OS X 10.7+; Linux  |
 | Процессор                    | Intel i3 1.2 ГГц или эквивалент |
 | Скорость сетевого соединения | 1 Мбит/c                        |
@@ -24,21 +26,21 @@
 
 Инструкции:
 
-* [Инструкция по использованию системы для студентов](https://docs.google.com/document/d/15fsEL3sHCGuJ9_rSuFprQXP--WXb9Ct-PzayBXvxWp0/edit?usp=sharing)
-* [Инструкция по использованию системы для инспекторов](https://docs.google.com/document/d/1EbW52RQLdgwkRwJa_HgzP-nqU_860bPQuMZZ-ns1Hmc/edit?usp=sharing)
+- [Инструкция по использованию системы для студентов](https://docs.google.com/document/d/15fsEL3sHCGuJ9_rSuFprQXP--WXb9Ct-PzayBXvxWp0/preview)
+- [Инструкция по использованию системы для инспекторов](https://docs.google.com/document/d/1EbW52RQLdgwkRwJa_HgzP-nqU_860bPQuMZZ-ns1Hmc/preview)
 
-### Серверная часть
+## Серверная часть
 
-* [Debian GNU/Linux](http://www.debian.org) или [Ubuntu](http://www.ubuntu.com)
-* [node.js](http://www.nodejs.org) и [nw.js](http://nwjs.io)
-* [MongoDB](http://mongodb.org)
-* [Kurento Media Server](http://kurento.com)
+- [Ubuntu](https://ubuntu.com)
+- [node.js](https://nodejs.org) и [nw.js](https://nwjs.io)
+- [MongoDB](https://www.mongodb.com)
+- [Kurento Media Server](https://www.kurento.org)
 
 Системные требования:
 
 | Параметр                      | Минимальные требования                           |
-|-------------------------------|--------------------------------------------------|
-| Операционная система          | Ubuntu 14.04 (64 бита)                           |
+| ----------------------------- | ------------------------------------------------ |
+| Операционная система          | Ubuntu 16.04 (64 бита)                           |
 | Процессор                     | AMD Six-Core Opteron 2427 2.2 ГГц или эквивалент |
 | Средняя нагрузка на процессор | 5% / сессия                                      |
 | Оперативная память            | 2 ГБ + 100 МБ / сессия                           |
@@ -49,73 +51,61 @@
 
 Документация:
 
-* [Структурная схема системы](https://drive.google.com/file/d/0B7YdZbqVWxzeSlFWZUl4S1RiaVE/view?usp=sharing)
-* [Диаграмма взаимодействия компонентов системы](https://drive.google.com/file/d/0B7YdZbqVWxzeRVVBanVFWlVNQ2M/view?usp=sharing)
+- [Открытая система прокторинга для дистанционного сопровождения онлайн-экзаменов](https://habr.com/ru/post/277147/)
 
-#### Развертывание системы на Ubuntu 14.04
+## Развертывание системы
 
 Установить MongoDB:
-```
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-sudo apt-get update
-sudo apt-get install -y mongodb-org
+
+```sh
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 58712A2291FA4AD5
+echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | tee /etc/apt/sources.list.d/mongodb-org.list
+apt-get update
+apt-get install -y mongodb-org --no-install-recommends
+systemctl enable mongod
 ```
 
 Установить Node.js:
-```
-wget -O - https://deb.nodesource.com/setup_4.x | sudo bash -
-sudo apt-get install -y nodejs
+
+```sh
+apt-get update
+apt-get install -y wget gnupg
+wget -O - https://deb.nodesource.com/setup_12.x | bash -
+apt-get install -y nodejs git build-essential python-dev --no-install-recommends
 ```
 
 Установить Kurento Media Server:
-```
-echo "deb http://ubuntu.kurento.org trusty kms6" | sudo tee /etc/apt/sources.list.d/kurento.list
-wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
-sudo apt-get update
-sudo apt-get install kurento-server
+
+```sh
+echo "deb [arch=amd64] http://ubuntu.openvidu.io/6.13.0 xenial kms6" | tee /etc/apt/sources.list.d/kurento.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5AFA7A83
+apt-get update
+apt-get install -y kurento-media-server ffmpeg curl --no-install-recommends
 ```
 
-Клонирование репозитория ITMOproctor и инициализация:
-```
+Запуск сервера, по умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000):
+
+```sh
 git clone https://github.com/meefik/ITMOproctor.git
 cd ./ITMOproctor
-cp config-example.json config.json
 npm install
+cp config-example.json config.json
+npm start
+```
+
+Сборка приложения под все архитектуры, архивы для загрузки приложения будут
+размещены в `public/dist`:
+
+```sh
+apt-get install tar zip unzip wget upx-ucl
+npm run build-app
 ```
 
 Добавление пользователей:
-```
+
+```sh
 cd ./db
 node import.js users.json
 ```
 
-Запуск сервера, по умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000):
-```
-npm start
-```
-
-Сборка приложения под все архитектуры, архивы для загрузки приложения будут размещены в public/dist:
-```
-apt-get install tar zip unzip wget upx-ucl
-npm run-script build-app
-```
-
-#### Запуск серверной части через Vagrant
-
-Необходимо установить:
-
-* [VirtualBox](https://www.virtualbox.org/)
-* [Vagrant](https://www.vagrantup.com/downloads.html)
-
-Выполнить команды для запуска бокса:
-```
-mkdir ~/itmoproctor
-cd ~/itmoproctor
-vagrant init itmo/itmoproctor
-vagrant up
-vagrant ssh
-```
-Веб-интерфейс на хост-машине: [localhost:3001](http://localhost:3001)
-
-На гостевой машине: [localhost:3000](http://localhost:3000)
+Для администратора логин / пароль: `admin / admin`

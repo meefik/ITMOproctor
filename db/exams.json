@@ -1,22 +1,26 @@
 {
-    "users": [],
-    "exams": [{
-        "examId": 1,
-        "subject": "Тестовый экзамен 1",
-        "leftDate": "2016-02-01T21:00:00.000Z",
-        "rightDate": "2016-05-01T21:00:00.000Z",
-        "duration": 30
-    }, {
-        "examId": 2,
-        "subject": "Тестовый экзамен 2",
-        "leftDate": "2016-02-01T21:00:00.000Z",
-        "rightDate": "2016-05-01T21:00:00.000Z",
-        "duration": 30
-    }, {
-        "examId": 3,
-        "subject": "Тестовый экзамен 3",
-        "leftDate": "2016-02-01T21:00:00.000Z",
-        "rightDate": "2016-05-01T21:00:00.000Z",
-        "duration": 30
-    }]
+  "users": [],
+  "exams": [
+    {
+      "examId": 1,
+      "subject": "Тестовый экзамен 1",
+      "leftDate": "2016-02-01T21:00:00.000Z",
+      "rightDate": "2016-05-01T21:00:00.000Z",
+      "duration": 30
+    },
+    {
+      "examId": 2,
+      "subject": "Тестовый экзамен 2",
+      "leftDate": "2016-02-01T21:00:00.000Z",
+      "rightDate": "2016-05-01T21:00:00.000Z",
+      "duration": 30
+    },
+    {
+      "examId": 3,
+      "subject": "Тестовый экзамен 3",
+      "leftDate": "2016-02-01T21:00:00.000Z",
+      "rightDate": "2016-05-01T21:00:00.000Z",
+      "duration": 30
+    }
+  ]
 }

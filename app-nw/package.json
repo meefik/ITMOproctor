@@ -18,7 +18,7 @@
       "url": "http://opensource.org/licenses/GPL-3.0"
   }],
   "main": "index.html",
-  "homepage": "https://proctor.ifmo.ru",
+  "homepage": "http://localhost:3000",
   "window": {
     "title": "ITMOproctor",
     "icon": "icon.png",

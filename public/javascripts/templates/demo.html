@@ -1,58 +1,61 @@
 <script type="text/template" id="main-tpl">
-<style type="text/css">
-.panel-webcam, 
-.panel-screen {
-    position: relative;
-    text-align: center;
-    height: 360px;
-}
-</style>
-<div class="easyui-tabs" data-options="border:false">
-    <div class="webcamera" title="<%- i18n.t('demo.webcamera') %>" style="padding:10px">
-        <div class="panel-webcam"></div>
-        <div style="text-align:right;padding-top:5px">
-            <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'"><%- i18n.t('demo.start') %></button>
-            <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'"><%- i18n.t('demo.stop') %></button>
-        </div>
-    </div>
-    <div class="screen" title="<%- i18n.t('demo.screen') %>" style="padding:10px">
-        <div class="panel-screen"></div>
-        <div style="text-align:right;padding-top:5px">
-            <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'"><%- i18n.t('demo.start') %></button>
-            <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'"><%- i18n.t('demo.stop') %></button>
-        </div>
-    </div>
-    <div class="network" title="<%- i18n.t('demo.network') %>" style="padding:10px">
-        <div class="panel-network" style="height:360px">
-            <%- i18n.t('demo.caption') %>.
-        </div>
-        <div style="text-align:right;padding-top:5px">
-            <button class="easyui-linkbutton networkcheck-btn" data-options="plain:true,iconCls:'fa fa-flash'"><%- i18n.t('demo.test') %></button>
-        </div>
-    </div>
-</div>
+  <style type="text/css">
+  .panel-webcam,
+  .panel-screen {
+      position: relative;
+      text-align: center;
+      height: 350px;
+  }
+  .panel-network {
+      height: 350px;
+  }
+  </style>
+  <div class="easyui-tabs" data-options="border:false">
+      <div class="webcamera" title="<%- i18n.t('demo.webcamera') %>" style="padding:10px">
+          <div class="panel-webcam"></div>
+          <div style="text-align:right;padding-top:5px">
+              <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'"><%- i18n.t('demo.start') %></button>
+              <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'"><%- i18n.t('demo.stop') %></button>
+          </div>
+      </div>
+      <div class="screen" title="<%- i18n.t('demo.screen') %>" style="padding:10px">
+          <div class="panel-screen"></div>
+          <div style="text-align:right;padding-top:5px">
+              <button class="easyui-linkbutton play-btn" data-options="plain:true,iconCls:'fa fa-play'"><%- i18n.t('demo.start') %></button>
+              <button class="easyui-linkbutton stop-btn" data-options="plain:true,iconCls:'fa fa-pause'"><%- i18n.t('demo.stop') %></button>
+          </div>
+      </div>
+      <div class="network" title="<%- i18n.t('demo.network') %>" style="padding:10px">
+          <div class="panel-network">
+              <%- i18n.t('demo.caption') %>.
+          </div>
+          <div style="text-align:right;padding-top:5px">
+              <button class="easyui-linkbutton networkcheck-btn" data-options="plain:true,iconCls:'fa fa-flash'"><%- i18n.t('demo.test') %></button>
+          </div>
+      </div>
+  </div>
 </script>
 <script type="text/template" id="network-tpl">
-<table cellpadding="5">
-    <tr>
-        <td><%- i18n.t('demo.ip') %>:</td>
-        <td><%- ip %></td>
-    </tr>
-    <tr>
-        <td><%- i18n.t('demo.location') %>:</td>
-        <td><%- country || "-" %>, <%- city || "-" %></td>
-    </tr>
-    <tr>
-        <td><%- i18n.t('demo.ping') %>:</td>
-        <td><%- ping %> мс</td>
-    </tr>
-    <tr>
-        <td><%- i18n.t('demo.tx') %>:</td>
-        <td style="color: <% if(tx < TX_MIN) { %>red<% } %><% if(tx >= TX_MIN) { %>green<% } %>"><%- tx %> Мбит/с</td>
-    </tr>
-    <tr>
-        <td><%- i18n.t('demo.rx') %>:</td>
-        <td style="color: <% if(rx < RX_MIN) { %>red<% } %><% if(rx >= RX_MIN) { %>green<% } %>"><%- rx %> Мбит/с</td>
-    </tr>
-</table>
+  <table cellpadding="5">
+      <tr>
+          <td><%- i18n.t('demo.ip') %>:</td>
+          <td><%- ip %></td>
+      </tr>
+      <tr>
+          <td><%- i18n.t('demo.location') %>:</td>
+          <td><%- country || "-" %>, <%- city || "-" %></td>
+      </tr>
+      <tr>
+          <td><%- i18n.t('demo.ping') %>:</td>
+          <td><%- ping %> мс</td>
+      </tr>
+      <tr>
+          <td><%- i18n.t('demo.tx') %>:</td>
+          <td style="color: <% if(tx < TX_MIN) { %>red<% } %><% if(tx >= TX_MIN) { %>green<% } %>"><%- tx %> Мбит/с</td>
+      </tr>
+      <tr>
+          <td><%- i18n.t('demo.rx') %>:</td>
+          <td style="color: <% if(rx < RX_MIN) { %>red<% } %><% if(rx >= RX_MIN) { %>green<% } %>"><%- rx %> Мбит/с</td>
+      </tr>
+  </table>
 </script>

@@ -5,40 +5,40 @@ var geoip = require('geoip-lite');
 // Generate 1 MB buffer
 var buffer = 'x';
 for (var i = 0; i < 20; i++) {
-    buffer += buffer;
+  buffer += buffer;
 }
 
 // Get server time
 router.get('/time', function(req, res) {
-    var data = {
-        serverTime: Date.now()
-    };
-    if (req.query.client) data.clientTime = Number(req.query.client);
-    if (data.clientTime) data.diff = data.serverTime - data.clientTime;
-    res.json(data);
+  var data = {
+    serverTime: Date.now()
+  };
+  if (req.query.client) data.clientTime = Number(req.query.client);
+  if (data.clientTime) data.diff = data.serverTime - data.clientTime;
+  res.json(data);
 });
 // Get ip info
 router.get('/ip', function(req, res) {
-    var ip = req.query.ip || req.ip;
-    var geo = geoip.lookup(ip) || {};
-    var data = {
-        ip: ip,
-        country: geo.country,
-        city: geo.city
-    };
-    res.json(data);
+  var ip = req.query.ip || req.ip;
+  var geo = geoip.lookup(ip) || {};
+  var data = {
+    ip: ip,
+    country: geo.country,
+    city: geo.city
+  };
+  res.json(data);
 });
 // Ping request
 router.get('/ping', function(req, res) {
-    res.end();
+  res.end();
 });
 // Speed test for get data
 router.post('/rx', function(req, res) {
-    res.set('Content-Type', 'application/octet-stream');
-    res.send(buffer);
+  res.set('Content-Type', 'application/octet-stream');
+  res.send(buffer);
 });
 // Speed test for post data
 router.post('/tx', function(req, res) {
-    res.end();
+  res.end();
 });
 module.exports = router;

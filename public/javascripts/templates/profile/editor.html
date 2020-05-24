@@ -1,55 +1,55 @@
 <script type="text/template" id="main-tpl">
-<div style="margin:5px;">
-    <div style="position:relative;margin:5px;float:left;">
-        <img class="avatar" src="images/avatar.png" alt="<%- i18n.t('user.photo') %>" style="border:1px solid lightgray;width:120px;height:160px;object-position:center;object-fit:cover;cursor:pointer;">
-        <div style="position:absolute;top:1px;right:1px;background-color:black;padding:4px;background:rgba(0,0,0,0.5);">
-            <a class="remove-attach" href="javascript:void(0)" style="color:white" title="<%- i18n.t('user.remove') %>">X</a>
-        </div>
-        <div style="font-size:10px;text-align:center;">
-            120 x 160
-        </div>
-    </div>
-    <form class="profile-form">
-        <table cellpadding="5">
-            <tr>
-                <td colspan="2">
-                    <%- i18n.t('user.fullname') %>:
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="text" name="lastname" class="easyui-textbox lastname" data-options="width:107,prompt:'<%- i18n.t('user.lastname') %>'" />
-                    <input type="text" name="firstname" class="easyui-textbox firstname" data-options="width:107,prompt:'<%- i18n.t('user.firstname') %>'" />
-                    <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:107,prompt:'<%- i18n.t('user.middlename') %>'" />
-                </td>
-            </tr>
-            <tr>
-                <td><%- i18n.t('user.gender') %>:</td>
-                <td>
-                    <select name="gender" class="easyui-combobox gender" data-options="width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.genderPrompt') %>'">
-                        <option value="<%- i18n.t('user.genders.male') %>"><%- i18n.t('user.genders.male') %></option>
-                        <option value="<%- i18n.t('user.genders.female') %>"><%- i18n.t('user.genders.female') %></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <%- i18n.t('user.birthday') %>:
-                </td>
-                <td>
-                    <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="prompt:'<%- i18n.t('user.birthdayPrompt') %>'">
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <%- i18n.t('user.email') %>:
-                </td>
-                <td>
-                    <input type="text" name="email" class="easyui-textbox email" data-options="width:200,prompt:'<%- i18n.t('user.emailPrompt') %>'" />
-                </td>
-            </tr>
-        </table>
-    </form>
-    <div class="easyui-progressbar attach-progress" data-options="width:150,height:18" style="display:none;position:absolute;left:15px;bottom:16px;z-index:10;"></div>
-</div>
+  <div style="margin:5px;">
+      <div style="position:relative;margin:5px;float:left;">
+          <img class="avatar" src="images/avatar.png" alt="<%- i18n.t('user.photo') %>" style="border:1px solid lightgray;width:120px;height:160px;object-position:center;object-fit:cover;cursor:pointer;">
+          <div style="position:absolute;top:1px;right:1px;background-color:black;padding:4px;background:rgba(0,0,0,0.5);">
+              <a class="remove-attach" href="javascript:void(0)" style="color:white" title="<%- i18n.t('user.remove') %>">X</a>
+          </div>
+          <div style="font-size:10px;text-align:center;">
+              120 x 160
+          </div>
+      </div>
+      <form class="profile-form">
+          <table cellpadding="5">
+              <tr>
+                  <td colspan="2">
+                      <%- i18n.t('user.fullname') %>:
+                  </td>
+              </tr>
+              <tr>
+                  <td colspan="2">
+                      <input type="text" name="lastname" class="easyui-textbox lastname" data-options="width:107,prompt:'<%- i18n.t('user.lastname') %>'" />
+                      <input type="text" name="firstname" class="easyui-textbox firstname" data-options="width:107,prompt:'<%- i18n.t('user.firstname') %>'" />
+                      <input type="text" name="middlename" class="easyui-textbox middlename" data-options="width:107,prompt:'<%- i18n.t('user.middlename') %>'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><%- i18n.t('user.gender') %>:</td>
+                  <td>
+                      <select name="gender" class="easyui-combobox gender" data-options="width:200,panelHeight:'auto',editable:false,prompt:'<%- i18n.t('user.genderPrompt') %>'">
+                          <option value="<%- i18n.t('user.genders.male') %>"><%- i18n.t('user.genders.male') %></option>
+                          <option value="<%- i18n.t('user.genders.female') %>"><%- i18n.t('user.genders.female') %></option>
+                      </select>
+                  </td>
+              </tr>
+              <tr>
+                  <td>
+                      <%- i18n.t('user.birthday') %>:
+                  </td>
+                  <td>
+                      <input name="birthday" class="easyui-datebox birthday" style="width:200px;" data-options="prompt:'<%- i18n.t('user.birthdayPrompt') %>'">
+                  </td>
+              </tr>
+              <tr>
+                  <td>
+                      <%- i18n.t('user.email') %>:
+                  </td>
+                  <td>
+                      <input type="text" name="email" class="easyui-textbox email" data-options="width:200,prompt:'<%- i18n.t('user.emailPrompt') %>'" />
+                  </td>
+              </tr>
+          </table>
+      </form>
+      <div class="easyui-progressbar attach-progress" data-options="width:150,height:18" style="display:none;position:absolute;left:15px;bottom:16px;z-index:10;"></div>
+  </div>
 </script>

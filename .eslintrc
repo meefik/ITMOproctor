@@ -1,0 +1,25 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "indent": ["error", 2],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"]
+  },
+  "ignorePatterns": ["node_modules/*", "bower_components/*"],
+  "globals": {
+    "app": true,
+    "define": true,
+    "moment": true,
+    "io": true,
+    "kurentoUtils": true,
+    "Backbone": true,
+    "Polyglot": true,
+    "$": true,
+    "_": true,
+    "Uint8Array": true
+  }
+}

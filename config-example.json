@@ -1,89 +1,91 @@
 {
-    "logger": {
-        "level": "debug",
-        "file": "./output.log"
+  "logger": {
+    "level": "debug",
+    "file": "./output.log"
+  },
+  "cookie": {
+    "secret": "its-a-secret",
+    "ttl": 14
+  },
+  "upload": {
+    "limit": 10
+  },
+  "schedule": {
+    "offset": 0,
+    "interval": 15
+  },
+  "mongoose": {
+    "uri": "mongodb://localhost:27017/proctor"
+  },
+  "ws": {
+    "uri": "ws://localhost:8888/kurento"
+  },
+  "recorder": {
+    "uri": "file:///tmp/"
+  },
+  "storage": {
+    "uri": "/tmp"
+  },
+  "auth": {
+    "openedu": {
+      "authorizationURL": "https://sso.openedu.ru/oauth2/authorize",
+      "tokenURL": "https://sso.openedu.ru/oauth2/access_token",
+      "userProfileURL": "https://sso.openedu.ru/users/me?format=json",
+      "clientID": "123-456-789",
+      "clientSecret": "its-a-secret",
+      "callbackURL": "http://localhost:3000/profile/openedu/callback"
     },
-    "cookie": {
-        "secret": "its-a-secret",
-        "ttl": 14
-    },
-    "upload": {
-        "limit": 10
-    },
-    "schedule": {
-        "offset": 0,
-        "interval": 15
-    },
-    "mongoose": {
-        "uri": "mongodb://localhost:27017/proctor"
-    },
-    "ws": {
-        "uri": "ws://localhost:8888/kurento"
-    },
-    "recorder": {
-        "uri": "file:///tmp/"
-    },
-    "storage": {
-        "uri": "http://localhost/webdav/",
-        "timeout": 10000,
-        "username": "proctor",
-        "password": "proctor"
-    },
-    "auth": {
-        "openedu": {
-            "authorizationURL": "https://sso.openedu.ru/oauth2/authorize",
-            "tokenURL": "https://sso.openedu.ru/oauth2/access_token",
-            "userProfileURL": "https://sso.openedu.ru/users/me?format=json",
-            "clientID": "123-456-789",
-            "clientSecret": "its-a-secret",
-            "callbackURL": "http://localhost:3000/profile/openedu/callback"
-        },
-        "ifmosso": {
-            "secretKey": "its-a-secret"
-        }
-    },
-    "api": {
-        "local": {
-            "template": "db/exams.json"
-        },
-        "openedu": {
-            "apiKey": "its-a-secret",
-            "coursePattern": ":ITMOUniversity",
-            "requestExams": "https://courses.openedu.ru/api/extended/user_proctored_exams/{username}/?format=json",
-            "startExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
-            "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}?format=json",
-            "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/",
-            "data": "db/data.json"
-        }
-    },
-    "rest": {
-        "access_token": {
-            "exam": {
-                "read": {
-                    "populate": [{
-                        "path": "inspector",
-                        "select": "username firstname lastname middlename"
-                    }, {
-                        "path": "student",
-                        "select": "username firstname lastname middlename birthday"
-                    }],
-                    "select": {
-                        "verified": 0
-                    }
-                }
-            },
-            "schedule": {
-                "read": {
-                    "populate": [{
-                        "path": "inspector",
-                        "select": "firstname lastname middlename"
-                    }],
-                    "select": false
-                },
-                "create": true,
-                "update": true,
-                "delete": true
-            }
-        }
+    "ifmosso": {
+      "secretKey": "its-a-secret"
     }
+  },
+  "api": {
+    "local": {
+      "template": "db/exams.json"
+    },
+    "openedu": {
+      "apiKey": "its-a-secret",
+      "coursePattern": ":ITMOUniversity",
+      "requestExams": "https://courses.openedu.ru/api/extended/user_proctored_exams/{username}/?format=json",
+      "startExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_launch_callback/start_exam/{examCode}",
+      "examStatus": "https://courses.openedu.ru/api/edx_proctoring/proctoring_poll_status/{examCode}?format=json",
+      "stopExam": "https://courses.openedu.ru/api/edx_proctoring/proctoring_review_callback/",
+      "data": "db/data.json"
+    }
+  },
+  "rest": {
+    "access_token": {
+      "exam": {
+        "read": {
+          "populate": [
+            {
+              "path": "inspector",
+              "select": "username firstname lastname middlename"
+            },
+            {
+              "path": "student",
+              "select": "username firstname lastname middlename birthday"
+            }
+          ],
+          "select": {
+            "verified": 0
+          }
+        }
+      },
+      "schedule": {
+        "read": {
+          "populate": [
+            {
+              "path": "inspector",
+              "select": "firstname lastname middlename"
+            }
+          ],
+          "select": false
+        },
+        "create": true,
+        "update": true,
+        "delete": true
+      }
+    }
+  }
 }

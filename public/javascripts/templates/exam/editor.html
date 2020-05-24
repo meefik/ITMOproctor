@@ -1,83 +1,83 @@
 <script type="text/template" id="main-tpl">
-<div class="exam-view" style="margin:5px;">
-    <form class="exam-form">
-        <table width="100%" cellpadding="5">
-            <tr>
-                <td style="width:40%"><strong><%- i18n.t('exam.subject') %>:</strong></td>
-                <td>
-                    <input type="text" name="subject" class="easyui-textbox subject" data-options="required:true,width:310,prompt:'<%- i18n.t('exam.subjectPrompt') %>',tipPosition:'bottom'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.identificator') %>:</strong></td>
-                <td>
-                    <input type="text" name="examId" class="easyui-textbox examId" data-options="width:310,prompt:'<%- i18n.t('exam.examIdPrompt') %>'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.code') %>:</strong></td>
-                <td>
-                    <input type="text" name="examCode" class="easyui-textbox examCode" data-options="width:310,prompt:'<%- i18n.t('exam.codePrompt') %>'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.dates') %>:</strong></td>
-                <td>
-                    <input name="leftDate" class="easyui-datebox leftDate" data-options="width:150,required:true,prompt:'<%- i18n.t('exam.leftDatePrompt') %>',tipPosition:'bottom'" /> 
-                    &nbsp;<input name="rightDate" class="easyui-datebox rightDate" data-options="width:150,required:true,prompt:'<%- i18n.t('exam.rightDatePrompt') %>',tipPosition:'bottom'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.planDates') %>:</strong></td>
-                <td>
-                    <input name="beginDate" class="easyui-datetimebox beginDate" data-options="width:150,prompt:'<%- i18n.t('exam.beginDatePrompt') %>'" /> 
-                    &nbsp;<input name="endDate" class="easyui-datetimebox endDate"data-options="width:150,prompt:'<%- i18n.t('exam.endDatePrompt') %>'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.factDates') %>:</strong></td>
-                <td>
-                    <input name="startDate" class="easyui-datetimebox startDate" data-options="width:150,prompt:'<%- i18n.t('exam.startDatePrompt') %>'" /> 
-                    &nbsp;<input name="stopDate" class="easyui-datetimebox stopDate" data-options="width:150,prompt:'<%- i18n.t('exam.stopDatePrompt') %>'" />
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.duration') %>:</strong></td>
-                <td>
-                    <input name="duration" class="easyui-numberspinner duration" data-options="width:80,required:true,min:1,tipPosition:'bottom',prompt:'<%- i18n.t('exam.durationPrompt') %>'"/>
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.student') %>:</strong></td>
-                <td>
-                    <input name="student" class="easyui-combobox student-list" data-options="panelHeight:'auto',panelMaxHeight:200,required:true,width:310,tipPosition:'bottom',prompt:'<%- i18n.t('exam.studentPrompt') %>'">
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.inspector') %>:</strong></td>
-                <td>
-                    <select name="inspector" class="easyui-combobox inspector-list" data-options="panelHeight:'auto',panelMaxHeight:200,width:310,prompt:'<%- i18n.t('exam.inspectorPrompt') %>'">
-                        <option value="null"><%- i18n.t('exam.unset') %></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.resolution') %>:</strong></td>
-                <td>
-                    <select name="resolution" class="easyui-combobox resolution" data-options="panelHeight:'auto',width:310,editable:false,prompt:'<%- i18n.t('exam.resolutionPrompt') %>'">
-                        <option value="null"><%- i18n.t('exam.missing') %></option>
-                        <option value="true"><%- i18n.t('exam.status.4') %></option>
-                        <option value="false"><%- i18n.t('exam.status.5') %></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td><strong><%- i18n.t('exam.comment') %>:</strong></td>
-                <td>
-                    <input type="text" name="comment" class="easyui-textbox comment" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('exam.commentPrompt') %>'" />
-                </td>
-            </tr>
-        </table>
-    </form>
-</div>
+  <div class="exam-view" style="margin:5px;">
+      <form class="exam-form">
+          <table width="100%" cellpadding="5">
+              <tr>
+                  <td style="width:40%"><strong><%- i18n.t('exam.subject') %>:</strong></td>
+                  <td>
+                      <input type="text" name="subject" class="easyui-textbox subject" data-options="required:true,width:310,prompt:'<%- i18n.t('exam.subjectPrompt') %>',tipPosition:'bottom'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.identificator') %>:</strong></td>
+                  <td>
+                      <input type="text" name="examId" class="easyui-textbox examId" data-options="width:310,prompt:'<%- i18n.t('exam.examIdPrompt') %>'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.code') %>:</strong></td>
+                  <td>
+                      <input type="text" name="examCode" class="easyui-textbox examCode" data-options="width:310,prompt:'<%- i18n.t('exam.codePrompt') %>'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.dates') %>:</strong></td>
+                  <td>
+                      <input name="leftDate" class="easyui-datebox leftDate" data-options="width:150,required:true,prompt:'<%- i18n.t('exam.leftDatePrompt') %>',tipPosition:'bottom'" />
+                      &nbsp;<input name="rightDate" class="easyui-datebox rightDate" data-options="width:150,required:true,prompt:'<%- i18n.t('exam.rightDatePrompt') %>',tipPosition:'bottom'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.planDates') %>:</strong></td>
+                  <td>
+                      <input name="beginDate" class="easyui-datetimebox beginDate" data-options="width:150,prompt:'<%- i18n.t('exam.beginDatePrompt') %>'" />
+                      &nbsp;<input name="endDate" class="easyui-datetimebox endDate"data-options="width:150,prompt:'<%- i18n.t('exam.endDatePrompt') %>'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.factDates') %>:</strong></td>
+                  <td>
+                      <input name="startDate" class="easyui-datetimebox startDate" data-options="width:150,prompt:'<%- i18n.t('exam.startDatePrompt') %>'" />
+                      &nbsp;<input name="stopDate" class="easyui-datetimebox stopDate" data-options="width:150,prompt:'<%- i18n.t('exam.stopDatePrompt') %>'" />
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.duration') %>:</strong></td>
+                  <td>
+                      <input name="duration" class="easyui-numberspinner duration" data-options="width:80,required:true,min:1,tipPosition:'bottom',prompt:'<%- i18n.t('exam.durationPrompt') %>'"/>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.student') %>:</strong></td>
+                  <td>
+                      <input name="student" class="easyui-combobox student-list" data-options="panelHeight:'auto',panelMaxHeight:200,required:true,width:310,tipPosition:'bottom',prompt:'<%- i18n.t('exam.studentPrompt') %>'">
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.inspector') %>:</strong></td>
+                  <td>
+                      <select name="inspector" class="easyui-combobox inspector-list" data-options="panelHeight:'auto',panelMaxHeight:200,width:310,prompt:'<%- i18n.t('exam.inspectorPrompt') %>'">
+                          <option value="null"><%- i18n.t('exam.unset') %></option>
+                      </select>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.resolution') %>:</strong></td>
+                  <td>
+                      <select name="resolution" class="easyui-combobox resolution" data-options="panelHeight:'auto',width:310,editable:false,prompt:'<%- i18n.t('exam.resolutionPrompt') %>'">
+                          <option value="null"><%- i18n.t('exam.missing') %></option>
+                          <option value="true"><%- i18n.t('exam.status.4') %></option>
+                          <option value="false"><%- i18n.t('exam.status.5') %></option>
+                      </select>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong><%- i18n.t('exam.comment') %>:</strong></td>
+                  <td>
+                      <input type="text" name="comment" class="easyui-textbox comment" data-options="width:310,height:56,multiline:true,prompt:'<%- i18n.t('exam.commentPrompt') %>'" />
+                  </td>
+              </tr>
+          </table>
+      </form>
+  </div>
 </script>

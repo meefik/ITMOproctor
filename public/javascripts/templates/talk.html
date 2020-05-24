@@ -1,54 +1,54 @@
 <script type="text/template" id="main-tpl">
-<style type="text/css">
-.panel-webcam, 
-.panel-screen {
-    overflow: hidden;
-    text-align: center;
-    position: relative;
-}
-.panel-screen {
-    display: none;
-}
-</style>
-<div class="easyui-layout" data-options="fit:true">
-    <div data-options="region:'north',border:false" style="margin-bottom:1px;">
-        <div class="easyui-panel" style="padding:5px;height:28px;" data-options="fit:true">
-            <span class="text-item"><i class="fa fa-tags"></i><span class="exam-subject">...</span></span>
-            <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
-        </div>
-    </div>
-    <div class="ws-content" data-options="region:'center',border:false">
-        <div class="easyui-layout" data-options="fit:true">
-            <div data-options="region:'north',border:false" class="ws-widget" style="height:50%">
-                <div class="easyui-layout" data-options="fit:true">
-                    <div data-options="region:'center',border:false" class="ws-widget">
-                        <div class="easyui-panel ws-panel panel-webcam" title="<%- i18n.t('webcamera.title') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true"></div>
-                        <div class="panel-screen"></div>
-                    </div>
-                    <div data-options="region:'east',border:false" class="ws-widget" style="width:35%">
-                        <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('members.title') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true"></div>
-                    </div>
-                </div>
-            </div>
-            <div data-options="region:'center',border:false" class="ws-widget">
-                <div class="easyui-panel ws-panel panel-chat" title="<%- i18n.t('chat.title') %>" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true"></div>
-            </div>
-        </div>
-    </div>
-    <div data-options="region:'south',border:false" style="margin-top:1px;">
-        <div class="easyui-panel" style="padding:5px;height:28px;overflow:hidden;" data-options="fit:true">
-            <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.connection') %>"><i class="fa fa-exchange"></i><span class="panel-widget network-widget" style="color:green"><%- i18n.t('talk.online') %></span></span>
-            <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.time') %>"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">00:00:00</span></span>
-            <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.duration') %>"><i class="fa fa-play"></i><span class="panel-widget duration-time">00:00:00</span></span>
-        </div>
-    </div>
-</div>
-<div id="main-menu" style="width:150px;">
-    <div name="exam" data-options="iconCls:'fa fa-tags'"><%- i18n.t('talk.exam') %></div>
-    <div class="menu-sep"></div>
-    <div name="passport" data-options="iconCls:'fa fa-user'"><%- i18n.t('talk.profile') %></div>
-    <div name="settings" data-options="iconCls:'fa fa-wrench'"><%- i18n.t('talk.settings') %></div>
-    <div class="menu-sep"></div>
-    <div name="disconnect" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('talk.disconnect') %></div>
-</div>
+  <style type="text/css">
+  .panel-webcam,
+  .panel-screen {
+      overflow: hidden;
+      text-align: center;
+      position: relative;
+  }
+  .panel-screen {
+      display: none;
+  }
+  </style>
+  <div class="easyui-layout" data-options="fit:true">
+      <div data-options="region:'north',border:false" style="margin-bottom:1px;">
+          <div class="easyui-panel" style="padding:5px;overflow:hidden;" data-options="fit:true">
+              <span class="text-item"><i class="fa fa-tags"></i><span class="exam-subject">...</span></span>
+              <span class="easyui-menubutton" data-options="menu:'#main-menu',iconCls:'fa fa-bars'" style="float:right"></span>
+          </div>
+      </div>
+      <div class="ws-content" data-options="region:'center',border:false">
+          <div class="easyui-layout" data-options="fit:true">
+              <div data-options="region:'north',border:false" class="ws-widget" style="height:50%">
+                  <div class="easyui-layout" data-options="fit:true">
+                      <div data-options="region:'center',border:false" class="ws-widget">
+                          <div class="easyui-panel ws-panel panel-webcam" title="<%- i18n.t('webcamera.title') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true"></div>
+                          <div class="panel-screen"></div>
+                      </div>
+                      <div data-options="region:'east',border:false" class="ws-widget" style="width:35%">
+                          <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('members.title') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true"></div>
+                      </div>
+                  </div>
+              </div>
+              <div data-options="region:'center',border:false" class="ws-widget">
+                  <div class="easyui-panel ws-panel panel-chat" title="<%- i18n.t('chat.title') %>" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true"></div>
+              </div>
+          </div>
+      </div>
+      <div data-options="region:'south',border:false" style="margin-top:1px;">
+          <div class="easyui-panel" style="padding:5px;overflow:hidden;" data-options="fit:true">
+              <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.connection') %>"><i class="fa fa-exchange"></i><span class="panel-widget network-widget" style="color:green"><%- i18n.t('talk.online') %></span></span>
+              <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.time') %>"><i class="fa fa-clock-o"></i><span class="panel-widget server-time">00:00:00</span></span>
+              <span class="easyui-tooltip text-item" title="<%- i18n.t('talk.duration') %>"><i class="fa fa-play"></i><span class="panel-widget duration-time">00:00:00</span></span>
+          </div>
+      </div>
+  </div>
+  <div id="main-menu" style="width:150px;">
+      <div name="exam" data-options="iconCls:'fa fa-tags'"><%- i18n.t('talk.exam') %></div>
+      <div class="menu-sep"></div>
+      <div name="passport" data-options="iconCls:'fa fa-user'"><%- i18n.t('talk.profile') %></div>
+      <div name="settings" data-options="iconCls:'fa fa-wrench'"><%- i18n.t('talk.settings') %></div>
+      <div class="menu-sep"></div>
+      <div name="disconnect" data-options="iconCls:'fa fa-sign-out'"><%- i18n.t('talk.disconnect') %></div>
+  </div>
 </script>

@@ -1,166 +1,166 @@
 <script type="text/template" id="main-tpl">
-<div class="easyui-layout" data-options="fit:true">
-    <div class="ws-content" data-options="region:'center',border:false">
-        <div class="easyui-layout" data-options="fit:true">
-            <div data-options="region:'center',border:false" style="height:60%">
-                <div class="easyui-layout" data-options="fit:true">
-                    <div data-options="region:'center',border:false" class="ws-widget" style="width:70%">
-                        <div class="easyui-panel ws-panel panel-video" title="<%- i18n.t('play.video') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true" style="text-align:center;overflow:hidden;">
-                            <video src="stream/<%- examId %>.webm" poster="images/webrtc.png" style="height:100%;width:auto;max-width:100%;" controls>
-                        </div>
-                    </div>
-                    <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
-                        <div class="easyui-panel ws-panel panel-data" title="<%- i18n.t('exam.title') %>" data-options="fit:true,iconCls:'fa fa-tags',maximizable:true">
-                            <span style="padding:5px"><%- i18n.t('loading') %></span>
-                        </div>
-                    </div>                    
-                </div>
-            </div>
-            <div data-options="region:'south',border:false" style="height:40%">
-                <div class="easyui-layout" data-options="fit:true">
-                    <div data-options="region:'west',border:false" class="ws-widget" style="width:35%">
-                        <div class="easyui-panel ws-panel panel-chat" title="<%- i18n.t('chat.title') %>" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true" style="padding:5px">
-                            <%- i18n.t('loading') %>
-                        </div>
-                    </div>
-                    <div data-options="region:'center',border:false" class="ws-widget" style="width:35%">
-                        <div class="easyui-panel ws-panel panel-notes" title="<%- i18n.t('notes.title') %>" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true" style="padding:5px">
-                            <%- i18n.t('loading') %>
-                        </div>
-                    </div>
-                    <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
-                        <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('members.title') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true" style="padding:5px">
-                            <%- i18n.t('loading') %>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  <div class="easyui-layout" data-options="fit:true">
+      <div class="ws-content" data-options="region:'center',border:false">
+          <div class="easyui-layout" data-options="fit:true">
+              <div data-options="region:'center',border:false" style="height:60%">
+                  <div class="easyui-layout" data-options="fit:true">
+                      <div data-options="region:'center',border:false" class="ws-widget" style="width:70%">
+                          <div class="easyui-panel ws-panel panel-video" title="<%- i18n.t('play.video') %>" data-options="fit:true,iconCls:'fa fa-video-camera',maximizable:true" style="text-align:center;overflow:hidden;">
+                              <video src="stream/<%- examId %>.webm" poster="images/webrtc.png" style="height:100%;width:auto;max-width:100%;" controls>
+                          </div>
+                      </div>
+                      <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
+                          <div class="easyui-panel ws-panel panel-data" title="<%- i18n.t('exam.title') %>" data-options="fit:true,iconCls:'fa fa-tags',maximizable:true">
+                              <span style="padding:5px"><%- i18n.t('loading') %></span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div data-options="region:'south',border:false" style="height:40%">
+                  <div class="easyui-layout" data-options="fit:true">
+                      <div data-options="region:'west',border:false" class="ws-widget" style="width:35%">
+                          <div class="easyui-panel ws-panel panel-chat" title="<%- i18n.t('chat.title') %>" data-options="fit:true,iconCls:'fa fa-comments-o',maximizable:true" style="padding:5px">
+                              <%- i18n.t('loading') %>
+                          </div>
+                      </div>
+                      <div data-options="region:'center',border:false" class="ws-widget" style="width:35%">
+                          <div class="easyui-panel ws-panel panel-notes" title="<%- i18n.t('notes.title') %>" data-options="fit:true,iconCls:'fa fa-check-square-o',maximizable:true" style="padding:5px">
+                              <%- i18n.t('loading') %>
+                          </div>
+                      </div>
+                      <div data-options="region:'east',border:false" class="ws-widget" style="width:30%">
+                          <div class="easyui-panel ws-panel panel-members" title="<%- i18n.t('members.title') %>" data-options="fit:true,iconCls:'fa fa-users',maximizable:true" style="padding:5px">
+                              <%- i18n.t('loading') %>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
 </script>
 <script type="text/template" id="data-tpl">
-<style type="text/css">
-.exam-table td {
-    border-bottom: 1px solid #ddd;
-}
-</style>
-<table class="exam-table" width="100%" cellpadding="5">
-    <tr>
-        <td style="width:35%"><strong><%- i18n.t('exam.subject') %>:</strong></td>
-        <td>
-            <%- exam.subject %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.identificator') %>:</strong></td>
-        <td>
-            <%- exam.courseId %> <%- exam.examId %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.code') %>:</strong></td>
-        <td>
-            <%- exam.examCode || i18n.t('exam.no') %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.dates') %>:</strong></td>
-        <td>
-            <%- i18n.t('exam.datesBetween', {from: moment(exam.leftDate).format('DD.MM.YYYY'), to: moment(exam.rightDate).format('DD.MM.YYYY')}) %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.duration') %>:</strong></td>
-        <td>
-            <% if(exam.duration) { %>
-                <%- i18n.t('exam.durationMinutes', {num: exam.duration}) %>
-            <% } else { %>
-                <%- i18n.t('exam.unknown') %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.begin') %>:</strong></td>
-        <td>
-            <% if(exam.beginDate) { %>
-                <%= moment(exam.beginDate).format('DD.MM.YYYY HH:mm') %>
-                <% if(exam.startDate) { %>
-                    (<%- moment(exam.startDate).format('HH:mm') %>)
-                <% } %>
-            <% } else { %>
-                <%- i18n.t('exam.noplan') %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.end') %>:</strong></td>
-        <td>
-            <% if(exam.endDate) { %>
-                <%= moment(exam.endDate).format('DD.MM.YYYY HH:mm') %>
-                <% if(exam.stopDate != null) { %>
-                    (<%- moment(exam.stopDate).format('HH:mm') %>)
-                <% } %>
-            <% } else { %>
-                <%- i18n.t('exam.noplan') %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.student') %>:</strong></td>
-        <td>
-            <% if(exam.student) { %>
-                <a class="student-link" href="javascript:void(0);"><%- exam.student.lastname || i18n.t('user.unknown') %> <%- exam.student.firstname %> <%- exam.student.middlename %></a>
-                <% if(exam.verified) { %>
-                    <% if(exam.verified.submit === true) %> <i class="fa fa-check" style="color:green"></i>
-                    <% if(exam.verified.submit === false) %> <i class="fa fa-times" style="color:red"></i>
-                <% } %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.inspector') %>:</strong></td>
-        <td>
-            <% if(exam.inspector) { %>
-                <%- exam.inspector.lastname %> <%- exam.inspector.firstname %> <%- exam.inspector.middlename %>
-            <% } else { %>
-                <%- i18n.t('exam.noset') %>
-            <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.resolution') %>:</strong></td>
-        <td>
-            <% if(exam.resolution === true) { %> <span style="color: green"><%- i18n.t('exam.status.4') %></span> <% } %>
-            <% if(exam.resolution === false) { %> <span style="color: red"><%- i18n.t('exam.status.5') %></span> <% } %>
-        </td>
-    </tr>
-    <tr>
-        <td><strong><%- i18n.t('exam.comment') %>:</strong></td>
-        <td><%- exam.comment %></td>
-    </tr>
-</table>
+  <style type="text/css">
+  .exam-table td {
+      border-bottom: 1px solid #ddd;
+  }
+  </style>
+  <table class="exam-table" width="100%" cellpadding="5">
+      <tr>
+          <td style="width:35%"><strong><%- i18n.t('exam.subject') %>:</strong></td>
+          <td>
+              <%- exam.subject %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.identificator') %>:</strong></td>
+          <td>
+              <%- exam.courseId %> <%- exam.examId %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.code') %>:</strong></td>
+          <td>
+              <%- exam.examCode || i18n.t('exam.no') %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.dates') %>:</strong></td>
+          <td>
+              <%- i18n.t('exam.datesBetween', {from: moment(exam.leftDate).format('DD.MM.YYYY'), to: moment(exam.rightDate).format('DD.MM.YYYY')}) %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.duration') %>:</strong></td>
+          <td>
+              <% if(exam.duration) { %>
+                  <%- i18n.t('exam.durationMinutes', {num: exam.duration}) %>
+              <% } else { %>
+                  <%- i18n.t('exam.unknown') %>
+              <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.begin') %>:</strong></td>
+          <td>
+              <% if(exam.beginDate) { %>
+                  <%= moment(exam.beginDate).format('DD.MM.YYYY HH:mm') %>
+                  <% if(exam.startDate) { %>
+                      (<%- moment(exam.startDate).format('HH:mm') %>)
+                  <% } %>
+              <% } else { %>
+                  <%- i18n.t('exam.noplan') %>
+              <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.end') %>:</strong></td>
+          <td>
+              <% if(exam.endDate) { %>
+                  <%= moment(exam.endDate).format('DD.MM.YYYY HH:mm') %>
+                  <% if(exam.stopDate != null) { %>
+                      (<%- moment(exam.stopDate).format('HH:mm') %>)
+                  <% } %>
+              <% } else { %>
+                  <%- i18n.t('exam.noplan') %>
+              <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.student') %>:</strong></td>
+          <td>
+              <% if(exam.student) { %>
+                  <a class="student-link" href="javascript:void(0);"><%- exam.student.lastname || i18n.t('user.unknown') %> <%- exam.student.firstname %> <%- exam.student.middlename %></a>
+                  <% if(exam.verified) { %>
+                      <% if(exam.verified.submit === true) %> <i class="fa fa-check" style="color:green"></i>
+                      <% if(exam.verified.submit === false) %> <i class="fa fa-times" style="color:red"></i>
+                  <% } %>
+              <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.inspector') %>:</strong></td>
+          <td>
+              <% if(exam.inspector) { %>
+                  <%- exam.inspector.lastname %> <%- exam.inspector.firstname %> <%- exam.inspector.middlename %>
+              <% } else { %>
+                  <%- i18n.t('exam.noset') %>
+              <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.resolution') %>:</strong></td>
+          <td>
+              <% if(exam.resolution === true) { %> <span style="color: green"><%- i18n.t('exam.status.4') %></span> <% } %>
+              <% if(exam.resolution === false) { %> <span style="color: red"><%- i18n.t('exam.status.5') %></span> <% } %>
+          </td>
+      </tr>
+      <tr>
+          <td><strong><%- i18n.t('exam.comment') %>:</strong></td>
+          <td><%- exam.comment %></td>
+      </tr>
+  </table>
 </script>
 <script type="text/template" id="messages-tpl">
-<% var colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'pink']; %>
-<% var styles = {}; %>
-<% _.each(messages, function(message, index, list){ %>
-    <% if(!styles[message.author._id]) styles[message.author._id] = colors[Object.keys(styles).length]; %>
-    <div style="padding-bottom:2px">
-        <span style="font-weight: bold;padding-right:.5em;color:<%- styles[message.author._id] %>"><%- moment(message.time).format('HH:mm') %> <%- message.author.lastname || i18n.t('user.unknown') %> <%- message.author.firstname ? message.author.firstname.charAt(0) + '.' : '' %><%- message.author.middlename ? message.author.middlename.charAt(0) + '.' : '' %>:</span><span><%= message.text %>
-        <% if(message.attach.length > 0) { %>
-            <% _.each(message.attach, function(element, index, list){ %>
-                <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="storage/<%- element.fileId %>"><%- element.filename %></a>
-            <% }); %>
-        <% } %>
-    </div>
-<% }); %>
+  <% var colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'pink']; %>
+  <% var styles = {}; %>
+  <% _.each(messages, function(message, index, list){ %>
+      <% if(!styles[message.author._id]) styles[message.author._id] = colors[Object.keys(styles).length]; %>
+      <div style="padding-bottom:2px">
+          <span style="font-weight: bold;padding-right:.5em;color:<%- styles[message.author._id] %>"><%- moment(message.time).format('HH:mm') %> <%- message.author.lastname || i18n.t('user.unknown') %> <%- message.author.firstname ? message.author.firstname.charAt(0) + '.' : '' %><%- message.author.middlename ? message.author.middlename.charAt(0) + '.' : '' %>:</span><span><%= message.text %>
+          <% if(message.attach.length > 0) { %>
+              <% _.each(message.attach, function(element, index, list){ %>
+                  <i class="fa fa-paperclip"></i>&nbsp;<a class="attach-link" href="storage/<%- element.fileId %>"><%- element.filename %></a>
+              <% }); %>
+          <% } %>
+      </div>
+  <% }); %>
 </script>
 <script type="text/template" id="members-tpl">
-<% _.each(members, function(member, index, list){ %>
-    <div style="padding-bottom:2px">
-        <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- member.user.lastname || i18n.t('user.unknown') %> <%- member.user.firstname %> <%- member.user.middlename %> (<%- i18n.t('user.role.' + member.user.role) %>)</div>
-        <div style="color:gray"><%- member.country || "-" %>, <%- member.city || "-" %> [IP: <%- member.ip %>]</div>
-    </div>
-<% }); %>
+  <% _.each(members, function(member, index, list){ %>
+      <div style="padding-bottom:2px">
+          <div style="font-weight:bold"><i class="fa fa-caret-right"></i> <%- member.user.lastname || i18n.t('user.unknown') %> <%- member.user.firstname %> <%- member.user.middlename %> (<%- i18n.t('user.role.' + member.user.role) %>)</div>
+          <div style="color:gray"><%- member.country || "-" %>, <%- member.city || "-" %> [IP: <%- member.ip %>]</div>
+      </div>
+  <% }); %>
 </script>

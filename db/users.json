@@ -1,165 +1,181 @@
 {
-    "user": [{
-        "username": "inspector1",
-        "password": "inspector1",
-        "salt": "secret",
-        "lastname": "Петров",
-        "firstname": "Петр",
-        "middlename": "Петрович",
-        "gender": "Мужской",
-        "birthday": "11.03.1982",
-        "email": "inspector1@example.com",
-        "role": 2,
-        "provider": "local",
-        "attach": [{
-            "fileId": "55a16f039d67a11969642654",
-            "filename": "avatar_boy.png"
-        }]
-    }, {
-        "username": "inspector2",
-        "password": "inspector2",
-        "salt": "secret",
-        "lastname": "Смирнова",
-        "firstname": "Евгения",
-        "middlename": "Владимировна",
-        "gender": "Женский",
-        "birthday": "02.07.1981",
-        "email": "inspector2@example.com",
-        "role": 2,
-        "provider": "local",
-        "attach": [{
-            "fileId": "55a16f039d67a11969642655",
-            "filename": "avatar_girl.png"
-        }]
-    }, {
-        "username": "inspector3",
-        "password": "inspector3",
-        "salt": "secret",
-        "lastname": "Иванова",
-        "firstname": "Евгения",
-        "middlename": "Александровна",
-        "gender": "Женский",
-        "birthday": "02.07.1981",
-        "email": "inspector3@example.com",
-        "role": 2,
-        "provider": "local",
-        "attach": [{
-            "fileId": "55a16f039d67a11969642656",
-            "filename": "avatar_girl.png"
-        }]
-    }, {
-        "username": "inspector4",
-        "password": "inspector4",
-        "salt": "secret",
-        "lastname": "Петров",
-        "firstname": "Иван",
-        "middlename": "Петрович",
-        "gender": "Мужской",
-        "birthday": "11.03.1982",
-        "email": "inspector4@example.com",
-        "role": 2,
-        "provider": "local",
-        "attach": [{
-            "fileId": "55a16f039d67a11969642657",
-            "filename": "avatar_boy.png"
-        }]
-    }, {
-        "username": "inspector5",
-        "password": "inspector5",
-        "salt": "secret",
-        "lastname": "Иванов",
-        "firstname": "Иван",
-        "middlename": "Петрович",
-        "gender": "Мужской",
-        "birthday": "11.03.1982",
-        "email": "inspector5@example.com",
-        "role": 2,
-        "provider": "local",
-        "attach": [{
-            "fileId": "55a16f039d67a11969642658",
-            "filename": "avatar_boy.png"
-        }]
-    }, {
-        "username": "student1",
-        "password": "student1",
-        "salt": "secret",
-        "lastname": "Иванов",
-        "firstname": "Александр",
-        "middlename": "Иванович",
-        "gender": "Мужской",
-        "birthday": "22.07.1992",
-        "email": "student1@example.com",
-        "role": 1,
-        "attach": [],
-        "citizenship": "РФ",
-        "documentType": "Паспорт",
-        "documentNumber": "1234 123456",
-        "documentIssueDate": "01.02.2004",
-        "provider": "local"
-    }, {
-        "username": "student2",
-        "password": "student2",
-        "salt": "secret",
-        "lastname": "Попов",
-        "firstname": "Сергей",
-        "middlename": "Иванович",
-        "gender": "Мужской",
-        "birthday": "12.09.1992",
-        "email": "student2@example.com",
-        "role": 1,
-        "attach": [],
-        "provider": "local"
-    }, {
-        "username": "student3",
-        "password": "student3",
-        "salt": "secret",
-        "lastname": "Иванов",
-        "firstname": "Сергей",
-        "middlename": "Иванович",
-        "gender": "Мужской",
-        "birthday": "12.09.1992",
-        "email": "student3@example.com",
-        "role": 1,
-        "attach": [],
-        "provider": "local"
-    }, {
-        "username": "student4",
-        "password": "student4",
-        "salt": "secret",
-        "lastname": "Попов",
-        "firstname": "Александр",
-        "middlename": "Иванович",
-        "gender": "Мужской",
-        "birthday": "12.09.1992",
-        "email": "student4@example.com",
-        "role": 1,
-        "attach": [],
-        "provider": "local"
-    }, {
-        "username": "student5",
-        "password": "student5",
-        "salt": "secret",
-        "lastname": "Попов",
-        "firstname": "Иван",
-        "middlename": "Сергеевич",
-        "gender": "Мужской",
-        "birthday": "12.09.1992",
-        "email": "student5@example.com",
-        "role": 1,
-        "attach": [],
-        "provider": "local"
-    }, {
-        "username": "admin",
-        "password": "admin",
-        "salt": "secret",
-        "lastname": "Админинстратор",
-        "firstname": "Системы",
-        "middlename": "",
-        "gender": "Мужской",
-        "birthday": "19.11.1986",
-        "email": "admin@example.com",
-        "role": 3,
-        "provider": "local",
-        "attach": []
-    }]
+  "user": [
+    {
+      "username": "inspector1",
+      "password": "inspector1",
+      "lastname": "Петров",
+      "firstname": "Петр",
+      "middlename": "Петрович",
+      "gender": "Мужской",
+      "birthday": "11.03.1982",
+      "email": "inspector1@example.com",
+      "role": 2,
+      "provider": "local",
+      "attach": [
+        {
+          "fileId": "55a16f039d67a11969642654",
+          "filename": "avatar_boy.png",
+          "mimetype": "image/png"
+        }
+      ]
+    },
+    {
+      "username": "inspector2",
+      "password": "inspector2",
+      "lastname": "Смирнова",
+      "firstname": "Евгения",
+      "middlename": "Владимировна",
+      "gender": "Женский",
+      "birthday": "02.07.1981",
+      "email": "inspector2@example.com",
+      "role": 2,
+      "provider": "local",
+      "attach": [
+        {
+          "fileId": "55a16f039d67a11969642655",
+          "filename": "avatar_girl.png",
+          "mimetype": "image/png"
+        }
+      ]
+    },
+    {
+      "username": "inspector3",
+      "password": "inspector3",
+      "lastname": "Иванова",
+      "firstname": "Евгения",
+      "middlename": "Александровна",
+      "gender": "Женский",
+      "birthday": "02.07.1981",
+      "email": "inspector3@example.com",
+      "role": 2,
+      "provider": "local",
+      "attach": [
+        {
+          "fileId": "55a16f039d67a11969642656",
+          "filename": "avatar_girl.png",
+          "mimetype": "image/png"
+        }
+      ]
+    },
+    {
+      "username": "inspector4",
+      "password": "inspector4",
+      "lastname": "Петров",
+      "firstname": "Иван",
+      "middlename": "Петрович",
+      "gender": "Мужской",
+      "birthday": "11.03.1982",
+      "email": "inspector4@example.com",
+      "role": 2,
+      "provider": "local",
+      "attach": [
+        {
+          "fileId": "55a16f039d67a11969642657",
+          "filename": "avatar_boy.png",
+          "mimetype": "image/png"
+        }
+      ]
+    },
+    {
+      "username": "inspector5",
+      "password": "inspector5",
+      "lastname": "Иванов",
+      "firstname": "Иван",
+      "middlename": "Петрович",
+      "gender": "Мужской",
+      "birthday": "11.03.1982",
+      "email": "inspector5@example.com",
+      "role": 2,
+      "provider": "local",
+      "attach": [
+        {
+          "fileId": "55a16f039d67a11969642658",
+          "filename": "avatar_boy.png",
+          "mimetype": "image/png"
+        }
+      ]
+    },
+    {
+      "username": "student1",
+      "password": "student1",
+      "lastname": "Иванов",
+      "firstname": "Александр",
+      "middlename": "Иванович",
+      "gender": "Мужской",
+      "birthday": "22.07.1992",
+      "email": "student1@example.com",
+      "role": 1,
+      "attach": [],
+      "citizenship": "РФ",
+      "documentType": "Паспорт",
+      "documentNumber": "1234 123456",
+      "documentIssueDate": "01.02.2004",
+      "provider": "local"
+    },
+    {
+      "username": "student2",
+      "password": "student2",
+      "lastname": "Попов",
+      "firstname": "Сергей",
+      "middlename": "Иванович",
+      "gender": "Мужской",
+      "birthday": "12.09.1992",
+      "email": "student2@example.com",
+      "role": 1,
+      "attach": [],
+      "provider": "local"
+    },
+    {
+      "username": "student3",
+      "password": "student3",
+      "lastname": "Иванов",
+      "firstname": "Сергей",
+      "middlename": "Иванович",
+      "gender": "Мужской",
+      "birthday": "12.09.1992",
+      "email": "student3@example.com",
+      "role": 1,
+      "attach": [],
+      "provider": "local"
+    },
+    {
+      "username": "student4",
+      "password": "student4",
+      "lastname": "Попов",
+      "firstname": "Александр",
+      "middlename": "Иванович",
+      "gender": "Мужской",
+      "birthday": "12.09.1992",
+      "email": "student4@example.com",
+      "role": 1,
+      "attach": [],
+      "provider": "local"
+    },
+    {
+      "username": "student5",
+      "password": "student5",
+      "lastname": "Попов",
+      "firstname": "Иван",
+      "middlename": "Сергеевич",
+      "gender": "Мужской",
+      "birthday": "12.09.1992",
+      "email": "student5@example.com",
+      "role": 1,
+      "attach": [],
+      "provider": "local"
+    },
+    {
+      "username": "admin",
+      "password": "admin",
+      "lastname": "Админинстратор",
+      "firstname": "Системы",
+      "middlename": "",
+      "gender": "Мужской",
+      "birthday": "19.11.1986",
+      "email": "admin@example.com",
+      "role": 3,
+      "provider": "local",
+      "attach": []
+    }
+  ]
 }

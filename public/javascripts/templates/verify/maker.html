@@ -1,41 +1,41 @@
 <script type="text/template" id="main-tpl">
-<div style="position:relative;margin:5px;">
-    <div style="position:absolute;top:1px;left:1px;background:rgba(0,0,0,0.5);">
-        <canvas class="verify-photo" style="width:160px;height:120px;border:1px solid lightgray;float:left;"></canvas>
-        <div class="verify-data" style="float:right;max-width:460px;color:white"></div>
-    </div>
-    <canvas class="verify-document" style="border:1px solid lightgray;width:640px;height:480px;"></canvas>
-</div>
+  <div style="position:relative;margin:5px;">
+      <div style="position:absolute;top:1px;left:1px;background:rgba(0,0,0,0.5);">
+          <canvas class="verify-photo" style="width:160px;height:120px;border:1px solid lightgray;float:left;"></canvas>
+          <div class="verify-data" style="float:right;max-width:460px;color:white"></div>
+      </div>
+      <canvas class="verify-document" style="border:1px solid lightgray;width:640px;height:480px;"></canvas>
+  </div>
 </script>
 <script type="text/template" id="verify-tpl">
-<table cellpadding="0" style="padding:0 5px">
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.fullname') %>:</td>
-        <td style="font-weight:bold"><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.gender') %>:</td>
-        <td style="font-weight:bold"><%- user.gender %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.birthday') %>:</td>
-        <td style="font-weight:bold"><%- user.birthday %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.citizenship') %>:</td>
-        <td style="font-weight:bold"><%- user.citizenship %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.documentType') %>:</td>
-        <td style="font-weight:bold"><%- user.documentType %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.documentNumber') %>:</td>
-        <td style="font-weight:bold"><%- user.documentNumber %></td>
-    </tr>
-    <tr>
-        <td style="padding-right:4px"><%- i18n.t('verify.documentIssueDate') %>:</td>
-        <td style="font-weight:bold"><%- user.documentIssueDate %></td>
-    </tr>
-</table>
+  <table cellpadding="0" style="padding:0 5px">
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.fullname') %>:</td>
+          <td style="font-weight:bold"><%- user.lastname %> <%- user.firstname %> <%- user.middlename %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.gender') %>:</td>
+          <td style="font-weight:bold"><%- user.gender %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.birthday') %>:</td>
+          <td style="font-weight:bold"><%- user.birthday %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.citizenship') %>:</td>
+          <td style="font-weight:bold"><%- user.citizenship %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.documentType') %>:</td>
+          <td style="font-weight:bold"><%- user.documentType %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.documentNumber') %>:</td>
+          <td style="font-weight:bold"><%- user.documentNumber %></td>
+      </tr>
+      <tr>
+          <td style="padding-right:4px"><%- i18n.t('verify.documentIssueDate') %>:</td>
+          <td style="font-weight:bold"><%- user.documentIssueDate %></td>
+      </tr>
+  </table>
 </script>
