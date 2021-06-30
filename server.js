@@ -5,16 +5,17 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var morgan = require('morgan');
-var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
 var config = require('nconf').file(CONFIG);
 var logger = require('./common/logger');
 var db = require('./db');
-var MongoStore = require('connect-mongo')(session);
-var mongoStore = new MongoStore({
-  mongooseConnection: db.mongoose.connection,
+var MongoStore = require('connect-mongo');
+var mongoStore = MongoStore.create({
+  clientPromise: new Promise(function(resolve) {
+    resolve(db.mongoose.connection.getClient());
+  }),
   ttl: config.get('cookie:ttl') * 24 * 60 * 60 // days
 });
 var app = express();
@@ -34,6 +35,7 @@ var io = require('socket.io')(server);
 var passportSocketIo = require('passport.socketio');
 var notify = io.of('/notify');
 app.enable('trust proxy');
+app.disable('x-powered-by');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public/images/favicon.png')));
@@ -42,12 +44,8 @@ app.use(
     stream: logger.stream
   })
 );
-app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    extended: false
-  })
-);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(
   session({
@@ -101,7 +99,6 @@ app.use(function(req, res, next) {
 if (config.get('logger:level') === 'debug') {
   // development error handler
   // will print stacktrace
-  db.mongoose.set('debug', logger.db);
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {

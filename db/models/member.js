@@ -3,8 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var User = require('./user').schema;
-var Exam = require('./exam').schema;
 var Member = new Schema({
   // Экзамен
   exam: {

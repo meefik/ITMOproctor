@@ -3,7 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var User = require('./user').schema;
 var Logger = new Schema({
   // Идентификатор пользователя (связь N:1)
   user: {

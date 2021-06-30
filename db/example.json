@@ -58,44 +58,6 @@
       ]
     },
     {
-      "username": "inspector4",
-      "password": "inspector4",
-      "lastname": "Петров",
-      "firstname": "Иван",
-      "middlename": "Петрович",
-      "gender": "Мужской",
-      "birthday": "11.03.1982",
-      "email": "inspector4@example.com",
-      "role": 2,
-      "provider": "local",
-      "attach": [
-        {
-          "fileId": "55a16f039d67a11969642657",
-          "filename": "avatar_boy.png",
-          "mimetype": "image/png"
-        }
-      ]
-    },
-    {
-      "username": "inspector5",
-      "password": "inspector5",
-      "lastname": "Иванов",
-      "firstname": "Иван",
-      "middlename": "Петрович",
-      "gender": "Мужской",
-      "birthday": "11.03.1982",
-      "email": "inspector5@example.com",
-      "role": 2,
-      "provider": "local",
-      "attach": [
-        {
-          "fileId": "55a16f039d67a11969642658",
-          "filename": "avatar_boy.png",
-          "mimetype": "image/png"
-        }
-      ]
-    },
-    {
       "username": "student1",
       "password": "student1",
       "lastname": "Иванов",
@@ -163,19 +125,29 @@
       "role": 1,
       "attach": [],
       "provider": "local"
+    }
+  ],
+  "exams": [
+    {
+      "examId": 1,
+      "subject": "Тестовый экзамен 1",
+      "leftDate": "2021-04-01T21:00:00.000Z",
+      "rightDate": "2022-04-01T21:00:00.000Z",
+      "duration": 60
     },
     {
-      "username": "admin",
-      "password": "admin",
-      "lastname": "Админинстратор",
-      "firstname": "Системы",
-      "middlename": "",
-      "gender": "Мужской",
-      "birthday": "19.11.1986",
-      "email": "admin@example.com",
-      "role": 3,
-      "provider": "local",
-      "attach": []
+      "examId": 2,
+      "subject": "Тестовый экзамен 2",
+      "leftDate": "2021-05-01T21:00:00.000Z",
+      "rightDate": "2022-05-01T21:00:00.000Z",
+      "duration": 60
+    },
+    {
+      "examId": 3,
+      "subject": "Тестовый экзамен 3",
+      "leftDate": "2021-06-01T21:00:00.000Z",
+      "rightDate": "2022-06-01T21:00:00.000Z",
+      "duration": 60
     }
   ]
 }

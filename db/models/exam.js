@@ -3,8 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var User = require('./user').schema;
-var Verify = require('./verify').schema;
 var Exam = new Schema({
   // Идентификатор экзамена в LMS
   examId: {

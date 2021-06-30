@@ -5,12 +5,16 @@ var fs = require('fs');
 var path = require('path');
 
 if (process.argv.length !== 3) {
-  console.error('Usage: node import.js <data.json>');
+  console.error('Usage: node import.js <example.json>');
   process.exit(1);
 }
 
 var gridFSBucket;
-mongoose.connect(config.get('mongoose:uri'));
+mongoose.connect(config.get('mongoose:uri'), {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 var conn = mongoose.connection;
 conn.on('error', function(err) {
   console.error('MongoDB connection error:', err.message);

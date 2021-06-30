@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var config = require('nconf');
 var ObjectID = mongoose.Types.ObjectId;
 mongoose.connect(config.get('mongoose:uri'), {
+  useCreateIndex: true,
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -1159,6 +1160,28 @@ conn.on('error', function(err) {
 conn.once('open', function() {
   logger.info('MongoDb is connected');
   db.gridFSBucket = new mongoose.mongo.GridFSBucket(conn.db);
+  var User = require('./models/user');
+  User.countDocuments({}, function(err, count) {
+    if (!count) {
+      User.create({
+        username: 'admin',
+        password: 'changeme',
+        lastname: 'Administrator',
+        role: 3,
+        provider: 'local'
+      });
+    }
+  });
 });
+
+if (config.get('logger:level') === 'debug') {
+  mongoose.set('debug', function(collectionName, method, query, doc) {
+    // LOG format: rooms.find({}) { sort: {}, fields: undefined }
+    logger.log({
+      level: 'debug',
+      message: collectionName + '.' + method + '(' + (query ? JSON.stringify(query) : '') + ') ' + JSON.stringify(doc)
+    });
+  });
+}
 db.mongoose = mongoose;
 module.exports = db;

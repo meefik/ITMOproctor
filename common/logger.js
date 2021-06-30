@@ -1,19 +1,18 @@
 var winston = require('winston');
+var format = winston.format;
 var config = require('nconf');
 
-var logger = new winston.Logger({
+function printFn(options) {
+  return options.timestamp + ' ' + options.level + ' ' + options.message;
+}
+
+var logger = winston.createLogger({
   level: config.get('logger:level'),
+  format: format.combine(format.timestamp(), format.colorize(), format.printf(printFn)),
   transports: [
     new winston.transports.Console({
-      timestamp: true,
-      colorize: true
-    })
-  ],
-  exceptionHandlers: [
-    new winston.transports.Console({
-      timestamp: true,
-      handleExceptions: true,
-      humanReadableUnhandledException: true
+      stderrLevels: ['error'],
+      handleExceptions: true
     })
   ],
   exitOnError: false
@@ -23,17 +22,6 @@ logger.stream = {
   write: function(message) {
     logger.info(message.slice(0, -1));
   }
-};
-
-logger.db = function(collectionName, method, query, doc) {
-  // LOG format: Mongoose: exams.find({ student: ObjectId("55633e000cf842a221a37ae3") }) { sort: { beginDate: 1 }, fields: undefined }
-  logger.debug(
-    'Mongoose: %s.%s(%s) %s',
-    collectionName,
-    method,
-    JSON.stringify(query),
-    JSON.stringify(doc)
-  );
 };
 
 module.exports = logger;

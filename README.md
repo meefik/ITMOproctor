@@ -13,16 +13,16 @@
 
 Системные требования:
 
-| Параметр                     | Минимальные требования          |
-| ---------------------------- | ------------------------------- |
-| Операционная система         | Windows XP+; OS X 10.7+; Linux  |
-| Процессор                    | Intel i3 1.2 ГГц или эквивалент |
-| Скорость сетевого соединения | 1 Мбит/c                        |
-| Свободное место на диске     | 100 МБ                          |
-| Свободная оперативная память | 1 ГБ                            |
-| Разрешение веб-камеры        | 640x480                         |
-| Частота кадров веб-камеры    | 15 кадров/с                     |
-| Разрешение экрана монитора   | 1280x720                        |
+| Параметр                     | Минимальные требования           |
+| ---------------------------- | -------------------------------- |
+| Операционная система         | Windows 7+; macOS 10.12+; Linux  |
+| Процессор                    | Intel i3 1.2 ГГц или эквивалент  |
+| Скорость сетевого соединения | 1 Мбит/c                         |
+| Свободное место на диске     | 500 МБ                           |
+| Свободная оперативная память | 1 ГБ                             |
+| Разрешение веб-камеры        | 640x480                          |
+| Частота кадров веб-камеры    | 15 кадров/с                      |
+| Разрешение экрана монитора   | 1280x720                         |
 
 Инструкции:
 
@@ -40,7 +40,7 @@
 
 | Параметр                      | Минимальные требования                           |
 | ----------------------------- | ------------------------------------------------ |
-| Операционная система          | Ubuntu 16.04 (64 бита)                           |
+| Операционная система          | Ubuntu 18.04 (64 бита)                           |
 | Процессор                     | AMD Six-Core Opteron 2427 2.2 ГГц или эквивалент |
 | Средняя нагрузка на процессор | 5% / сессия                                      |
 | Оперативная память            | 2 ГБ + 100 МБ / сессия                           |
@@ -55,16 +55,6 @@
 
 ## Развертывание системы
 
-Установить MongoDB:
-
-```sh
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 58712A2291FA4AD5
-echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | tee /etc/apt/sources.list.d/mongodb-org.list
-apt-get update
-apt-get install -y mongodb-org --no-install-recommends
-systemctl enable mongod
-```
-
 Установить Node.js:
 
 ```sh
@@ -74,16 +64,30 @@ wget -O - https://deb.nodesource.com/setup_12.x | bash -
 apt-get install -y nodejs git build-essential python-dev --no-install-recommends
 ```
 
+Установить MongoDB:
+
+```sh
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+echo "deb [arch=amd64,arm64] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+apt-get update
+apt-get install -y mongodb-org --no-install-recommends
+systemctl enable mongod
+```
+
 Установить Kurento Media Server:
 
 ```sh
-echo "deb [arch=amd64] http://ubuntu.openvidu.io/6.13.0 xenial kms6" | tee /etc/apt/sources.list.d/kurento.list
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5AFA7A83
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5AFA7A83
+source /etc/lsb-release
+sudo tee "/etc/apt/sources.list.d/kurento.list" >/dev/null <<EOF
+# Kurento Media Server - Release packages
+deb [arch=amd64] http://ubuntu.openvidu.io/6.16.0 $DISTRIB_CODENAME kms6
+EOF
 apt-get update
 apt-get install -y kurento-media-server ffmpeg curl --no-install-recommends
 ```
 
-Запуск сервера, по умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000):
+Запустить сервер:
 
 ```sh
 git clone https://github.com/meefik/ITMOproctor.git
@@ -93,19 +97,18 @@ cp config-example.json config.json
 npm start
 ```
 
-Сборка приложения под все архитектуры, архивы для загрузки приложения будут
-размещены в `public/dist`:
+Собрать декстоп-приложение под все архитектуры:
 
 ```sh
 apt-get install tar zip unzip wget upx-ucl
 npm run build-app
 ```
 
-Добавление пользователей:
+Архивы для загрузки приложения будут размещены в `public/dist`.
+Изменить адрес страртовой страницы приложения можно в файле `app-nw/package.json`, поле `homepage`.
 
-```sh
-cd ./db
-node import.js users.json
-```
+## Вход в систему
 
-Для администратора логин / пароль: `admin / admin`
+По умолчанию сервер доступен по адресу [localhost:3000](http://localhost:3000).
+
+Для администратора логин / пароль: `admin / changeme`

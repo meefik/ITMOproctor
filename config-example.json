@@ -1,7 +1,6 @@
 {
   "logger": {
-    "level": "debug",
-    "file": "./output.log"
+    "level": "debug"
   },
   "cookie": {
     "secret": "its-a-secret",

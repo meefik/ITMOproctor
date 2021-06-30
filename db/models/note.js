@@ -3,8 +3,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Exam = require('./exam').schema;
-var User = require('./user').schema;
 var Attach = require('./attach').schema;
 var Note = new Schema({
   // Идентификатор экзамена (связь N:1)
