@@ -259,6 +259,9 @@ require([
     isAuth: function() {
       return this.profile.has('username');
     },
+    isRole: function(role) {
+      return this.profile.get('role') === role;
+    },
     isMe: function(id) {
       return this.profile.get('_id') === id;
     },

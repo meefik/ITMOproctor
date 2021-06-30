@@ -350,7 +350,7 @@ define([
           beginDate <= now &&
           row.startDate &&
           !row.stopDate &&
-          app.isMe(row.inspector._id)
+          (app.isMe(row.inspector._id) || app.isRole(3))
         ) {
           allow = true;
         }
