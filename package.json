@@ -48,7 +48,7 @@
     "passport.socketio": "^3.7.0",
     "request": "^2.88.2",
     "serve-favicon": "^2.5.0",
-    "socket.io": "^4.1.2",
+    "socket.io": "^4.5.3",
     "urlify": "^0.3.6",
     "winston": "^3.3.3"
   },
