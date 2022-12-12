@@ -31,7 +31,7 @@
     "connect-mongo": "^4.4.1",
     "cookie-parser": "^1.4.5",
     "ejs": "^3.1.6",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.17.2",
     "geoip-lite": "^1.4.2",
     "kurento-client": "^6.16.0",
