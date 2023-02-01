@@ -36,7 +36,7 @@
     "geoip-lite": "^1.4.2",
     "kurento-client": "^6.16.0",
     "moment": "^2.29.1",
-    "mongoose": "^5.13.0",
+    "mongoose": "^5.13.15",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "nconf": "^0.11.3",
